@@ -1,16 +1,34 @@
-# Autonomy Lab Self-Drive - IGVC
-Our monorepo!
-Please organize all material into folders named for their category. Examples: controls, drivebywire, manuals, etc.
-Branch and PR - this is shared, so only update master when needed.
+# IGVC selfdrive monorepo
 
-This is our *internal* monorepo. We'll have a public-facing repo for open source later.
+Root directory structure:
+
+```
+selfdrive/
+          can/    - CAN definitions and tools
+          common/ - Common libraries 
+          dbw/    - Drive-by-wire firmware, watchdog, UI, etc
+          ros/    - ROS environment, packages
+          tools/  - Miscellaneous tools and resources
+```
 
 ------------------------------------------------------------------------------
-*All material here is considered proprietary and confidential*
-```
-  There are materials and documents in this repo that are not meant to be released publicly, 
-  and may not be openly available. 
-  
-  This includes service manuals, etc. Do not share any material from here without permission.
-```
-  ----------------------------------------------------------------------------
+
+## Workflow
+
+To keep a clean history and functional repo, here are the steps to follow:
+
+1. Create an issue for what you are trying to address.
+2. Create a merge request (which will create a branch for you). Make sure
+   that the issue number (e.g. #1) is in the title.
+3. Once done with the changes, get someone to review your code.
+4. Merge to master; squash unless you have a reason not to.
+
+## Things to note
+
+- Use git mv instead of mv. If you see changes that are renaming files but
+  have them as deleted and recreated files, ask the author to fix them before
+  approving. This will be obvious to see.
+- Add CI and tests for code wherever possible.
+- Don't publish the code in this repo; we will be making strategically timed
+  source releases. This is to protect our competitive advantage before the
+  competition and to protect any development signing keys we may keep here.
