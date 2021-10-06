@@ -1,8 +1,5 @@
 {
     "build": {
-      "arduino":{
-        "ldscript": "esp32_out.ld"
-      },
       "core": "esp32",
       "f_cpu": "240000000L",
       "f_flash": "40000000L",
@@ -17,7 +14,7 @@
       "can"
     ],
     "debug": {
-      "openocd_board": "esp-wroom-32.cfg"
+      "openocd_target": "esp32.cfg"
     },
     "frameworks": [
       "espidf"
