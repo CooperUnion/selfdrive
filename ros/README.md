@@ -17,13 +17,16 @@ printenv | grep ROS
 http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment
 - make sure you source catkin workspace
 ```bash
+catkin_make
+```
+```
 # inside catkin_ws
 source devel/setup.zsh # or setup.bash
 ```
 verify it worked by running 
 ```
 echo $ROS_PACKAGE_PATH
-# you should get something like {your-catkin-path}/catkin_ws/src:/opt/ros/kinetic/share
+# you should get something like {your-catkin-path}/catkin_ws/src:/opt/ros/noetic/share
 ```
 
 ### CARLA ROS Bridge install
