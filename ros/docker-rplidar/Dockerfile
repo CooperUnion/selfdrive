@@ -1,5 +1,7 @@
 FROM ros:noetic-ros-base
 
+SHELL ["/bin/bash", "-c"]
+
 WORKDIR /app
 
 RUN mkdir -p ros_ws/src &&\
