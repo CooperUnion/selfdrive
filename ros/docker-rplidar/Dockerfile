@@ -4,6 +4,8 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 
+RUN apt update && apt install -y git
+
 RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/Slamtec/rplidar_ros.git ros_ws/src/rplidar_ros
 

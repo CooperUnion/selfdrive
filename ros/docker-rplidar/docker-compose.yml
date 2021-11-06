@@ -1,22 +1,23 @@
 version: '3'
-services:
-	master:
-		image: ros:noetic-ros-core-focal
-		container_name: master
-		tty: true
-		environment:
-			- 'ROS_IP=master'
-			- 'ROS_MASTER_URI=http://master:11311'
-		restart: unless-stopped
-		command: stdbuf -o L roscore
 
-	rplidar:
-		build: .
-		container_name: rplidar
-		tty: true
-		environment:
-			- 'ROS_IP=rplidar'
-			- 'ROS_MASTER_URI=http://master:11311'
-		devices:
-			- '/dev/ttyUSB0:/dev/ttyUSB0'
-		command: roslaunch rplidar_ros rplidar_a2.launch
+services:
+    master:
+        image: ros:noetic-ros-core-focal
+        container_name: master
+        tty: true
+        environment:
+            - 'ROS_IP=master'
+            - 'ROS_MASTER_URI=http://master:11311'
+        restart: unless-stopped
+        command: stdbuf -o L roscore
+
+    rplidar:
+        build: .
+        container_name: rplidar
+        tty: true
+        environment:
+            - 'ROS_IP=rplidar'
+            - 'ROS_MASTER_URI=http://master:11311'
+        devices:
+            - '/dev/ttyUSB0:/dev/ttyUSB0'
+        command: roslaunch rplidar_ros rplidar.launch
