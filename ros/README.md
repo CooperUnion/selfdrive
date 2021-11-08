@@ -1,4 +1,9 @@
 # ROS Environment
+## Test RPLidar
+```
+docker-compose up -d master rplidar
+```
+
 ### ROS environment install
 
 ROS environment install:
