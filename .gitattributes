@@ -1,2 +1,5 @@
 /manuals/GEM_e2_service_manual_2016-2019.pdf filter=lfs diff=lfs merge=lfs -text
 /tools/manuals/GEM_e2_service_manual_2016-2019.pdf filter=lfs diff=lfs merge=lfs -text
+/cad/encoderMount/EncoderMountV1.SLDASM filter=lfs diff=lfs merge=lfs -text
+/cad/encoderMount/EncoderMountV2.SLDASM filter=lfs diff=lfs merge=lfs -text
+/cad/encoderMount/EncoderMountV2.zip filter=lfs diff=lfs merge=lfs -text
