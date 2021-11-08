@@ -25,9 +25,6 @@ To keep a clean history and functional repo, here are the steps to follow:
 
 ## Things to note
 
-- Use git mv instead of mv. If you see changes that are renaming files but
-  have them as deleted and recreated files, ask the author to fix them before
-  approving. This will be obvious to see.
 - Add CI and tests for code wherever possible.
 - Don't publish the code in this repo; we will be making strategically timed
   source releases. This is to protect our competitive advantage before the
