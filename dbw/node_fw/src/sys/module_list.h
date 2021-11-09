@@ -3,7 +3,7 @@
  * anywhere else and does not have include guards.
  */ 
 
-#include "sys/tasking/task_glue.h"
+#include "sys/task_glue.h"
 
 /*
  * List an extern definition for each module's struct rate_tasks.
