@@ -1,4 +1,4 @@
-#include "sys/tasking/tasking.h"
+#include "sys/tasking.h"
 
 #include <driver/timer.h>
 #include <freertos/FreeRTOS.h>
@@ -6,15 +6,23 @@
 #include <freertos/semphr.h>
 
 #include "common.h"
-#include "sys/tasking/module_list.h"
+#include "sys/module_list.h"
+#include "sys/watchdog.h"
 
 // ######        DEFINES        ###### //
 
 #define TIMER_GROUP 0, 0
+#define TASK_STACK_SIZE 4000
 
 // ######      PROTOTYPES       ###### //
 
 static void create_tasking_interrupt();
+
+static IRAM_ATTR void module_runner_1Hz();
+static IRAM_ATTR void module_runner_10Hz();
+static IRAM_ATTR void module_runner_100Hz();
+static IRAM_ATTR void module_runner_1kHz();
+
 static bool IRAM_ATTR task_granter(void* unused);
 
 // ######     PRIVATE DATA      ###### //
@@ -36,6 +44,8 @@ static SemaphoreHandle_t sem_1kHz = NULL;
 static bool IRAM_ATTR task_granter(void* unused)
 {
     static uint32_t tick_count = 0;
+
+    task_wdt_servicer();
 
     // check value and give corresponding semaphores
 
@@ -62,9 +72,9 @@ static bool IRAM_ATTR task_granter(void* unused)
 }
 
 /*
- * Set up (and start!) the 1kHz timer interrupt task_granter().
- *
- * The module rate functions will begin to run!
+ * Set up the 1kHz timer interrupt task_granter(), but don't start it yet.
+ * 
+ * After this, it's ready to go - call timer_start(TIMER_GROUP) to start it.
  */
 static void create_tasking_interrupt()
 {
@@ -81,23 +91,13 @@ static void create_tasking_interrupt()
     timer_set_alarm_value(TIMER_GROUP, 1000); // alarm at timer rate / 1000 = 1MHz/1000=1kHz
     timer_enable_intr(TIMER_GROUP);
     timer_isr_callback_add(TIMER_GROUP, task_granter, NULL, ESP_INTR_FLAG_IRAM);
-
-    timer_start(TIMER_GROUP);
 }
 
 /**********************
  * Module rate runners.
  **********************/
 
-static void modules_init()
-{
-    for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-        if (task_list[i]->call_init)
-            task_list[i]->call_init();
-    }
-}
-
-static void module_runner_1Hz()
+static IRAM_ATTR void module_runner_1Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_1Hz, portMAX_DELAY) == pdTRUE) {
@@ -105,11 +105,12 @@ static void module_runner_1Hz()
                 if (task_list[i]->call_1Hz)
                     task_list[i]->call_1Hz();
             }
+            task_1Hz_wdt_kick();
         }
     }
 }
 
-static void module_runner_10Hz()
+static IRAM_ATTR void module_runner_10Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_10Hz, portMAX_DELAY) == pdTRUE) {
@@ -117,11 +118,12 @@ static void module_runner_10Hz()
                 if (task_list[i]->call_10Hz)
                     task_list[i]->call_10Hz();
             }
+            task_10Hz_wdt_kick();
         }
     }
 }
 
-static void module_runner_100Hz()
+static IRAM_ATTR void module_runner_100Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_100Hz, portMAX_DELAY) == pdTRUE) {
@@ -129,11 +131,12 @@ static void module_runner_100Hz()
                 if (task_list[i]->call_100Hz)
                     task_list[i]->call_100Hz();
             }
+            task_100Hz_wdt_kick();
         }
     }
 }
 
-static void module_runner_1kHz()
+static IRAM_ATTR void module_runner_1kHz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_1kHz, portMAX_DELAY) == pdTRUE) {
@@ -141,6 +144,7 @@ static void module_runner_1kHz()
                 if (task_list[i]->call_1kHz)
                     task_list[i]->call_1kHz();
             }
+            task_1kHz_wdt_kick();
         }
     }
 }
@@ -166,11 +170,30 @@ void tasking_init()
     static TaskHandle_t module_runner_100Hz_handle;
     static TaskHandle_t module_runner_1kHz_handle;
 
-    xTaskCreatePinnedToCore(module_runner_1Hz, "1_HZ", 2000, 0, 3, &module_runner_1Hz_handle, 0);
-    xTaskCreatePinnedToCore(module_runner_10Hz, "10_HZ", 2000, 0, 2, &module_runner_10Hz_handle, 0);
-    xTaskCreatePinnedToCore(module_runner_100Hz, "100_HZ", 2000, 0, 1, &module_runner_100Hz_handle, 0);
-    xTaskCreatePinnedToCore(module_runner_1kHz, "1k_HZ", 2000, 0, 0, &module_runner_1kHz_handle, 0);
+    // we need to give more thought to the priorities here, I think
+    xTaskCreatePinnedToCore(module_runner_1Hz, "1_HZ", TASK_STACK_SIZE, 0, 0, &module_runner_1Hz_handle, 0);
+    xTaskCreatePinnedToCore(module_runner_10Hz, "10_HZ", TASK_STACK_SIZE, 0, 0, &module_runner_10Hz_handle, 0);
+    xTaskCreatePinnedToCore(module_runner_100Hz, "100_HZ", TASK_STACK_SIZE, 0, 0, &module_runner_100Hz_handle, 0);
+    xTaskCreatePinnedToCore(module_runner_1kHz, "1k_HZ", TASK_STACK_SIZE, 0, 0, &module_runner_1kHz_handle, 0);
 
-    modules_init();
     create_tasking_interrupt();
+}
+
+/*
+ * Run the call_init()'s.
+ */
+void modules_init()
+{
+    for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
+        if (task_list[i]->call_init)
+            task_list[i]->call_init();
+    }
+}
+
+/*
+ * Enable the tasking timer interrupt. Rate functions will start to run!
+ */
+void tasking_begin()
+{
+    timer_start(TIMER_GROUP);
 }

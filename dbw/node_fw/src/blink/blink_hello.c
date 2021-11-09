@@ -1,9 +1,9 @@
-#include "blink_hello.h"
+#include "blink/blink_hello.h"
 
 #include <driver/gpio.h>
 
 #include "common.h"
-#include "sys/tasking/task_glue.h"
+#include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
 

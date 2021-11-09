@@ -1,5 +1,5 @@
-#ifndef COMMON_MACROS_H
-#define COMMON_MACROS_H
+#ifndef COMMON_H
+#define COMMON_H
 
 /* 
  * COMMON TYPES
