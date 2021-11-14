@@ -1,0 +1,13 @@
+stages:
+  - build
+
+
+build-dbw-node-firmware:
+  image: git-registry.cooperigvc.org/igvc/selfdrive/dbw/node_fw:latest
+  stage: build
+  script:
+    - cd dbw/node_fw
+    - pio run
+  artifacts:
+    paths:
+      - dbw/node_fw/.pio/build/igvc_dbw_node/{bootloader,firmware}.{bin,elf}
