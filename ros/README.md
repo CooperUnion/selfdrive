@@ -1,4 +1,26 @@
 # ROS Environment
+installing docker
+https://www.stereolabs.com/docs/docker/install-guide-linux/#nvidia-docker
+
+libegl issue
+https://www.stereolabs.com/docs/ros/
+
+rviz gazebo
+https://answers.ros.org/question/300113/docker-how-to-use-rviz-and-gazebo-from-a-container/
+
+hardware accel docker
+http://wiki.ros.org/action/login/docker/Tutorials/Hardware%20Acceleration#nvidia-docker2
+
+nvidia driver
+https://docs.nvidia.com/datacenter/tesla/tesla-installation-notes/index.html
+
+fixing nvidia driver shit
+https://askubuntu.com/questions/1280205/problem-while-installing-cuda-toolkit-in-ubuntu-18-04
+
+libgl error
+https://unix.stackexchange.com/questions/589236/libgl-error-no-matching-fbconfigs-or-visuals-found-glxgears-error-docker-cu
+
+
 ## Test RPLidar
 ```
 docker-compose up -d master rplidar
