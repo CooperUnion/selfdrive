@@ -1,3 +1,4 @@
+# https://docs.docker.com/compose/gpu-support/
 version: '3'
 
 services:
@@ -43,5 +44,29 @@ services:
                     devices:
                         - capabilities: [gpu]
 
+
+    zed-ros:
+        build: docker-zed/.
+        container_name: zed
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=zed'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+#        devices:
+#            - '/dev/ttyUSB0:/dev/ttyUSB0'
+        # command: roslaunch zed_wrapper zed.launch
+        # command: roslaunch zed_display_rviz display_zed.launch
+        command: roslaunch zed_rtabmap_example zed_rtabmap.launch
         depends_on:
             - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+        restart: unless-stopped
