@@ -19,9 +19,13 @@ services:
         environment:
             - 'ROS_HOSTNAME=rplidar'
             - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
         devices:
             - '/dev/ttyUSB0:/dev/ttyUSB0'
-        command: roslaunch rplidar_ros rplidar.launch
+        command: roslaunch rplidar_ros view_rplidar.launch
         depends_on:
             - master
     
