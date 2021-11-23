@@ -3,12 +3,16 @@ version: '3'
 
 services:
     master:
-        image: ros:noetic-ros-core-focal
+        build: docker-master/.
         container_name: master
         tty: true
         environment:
             - 'ROS_HOSTNAME=master'
             - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
         restart: unless-stopped
         command: stdbuf -o L roscore
 
@@ -29,12 +33,12 @@ services:
         depends_on:
             - master
     
-    gzserver:
+    gazebo:
         build: docker-gzserver/.
-        container_name: gzserver
+        container_name: gazebo
         tty: true
         environment:
-            - 'ROS_HOSTNAME=gzserver'
+            - 'ROS_HOSTNAME=gazebo'
             - 'ROS_MASTER_URI=http://master:11311'
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
@@ -49,7 +53,7 @@ services:
                         - capabilities: [gpu]
 
 
-    zed-ros:
+    zed:
         build: docker-zed/.
         container_name: zed
         tty: true
