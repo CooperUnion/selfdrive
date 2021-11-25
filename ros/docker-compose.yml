@@ -56,7 +56,7 @@ services:
         build: docker-zed/.
         container_name: zed
         tty: true
-        privileged: true
+        # privileged: true
         environment:
             - 'ROS_HOSTNAME=zed'
             - 'ROS_MASTER_URI=http://master:11311'
@@ -64,6 +64,7 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - '/dev:/dev'
 #        devices:
 #            - '/dev/ttyUSB0:/dev/ttyUSB0'
         # command: roslaunch zed_wrapper zed.launch
@@ -92,3 +93,25 @@ services:
         # command: roslaunch rplidar_ros view_rplidar.launch
         depends_on:
             - master
+    
+    rtabmap:
+        build: docker/rtabmap/.
+        container_name: rtabmap
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=rtabmap'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - ~/.ros:/root
+        command: roslaunch --wait rtabmap_ros rtabmap.launch
+        depends_on:
+            - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
