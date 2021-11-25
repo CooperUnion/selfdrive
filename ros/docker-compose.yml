@@ -34,7 +34,7 @@ services:
             - master
     
     gazebo:
-        build: docker-gzserver/.
+        build: docker-gazebo/.
         container_name: gazebo
         tty: true
         environment:
@@ -51,7 +51,6 @@ services:
                 reservations:
                     devices:
                         - capabilities: [gpu]
-
 
     zed:
         build: docker-zed/.
@@ -78,3 +77,18 @@ services:
                     devices:
                         - capabilities: [gpu]
         restart: unless-stopped
+
+    teleop:
+        build: docker-teleop/.
+        container_name: teleop
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=teleop'
+            - 'ROS_MASTER_URI=http://master:11311'
+        #     - 'DISPLAY=$DISPLAY'
+        #     - 'QT_X11_NO_MITSHM=1'
+        # volumes:
+        #     - '/tmp/.X11-unix:/tmp/.X11-unix'
+        # command: roslaunch rplidar_ros view_rplidar.launch
+        depends_on:
+            - master
