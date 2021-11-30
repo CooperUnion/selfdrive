@@ -7,7 +7,7 @@
 
 // ######        DEFINES        ###### //
 
-#define BLINK_GPIO 2
+#define BLINK_GPIO 33
 
 // ######      PROTOTYPES       ###### //
 
@@ -51,7 +51,7 @@ static void blink_init()
  */
 static void blink_1Hz()
 {
-    static bool state = 0;
+    static bool state = 1;
     gpio_set_level(BLINK_GPIO, state);
     state = !state;
 }

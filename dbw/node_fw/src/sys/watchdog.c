@@ -12,8 +12,10 @@
 // ######        DEFINES        ###### //
 
 // note on init timeout: init currently takes <1ms
+// note: anything <25ms or so will screw with JTAG
+// and you'll have a bad time
 #define INIT_TIMEOUT_MS 25
-#define FINAL_TIMEOUT_MS 2
+#define FINAL_TIMEOUT_MS 25
 
 // ######      PROTOTYPES       ###### //
 
