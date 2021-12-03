@@ -4,7 +4,8 @@ from threading import Thread
 class Input(Thread):
     def __init__(self):
         self.input = None
-        self.step_amount = 5760
+        # self.step_amount = 5760 # Counts per rotation of the absolute encoder
+        self.step_amount = 1000
         super().__init__(target = self.do_input)
         self.daemon = True
         self.start()
