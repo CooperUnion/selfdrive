@@ -56,7 +56,7 @@ services:
         build: docker-zed/.
         container_name: zed
         tty: true
-        # privileged: true
+        privileged: true
         environment:
             - 'ROS_HOSTNAME=zed'
             - 'ROS_MASTER_URI=http://master:11311'
