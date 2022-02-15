@@ -4,3 +4,5 @@
 /cad/encoderMount/EncoderMountV2.SLDASM filter=lfs diff=lfs merge=lfs -text
 /cad/encoderMount/EncoderMountV2.zip filter=lfs diff=lfs merge=lfs -text
 /cad/front/frontGearedEncoderMount.SLDASM filter=lfs diff=lfs merge=lfs -text
+/cad/front/stl/frontGearedEncoderMount[[:space:]]-[[:space:]]Ball[[:space:]]Bearing[[:space:]]608ZZ-1.STL filter=lfs diff=lfs merge=lfs -text
+/cad/front/stl/frontGearedEncoderMount[[:space:]]-[[:space:]]Ball[[:space:]]Bearing[[:space:]]608ZZ-2.STL filter=lfs diff=lfs merge=lfs -text
