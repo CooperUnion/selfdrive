@@ -3,3 +3,4 @@
 /cad/encoderMount/EncoderMountV1.SLDASM filter=lfs diff=lfs merge=lfs -text
 /cad/encoderMount/EncoderMountV2.SLDASM filter=lfs diff=lfs merge=lfs -text
 /cad/encoderMount/EncoderMountV2.zip filter=lfs diff=lfs merge=lfs -text
+/cad/front/frontGearedEncoderMount.SLDASM filter=lfs diff=lfs merge=lfs -text
