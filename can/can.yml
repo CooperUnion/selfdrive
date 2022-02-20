@@ -1,0 +1,35 @@
+residents:
+  - dbwNode_Steering
+  - dbwNode_Brakes
+  - techPc
+  - dbwWatchdog
+
+messages:
+- dbwNode_Generic_Status:
+    id: 0x01
+    cycletime: 100
+
+    senders:
+      - dbwNode_Steering
+      - dbwNode_Brakes
+
+    signals:
+      - SystemStatus:
+          description: Simple yes/no health status of the node.
+          width: 1
+          choices:
+            - HEALTHY
+            - UNHEALTHY
+
+- dbwNode_Generic_Info:
+    id: 0x02
+    cycletime: 100
+
+    signals:
+      - Githash:
+           description: Githash of the currently-running firmware.
+           width: 32
+      - EepromIdentity:
+           description: EEPROM identity.
+           width: 6
+
