@@ -20,6 +20,12 @@ messages:
           choices:
             - HEALTHY
             - UNHEALTHY
+      - Filler:
+          description: Filler bits.
+          width: 7
+      - Counter:
+          description: Counter for fun.
+          width: 8
 
 - dbwNode_Generic_Info:
     id: 0x02

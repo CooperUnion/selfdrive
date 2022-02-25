@@ -3,6 +3,7 @@
 #include <driver/twai.h>
 #include <stdio.h>
 
+#include "base/base.h"
 #include "common.h"
 #include "sys/task_glue.h"
 
@@ -18,6 +19,8 @@ static void can_10Hz_ping();
 
 // ######     PRIVATE DATA      ###### //
 
+static bool can_ready;
+
 // ######    RATE FUNCTIONS     ###### //
 
 struct rate_funcs can_rf = {
@@ -31,20 +34,16 @@ static void can_init()
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
-    gpio_pad_select_gpio(32);
-    gpio_set_direction(32, GPIO_MODE_OUTPUT);
-    gpio_set_level(32, 0);
-
     if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK) {
-        // ok
+        can_ready = 1;
     } else {
-        // not ok
+        can_ready = 0;
     }
 
     if (twai_start() == ESP_OK) {
-        // ok
+        can_ready &= 1;
     } else {
-        // not ok
+        can_ready &= 0;
     }
 }
 
@@ -52,23 +51,32 @@ static void can_10Hz_ping()
 {
     static uint8_t count = 0;
 
-    twai_message_t message;
-    message.extd = 1;
+    if (!can_ready) {
+        base_set_state_lost_can();
+        return;
+    }
 
-    message.identifier = 0xAAAA;
+    twai_message_t message;
+    message.extd = 0;
+
+    message.identifier = 0x1;
+
+    message.data_length_code = 2;
 
     message.data[0] = 0;
-    message.data[1] = 0;
+    message.data[1] = count++;
     message.data[2] = 0;
-    message.data[3] = count++;
+    message.data[3] = 0;
 
-    esp_err_t r = twai_transmit(&message, pdMS_TO_TICKS(5));
+    esp_err_t r = twai_transmit(&message, 0);
 
     if (r == ESP_OK) {
-        gpio_set_level(32, 0);
+        base_set_state_good();
     } else {
-        gpio_set_level(32, 1);
+        base_set_state_lost_can();
+        // attempt recovery?
     }
+
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
