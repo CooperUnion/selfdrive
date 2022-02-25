@@ -7,8 +7,6 @@
 
 // ######        DEFINES        ###### //
 
-#define BLINK_GPIO 33
-
 // ######      PROTOTYPES       ###### //
 
 static void blink_init();
@@ -42,8 +40,7 @@ struct rate_funcs blink_hello_rf = {
  */
 static void blink_init()
 {
-    gpio_pad_select_gpio(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
 }
 
 /*
@@ -51,9 +48,7 @@ static void blink_init()
  */
 static void blink_1Hz()
 {
-    static bool state = 1;
-    gpio_set_level(BLINK_GPIO, state);
-    state = !state;
+
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

@@ -8,6 +8,7 @@
 /*
  * List an extern definition for each module's struct rate_tasks.
  */
+extern const struct rate_funcs base_rf;
 extern const struct rate_funcs blink_hello_rf;
 extern const struct rate_funcs can_rf;
 
@@ -19,6 +20,7 @@ extern const struct rate_funcs can_rf;
  * they appear here, but it's best not to rely on that fact for program logic.
  */
 static const struct rate_funcs* task_list[] = {
+    &base_rf,
     &blink_hello_rf,
     &can_rf,
 };
