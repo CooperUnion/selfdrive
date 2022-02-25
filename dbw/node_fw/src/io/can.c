@@ -15,7 +15,7 @@
 // ######      PROTOTYPES       ###### //
 
 static void can_init();
-static void can_10Hz_ping();
+static void can_1Hz_ping();
 
 // ######     PRIVATE DATA      ###### //
 
@@ -25,7 +25,7 @@ static bool can_ready;
 
 struct rate_funcs can_rf = {
     .call_init = can_init,
-    .call_10Hz = can_10Hz_ping,
+    .call_1Hz = can_1Hz_ping,
 };
 
 static void can_init()
@@ -47,7 +47,7 @@ static void can_init()
     }
 }
 
-static void can_10Hz_ping()
+static void can_1Hz_ping()
 {
     static uint8_t count = 0;
 
@@ -68,7 +68,15 @@ static void can_10Hz_ping()
     message.data[2] = 0;
     message.data[3] = 0;
 
-    esp_err_t r = twai_transmit(&message, 0);
+    can_send_msg(&message);
+}
+
+// ######   PRIVATE FUNCTIONS   ###### //
+
+// ######   PUBLIC FUNCTIONS    ###### //
+
+void can_send_msg(const twai_message_t *message) {
+    esp_err_t r = twai_transmit(message, 0);
 
     if (r == ESP_OK) {
         base_set_state_good();
@@ -78,7 +86,3 @@ static void can_10Hz_ping()
     }
 
 }
-
-// ######   PRIVATE FUNCTIONS   ###### //
-
-// ######   PUBLIC FUNCTIONS    ###### //
