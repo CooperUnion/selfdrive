@@ -3,12 +3,16 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <driver/twai.h>
+#include <string.h>
 
 #include "esp_ota_ops.h"
 
 #include "can.h"
 
 #define GPIO_LED1 GPIO_NUM_33
+#define GPIO_LED2 GPIO_NUM_32
+
+static uint8_t fw_image[1024 * 128];
 
 void can_send(int id, int val)
 {
@@ -38,10 +42,13 @@ void app_main()
     gpio_pad_select_gpio(GPIO_LED1);
     gpio_set_direction(GPIO_LED1, GPIO_MODE_OUTPUT);
 
+    gpio_pad_select_gpio(GPIO_LED2);
+    gpio_set_direction(GPIO_LED2, GPIO_MODE_OUTPUT);
+
     bool state = 0;
 
     for (;;) {
-        gpio_set_level(GPIO_LED1, state);
+        gpio_set_level(GPIO_LED1, 1);
         vTaskDelay(200 / portTICK_PERIOD_MS);
         state = !state;
         can_ping();
@@ -60,6 +67,51 @@ void app_main()
 
         // can_send(0x13, esp_ota_get_app_partition_count());
 
+        // get new firmware image
+        uint32_t size = 0;
+        bool led2_state = 0;
+        while (!size) {
+            twai_message_t msg;
+            if (twai_receive(&msg, portMAX_DELAY) == ESP_OK) {
+                switch (msg.identifier) {
+                    case 0xA0:
+                    {
+                        gpio_set_level(GPIO_LED1, 1);
+                        gpio_set_level(GPIO_LED2, 1);
+                        can_send(0xA2, 0);
+                        break;
+                    }
+                    case 0xA1:
+                    {
+                        gpio_set_level(GPIO_LED2, led2_state);
+                        led2_state = !led2_state;
+
+                        uint32_t position = 0;
+                        position |= msg.data[0];
+                        position |= msg.data[1] << 8;
+
+                        position *= 5;
+
+                        memcpy(fw_image + position, msg.data + 3, 5);
+                        break;
+                    }
+                    case 0xA3:
+                    {
+                        size |= msg.data[0];
+                        size |= msg.data[1] << 8;
+                        size |= msg.data[2] << 16;
+                        size |= msg.data[3] << 24;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+
+        gpio_set_level(GPIO_LED1, 0);
+        gpio_set_level(GPIO_LED2, 1);
+
         esp_ota_handle_t update_handle = 0;
         esp_err_t err = esp_ota_begin(update, OTA_WITH_SEQUENTIAL_WRITES, &update_handle);
 
@@ -69,7 +121,7 @@ void app_main()
             continue;
         }
 
-        err = esp_ota_write(update_handle, firmware_bin_start, firmware_bin_end - firmware_bin_start);
+        err = esp_ota_write(update_handle, fw_image, size);
 
         can_send(0x15, err);
         if (err != ESP_OK) {

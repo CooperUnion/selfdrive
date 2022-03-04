@@ -95,3 +95,49 @@ messages:
       - ModeCtrl:
           description: Mode control command (0/1).
           width: 1
+
+- dbwUpdater_Update_Trigger:
+    id: 0xA0
+    cycletime: 100
+
+    signals:
+      - Trigger:
+          description: Trigger the update.
+          width: 1
+      - Filler1:
+          description: Filler.
+          width: 7
+      - Begin:
+          description: Begin the update.
+          width: 1
+
+- dbwUpdater_Update_Data:
+    id: 0xA1
+    cycletime: 100
+
+    signals:
+      - Position:
+          description: Index of 32-bit data chunk.
+          width: 24
+      - Data:
+          description: Image data.
+          width: 40
+
+- dbwNode_Update_Response:
+    id: 0xA2
+    cycletime: 100
+
+    signals:
+      - Ready:
+          description: Ready to begin update.
+          width: 1
+
+- dbwUpdater_Update_Done:
+    id: 0xA3
+    cycletime: 100
+
+    signals:
+      - FinalSize:
+          description: Number of bytes in final image size.
+          width: 32
+

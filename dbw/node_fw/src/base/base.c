@@ -114,7 +114,7 @@ static void set_status_LEDs() {
 
         case SYS_STATE_GOOD:
             led1_state = 1;
-            if (!(timer % 5)) {
+            if (!(timer % 1)) {
                 led2_state = !led2_state;
             }
             break;
