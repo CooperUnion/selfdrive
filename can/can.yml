@@ -39,3 +39,14 @@ messages:
            description: EEPROM identity.
            width: 6
 
+- dbwNode_Accel_Data:
+    id: 0x03
+    cycletime: 100
+
+    signals:
+      - ThrottleACmd:
+          description: Throttle A command.
+          width: 8
+      - ThrottleFCmd:
+          description: Throttle B command.
+          width: 8
