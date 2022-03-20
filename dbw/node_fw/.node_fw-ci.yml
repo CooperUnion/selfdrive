@@ -1,0 +1,15 @@
+include:
+  - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+
+stages:
+  - build
+
+build-dbw-node-firmware:
+  image: git-registry.cooperigvc.org/igvc/selfdrive/dbw/node_fw:latest
+  stage: build
+  script:
+    - cd dbw/node_fw
+    - pio run
+  artifacts:
+    paths:
+      - dbw/node_fw/.pio/build/*/firmware.{bin,elf}

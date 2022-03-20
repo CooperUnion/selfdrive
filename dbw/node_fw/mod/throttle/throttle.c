@@ -1,4 +1,4 @@
-#include "throttle/throttle.h"
+#include "throttle.h"
 
 #include <driver/dac.h>
 #include <driver/gpio.h>
@@ -31,7 +31,7 @@ static uint8_t convert_throttle_command(struct throttle_output t, float32_t p);
 
 // ######    RATE FUNCTIONS     ###### //
 
-struct rate_funcs throttle_rf = {
+struct rate_funcs module_rf = {
     .call_init = throttle_init,
     .call_1Hz = throttle_1Hz,
 };
@@ -90,3 +90,4 @@ static uint8_t convert_throttle_command(struct throttle_output t, float32_t p) {
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
+

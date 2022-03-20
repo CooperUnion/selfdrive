@@ -84,5 +84,4 @@ void can_send_msg(const twai_message_t *message) {
         base_set_state_lost_can();
         // attempt recovery?
     }
-
 }

@@ -6,12 +6,16 @@
 #include "sys/task_glue.h"
 
 /*
- * List an extern definition for each module's struct rate_tasks.
+ * List an extern definition for each src/ module's struct rate_tasks.
  */
 extern const struct rate_funcs base_rf;
-extern const struct rate_funcs blink_hello_rf;
 extern const struct rate_funcs can_rf;
 extern const struct rate_funcs eeprom_rf;
+
+/*
+ * Single extern definition for the one-per-build mod/ module.
+ */
+extern const struct rate_funcs module_rf;
 
 /*
  * List of references to the task structs. Order matters - the modules will be
@@ -22,7 +26,7 @@ extern const struct rate_funcs eeprom_rf;
  */
 static const struct rate_funcs* task_list[] = {
     &base_rf,
-    &blink_hello_rf,
     &can_rf,
-    &eeprom_rf
+    &eeprom_rf,
+    &module_rf,
 };

@@ -1,4 +1,4 @@
-#include "blink/blink_hello.h"
+#include "blink.h"
 
 #include <driver/gpio.h>
 
@@ -28,7 +28,7 @@ static void blink_1Hz();
  *
  * Note that it's perfectly okay that the rate functions are declared as static.
  */
-struct rate_funcs blink_hello_rf = {
+struct rate_funcs module_rf = {
     .call_init = blink_init,
     .call_1Hz = blink_1Hz,
 };
