@@ -1,6 +1,8 @@
 #ifndef THROTTLE_H
 #define THROTTLE_H
 
-// if we had any public functions, we'd put their prototypes here.
+#include "io/can.h"
+
+extern struct CAN_dbwNode_Accel_Data_t CAN_Accel;
 
 #endif

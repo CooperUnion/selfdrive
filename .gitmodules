@@ -1,0 +1,3 @@
+[submodule "can/cantools"]
+	path = can/cantools
+	url = ssh://git@git.cooperigvc.org:2171/igvc/cantools.git

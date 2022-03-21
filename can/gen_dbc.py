@@ -8,7 +8,6 @@ import strictyaml as sy
 VERSION = "0.001"
 OUTPUT_FILENAME = "igvc_can.dbc"
 
-
 def parse_signal(name: str, d: dict):
     choices = d.get("choices")
 
@@ -17,12 +16,30 @@ def parse_signal(name: str, d: dict):
 
     width = int(d["width"])
 
+    offset = d.get("offset")
+    offset = 0 if offset is None else int(offset)
+
+    minimum = d.get("min")
+    minimum = None if minimum is None else float(minimum)
+    maximum = d.get("max")
+    maximum = None if maximum is None else float(maximum)
+
+    scale = d.get("scale")
+    scale = 1 if scale is None else float(scale)
+
+    unit = d.get("unit")
+
     new = candb.Signal(
         name=name,
         start=msg_offset,
         length=width,
         comment=d["description"],
         choices=choices,
+        offset=offset,
+        minimum=minimum,
+        maximum=maximum,
+        scale=scale,
+        unit=unit,
     )
 
     return new, width
@@ -52,6 +69,25 @@ if __name__ == "__main__":
         msg_width = int(msg_offset / 8)
         if msg_offset % 8 > 0:
             msg_width += 1
+
+        template_flag = data.get("template")
+        if template_flag == "true":
+            for t_id, t in enumerate(data["template_ids"]):
+                messages.append(
+                    candb.Message(
+                        frame_id=int(data["id"], 16) + t_id + 1,
+                        name=name + "_" + t,
+                        length=msg_width,
+                        cycle_time=int(data["cycletime"]),
+                        # fix sender #
+                        signals=signals,
+                    )
+                )
+        elif template_flag is None:
+            pass
+        else:
+            print('Error: value for "template" must be "yes"')
+            exit(-3)
 
         messages.append(
             candb.Message(
