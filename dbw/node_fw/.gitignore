@@ -5,3 +5,6 @@
 # esp-idf will generate sdkconfig.TARGETs from sdkconfig.defaults.
 sdkconfig.*
 !sdkconfig.defaults
+
+# generated CAN files
+src/io/can_gen.*

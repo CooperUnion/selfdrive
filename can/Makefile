@@ -11,6 +11,7 @@ default: igvc_can.dbc
 	. .venv/bin/activate
 	pip install --upgrade pip
 	pip install -Ur requirements.txt
+	pip install cantools/
 	touch .venv/touched
 
 .PHONY activate_venv:

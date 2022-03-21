@@ -5,13 +5,18 @@ residents:
   - dbwWatchdog
 
 messages:
-- dbwNode_Generic_Status:
-    id: 0x01
+- dbwNode_Status:
+    id: 0xA0
     cycletime: 100
 
+    template: true
+    template_ids:
+      - Blink
+      - Throttle
+
     senders:
-      - dbwNode_Steering
-      - dbwNode_Brakes
+      - dbwNode_Blink
+      - dbwNode_Throttle
 
     signals:
       - SystemStatus:
@@ -20,14 +25,11 @@ messages:
           choices:
             - HEALTHY
             - UNHEALTHY
-      - Filler:
-          description: Filler bits.
-          width: 7
       - Counter:
           description: Counter for fun.
           width: 8
 
-- dbwNode_Generic_Info:
+- dbwNode_Info:
     id: 0x02
     cycletime: 100
 
@@ -50,3 +52,25 @@ messages:
       - ThrottleFCmd:
           description: Throttle B command.
           width: 8
+      - Percent:
+          description: Percentage commanded.
+          width: 8
+          unit: percent
+      - RelayState:
+          description: Current relay state.
+          width: 1
+
+- dbwNode_Accel_Cmd:
+    id: 0x20
+    cycletime: 100
+
+    signals:
+      - ThrottleCmd:
+          description: Throttle command.
+          minimum: 0.0
+          maximum: 1.0
+          scale: 0.01
+          width: 8
+      - ModeCtrl:
+          description: Mode control command (0/1).
+          width: 1

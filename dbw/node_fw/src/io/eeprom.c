@@ -39,7 +39,7 @@ static uint16_t internal_addr;
 
 // ######    RATE FUNCTIONS     ###### //
 
-struct rate_funcs eeprom_rf = {
+const struct rate_funcs eeprom_rf = {
     .call_init = eeprom_init,
 };
 

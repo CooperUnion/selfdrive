@@ -2,7 +2,6 @@ aenum==3.1.8
 argparse-addons==0.7.0
 bitstruct==8.12.1
 black==22.1.0
-cantools==37.0.5
 click==8.0.3
 diskcache==5.4.0
 flake8==4.0.1
