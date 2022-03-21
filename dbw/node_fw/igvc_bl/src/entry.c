@@ -41,9 +41,11 @@ void app_main()
 
     gpio_pad_select_gpio(GPIO_LED1);
     gpio_set_direction(GPIO_LED1, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_LED1, 0);
 
     gpio_pad_select_gpio(GPIO_LED2);
     gpio_set_direction(GPIO_LED2, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_LED2, 0);
 
     bool state = 0;
 
