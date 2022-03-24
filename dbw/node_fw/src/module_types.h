@@ -7,6 +7,7 @@ enum firmware_module_types {
     MOD_UNDEF = 0,
     MOD_BLINK = 1,
     MOD_THROTTLE = 2,
+    MOD_BRAKE = 3,
 };
 
 extern const enum firmware_module_types FIRMWARE_MODULE_IDENTITY;
