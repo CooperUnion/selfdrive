@@ -6,3 +6,5 @@
 /cad/front/frontGearedEncoderMount.SLDASM filter=lfs diff=lfs merge=lfs -text
 /cad/front/stl/frontGearedEncoderMount[[:space:]]-[[:space:]]Ball[[:space:]]Bearing[[:space:]]608ZZ-1.STL filter=lfs diff=lfs merge=lfs -text
 /cad/front/stl/frontGearedEncoderMount[[:space:]]-[[:space:]]Ball[[:space:]]Bearing[[:space:]]608ZZ-2.STL filter=lfs diff=lfs merge=lfs -text
+/cad/rear/armAssemb.SLDASM filter=lfs diff=lfs merge=lfs -text
+/cad/rear/rearEncoderAssem.SLDASM filter=lfs diff=lfs merge=lfs -text
