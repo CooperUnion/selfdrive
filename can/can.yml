@@ -13,10 +13,12 @@ messages:
     template_ids:
       - Blink
       - Throttle
+      - Brake
 
     senders:
       - dbwNode_Blink
       - dbwNode_Throttle
+      - dbwNode_Brake
 
     signals:
       - SystemStatus:
