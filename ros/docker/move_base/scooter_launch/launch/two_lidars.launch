@@ -1,0 +1,10 @@
+<launch>
+    <include ns="lidar0" file="$(find rplidar_ros)/launch/rplidar_s1.launch">
+        <arg name="serial_port" value="/dev/ttyUSB0"/>
+        <arg name="frame_id" value="laser_link0"/>
+    </include>
+    <include ns="lidar1" file="$(find rplidar_ros)/launch/rplidar_s1.launch">
+        <arg name="serial_port" value="/dev/ttyUSB1"/>
+        <arg name="frame_id" value="laser_link1"/>
+    </include>
+</launch>

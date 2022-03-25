@@ -1,0 +1,31 @@
+<launch>
+    <!-- move base parameters -->
+    <arg name="odom_frame_id"   default="odom"/>
+    <arg name="base_frame_id"   default="base_link"/>
+    <arg name="global_frame_id" default="map"/>
+    <arg name="custom_param_file" default="$(find scooter_launch)/param/move_base_params.yaml"/>
+
+    <!-- move base stuff -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
+        <rosparam file="$(find scooter_launch)/param/local_costmap_params.yaml" command="load" />   
+        <rosparam file="$(find scooter_launch)/param/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find scooter_launch)/param/teb_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find scooter_launch)/param/move_base_params.yaml" command="load" />
+        <rosparam file="$(find scooter_launch)/param/global_planner_params.yaml" command="load" />
+        <!-- external params file that could be loaded into the move_base namespace -->
+        <rosparam file="$(arg custom_param_file)" command="load" />
+        
+        <!-- reset frame_id parameters using user input data -->
+        <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
+        <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+        <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
+        <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+        <!-- <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)"/> -->
+
+        <remap from="odom" to="$(arg odom_frame_id)"/>
+        <remap from="scan" to="/scan_filtered"/>
+        <remap from="/map" to="/rtabmap/grid_map" />
+    </node>
+</launch>

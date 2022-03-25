@@ -1,0 +1,66 @@
+
+# Robot Configuration Parameters - Scooter
+  # All default values for teb-acc
+  acc_lim_x: 0.5
+  acc_lim_theta: 0.5
+  
+  max_vel_x: 1.5 
+  max_vel_x_backwards: 0.5 # Picked half foward vel
+  max_vel_theta: 0.5
+
+  # Parameters for car like robots - For scooter but unecessary for simulations
+  min_turning_radius: 0.85 #0.85 # Measured value
+  wheelbase: 0.84 # Measured value
+  # cmd_angle_instead_rotval: false  Talk to Dave about this 
+
+# Goal Tolerance Parameters
+  # All default values for teb-tolerance
+  yaw_goal_tolerance: 0.2  
+  xy_goal_tolerance: 0.2  
+  free_goal_vel: false # Allows the scooter to reach goal at max speed
+
+# Trajectory Configuration Parameters
+  dt_ref: 0.3                               # Desired temporal resolution
+  dt_hysteresis: 0.1                        # Hysteresis for automatic resizing depending on the current temporal resolution Says recommended value is 10% of dt_ref but default is 0.1
+  min_samples: 3                            # Should always be greater than 2
+  global_plan_overwrite_orientation: true   # Overwrite orientation of local subgoals provided by global planner
+  global_plan_viapoint_sep: -0.1            # If positive: viapoints are extracted from global plan with resolution of value specified. If negative: disabled
+  max_global_plan_lookahead_dist: 3.0       # Specify max length of the subset of the global plan taken into account for optimization
+  force_reinit_new_goal_dist: 1.0           # Basically skips hot-starting
+  feasibility_check_no_poses: 4             # Picks which pose on the predicted plan to check for feasibility each sampling interval
+  publish_feedback: false                   # Publish planner feedback containing full trajectory and list of active obstacles (Use for debugging)
+  shrink_horizon_backup: true               # Allows the planner the horizon temporarily for detected issues
+  allow_init_with_backwards_motion: false   # Allows for backwards trajectories (Can implement if we add rear sensors to the scooter)
+  exact_arc_length: false                   # If true: uses exact arc length in vel, acc, and turning rate computations. Uses more CPU. Have to test to see if Alienware can handle it
+  shrink_horizon_min_duration: 10.0         # Specify minimum duration for the reduced horizon in case an indeasible trajectory is detected
+
+
+
+# Obstacle Parameters
+  min_obstacle_dist: 0.5                            # Change depending on what map we are using
+  include_costmap_obstacles: true                   # Uses all information from local_costmap (Don't make costmap resolution too high)
+  costmap_obstacles_behind_robot_dist: 1.0          # Limits the occupied local costmap behind robot
+  obstacle_poses_affected: 30                       # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance
+  inflation_dist: 0.6                               # Buffer zone around obstacles with non-zero penalty costs
+  include_dynamic_obstacles: false                  # Motion of obstacles with non-zero velocity is predicted
+  legacy_obstacle_inclusion: false                  # The strategy of connecting trajectory poses with obstacles for optimization. False: new method True: false method. Read documentation for more
+  obstacle_association_force_inclusion_factor: 1.5  # No idea what this is 
+
+# Optimization Parameters
+  penalty_epsilon: 0.1                              # Adds small safety margin for penalty functions
+  weight_max_vel_x: 20.0                             
+  weight_max_vel_theta: 1.0                         
+  weight_acc_lim_x: 5.0                             
+  weight_acc_lim_theta: 1.0                         
+  weight_kinematics_nh: 1000                        
+  weight_kinematics_foward_drive: 1.0               
+  weight_kinematics_turning_radius: 1.0             
+  weight_optimaltime: 1.0                           
+  weight_obstacle: 50.0                             
+  weight_viapoint: 1.0                              
+  weight_inflation: 0.1                             
+  weight_adapt_factor: 2.0                          
+
+# Extra Parameters
+  odom_topic: "odom"
+  #map_frame:
