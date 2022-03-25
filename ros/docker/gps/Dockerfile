@@ -9,7 +9,7 @@ RUN apt update && apt install -y git
 
 # clone ros repo
 RUN mkdir -p ros_ws/src &&\
-    git clone { GIT_HTTP_LINK } ros_ws/src/{ DIR }
+    git clone https://github.com/novatel/novatel_oem7_driver.git ros_ws/src/gps
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
