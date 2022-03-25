@@ -16,6 +16,19 @@ services:
         restart: unless-stopped
         command: stdbuf -o L roscore
 
+    move_base:
+        build: docker/move_base/.
+        # image: git.cooperigvc
+        container_name: move_base
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=move_base'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
+        depends_on:
+            - master
+
     rplidar:
         build: docker-rplidar/.
         container_name: rplidar
@@ -44,7 +57,8 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-        command: roslaunch turtlebot3_gazebo turtlebot3_house.launch
+        # command: roslaunch turtlebot3_gazebo turtlebot3_house.launch
+        command: roslaunch igvc_self_drive_gazebo f3_gazebo.launch
         restart: unless-stopped
         deploy:
             resources:
@@ -53,7 +67,8 @@ services:
                         - capabilities: [gpu]
 
     zed:
-        build: docker-zed/.
+        #build: docker-zed/.
+        image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
         container_name: zed
         tty: true
         privileged: true
@@ -64,12 +79,13 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - '/dev:/dev'
-#        devices:
-#            - '/dev/ttyUSB0:/dev/ttyUSB0'
+            # - '/dev:/dev'
+        # devices:
+        #    - '/dev/ttyUSB0:/dev/ttyUSB0'
         # command: roslaunch zed_wrapper zed.launch
         # command: roslaunch zed_display_rviz display_zed.launch
-        command: roslaunch zed_rtabmap_example zed_rtabmap.launch
+        # command: roslaunch zed_rtabmap_example zed_rtabmap.launch
+        
         depends_on:
             - master
         deploy:
@@ -94,6 +110,39 @@ services:
         depends_on:
             - master
     
+    ######added rviz 2/17
+    rviz: 
+        build: docker-rviz/.
+        container_name: rviz
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=rviz'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #command: rviz
+        depends_on:
+            - master
+
+    3dlidar:
+        build: docker-3dlidar/.
+        container_name: 3dlidar
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=3dlidar'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #devices:
+        #    - '/dev/ttyUSB0:/dev/ttyUSB0'
+        #command: roslaunch rplidar_ros view_rplidar.launch
+        depends_on:
+            - master
+
     rtabmap:
         build: docker/rtabmap/.
         container_name: rtabmap
@@ -110,6 +159,8 @@ services:
         command: roslaunch --wait rtabmap_ros rtabmap.launch
         depends_on:
             - master
+
+
         deploy:
             resources:
                 reservations:

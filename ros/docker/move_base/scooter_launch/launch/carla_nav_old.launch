@@ -1,0 +1,133 @@
+<launch>
+    <!-- <include file="$(find zed_wrapper)/launch/zed_camera.launch"/> -->
+                
+    <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge_with_example_ego_vehicle.launch"/>
+
+    <!-- RTAB-map Param-->
+    <arg name="rgb_topic"               	value="/carla/ego_vehicle/camera/rgb/front/image_color" />
+    <arg name="depth_topic"             	value="/carla/ego_vehicle/camera/depth/depth/image_depth" />
+    <arg name="camera_info_topic"       	value="/carla/ego_vehicle/camera/rgb/front/camera_info" />
+    <arg name="depth_camera_info_topic" 	value="/carla/ego_vehicle/camera/depth/depth/camera_info" />
+    <arg name="frame_id"                      value="ego_vehicle" />
+    <arg name="approx_sync"                   value="false" />
+    <arg name="visual_odometry"               value="false" />
+    <arg name="odom_topic"                    value="/carla/ego_vehicle/odometry" />
+    <arg name="rviz"                          value="true" />
+    <arg name="rtabmapviz"                    value="false" />
+    <arg name="rviz_cfg"                default="$(find scooter_launch)/rviz/scooter.rviz" />
+    <arg name="output"                  default="screen"/>        <!-- Control node output (screen or log) -->
+    
+    <arg name="database_path"           default="rtabmap.db"/>
+    <arg name="wait_for_transform"      default="0.2"/> 
+
+    <!-- localization mode params -->
+    <arg name="localization"                  default="false" />
+    <arg     if="$(arg localization)" name="rtabmap_args" value=""/>
+    <arg unless="$(arg localization)" name="rtabmap_args" value="--delete_db_on_start"/>
+
+    <!-- Use Lidar or not -->
+    <arg name="subscribe_scan"                  default="false" />
+
+    <!-- move_base params -->
+    <arg name="odom_frame_id"   default="odom"/>
+    <arg name="base_frame_id"   default="ego_vehicle"/>
+    <arg name="global_frame_id" default="map"/>
+    <!-- <arg name="custom_param_file" default="$(find scooter_launch)/param/dummy.yaml"/> -->
+
+
+<!-- ~~~~~~~~~~~~~ Nodes ~~~~~~~~~~~~~~~~~ -->
+
+
+    <!-- ROS URDF description of the Scooter -->
+    <!-- <group>
+        <param name="scooter_description" textfile="$(find scooter_launch)/urdf/scooter.urdf" />
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+            <remap from="robot_description" to="scooter_description" />
+        </node>
+    </group> -->
+    
+
+    <!-- RTAL-map Node -->
+    <group ns="rtabmap">
+        <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+            <param name="database_path"       type="string" value="$(arg database_path)"/>
+            <param name="frame_id"            type="string" value="ego_vehicle"/>
+            <param name="wait_for_transform_duration"  type="double"   value="$(arg wait_for_transform)"/>
+            <param name="subscribe_depth"     type="bool"   value="true"/>
+            <param     if="$(arg subscribe_scan)" name="subscribe_scan"      type="bool"   value="true"/>
+            <param unless="$(arg subscribe_scan)" name="subscribe_scan"      type="bool"   value="false"/>
+            <param name="map_negative_poses_ignored" type="bool" value="true"/>
+
+            <!-- When sending goals on /rtabmap/goal topic, use actionlib to communicate with move_base --> 
+            <param name="use_action_for_goal" type="bool" value="true"/>
+            <remap from="move_base"            to="/move_base"/>
+            
+            <!-- inputs -->
+            <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+            <remap from="depth/image"     to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+
+            <!-- Fix odom covariance as in simulation the covariance in /odom topic is high (0.1 for linear and 0.05 for angular) -->
+            <param name="odom_frame_id" value="odom"/>
+            <!--param name="odom_tf_linear_variance" value="0.001"/-->
+            <!--param name="odom_tf_angular_variance" value="0.001"/-->
+            
+            <!-- scan relevant -->
+            <param     if="$(arg subscribe_scan)" name="gen_scan" value="false"/> 
+            <param unless="$(arg subscribe_scan)" name="gen_scan" value="true"/>
+            <param     if="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> 
+            <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="true"/> 
+            
+            <!-- feature type -->
+            <param name="Vis/FeatureType"              type="string" value="4"/>
+            <param name="Kp/DetectorStrategy"          type="string" value="4"/>
+            <param name="FAST/Gpu"                     type="string" value="false"/>
+
+            <!-- RTAB-Map's parameters: do "rosrun rtabmap rtabmap (double-dash)params" to see the list of available parameters. -->
+            <param name="RGBD/ProximityBySpace"        type="string" value="true"/>   <!-- Local loop closure detection (using estimated position) with locations in WM -->
+            <param name="RGBD/OptimizeFromGraphEnd"    type="string" value="false"/>  <!-- Set to false to generate map correction between /map and /odom -->
+            <param name="Kp/MaxDepth"                  type="string" value="100.0"/>
+            <param name="Reg/Strategy"                 type="string" value="0"/>      <!-- Loop closure transformation: 0=Visual, 1=ICP, 2=Visual+ICP -->
+            <param name="Icp/CorrespondenceRatio"      type="string" value="0.3"/>
+            <param name="Vis/MinInliers"               type="string" value="12"/>      <!-- 3D visual words minimum inliers to accept loop closure -->
+            <param name="Vis/InlierDistance"           type="string" value="0.1"/>    <!-- 3D visual words correspondence distance -->
+            <param name="RGBD/AngularUpdate"           type="string" value="0.1"/>    <!-- Update map only if the robot is moving -->
+            <param name="RGBD/LinearUpdate"            type="string" value="0.1"/>    <!-- Update map only if the robot is moving -->
+            <param name="RGBD/ProximityPathMaxNeighbors" type="string" value="0"/> 
+            <param name="Rtabmap/TimeThr"              type="string" value="0"/>
+            <param name="Mem/RehearsalSimilarity"      type="string" value="0.30"/>
+            <param name="Reg/Force3DoF"                type="string" value="true"/>
+            <param name="GridGlobal/MinSize"           type="string" value="20"/>
+
+            <!-- localization mode -->
+            <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+            <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+            <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+
+
+        </node>
+        
+        <!-- visualization with rtabmapviz -->
+        <node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" output="screen">
+            <param name="subscribe_depth"             type="bool" value="true"/>
+            <param name="subscribe_scan"              type="bool" value="false"/>
+            <param name="frame_id"                    type="string" value="base_footprint"/>
+            <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
+            
+            <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+            <remap from="depth/image"     to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+            <remap from="scan"            to="/scan"/>
+        </node>
+
+        <!-- visualization with RVIZ -->
+        <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+        <!-- <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="standalone rtabmap_ros/point_cloud_xyzrgb" output="$(arg output)">
+            <remap from="rgbd_image"        to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color"/>
+            <remap from="cloud"             to="/rtabmap/local_grid/obstacle" />
+            <param name="decimation"  type="double" value="4"/>
+            <param name="voxel_size"  type="double" value="0.0"/>
+            <param name="approx_sync" type="bool"   value="$(arg approx_sync)"/>
+        </node> -->
+    </group>
+</launch>
