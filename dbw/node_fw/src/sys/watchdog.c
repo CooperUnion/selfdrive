@@ -40,7 +40,7 @@ static void set_up_rtc_watchdog(uint timeout_ms)
     rtc_wdt_protect_off(); // allows us to modify the rtc watchdog registers
     rtc_wdt_disable();
     rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
-    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_SYSTEM);
+    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
     rtc_wdt_set_time(RTC_WDT_STAGE0, timeout_ms);
     rtc_wdt_enable();
     rtc_wdt_protect_on(); // disables modifying the rtc watchdog registers
