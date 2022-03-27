@@ -8,11 +8,14 @@
 #include "esp_ota_ops.h"
 
 #include "can.h"
+#include "can_gen.h"
+
+#define MAX_TRIGGER_WAIT_TIME_MS 1000
 
 #define GPIO_LED1 GPIO_NUM_33
 #define GPIO_LED2 GPIO_NUM_32
 
-static uint8_t fw_image[1024 * 128];
+static uint8_t fw_image[1024 * 160];
 
 void can_send(int id, int val)
 {
@@ -54,7 +57,6 @@ void app_main()
         vTaskDelay(200 / portTICK_PERIOD_MS);
         state = !state;
         can_ping();
-
         const esp_partition_t* running = esp_ota_get_running_partition();
         const esp_partition_t* boot = esp_ota_get_boot_partition();
         //const esp_partition_t* update = esp_ota_get_next_update_partition(NULL);
@@ -72,18 +74,20 @@ void app_main()
         // get new firmware image
         uint32_t size = 0;
         bool led2_state = 0;
+        bool skip_eligible = true;
         while (!size) {
             twai_message_t msg;
-            if (twai_receive(&msg, portMAX_DELAY) == ESP_OK) {
+            if (twai_receive(&msg, pdTICKS_TO_MS(MAX_TRIGGER_WAIT_TIME_MS)) == ESP_OK) {
                 switch (msg.identifier) {
-                    case 0xA0:
+                    case CAN_DBWUPDATER_UPDATE_TRIGGER_FRAME_ID:
                     {
+                        skip_eligible = false;
                         gpio_set_level(GPIO_LED1, 1);
                         gpio_set_level(GPIO_LED2, 1);
-                        can_send(0xA2, 0);
+                        can_send(CAN_DBWNODE_UPDATE_RESPONSE_FRAME_ID, 0);
                         break;
                     }
-                    case 0xA1:
+                    case CAN_DBWUPDATER_UPDATE_DATA_FRAME_ID:
                     {
                         gpio_set_level(GPIO_LED2, led2_state);
                         led2_state = !led2_state;
@@ -97,7 +101,7 @@ void app_main()
                         memcpy(fw_image + position, msg.data + 3, 5);
                         break;
                     }
-                    case 0xA3:
+                    case CAN_DBWUPDATER_UPDATE_DONE_FRAME_ID:
                     {
                         size |= msg.data[0];
                         size |= msg.data[1] << 8;
@@ -108,6 +112,9 @@ void app_main()
                     default:
                         break;
                 }
+            }
+            else if (skip_eligible && update) {
+                goto done;
             }
         }
 
@@ -137,6 +144,7 @@ void app_main()
             continue;
         }
 
+done:
         err = esp_ota_set_boot_partition(update);
         can_send(0x17, err);
         if (err != ESP_OK) {
