@@ -6,6 +6,8 @@
  */
 #include <esp_err.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 typedef unsigned int uint;
 typedef float float32_t;
 

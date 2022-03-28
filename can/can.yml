@@ -14,11 +14,13 @@ messages:
       - Blink
       - Throttle
       - Brake
+      - Encoder
 
     senders:
       - dbwNode_Blink
       - dbwNode_Throttle
       - dbwNode_Brake
+      - dbwNode_Encoder
 
     signals:
       - SystemStatus:
@@ -61,6 +63,23 @@ messages:
       - RelayState:
           description: Current relay state.
           width: 1
+
+- dbwNode_Encoder_Data:
+    id: 0x04
+    cycletime: 10
+
+    signals:
+        - Encoder0:
+            description: Encoder 0 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Encoder1:
+            description: Encoder 1 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Time:
+            description: Microseconds since last reading.
+            width: 16
 
 - dbwNode_Accel_Cmd:
     id: 0x20
