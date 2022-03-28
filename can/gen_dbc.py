@@ -24,6 +24,9 @@ def parse_signal(name: str, d: dict):
     maximum = d.get("max")
     maximum = None if maximum is None else float(maximum)
 
+    is_signed = d.get("is_signed")
+    is_signed = False if is_signed is None else bool(is_signed)
+
     scale = d.get("scale")
     scale = 1 if scale is None else float(scale)
 
@@ -38,6 +41,7 @@ def parse_signal(name: str, d: dict):
         offset=offset,
         minimum=minimum,
         maximum=maximum,
+        is_signed=is_signed,
         scale=scale,
         unit=unit,
     )
