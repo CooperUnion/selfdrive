@@ -16,6 +16,7 @@
 // and you'll have a bad time
 #define INIT_TIMEOUT_MS 25
 #define FINAL_TIMEOUT_MS 25
+#define FW_UPDATE_TIMEOUT_MS 1000
 
 // ######      PROTOTYPES       ###### //
 
@@ -157,4 +158,9 @@ void set_up_rtc_watchdog_for_init()
 void set_up_rtc_watchdog_final()
 {
     set_up_rtc_watchdog(FINAL_TIMEOUT_MS);
+}
+
+void set_up_rtc_watchdog_fwupdate()
+{
+    set_up_rtc_watchdog(FW_UPDATE_TIMEOUT_MS);
 }

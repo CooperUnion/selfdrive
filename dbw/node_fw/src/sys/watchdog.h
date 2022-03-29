@@ -12,5 +12,6 @@ void IRAM_ATTR task_wdt_servicer();
 
 void set_up_rtc_watchdog_for_init();
 void set_up_rtc_watchdog_final();
+void set_up_rtc_watchdog_fwupdate();
 
 #endif
