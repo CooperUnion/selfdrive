@@ -137,20 +137,20 @@ services:
             - master
     
     ######added rviz 2/17
-    # rviz: 
-    #     build: docker-rviz/.
-    #     container_name: rviz
-    #     tty: true
-    #     environment:
-    #         - 'ROS_HOSTNAME=rviz'
-    #         - 'ROS_MASTER_URI=http://master:11311'
-    #         - 'DISPLAY=$DISPLAY'
-    #         - 'QT_X11_NO_MITSHM=1'
-    #     volumes:
-    #         - '/tmp/.X11-unix:/tmp/.X11-unix'
-    #     #command: rviz
-    #     depends_on:
-    #         - master
+    rviz: 
+        build: docker/rviz/.
+        container_name: rviz
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=rviz'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #command: rviz
+        depends_on:
+            - master
 
     rtabmap:
         build: docker/rtabmap/.
