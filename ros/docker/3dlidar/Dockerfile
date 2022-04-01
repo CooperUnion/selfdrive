@@ -2,6 +2,8 @@ FROM ros:noetic-ros-base
 
 SHELL ["/bin/bash", "-c"]
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 WORKDIR /app
 
 # install dep and such
@@ -12,10 +14,13 @@ RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/ros-drivers/velodyne ros_ws/src/velodyne
 
 RUN cd ros_ws &&\
-    source /opt/ros/noetic/setup.bash &&\
+    source /opt/ros/noetic/setup.bash &&\ 
+    apt update --fix-missing &&\
+    rosdep install --from-paths src --ignore-src -r -y  &&\
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
 
-COPY ./entrypoint.sh /
+# copy alias bash and add to bashrc
+COPY ./alias.sh /
+RUN echo "source /alias.sh" >> ~/.bashrc
 
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]

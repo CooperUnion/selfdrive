@@ -26,8 +26,9 @@ services:
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
             - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
+
     velodyne:
-        build: docker-3dlidar/.
+        build: docker/3dlidar/.
         container_name: velodyne
         tty: true
         environment:
@@ -37,6 +38,11 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
+        depends_on:
+            - master
+        ports:
+            - 2368:2368/udp
+
     move_base:
         build: docker/move_base/.
         # image: git.cooperigvc
@@ -145,23 +151,6 @@ services:
     #     #command: rviz
     #     depends_on:
     #         - master
-
-    3dlidar:
-        build: docker-3dlidar/.
-        container_name: 3dlidar
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=3dlidar'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        #devices:
-        #    - '/dev/ttyUSB0:/dev/ttyUSB0'
-        #command: roslaunch rplidar_ros view_rplidar.launch
-        depends_on:
-            - master
 
     rtabmap:
         build: docker/rtabmap/.
