@@ -7,16 +7,11 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
-# clone ros repo
-RUN mkdir -p ros_ws/src &&\
-    git clone https://github.com/novatel/novatel_oem7_driver.git ros_ws/src/gps
+# install gps driver
+RUN apt install -y ros-noetic-novatel-oem7-driver
 
-RUN cd ros_ws &&\
-    source /opt/ros/noetic/setup.bash &&\
-    rosdep install --from-paths src --ignore-src -r -y  &&\
-    catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
+# copy alias bash and add to bashrc
+COPY ./alias.sh /
+RUN echo "source /alias.sh" >> ~/.bashrc
 
-COPY ./entrypoint.sh /
-
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
