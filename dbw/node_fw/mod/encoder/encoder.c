@@ -13,11 +13,10 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_ENCODER;
 
 // ######        DEFINES        ###### //
 
-// TODO: reassign channel pins
 #define ENCODER0_CHAN_A 25
-#define ENCODER0_CHAN_B 26
-#define ENCODER1_CHAN_A 35
-#define ENCODER1_CHAN_B 34
+#define ENCODER0_CHAN_B 27
+#define ENCODER1_CHAN_A 34
+#define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
