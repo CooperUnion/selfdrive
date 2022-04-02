@@ -4,6 +4,7 @@
 #include <driver/twai.h>
 
 #include "can_gen.h"
+#include "common.h"
 
 typedef struct can_outgoing_t {
     uint32_t id;
@@ -16,6 +17,7 @@ typedef struct can_incoming_t {
     uint32_t id;
     void *out;
     int (*unpack)();
+    uint32_t delta_ms;
 } can_incoming_t;
 
 void can_register_incoming_msg(const can_incoming_t cfg);
