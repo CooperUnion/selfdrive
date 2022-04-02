@@ -77,6 +77,31 @@ messages:
             description: Microseconds since last reading.
             width: 16
 
+- dbwNode_Accel_Cntrls_Data:
+    id: 0x05
+    cycletime: 100
+
+    signals:
+      - CharMode:
+          description: Characterization mode enable (0/1).
+          width: 1
+      - TargetVel:
+          description: Target velocity
+          width: 15
+          scale: 0.001
+      - Kp:
+          description: Proportional gain
+          width: 16
+          scale: 0.001
+      - Ki:
+          description: Integral gain
+          width: 16
+          scale: 0.001
+      - Kd:
+          description: Derivative gain
+          width: 16
+          scale: 0.001
+
 - dbwNode_Accel_Cmd:
     id: 0x20
     cycletime: 100
@@ -91,6 +116,31 @@ messages:
       - ModeCtrl:
           description: Mode control command (0/1).
           width: 1
+
+- dbwNode_Accel_Cntrls_Cmd:
+    id: 0x21
+    cycletime: 100
+
+    signals:
+      - CharMode:
+          description: Characterization mode enable (0/1).
+          width: 1
+      - TargetVel:
+          description: Target velocity
+          width: 15
+          scale: 0.001
+      - Kp:
+          description: Proportional gain
+          width: 16
+          scale: 0.001
+      - Ki:
+          description: Integral gain
+          width: 16
+          scale: 0.001
+      - Kd:
+          description: Derivative gain
+          width: 16
+          scale: 0.001
 
 - dbwUpdater_Update_Trigger:
     id: 0x4A0
@@ -144,4 +194,3 @@ messages:
       - FinalSize:
           description: Number of bytes in final image size.
           width: 32
-
