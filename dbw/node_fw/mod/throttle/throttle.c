@@ -14,6 +14,9 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_THROTTLE;
 // ######        DEFINES        ###### //
 
 #define MODE_CTRL_PIN 16
+#define ENCODER_TICKS 4000
+#define WHEEL_CIRCUMFRANCE_METERS 1.899156f
+#define METERS_PER_TICK (WHEEL_CIRCUMFRANCE_METERS / ENCODER_TICKS)
 
 // ######     PRIVATE DATA      ###### //
 
