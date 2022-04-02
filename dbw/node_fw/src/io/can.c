@@ -93,9 +93,7 @@ static void can_send_msg(const twai_message_t *message)
 {
     esp_err_t r = twai_transmit(message, 0);
 
-    if (r == ESP_OK) {
-        base_set_state_good();
-    } else {
+    if (r != ESP_OK) {
         base_set_state_lost_can();
         // attempt recovery?
     }
