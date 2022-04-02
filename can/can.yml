@@ -30,7 +30,7 @@ messages:
           width: 8
 
 - dbwNode_Info:
-    id: 0x02
+    id: 0xD0
     cycletime: 100
 
     signals:
@@ -42,7 +42,7 @@ messages:
            width: 6
 
 - dbwNode_Accel_Data:
-    id: 0x03
+    id: 0x10
     cycletime: 100
 
     signals:
@@ -60,8 +60,59 @@ messages:
           description: Current relay state.
           width: 1
 
+- dbwNode_Accel_Cmd:
+    id: 0x11
+    cycletime: 100
+
+    signals:
+      - ThrottleCmd:
+          description: Throttle command.
+          minimum: 0.0
+          maximum: 1.0
+          scale: 0.01
+          width: 8
+      - ModeCtrl:
+          description: Mode control command (0/1).
+          width: 1
+
+
+- dbwNode_Brake_Data:
+    id: 0x12
+    cycletime: 100
+
+    signals:
+      - Frequency: 
+          description: Frequency of PWM input.
+          width: 16
+          unit: hertz
+      - Resolution:
+          description: Resolution of PWM input.
+          width: 16
+      - DutyCycle:
+          description: Duty Cycle of PWM input.
+          width: 16
+      - Percent: 
+          description: Percentage commanded.
+          width: 8
+          unit: percent
+      - Pressure:
+          description: Pressure Sensed.
+          width: 8
+
+- dbwNode_Brake_Cmd:
+    id: 0x13
+    cycletime: 100
+
+    signals: 
+      - BrakeCmd:
+          description: Brake command.
+          minimum: 0.0
+          maximum: 1.0
+          scale: 0.01
+          width: 8
+
 - dbwNode_Encoder_Data:
-    id: 0x04
+    id: 0x14
     cycletime: 10
 
     signals:
@@ -77,20 +128,6 @@ messages:
             description: Microseconds since last reading.
             width: 16
 
-- dbwNode_Accel_Cmd:
-    id: 0x20
-    cycletime: 100
-
-    signals:
-      - ThrottleCmd:
-          description: Throttle command.
-          minimum: 0.0
-          maximum: 1.0
-          scale: 0.01
-          width: 8
-      - ModeCtrl:
-          description: Mode control command (0/1).
-          width: 1
 
 - dbwUpdater_Update_Trigger:
     id: 0x4A0
