@@ -21,9 +21,11 @@ static void set_status_LEDs();
 enum system_states {
     SYS_STATE_UNDEF = 0,
     SYS_STATE_INIT,
-    SYS_STATE_GOOD,
+    SYS_STATE_IDLE,
+    SYS_STATE_DBW_ACTIVE,
     SYS_STATE_LOST_CAN,
     SYS_STATE_BAD,
+    SYS_STATE_ESTOP,
 };
 
 static enum system_states system_state = SYS_STATE_UNDEF;
@@ -39,6 +41,14 @@ static can_outgoing_t can_Status_cfg = {
     .extd = CAN_DBWNODE_STATUS_IS_EXTENDED,
     .dlc = CAN_DBWNODE_STATUS_LENGTH,
     .pack = CAN_dbwNode_Status_pack,
+};
+
+static struct CAN_dbwNode_SysCmd_t CAN_SysCmd;
+
+static const can_incoming_t can_SysCmd_cfg = {
+    .id = CAN_DBWNODE_SYSCMD_FRAME_ID,
+    .out = &CAN_SysCmd,
+    .unpack = CAN_dbwNode_SysCmd_unpack,
 };
 
 static struct CAN_dbwNode_Info_t CAN_Info;
@@ -57,7 +67,7 @@ const struct rate_funcs base_rf = {
 
 static void base_init()
 {
-    system_state = SYS_STATE_GOOD;
+    system_state = SYS_STATE_IDLE;
 
     gpio_pad_select_gpio(LED1_PIN);
     gpio_pad_select_gpio(LED2_PIN);
@@ -69,6 +79,8 @@ static void base_init()
     gpio_set_level(LED2_PIN, 0);
 
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
+
+    can_register_incoming_msg(can_SysCmd_cfg);
 }
 
 static void base_10Hz()
@@ -80,9 +92,27 @@ static void base_10Hz()
 
 static void base_100Hz()
 {
+    if (CAN_SysCmd.DbwActive && system_state == SYS_STATE_IDLE) {
+        system_state = SYS_STATE_DBW_ACTIVE;
+    } else if (!CAN_SysCmd.DbwActive && system_state == SYS_STATE_DBW_ACTIVE) {
+        system_state = SYS_STATE_IDLE;
+    }
+
+    if (CAN_SysCmd.ESTOP) {
+        system_state = SYS_STATE_ESTOP;
+    }
+
     switch (system_state) {
-        case SYS_STATE_GOOD:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_HEALTHY_CHOICE;
+        case SYS_STATE_IDLE:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_IDLE_CHOICE;
+            break;
+
+        case SYS_STATE_DBW_ACTIVE:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ACTIVE_CHOICE;
+            break;
+
+        case SYS_STATE_ESTOP:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
             break;
 
         default:
@@ -112,9 +142,16 @@ static void set_status_LEDs() {
             }
             break;
 
-        case SYS_STATE_GOOD:
+        case SYS_STATE_IDLE:
             led1_state = 1;
             if (!(timer % 1)) {
+                led2_state = !led2_state;
+            }
+            break;
+
+        case SYS_STATE_DBW_ACTIVE:
+            led1_state = 1;
+            if (!(timer % 2)) {
                 led2_state = !led2_state;
             }
             break;
@@ -124,6 +161,11 @@ static void set_status_LEDs() {
             if (!(timer % 2)) {
                 led1_state = !led1_state;
             }
+            break;
+
+        case SYS_STATE_ESTOP:
+            led2_state = 1;
+            led1_state = !led1_state;
             break;
 
         default:
@@ -145,15 +187,21 @@ static void set_status_LEDs() {
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
+bool base_dbw_currently_active()
+{
+    return system_state == SYS_STATE_DBW_ACTIVE;
+}
+
+
 void base_set_state_lost_can()
 {
     system_state = SYS_STATE_LOST_CAN;
 }
 
 
-void base_set_state_good()
+void base_set_state_estop()
 {
-    system_state = SYS_STATE_GOOD;
+    system_state = SYS_STATE_ESTOP;
 }
 
 

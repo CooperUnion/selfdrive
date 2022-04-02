@@ -20,14 +20,30 @@ messages:
 
     signals:
       - SystemStatus:
-          description: Simple yes/no health status of the node.
-          width: 1
+          description: Status of the node.
+          width: 2
           choices:
-            - HEALTHY
+            - IDLE
             - UNHEALTHY
+            - ACTIVE
+            - ESTOP
       - Counter:
           description: Counter for fun.
           width: 8
+
+- dbwNode_SysCmd:
+    id: 0xF0
+    cycletime: 100
+
+    template: dbwnodes
+
+    signals:
+        - DbwActive:
+            description: Activate DBW mode.
+            width: 1
+        - ESTOP:
+            description: Activate E-STOP.
+            width: 1
 
 - dbwNode_Info:
     id: 0xD0
@@ -81,7 +97,7 @@ messages:
     cycletime: 100
 
     signals:
-      - Frequency: 
+      - Frequency:
           description: Frequency of PWM input.
           width: 16
           unit: hertz
@@ -91,7 +107,7 @@ messages:
       - DutyCycle:
           description: Duty Cycle of PWM input.
           width: 16
-      - Percent: 
+      - Percent:
           description: Percentage commanded.
           width: 8
           unit: percent
@@ -103,7 +119,7 @@ messages:
     id: 0x13
     cycletime: 100
 
-    signals: 
+    signals:
       - BrakeCmd:
           description: Brake command.
           minimum: 0.0
