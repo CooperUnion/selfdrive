@@ -24,9 +24,9 @@ for i in range(0, 100):
     elif (i > 90):
       thttle_cmd = 0 # make sure car isnt moving
 
-    cmd1 = command_message.encode({'ThrottleCmd': thttle_cmd,'ModeCtrl': 1} )#mode control1 forces node to control throttle
+    cmd = command_message.encode({'ThrottleCmd': thttle_cmd,'ModeCtrl': 1} )#mode control1 forces node to control throttle
     cmd2 = command_message2.encode({'TargetVel': 0 ,'Kp': 0, 'Ki': 0,'Kd': 0, 'CharMode': 0})
-    msg1 = can.Message(arbitration_id=command_message.frame_id, data=cmd1, is_extended_id=False)
+    msg1 = can.Message(arbitration_id=command_message.frame_id, data=cmd, is_extended_id=False)
     msg2 = can.Message(arbitration_id=command_message2.frame_id, data=cmd2, is_extended_id=False)
     bus.send(msg1)
     bus.send(msg2)
