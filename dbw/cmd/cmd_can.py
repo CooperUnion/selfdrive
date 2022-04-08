@@ -13,7 +13,7 @@ class CanListener(Thread):
         self.bus = bus
         self.nodes = nodes
         self.db = db
-        self.encoder_counts = [0, 0]
+        self.encoder_counts = {"Encoder0": 0, "Encoder1": 0, "DeltaT": 0}
         self.time_at_last_enc_counts = 0
         self.time_since_last_enc_counts = 0
 
@@ -37,12 +37,12 @@ class CanListener(Thread):
                     time_now = time.time()
                     self.time_since_last_enc_counts = time_now - self.time_at_last_enc_counts
                     #print(self.time_since_last_enc_counts)
-                    
+
                     if encoder_msg.frame_id == msg.arbitration_id:
                         self.encoder_counts = self.db.decode_message(msg.arbitration_id, msg.data)
                         self.time_at_last_enc_counts = time_now
-                        
-    
+
+
             except Exception as e:
                 print("CAN Listener error!")
                 print(e)
