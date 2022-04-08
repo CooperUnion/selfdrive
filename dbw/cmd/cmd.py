@@ -21,7 +21,7 @@ def main():
     pprint("DBW Test Command and Control")
     bus = can.interface.Bus('can0', bustype='socketcan')
 
-    db = cantools.database.load_file('/selfdrive/can/igvc_can.dbc')
+    db = cantools.database.load_file('../../can/igvc_can.dbc')
     pprint(db.messages)
 
     print("Bus set up.")
@@ -45,16 +45,17 @@ def main():
 
         print("Checking speed...")
         pprint(listener.encoder_counts)
-        
+
         if listener.time_since_last_enc_counts > 3:
             do_estop_all(nodes, "encoder timeout")
 
-        countL, countR = listener.encoder_counts
+        countL = listener.encoder_counts['Encoder0']
+        countR = listener.encoder_counts['Encoder1']
         print(f"Left Encoder: {countL}, Right Encoder: {countR}")
         if countL > 80 or countR > 80:
             do_estop_all(nodes, f"speed violation: {countL}, {countR}")
-        
-        if abs(countL - countR):
+
+        if abs(countL - countR) > 100:
             do_estop_all(nodes, f"encoder difference violation: {countL}, {countR}")
 
         for node in nodes:

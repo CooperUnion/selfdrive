@@ -3,9 +3,10 @@
 
 #include <driver/gpio.h>
 
+#include "base/base.h"
 #include "common.h"
-#include "module_types.h"
 #include "io/can.h"
+#include "module_types.h"
 #include "sys/task_glue.h"
 
 /* Define firmware module identity for the entire build. */
@@ -74,10 +75,12 @@ static void control_relay(bool cmd);
 
 static void throttle_init();
 static void throttle_10Hz();
+static void throttle_100Hz();
 
 const struct rate_funcs module_rf = {
     .call_init = throttle_init,
     .call_10Hz = throttle_10Hz,
+    .call_100Hz = throttle_100Hz,
 };
 
 /*
@@ -112,6 +115,8 @@ static void throttle_10Hz()
     CAN_Accel.RelayState = relay_state;
 
     if (!CAN_Accel_Cntrls_Cmd.CharMode) {
+        // send all the data back used in the calculations for debugging
+        // to check if that output is being translated correctly
         target_vel = CAN_dbwNode_Accel_Cntrls_Cmd_TargetVel_decode(CAN_Accel_Cntrls_Cmd.TargetVel);
         float32_t actual_vel = (METERS_PER_TICK * CAN_Encoder_Data.Encoder0) / (CAN_Encoder_Data.Time * 100000);
         kp = CAN_dbwNode_Accel_Cntrls_Cmd_Kp_decode(CAN_Accel_Cntrls_Cmd.Kp);
@@ -125,7 +130,7 @@ static void throttle_10Hz()
     }
 
     CAN_Accel_Cntrls.CharMode = CAN_Accel_Cntrls_Cmd.CharMode;
-    CAN_Accel_Cntrls.TargetVel = CAN_dbwNode_Accel_Cntrls_Cmd_TargetVel_decode(target_vel);
+    CAN_Accel_Cntrls.TargetVel = CAN_dbwNode_Accel_Cntrls_Cmd_TargetVel_encode(target_vel);
     CAN_Accel_Cntrls.Kp = CAN_dbwNode_Accel_Cntrls_Data_Kp_encode(kp);
     CAN_Accel_Cntrls.Ki = CAN_dbwNode_Accel_Cntrls_Data_Ki_encode(ki);
     CAN_Accel_Cntrls.Kd = CAN_dbwNode_Accel_Cntrls_Data_Kd_encode(kd);
@@ -135,6 +140,17 @@ static void throttle_10Hz()
     can_send_iface(&can_Accel_Cntrls_Data_cfg, &CAN_Accel_Cntrls);
 }
 
+static void throttle_100Hz()
+{
+    int32_t diff = CAN_Encoder_Data.Encoder0 - CAN_Encoder_Data.Encoder1;
+
+    if (diff < 0) diff *= -1;
+
+    if (diff > 100) base_set_state_estop();
+    if (CAN_Encoder_Data.Encoder0 > 85) base_set_state_estop();
+    if (CAN_Encoder_Data.Encoder1 > 85) base_set_state_estop();
+}
+
 // ######   PRIVATE FUNCTIONS   ###### //
 
 /*
@@ -142,8 +158,13 @@ static void throttle_10Hz()
  */
 static void control_relay(bool cmd)
 {
-    gpio_set_level(MODE_CTRL_PIN, cmd);
-    relay_state = cmd;
+    if (!base_dbw_currently_active()) {
+        gpio_set_level(MODE_CTRL_PIN, false);
+        relay_state = false;
+    } else {
+        gpio_set_level(MODE_CTRL_PIN, cmd);
+        relay_state = cmd;
+    }
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
