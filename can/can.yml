@@ -145,7 +145,7 @@ messages:
             width: 16
 
 - dbwNode_Accel_Cntrls_Data:
-    id: 0x15
+    id: 0x05
     cycletime: 100
 
     signals:
@@ -168,21 +168,6 @@ messages:
           description: Derivative gain
           width: 16
           scale: 0.001
-
-- dbwNode_Accel_Cmd:
-    id: 0x20
-    cycletime: 100
-
-    signals:
-      - ThrottleCmd:
-          description: Throttle command.
-          minimum: 0.0
-          maximum: 1.0
-          scale: 0.01
-          width: 8
-      - ModeCtrl:
-          description: Mode control command (0/1).
-          width: 1
 
 - dbwNode_Accel_Cntrls_Cmd:
     id: 0x21
