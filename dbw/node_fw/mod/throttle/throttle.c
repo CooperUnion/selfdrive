@@ -118,6 +118,7 @@ static void throttle_10Hz()
         float32_t error = target_vel - actual_vel;
         float32_t output = error * kp;
         set_pedal_output(output);
+
     } else {
         // get the pedal output from the CAN data
         float32_t cmd = CAN_dbwNode_Accel_Cmd_ThrottleCmd_decode(CAN_Accel_Cmd.ThrottleCmd);

@@ -8,7 +8,7 @@ from time import sleep
 
 bus = can.interface.Bus('can0', bustype='socketcan')
 
-db = cantools.database.load_file('/home/isabellaflynn/selfdrive/can/igvc_can.dbc')
+db = cantools.database.load_file('igvc_can.dbc')
 pprint(db.messages)
 
 command_message = db.get_message_by_name('dbwNode_Accel_Cmd')
