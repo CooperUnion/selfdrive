@@ -16,16 +16,15 @@ services:
         restart: unless-stopped
         command: stdbuf -o L roscore
 
-    move_base:
-        build: docker/move_base/.
-        # image: git.cooperigvc
-        container_name: move_base
+    navigation:
+        build: docker/navigation/.
+        container_name: navigation
         tty: true
         environment:
-            - 'ROS_HOSTNAME=move_base'
+            - 'ROS_HOSTNAME=navigation'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
+            - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
     velodyne:
         build: docker/3dlidar/.
@@ -42,19 +41,6 @@ services:
             - master
         ports:
             - 2368:2368/udp
-
-    move_base:
-        build: docker/move_base/.
-        # image: git.cooperigvc
-        container_name: move_base
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=move_base'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
-        depends_on:
-            - master
 
     rplidar:
         build: docker-rplidar/.
