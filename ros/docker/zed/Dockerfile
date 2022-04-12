@@ -68,5 +68,9 @@ RUN cd ros_ws &&\
 
 COPY ./entrypoint.sh /
 
+# copy alias bash and add to bashrc
+COPY ./alias.sh /
+RUN echo "source /alias.sh" >> ~/.bashrc
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
