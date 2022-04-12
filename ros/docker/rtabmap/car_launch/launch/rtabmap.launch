@@ -1,5 +1,3 @@
-<?xml version="1.0">
-
 <launch>
     <!-- ZED related arguments -->
     <arg name="zed_namespace"        default="zed" />
