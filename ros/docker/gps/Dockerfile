@@ -8,7 +8,8 @@ WORKDIR /app
 RUN apt update && apt install -y git
 
 # install gps driver
-RUN apt install -y ros-noetic-novatel-oem7-driver
+RUN apt update --fix-missing && \
+    apt install -y ros-noetic-novatel-oem7-driver
 
 # copy alias bash and add to bashrc
 COPY ./alias.sh /

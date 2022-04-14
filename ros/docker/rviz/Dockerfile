@@ -8,7 +8,8 @@ WORKDIR /app
 RUN apt update && apt install -y git 
 
 # install gps driver
-RUN apt install -y ros-noetic-rviz
+RUN apt update --fix-missing && \
+    apt install -y ros-noetic-rviz
 
 # copy alias bash and add to bashrc
 COPY ./alias.sh /
