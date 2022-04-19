@@ -52,6 +52,7 @@ class LogParser:
                 datalen = int(tokenized[3].replace('[', '').replace(']',''))
                 # Convert the raw string data into a bytearray from hexformate
                 rawdata = bytearray.fromhex(''.join(tokenized[4:4+datalen]))
+                
                 # If message is an encoder message append data to the encoder data class
                 if(encmsg._frame_id == int(tokenized[2], base=16)):
                     print("Encoder message found")
@@ -61,6 +62,15 @@ class LogParser:
                     enc_data.Encoder1 = np.append(enc_data.Encoder1, data['Encoder1'])
                     enc_data.dt = np.append(enc_data.dt, data['Time'])
                     enc_data.absolute_time = np.append(enc_data.absolute_time, float(tokenized[0].replace('(', '').replace(')', '')))
+                # If message is a throttle message append data to the encoder data class
+                if(throttlemsg._frame_id == int(tokenized[2], base=16)):
+                    print("Throttle message found")
+                    data = database.decode_message(throttlemsg._frame_id, rawdata) # Decode the raw data into dictionary
+                    # Append data to the encoder data class variables
+                    throttle_data.ThrottlePercent = np.append(throttle_data.ThrottlePercent, data['Percent'])
+                    throttle_data.absolute_time = np.append(throttle_data.absolute_time, float(tokenized[0].replace('(', '').replace(')', '')))
+                            
+            
             except Exception as e:
                 print(e)
                 continue
@@ -74,7 +84,7 @@ class LogParser:
 plt.figure()
 plt.ion()
 plt.plot(edata.absolute_time, edata.Encoder0, 'r-')
-plt.plot(edata.absolute_time, edata.Encoder1, 'b-')
+plt.plot(tdata.absolute_time, tdata.ThrottlePercent, 'b-')
 plt.show(block=False)
 plt.pause(0.01)
 print('wait')
