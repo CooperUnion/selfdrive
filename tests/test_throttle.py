@@ -42,7 +42,8 @@ def main():
 
     bus.send('dbwNode_SysCmd', {'DbwActive': 1, 'ESTOP': 0})
     bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(args.percent, 100) / 100, 'ModeCtrl': 1})
-    time.sleep(abs(args.time))
+    bus.send('dbwNode_Accel_Cntrls_Cmd', {'TargetVel': 0 ,'Kp': 0, 'Ki': 0,'Kd': 0, 'CharMode': 1})
+    time.sleep(args.time)
     bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': 0, 'ModeCtrl': 1})
     bus.send('dbwNode_SysCmd', {'DbwActive': 0, 'ESTOP': 0})
 
