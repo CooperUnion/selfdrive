@@ -21,5 +21,8 @@ done
 
 
 candump -ta "$can_dev" > "$CANDUMPS_DIR/$(date +'%Y-%m-%dT%H:%M:%S%:z')" &
+CANDUMP_PID="$!"
 
-exec $args
+$args
+
+kill -9 "$CANDUMP_PID"
