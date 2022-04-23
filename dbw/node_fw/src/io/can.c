@@ -1,15 +1,10 @@
 #include "can.h"
 
-#include <esp_ota_ops.h>
 #include <driver/twai.h>
-#include <stdio.h>
 
 #include "base/base.h"
 #include "common.h"
 #include "sys/task_glue.h"
-#include "sys/watchdog.h"
-
-#include "can_gen.h"
 
 // ######        DEFINES        ###### //
 
