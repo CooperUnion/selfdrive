@@ -59,11 +59,12 @@ static void can_init()
 
 static void can_100Hz()
 {
+    // update time deltas
+    for (uint i = 0; i < in_msgs_count; i++) {
+        in_msgs[i].delta_ms += 10;
+    }
+
     for (;;) {
-        // update time deltas
-        for (uint i = 0; i < in_msgs_count; i++) {
-            in_msgs[i].delta_ms += 10;
-        }
 
         twai_message_t msg;
         esp_err_t result = twai_receive(&msg, 0);
