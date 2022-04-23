@@ -24,7 +24,7 @@ flash: $(CAN)
 
 .PHONY: clean
 clean:
-	$(PIO) run $(PIO_RUNFLAGS) --silent --target clean
+	$(PIO) run $(PIO_RUNFLAGS) --target clean
 
 
 .PHONY: $(CAN)
