@@ -3,8 +3,8 @@
 
 #include <driver/twai.h>
 
-#include "can_gen.h"
 #include "common.h"
+#include "io/can_gen.h"
 
 typedef struct can_outgoing_t {
     uint32_t id;
