@@ -3,8 +3,8 @@
 #include <driver/gpio.h>
 
 #include "common.h"
-#include "module_types.h"
 #include "io/can.h"
+#include "module_types.h"
 #include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
