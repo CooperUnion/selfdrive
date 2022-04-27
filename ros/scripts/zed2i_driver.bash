@@ -9,7 +9,7 @@ bash check_container.bash $container_name
 xhost +si:localuser:root
 
 # run zed driver
-docker exec -itd $container_name bash -c "source /opt/ros/noetic/setup.bash && source ros_ws/devel/setup.bash && roslaunch zed_driver zed2i.launch"
+docker exec -itd $container_name bash -c "source /opt/ros/noetic/setup.bash && source ros_ws/devel/setup.bash && roslaunch zed_launch zed2i.launch"
 
 echo "press q to kill process"
 while : ; do

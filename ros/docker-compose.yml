@@ -91,7 +91,7 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            # - '/dev:/dev'
+            - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
         # devices:
         #    - '/dev/ttyUSB0:/dev/ttyUSB0'
         # command: roslaunch zed_wrapper zed.launch
