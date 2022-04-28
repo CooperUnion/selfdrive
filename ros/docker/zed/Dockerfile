@@ -55,7 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-RUN apt update && apt install -y git 
+RUN apt update && apt install -y git vim
 
 RUN mkdir -p ros_ws/src &&\
     git clone --recursive https://github.com/stereolabs/zed-ros-wrapper.git ros_ws/src/zed && \

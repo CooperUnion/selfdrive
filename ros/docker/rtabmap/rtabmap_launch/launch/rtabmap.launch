@@ -22,7 +22,7 @@
 
     <group ns="rtabmap">
         <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
-            <rosparam command="load" file="/app/ros_ws/src/params/rtabmap.yaml" />
+            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />
 
             <!-- determine if we subscribe to lidar -->
             <param     if="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="true"/>
@@ -40,6 +40,9 @@
             <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" />
             <remap from="odom"              to="$(arg odom_topic)" />
 
+            <!-- map -->
+            <remap from="grid_map"          to="map" />
+
             <!-- when sending goals on /rtabmap/goal topic, use actionlib to communicate with move_base -->
             <param name="use_action_for_goal"   type="bool"     value="true" />
             <remap from="move_base"             to="/move_base" />
@@ -49,5 +52,20 @@
             <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
             <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
         </node>
+
+        <!-- <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+            <param name="subscribe_stereo"          type="bool"     value="true"/>
+            <param name="subscribe_odom_info"       type="bool"     value="true"/>
+            <param name="subscribe_depth"           type="bool"     value="true"/>
+
+            <remap from="rgb/image"         to="$(arg rgb_topic)"/>
+            <remap from="depth/image"       to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
+
+            <remap from="grid_map"          to="map" />
+            <remap from="odom"              to="$(arg odom_topic)"/>
+        </node>
+
+        <node name="rviz" pkg="rviz" type="rviz" args="-d /app/ros_ws/src/rtabmap_launch/rviz/zed-rtabmap.rviz" output="screen" />   -->
     </group>
 </launch>

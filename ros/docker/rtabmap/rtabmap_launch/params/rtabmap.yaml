@@ -4,6 +4,7 @@ frame_id:                       "base_link"
 wait_for_transform_duration:    0.2
 map_negative_poses_ignored:     true
 subscribe_depth:                true
+publish_tf:                     true
 
 # fix covariance in odom topic
 odom_frame_id:            "odom"

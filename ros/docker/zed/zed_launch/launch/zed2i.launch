@@ -2,6 +2,7 @@
     <!-- ZED Param -->
     <arg name="zed_namespace"           default="zed" />
     <arg name="svo_file"                default="" />
+    <arg name="stream"                  default="" />
     <arg name="zed_node_name"           default="zed_node" />
     <arg name="camera_model"            default="zed2i" /> 
     <arg name="base_frame"              default="base_link" />
