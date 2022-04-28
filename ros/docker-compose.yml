@@ -151,7 +151,7 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - ~/.ros:/root
-        command: roslaunch --wait rtabmap_ros rtabmap.launch
+            - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
         deploy:
