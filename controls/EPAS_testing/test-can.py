@@ -108,7 +108,7 @@ if __name__ == "__main__":
             vel_cmd = get_controls(desired_pos, pos_masked)
 
         #send vel_cmd to odrive but CLIP THE OUTPUT!
-            axis.controller.input_vel = np.clip(vel_cmd, -5, 5)
+            axis.controller.input_vel = np.clip(0.1, -5, 5)
             # axis.controller.input_vel = 0.0
 
         # Only print data if the encoder has moved
