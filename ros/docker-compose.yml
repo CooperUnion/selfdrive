@@ -11,6 +11,8 @@ services:
             - 'ROS_MASTER_URI=http://master:11311'
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
+        ports:
+            - '11311:11311'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         restart: unless-stopped
@@ -92,12 +94,6 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
-        # devices:
-        #    - '/dev/ttyUSB0:/dev/ttyUSB0'
-        # command: roslaunch zed_wrapper zed.launch
-        # command: roslaunch zed_display_rviz display_zed.launch
-        # command: roslaunch zed_rtabmap_example zed_rtabmap.launch
-        
         depends_on:
             - master
         deploy:
@@ -150,7 +146,7 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - ~/.ros:/root
+            #- ~/.ros:/root
             - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
