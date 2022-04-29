@@ -81,8 +81,8 @@ services:
                         - capabilities: [gpu]
 
     zed:
-        #build: docker-zed/.
-        image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
+        build: docker/zed/.
+        #image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
         container_name: zed
         tty: true
         privileged: true
@@ -94,8 +94,8 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
-        depends_on:
-            - master
+        # depends_on:
+        #     - master
         deploy:
             resources:
                 reservations:
