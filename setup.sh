@@ -16,7 +16,14 @@ if [ -x "$(command -v apt-get)" ]; then
         python3.9 \
         python3.9-venv \
         can-utils \
-        fish
+        fish \
+        redis
+elif [ -x "$(command -v dnf)" ]; then
+    sudo dnf install -y -q \
+        python3.9 \
+        can-utils \
+        fish \
+        redis
 else
     echo -e "---        WARNING: Package manager not found.        ---"
     echo -e "--- You need to manually install system dependencies. ---"
