@@ -11,9 +11,15 @@ class EncoderData:
         self.Encoder1 = np.array([])
         self.dt = np.array([])
         self.absolute_time = np.array([])
-    
+
     def to_csv(self):
-        raise NotImplementedError
+        head = ["abs_time", "dt", "enc0", "enc1"]
+        file = open('encoder_data.csv', 'w+')
+        writer = csv.writer(file, delimiter=',')
+        writer.writerow(head)
+        for i in range(len(self.Encoder0)):
+            row = [self.absolute_time[i], self.dt[i], self.Encoder0[i], self.Encoder1[i]]
+            writer.writerow(row)
 
 class ThrottleData:
     def __init__(self, dbc_filename:str):
@@ -21,15 +27,21 @@ class ThrottleData:
         self.absolute_time = np.array([])
 
     def to_csv(self):
-        raise NotImplementedError
-        
+        head = ["abs_time","throttle percent"]
+        file = open('throttle_data.csv', 'w+')
+        writer = csv.writer(file, delimiter=',')
+        writer.writerow(head)
+        for i in range(len(self.Encoder0)):
+            row = [self.absolute_time[i], self.ThrottlePercent[i]]
+            writer.writerow(row)
+
 class ControlsData:
     pass
 
 class LogParser:
     def __init__(self):
         pass
-    
+
     @staticmethod
     def log_to_data_classes(filename: str, dbc_filename:str):
         logfile = open(filename) # Open Log file
@@ -52,7 +64,7 @@ class LogParser:
                 datalen = int(tokenized[3].replace('[', '').replace(']',''))
                 # Convert the raw string data into a bytearray from hexformate
                 rawdata = bytearray.fromhex(''.join(tokenized[4:4+datalen]))
-                
+
                 # If message is an encoder message append data to the encoder data class
                 if(encmsg._frame_id == int(tokenized[2], base=16)):
                     print("Encoder message found")
@@ -69,8 +81,8 @@ class LogParser:
                     # Append data to the encoder data class variables
                     throttle_data.ThrottlePercent = np.append(throttle_data.ThrottlePercent, data['Percent'])
                     throttle_data.absolute_time = np.append(throttle_data.absolute_time, float(tokenized[0].replace('(', '').replace(')', '')))
-                            
-            
+
+
             except Exception as e:
                 print(e)
                 continue
@@ -91,7 +103,7 @@ if __name__ == "__main__":
     for i, v in enumerate(edata.Encoder0[:-1]):
         if i == 0:
             ydot =(((1 - beta)/Ts) * (edata.Encoder0[i+1] - v))
-        else:    
+        else:
             ydot = (beta * accel[i-1]) + (((1 - beta)/Ts) * (edata.Encoder0[i+1] - v))
         accel = np.append(accel, ydot)
 
@@ -103,11 +115,14 @@ if __name__ == "__main__":
             vel_int = np.append(vel_int, vel_int[i-1] + (accel[i] * Ts))
 
 
-    
+    # Make csv files
+    edata.to_csv()
+
     plt.figure()
     # plt.ion()
-    plt.plot(edata.absolute_time, edata.Encoder0, 'r.')
-    plt.plot(edata.absolute_time[:-1], accel, 'g.')
-    plt.plot(edata.absolute_time[:-1], vel_int, 'b.')
-    # plt.plot(tdata.absolute_timevel_intta.bhrottlePercent, 'b.')
+    plt.plot(edata.absolute_time, edata.Encoder0, 'r.', label='ENC0')
+    plt.plot(edata.absolute_time[:-1], accel, 'g.', label='accel_estimate')
+    plt.plot(edata.absolute_time[:-1], vel_int, 'b.', label='ENC0_reintegrated')
+    plt.plot(tdata.absolute_time, tdata.ThrottlePercent, 'c.', label='input throttle')
+    plt.legend()
     plt.show()
