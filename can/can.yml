@@ -20,17 +20,33 @@ messages:
 
     signals:
       - SystemStatus:
-          description: Simple yes/no health status of the node.
-          width: 1
+          description: Status of the node.
+          width: 2
           choices:
-            - HEALTHY
+            - IDLE
             - UNHEALTHY
+            - ACTIVE
+            - ESTOP
       - Counter:
           description: Counter for fun.
           width: 8
 
+- dbwNode_SysCmd:
+    id: 0xF0
+    cycletime: 100
+
+    template: dbwnodes
+
+    signals:
+        - DbwActive:
+            description: Activate DBW mode.
+            width: 1
+        - ESTOP:
+            description: Activate E-STOP.
+            width: 1
+
 - dbwNode_Info:
-    id: 0x02
+    id: 0xD0
     cycletime: 100
 
     signals:
@@ -42,7 +58,7 @@ messages:
            width: 6
 
 - dbwNode_Accel_Data:
-    id: 0x03
+    id: 0x10
     cycletime: 100
 
     signals:
@@ -60,8 +76,59 @@ messages:
           description: Current relay state.
           width: 1
 
+- dbwNode_Accel_Cmd:
+    id: 0x11
+    cycletime: 100
+
+    signals:
+      - ThrottleCmd:
+          description: Throttle command.
+          minimum: 0.0
+          maximum: 1.0
+          scale: 0.01
+          width: 8
+      - ModeCtrl:
+          description: Mode control command (0/1).
+          width: 1
+
+
+- dbwNode_Brake_Data:
+    id: 0x12
+    cycletime: 100
+
+    signals:
+      - Frequency:
+          description: Frequency of PWM input.
+          width: 16
+          unit: hertz
+      - Resolution:
+          description: Resolution of PWM input.
+          width: 16
+      - DutyCycle:
+          description: Duty Cycle of PWM input.
+          width: 16
+      - Percent:
+          description: Percentage commanded.
+          width: 8
+          unit: percent
+      - Pressure:
+          description: Pressure Sensed.
+          width: 8
+
+- dbwNode_Brake_Cmd:
+    id: 0x13
+    cycletime: 100
+
+    signals:
+      - BrakeCmd:
+          description: Brake command.
+          minimum: 0.0
+          maximum: 1.0
+          scale: 0.01
+          width: 8
+
 - dbwNode_Encoder_Data:
-    id: 0x04
+    id: 0x14
     cycletime: 10
 
     signals:
@@ -79,6 +146,7 @@ messages:
 
 - dbwNode_Accel_Cntrls_Data:
     id: 0x05
+<<<<<<< HEAD
     cycletime: 100
 
     signals:
@@ -104,18 +172,55 @@ messages:
 
 - dbwNode_Accel_Cmd:
     id: 0x20
+=======
+>>>>>>> 080c3889b6fda0c6eddade93bb250459863e0ab3
     cycletime: 100
 
     signals:
-      - ThrottleCmd:
-          description: Throttle command.
-          minimum: 0.0
-          maximum: 1.0
-          scale: 0.01
-          width: 8
-      - ModeCtrl:
-          description: Mode control command (0/1).
+      - CharMode:
+          description: Characterization mode enable (0/1).
           width: 1
+      - TargetVel:
+          description: Target velocity
+          width: 15
+          scale: 0.001
+      - Kp:
+          description: Proportional gain
+          width: 16
+          scale: 0.001
+      - Ki:
+          description: Integral gain
+          width: 16
+          scale: 0.001
+      - Kd:
+          description: Derivative gain
+          width: 16
+          scale: 0.001
+
+- dbwNode_Accel_Cntrls_Cmd:
+    id: 0x21
+    cycletime: 100
+
+    signals:
+      - CharMode:
+          description: Characterization mode enable (0/1).
+          width: 1
+      - TargetVel:
+          description: Target velocity
+          width: 15
+          scale: 0.001
+      - Kp:
+          description: Proportional gain
+          width: 16
+          scale: 0.001
+      - Ki:
+          description: Integral gain
+          width: 16
+          scale: 0.001
+      - Kd:
+          description: Derivative gain
+          width: 16
+          scale: 0.001
 
 - dbwNode_Accel_Cntrls_Cmd:
     id: 0x21
