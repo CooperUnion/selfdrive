@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+
+"""
+cand - Tasty CAN Daemon
+"""
+
+import argparse
+import can
+import cantools
+import coloredlogs
+import logging
+import multiprocessing as mp
+import redis
+import time
+
+from packaging import version
+
+import cand.config as cfg
+import cand.listener as listener
+import cand.talker as talker
+
+MIN_REDIS_VERSION = "7.0.0"
+
+REDIS_SOCKET_CONNECT_TIMEOUT_SEC = 0.5
+PROCESS_RESTART_SLEEP_TIME_SEC = 0.5
+
+
+def listener_process():
+    log = logging.getLogger("listener")
+
+    while True:
+        try:
+            listener.cand()
+        except Exception as e:
+            log.error(f"FATAL ERROR IN LISTENER: {e}")
+            log.error("Attempting to restart listener.")
+        time.sleep(PROCESS_RESTART_SLEEP_TIME_SEC)
+
+
+def talker_process():
+    log = logging.getLogger("talker")
+
+    while True:
+        try:
+            talker.talker()
+        except Exception as e:
+            log.error(f"FATAL ERROR IN TALKER: {e}")
+            log.error("Attempting to restart talker.")
+        time.sleep(PROCESS_RESTART_SLEEP_TIME_SEC)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="cand Options")
+
+    parser.add_argument("--dev", help="CAN device", metavar="canx", required=True)
+
+    parser.add_argument("--dbc", help="CAN DBC", metavar="./file.dbc", required=True)
+
+    parser.add_argument(
+        "--redis_host",
+        help="Redis host",
+        metavar="localhost",
+        default="localhost",
+    )
+
+    parser.add_argument(
+        "--redis_port",
+        help="Redis port",
+        metavar="6379",
+        default="6379",
+    )
+
+    parser.add_argument(
+        "--debug",
+        help="Show debug-level logs",
+        action="store_const",
+        const=logging.DEBUG,
+        default=logging.INFO,
+    )
+
+    parser.add_argument(
+        "--no_flush", help="Don't flush Redis on startup", action="store_true"
+    )
+
+    args = parser.parse_args()
+
+    coloredlogs.install(level=args.debug)
+    log = logging.getLogger("launcher")
+
+    log.info("cand starting.")
+
+    # Initialize Redis
+    log.info("Trying to connect to Redis...")
+    _rdb = redis.Redis(
+        host=args.redis_host,
+        port=args.redis_port,
+        socket_connect_timeout=REDIS_SOCKET_CONNECT_TIMEOUT_SEC,
+    )
+
+    try:
+        _rdb.ping()
+    except redis.ConnectionError as e:
+        log.error(f"Failed to connect to Redis: {e}")
+        exit(-1)
+
+    log.info("Connected to Redis successfully.")
+
+    redis_version = _rdb.info()["redis_version"]
+    if version.parse(redis_version) < version.parse(MIN_REDIS_VERSION):
+        log.error(
+            f"Redis version must be {MIN_REDIS_VERSION} or higher (found {redis_version})."
+        )
+        exit(-1)
+
+    # Initialize cantools
+    try:
+        _dbc = cantools.database.load_file(args.dbc)
+    except Exception as e:
+        log.error(f"Error loading dbc file: {e}")
+        exit(-1)
+
+    log.info("Loaded DBC.")
+
+    # Initialize python-can
+    try:
+        _bus = can.ThreadSafeBus(args.dev, bustype="socketcan")
+    except Exception as e:
+        log.error(f"Error creating CAN bus object: {e}")
+        exit(-1)
+
+    log.info("Created CAN bus object.")
+
+    cfg.init(_bus=_bus, _dbc=_dbc, _rdb=_rdb)
+
+    # Flush Redis as the last thing before we start
+    if not args.no_flush:
+        _rdb.flushdb()
+
+    # Start processes
+    listen_p = mp.Process(target=listener_process)
+    talk_p = mp.Process(target=talker_process)
+
+    listen_p.start()
+    talk_p.start()
+
+
+if __name__ == "__main__":
+    main()

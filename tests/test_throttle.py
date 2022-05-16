@@ -3,48 +3,61 @@
 import argparse
 import time
 
-import igvcutils
+from cand.client import Client
+
+bus = Client()
+
+
+def run_test(percent, duration):
+    bus.send("dbwNode_Encoder_Data", {"Encoder0": 0, "Encoder1": 1, "Time": 100})
+    bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
+    bus.send(
+        "dbwNode_Accel_Cmd", {"ThrottleCmd": min(percent, 100) / 100, "ModeCtrl": 1}
+    )
+
+    time_start = time.time()
+    i = 0
+    while True:
+        if (time.time() - time_start) > abs(duration):
+            break
+        print(f"{i} {bus.get('dbwNode_Encoder_Data')}")
+        i += 1
+        time.sleep(0.01)
+
+
+def end_test():
+    bus.send("dbwNode_Accel_Cmd", {"ThrottleCmd": 0, "ModeCtrl": 0})
+    bus.send("dbwNode_SysCmd", {"DbwActive": 0, "ESTOP": 0})
 
 
 def main():
-    parser = argparse.ArgumentParser(description='test throttle')
+    parser = argparse.ArgumentParser(description="test throttle")
 
     parser.add_argument(
-        '-c',
-        '--can',
-        help='CAN device',
-        metavar='canx',
-    )
-    parser.add_argument(
-        '-d',
-        '--dbc',
-        help='CAN DBC',
-        metavar='file.dbc',
-    )
-    parser.add_argument(
-        '-p',
-        '--percent',
-        help='value between 0 and 100',
-        metavar='n',
+        "-p",
+        "--percent",
+        help="value between 0 and 100",
+        metavar="n",
         type=int,
+        required=True,
     )
     parser.add_argument(
-        '-t',
-        '--time',
-        help='duration in seconds',
-        metavar='n.n',
+        "-t",
+        "--time",
+        help="duration in seconds",
+        metavar="n.n",
         type=float,
+        required=True,
     )
 
     args = parser.parse_args()
 
-    bus = igvcutils.can.Bus(args.dbc, args.can)
-
-    bus.send('dbwNode_SysCmd', {'DbwActive': 1, 'ESTOP': 0})
-    bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(args.percent, 100) / 100, 'ModeCtrl': 1})
-    time.sleep(abs(args.time))
-    bus.send('dbwNode_SysCmd', {'DbwActive': 0, 'ESTOP': 0})
+    run_test(args.percent, args.time)
+    end_test()
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    try:
+        main()
+    except:
+        end_test()
