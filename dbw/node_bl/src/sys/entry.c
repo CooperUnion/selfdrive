@@ -1,4 +1,3 @@
-#include "base/base.h"
 #include "module_types.h"
 #include "sys/tasking.h"
 
@@ -12,6 +11,4 @@ void app_main()
     modules_init();
 
     tasking_begin();
-
-    base_set_state_bl();
 }

@@ -7,6 +7,7 @@
  * List an extern definition for each src/ module's struct rate_tasks.
  */
 extern const struct rate_funcs base_rf;
+extern const struct rate_funcs bl_rf;
 extern const struct rate_funcs can_rf;
 extern const struct rate_funcs eeprom_rf;
 
@@ -19,6 +20,7 @@ extern const struct rate_funcs eeprom_rf;
  */
 static const struct rate_funcs* task_list[] = {
     &base_rf,
+    &bl_rf,
     &can_rf,
     &eeprom_rf,
 };
