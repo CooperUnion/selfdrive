@@ -168,6 +168,13 @@ static void set_status_LEDs() {
             }
             break;
 
+        case SYS_STATE_BL:
+            led1_state = !led1_state;
+            if (!(timer % 2)) {
+                led2_state = !led2_state;
+            }
+            break;
+
         case SYS_STATE_ESTOP:
             led2_state = 1;
             led1_state = !led1_state;
