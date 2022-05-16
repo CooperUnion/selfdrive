@@ -1,6 +1,6 @@
 #!/bin/bash
 
-container_name=master
+container_name=$1
 
 # https://stackoverflow.com/questions/38576337/how-to-execute-a-bash-command-only-if-a-docker-container-with-a-given-name-does
 # check if container is already running
