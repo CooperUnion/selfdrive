@@ -26,6 +26,7 @@ enum system_states {
     SYS_STATE_LOST_CAN,
     SYS_STATE_BAD,
     SYS_STATE_ESTOP,
+    SYS_STATE_BL,
 };
 
 static enum system_states system_state = SYS_STATE_UNDEF;
@@ -60,9 +61,9 @@ static void base_10Hz();
 static void base_100Hz();
 
 const struct rate_funcs base_rf = {
-    .call_init = base_init,
-    .call_10Hz = base_10Hz,
-    .call_1Hz = base_100Hz,
+    .call_init  = base_init,
+    .call_10Hz  = base_10Hz,
+    .call_100Hz = base_100Hz,
 };
 
 static void base_init()
@@ -113,6 +114,10 @@ static void base_100Hz()
 
         case SYS_STATE_ESTOP:
             CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
+            break;
+
+        case SYS_STATE_BL:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_BL_CHOICE;
             break;
 
         default:
@@ -196,6 +201,12 @@ bool base_dbw_currently_active()
 void base_set_state_lost_can()
 {
     system_state = SYS_STATE_LOST_CAN;
+}
+
+
+void base_set_state_bl()
+{
+    system_state = SYS_STATE_BL;
 }
 
 

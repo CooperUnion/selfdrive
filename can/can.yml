@@ -27,6 +27,7 @@ messages:
             - UNHEALTHY
             - ACTIVE
             - ESTOP
+            - BL
       - Counter:
           description: Counter for fun.
           width: 8
