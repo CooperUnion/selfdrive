@@ -39,6 +39,7 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/3dlidar/3dlidar_launch:/app/ros_ws/src/3dlidar_launch'
         depends_on:
             - master
         ports:

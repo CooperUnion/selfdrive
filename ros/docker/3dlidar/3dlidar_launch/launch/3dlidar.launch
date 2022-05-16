@@ -1,9 +1,4 @@
 <launch>
-    <!-- start nodelet -->
-    <include file="$(find velodyne_driver)/launch/nodelet_manager.launch">\
-        <arg name="model"   value="VLP16" />
-    </include>
-
     <!-- start cloud nodelet -->
     <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch" />
 </launch>
