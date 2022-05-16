@@ -21,7 +21,7 @@ messages:
     signals:
       - SystemStatus:
           description: Status of the node.
-          width: 2
+          width: 3
           choices:
             - IDLE
             - UNHEALTHY
