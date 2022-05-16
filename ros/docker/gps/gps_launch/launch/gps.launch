@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find novatel_oem7_driver)/launch/oem7_net.launch">
+        <param name="oem7_ip_addr" value="10.7.0.54" />
+    </include> 
+</launch>
