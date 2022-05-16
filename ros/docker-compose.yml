@@ -28,6 +28,21 @@ services:
         volumes:
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
+    ekf:
+        build: docker/ekf/.
+        container_name: ekf
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=ekf'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/ekf/ekf_launch:/app/ros_ws/src/ekf_launch'
+        depends_on:
+            - master
+
     velodyne:
         build: docker/3dlidar/.
         container_name: velodyne
