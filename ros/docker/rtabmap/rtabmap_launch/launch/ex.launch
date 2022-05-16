@@ -31,16 +31,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <group ns="$(arg camera_name)">
 
         <!-- RTAB-Map -->
-        <arg name="custom_rtabmap_launch_file" default="$(find rtabmap_launch)/launch/include/sl_rtabmap.launch.xml"/>
+        <!-- <arg name="custom_rtabmap_launch_file" default="$(find rtabmap_launch)/launch/include/sl_rtabmap.launch.xml"/>
         <include file="$(arg custom_rtabmap_launch_file)">
             <arg name="odom_topic"              default="$(arg zed_node_name)/odom" />
             <arg name="rgb_topic"               default="$(arg zed_node_name)/rgb/image_rect_color" />
             <arg name="depth_topic"             default="$(arg zed_node_name)/depth/depth_registered" />
             <arg name="camera_info_topic"       default="$(arg zed_node_name)/rgb/camera_info" />
             <arg name="depth_camera_info_topic" default="$(arg zed_node_name)/depth/camera_info" />
-        </include>   
+        </include>    -->
+
+        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+            <param name="subscribe_stereo"          type="bool"     value="true"/>
+            <param name="subscribe_odom_info"       type="bool"     value="true"/>
+            <param name="subscribe_depth"           type="bool"     value="true"/>
+
+            <remap from="rgb/image"         to="$(arg rgb_topic)"/>
+            <remap from="depth/image"       to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
+
+            <remap from="grid_map"          to="map" />
+            <remap from="odom"              to="$(arg odom_topic)"/>
+        </node>
 
         <!-- Rviz -->
-        <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zed_rtabmap_example)/rviz/zed-rtabmap.rviz" output="screen" />  -->
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zed_rtabmap_example)/rviz/zed-rtabmap.rviz" output="screen" /> 
     </group>
 </launch>

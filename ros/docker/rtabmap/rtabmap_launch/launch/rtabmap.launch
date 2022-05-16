@@ -53,6 +53,12 @@
             <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
         </node>
 
+        <node name="rgbd_odometry" pkg="rtabmap_ros" type="rgbd_odometry" output="screen" args="">
+            <remap from="rgb/image"         to="$(arg rgb_topic)"/>
+            <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
+            <remap from="depth/image"       to="$(arg depth_topic)" />
+        </node>
+
         <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
             <param name="subscribe_stereo"          type="bool"     value="true"/>
             <param name="subscribe_odom_info"       type="bool"     value="true"/>

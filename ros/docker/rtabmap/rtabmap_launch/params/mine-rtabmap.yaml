@@ -5,7 +5,9 @@ map_frame_id:                   "map"
 wait_for_transform_duration:    0.2
 map_negative_poses_ignored:     true
 subscribe_depth:                true
-publish_tf:                     false
+subscribe_stereo:               false
+subscribe_rgbd:                 false
+publish_tf:                     true
 approx_sync:                    true
 gen_scan:                       true
 
