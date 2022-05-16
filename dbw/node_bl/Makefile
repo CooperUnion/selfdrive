@@ -5,16 +5,22 @@ PIO ?= platformio
 # build vars
 CAN           = ../../can
 PIO_DIR       = .pio
+PIO_RUNFLAGS ?=
+
+
+ifdef MOD
+	PIO_RUNFLAGS += --environment $(MOD)
+endif
 
 
 .PHONY: all
 all: $(CAN)
-	$(PIO) run
+	$(PIO) run $(PIO_RUNFLAGS)
 
 
 .PHONY: flash
 flash: $(CAN)
-	$(PIO) run --target upload
+	$(PIO) run $(PIO_RUNFLAGS) --target upload
 
 
 .PHONY: clean

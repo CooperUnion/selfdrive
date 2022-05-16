@@ -1,6 +1,1 @@
-#ifndef TASKING_H
-#define TASKING_H
-
-void modules_init();
-
-#endif
+../../../node_fw/src/sys/tasking.h
