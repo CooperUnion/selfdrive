@@ -15,6 +15,9 @@
     <!-- Odometry topic name -->
     <arg name="odom_topic"              default="/$(arg zed_namespace)/$(arg zed_node_name)/odom" />    
 
+    <!-- 3D Lidar topic -->
+    <arg name="scan_cloud_topic"        default="/velodyne_points" />
+
     <!-- Localization-only mode -->
     <arg name="localization"            default="false"/>
     <arg     if="$(arg localization)"   name="rtabmap_args"     default=""/>
@@ -39,6 +42,7 @@
             <remap from="depth/image"       to="$(arg depth_topic)" />
             <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" />
             <remap from="odom"              to="$(arg odom_topic)" />
+            <remap from="scan_cloud"        to="$(arg scan_cloud_topic)" />
 
             <!-- map -->
             <remap from="grid_map"          to="map" />
