@@ -15,6 +15,9 @@
     <!-- Odometry topic name -->
     <arg name="odom_topic"              default="/$(arg zed_namespace)/$(arg zed_node_name)/odom" />    
 
+    <!-- GPS topic -->
+    <arg name="gps_topic"               default="/gps/fix" />
+
     <!-- 3D Lidar topic -->
     <arg name="scan_cloud_topic"        default="/velodyne_points" />
 
@@ -43,6 +46,7 @@
             <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" />
             <remap from="odom"              to="$(arg odom_topic)" />
             <remap from="scan_cloud"        to="$(arg scan_cloud_topic)" />
+            <remap from="gps/fix"           to="$(arg gps_topic)" />
 
             <!-- map -->
             <remap from="grid_map"          to="map" />
