@@ -2,6 +2,7 @@
 
 #include <esp_ota_ops.h>
 
+#include "base/base.h"
 #include "common.h"
 #include "io/can.h"
 #include "module_types.h"
@@ -42,6 +43,9 @@ static void bl_tools_init()
 
 static void bl_tools_100Hz()
 {
+    if (CAN_BL_Magic_Packet.Size && !base_dbw_currently_active()) {
+        esp_restart();
+    }
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
