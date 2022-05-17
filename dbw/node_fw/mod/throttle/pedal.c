@@ -67,8 +67,6 @@ void set_pedal_output(float32_t cmd)
     // clip command at 50%
     if (cmd > 0.50) {
         cmd = 0.50;
-    } else if (cmd < 0.0) {
-        cmd = 0.0;
     }
 
     const uint8_t thr_F_cmd = convert_throttle_command(thr_F, cmd);
