@@ -5,7 +5,7 @@ from PID_beard import PIDController
 N = 10000 # Num timesteps
 Ts = 0.001
 kp = 1
-ki = 0.1
+ki = 0.5
 kd = 0.1
 
 controller = PIDController(kp=kp,ki=ki,kd=kd,Ts=Ts, llim=-100, ulim=100, sigma=1)
@@ -42,5 +42,6 @@ if __name__ == "__main__":
     plt.plot(t, ctrl, label='ctrl (acceleration)')
     plt.plot(t, vel, label='velocity (m/s)')
     plt.legend()
+    plt.title(f"vel_des:{vel_des}, kp:{kp}, ki:{ki}, kd:{kd}")
     plt.show()
     print('abs')
