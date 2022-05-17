@@ -1,6 +1,7 @@
 #include "bl.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "base/base.h"
 #include "io/can.h"
@@ -8,6 +9,8 @@
 #include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
+
+#define TIMEOUT_MS 2000
 
 // ######      PROTOTYPES       ###### //
 
@@ -18,6 +21,9 @@ static void bl_10Hz();
 
 static bool ota_ready = true;
 
+static uint32_t can_BL_Magic_Packet_delta_ms;
+static uint32_t can_BL_Data_Frame_delta_ms;
+
 // ######          CAN          ###### //
 
 static struct CAN_dbwBL_Magic_Packet_t CAN_BL_Magic_Packet;
@@ -26,6 +32,7 @@ static can_incoming_t can_BL_Magic_Packet_cfg = {
     .id = CAN_DBWBL_MAGIC_PACKET_FRAME_ID,
     .out = &CAN_BL_Magic_Packet,
     .unpack = CAN_dbwBL_Magic_Packet_unpack,
+    .delta_ms = &can_BL_Magic_Packet_delta_ms,
 };
 
 static struct CAN_dbwBL_Data_Frame_t CAN_BL_Data_Frame;
@@ -34,6 +41,7 @@ static can_incoming_t can_BL_Data_Frame_cfg = {
     .id = CAN_DBWBL_DATA_FRAME_FRAME_ID,
     .out = &CAN_BL_Data_Frame,
     .unpack = CAN_dbwBL_Data_Frame_unpack,
+    .delta_ms = &can_BL_Data_Frame_delta_ms,
 };
 
 static struct CAN_dbwBL_Metadata_t CAN_BL_Metadata;
@@ -66,7 +74,11 @@ static void bl_init()
 
 static void bl_10Hz()
 {
-    if (ota_ready && CAN_BL_Magic_Packet.Size) {
+    if (!CAN_BL_Magic_Packet.Size) {
+        if (can_BL_Magic_Packet_delta_ms >= TIMEOUT_MS) {
+            // handle timeout
+        }
+    } else if (ota_ready) {
         ota_ready = false;
         CAN_BL_Metadata.Ready = 1;
         can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
