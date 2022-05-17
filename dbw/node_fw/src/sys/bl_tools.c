@@ -13,7 +13,7 @@
 // ######      PROTOTYPES       ###### //
 
 static void bl_tools_init();
-static void bl_tools_100Hz();
+static void bl_tools_10Hz();
 
 // ######     PRIVATE DATA      ###### //
 
@@ -31,7 +31,7 @@ static can_incoming_t can_BL_Magic_Packet_cfg = {
 
 const struct rate_funcs bl_tools_rf = {
     .call_init  = bl_tools_init,
-    .call_100Hz = bl_tools_100Hz,
+    .call_10Hz = bl_tools_10Hz,
 };
 
 static void bl_tools_init()
@@ -41,7 +41,7 @@ static void bl_tools_init()
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
 }
 
-static void bl_tools_100Hz()
+static void bl_tools_10Hz()
 {
     if (CAN_BL_Magic_Packet.Size && !base_dbw_currently_active()) {
         esp_restart();
