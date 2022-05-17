@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-import igvcutils
 import time
 from cand.client import Client
 from PID_beard import PIDController
-
-from geometry_msgs.msg import Twist
 
 class vel_ctrl:
 
@@ -12,7 +9,7 @@ class vel_ctrl:
         self.controller = PIDController(kp=1, ki=0.05, kd=0.02, Ts=0.1)
         self.bus = Client()
 
-    def ctrl_from_twist(self, twist_message: Twist):
+    def ctrl_from_twist(self, twist_message):
         v_des = twist_message.linear.x
         #enc = self.bus.get(cand info idk)
         enc = self.bus.get('dbwNode_Encoder_Data')
