@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
 
 import argparse
+import time
 
-import igvcutils
+from cand.client import Client
 
 
 def main():
-    parser = argparse.ArgumentParser(description='test template')
+    parser = argparse.ArgumentParser(description="Test template")
 
     parser.add_argument(
-        '-c',
-        '--can',
-        help='CAN device',
-        metavar='canx',
+        "-p",
+        "--percent",
+        help="value between 0 and 100",
+        metavar="n",
+        type=int,
+        required=True,
     )
     parser.add_argument(
-        '-d',
-        '--dbc',
-        help='CAN DBC',
-        metavar='file.dbc',
+        "-t",
+        "--time",
+        help="duration in seconds",
+        metavar="n.n",
+        type=float,
+        required=True,
     )
 
     args = parser.parse_args()
 
-    bus = igvcutils.can.Bus(args.dbc, args.can)
+    bus = Client()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
