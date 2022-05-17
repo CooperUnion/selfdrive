@@ -23,6 +23,6 @@ setuptools.setup(
         "python-can>=3.3.4",
         "redis>=4.2.2",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.8",
     scripts=["cand/cand"],
 )

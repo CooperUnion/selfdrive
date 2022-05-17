@@ -18,6 +18,27 @@ services:
         restart: unless-stopped
         command: stdbuf -o L roscore
 
+    redis:
+        image: redis:6.2-alpine
+        container_name: redis
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
+        command: redis-server --save 60 1 --requirepass MDNcVb924a --loglevel 
+    
+    twist:
+        build: docker/cmd_to_ctrl/.
+        container_name: twist
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
+            - '../common/cand:/app/cand'
+        depends_on:
+            - master
+
     navigation:
         build: docker/navigation/.
         container_name: navigation
