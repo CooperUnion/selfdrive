@@ -15,6 +15,7 @@
 // ######      PROTOTYPES       ###### //
 
 static void set_status_LEDs();
+static void update_state();
 
 // ######     PRIVATE DATA      ###### //
 
@@ -58,12 +59,10 @@ static struct CAN_dbwNode_Info_t CAN_Info;
 
 static void base_init();
 static void base_10Hz();
-static void base_100Hz();
 
 const struct rate_funcs base_rf = {
     .call_init  = base_init,
     .call_10Hz  = base_10Hz,
-    .call_100Hz = base_100Hz,
 };
 
 static void base_init()
@@ -86,46 +85,10 @@ static void base_init()
 
 static void base_10Hz()
 {
+    update_state();
     set_status_LEDs();
 
     CAN_Status.Counter++;
-}
-
-static void base_100Hz()
-{
-    if (CAN_SysCmd.DbwActive && system_state == SYS_STATE_IDLE) {
-        system_state = SYS_STATE_DBW_ACTIVE;
-    } else if (!CAN_SysCmd.DbwActive && system_state == SYS_STATE_DBW_ACTIVE) {
-        system_state = SYS_STATE_IDLE;
-    }
-
-    if (CAN_SysCmd.ESTOP) {
-        system_state = SYS_STATE_ESTOP;
-    }
-
-    switch (system_state) {
-        case SYS_STATE_IDLE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_IDLE_CHOICE;
-            break;
-
-        case SYS_STATE_DBW_ACTIVE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ACTIVE_CHOICE;
-            break;
-
-        case SYS_STATE_ESTOP:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
-            break;
-
-        case SYS_STATE_BL:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_BL_CHOICE;
-            break;
-
-        default:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_UNHEALTHY_CHOICE;
-            break;
-    }
-
-    can_send_iface(&can_Status_cfg, &CAN_Status);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -195,6 +158,43 @@ static void set_status_LEDs() {
     gpio_set_level(LED2_PIN, led2_state);
 
     timer++;
+}
+
+static void update_state()
+{
+    if (CAN_SysCmd.DbwActive && system_state == SYS_STATE_IDLE) {
+        system_state = SYS_STATE_DBW_ACTIVE;
+    } else if (!CAN_SysCmd.DbwActive && system_state == SYS_STATE_DBW_ACTIVE) {
+        system_state = SYS_STATE_IDLE;
+    }
+
+    if (CAN_SysCmd.ESTOP) {
+        system_state = SYS_STATE_ESTOP;
+    }
+
+    switch (system_state) {
+        case SYS_STATE_IDLE:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_IDLE_CHOICE;
+            break;
+
+        case SYS_STATE_DBW_ACTIVE:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ACTIVE_CHOICE;
+            break;
+
+        case SYS_STATE_ESTOP:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
+            break;
+
+        case SYS_STATE_BL:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_BL_CHOICE;
+            break;
+
+        default:
+            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_UNHEALTHY_CHOICE;
+            break;
+    }
+
+    can_send_iface(&can_Status_cfg, &CAN_Status);
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
