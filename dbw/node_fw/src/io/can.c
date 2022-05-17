@@ -56,7 +56,7 @@ static void can_100Hz()
 {
     // update time deltas
     for (uint i = 0; i < in_msgs_count; i++) {
-        in_msgs[i].delta_ms += 10;
+        if (in_msgs[i].delta_ms) *in_msgs[i].delta_ms += 10;
     }
 
     for (;;) {
@@ -72,7 +72,7 @@ static void can_100Hz()
                 for (uint i = 0; i < in_msgs_count; i++) {
                     if (in_msgs[i].id == msg.identifier) {
                         in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
-                        in_msgs[i].delta_ms = 0;
+                        *in_msgs[i].delta_ms = 0;
                     }
                 }
                 break;
