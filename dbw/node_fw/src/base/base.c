@@ -61,8 +61,8 @@ static void base_init();
 static void base_10Hz();
 
 const struct rate_funcs base_rf = {
-    .call_init  = base_init,
-    .call_10Hz  = base_10Hz,
+    .call_init = base_init,
+    .call_10Hz = base_10Hz,
 };
 
 static void base_init()
