@@ -31,11 +31,11 @@ services:
         container_name: twist
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=twist'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
             - '../common/cand:/app/cand'
+            - '../controls/send_launch:/app/ros_ws/src/send_launch'
         depends_on:
             - master
 
