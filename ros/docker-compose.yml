@@ -11,21 +11,43 @@ services:
             - 'ROS_MASTER_URI=http://master:11311'
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
+        ports:
+            - '11311:11311'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         restart: unless-stopped
         command: stdbuf -o L roscore
 
-    move_base:
-        build: docker/move_base/.
-        # image: git.cooperigvc
-        container_name: move_base
+    redis:
+        image: redis:6.2-alpine
+        container_name: redis
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
+        command: redis-server --save 60 1 --requirepass MDNcVb924a --loglevel 
+    
+    twist:
+        build: docker/cmd_to_ctrl/.
+        container_name: twist
         tty: true
         environment:
-            - 'ROS_HOSTNAME=move_base'
+            - 'ROS_HOSTNAME=navigation'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
+            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
+            - '../common/cand:/app/cand'
+        depends_on:
+            - master
+
+    navigation:
+        build: docker/navigation/.
+        container_name: navigation
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
     velodyne:
         build: docker/3dlidar/.
@@ -42,19 +64,6 @@ services:
             - master
         ports:
             - 2368:2368/udp
-
-    move_base:
-        build: docker/move_base/.
-        # image: git.cooperigvc
-        container_name: move_base
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=move_base'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/move_base/scooter_launch:/app/ros_ws/src/scooter_launch'
-        depends_on:
-            - master
 
     rplidar:
         build: docker-rplidar/.
@@ -93,8 +102,8 @@ services:
                         - capabilities: [gpu]
 
     zed:
-        #build: docker-zed/.
-        image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
+        build: docker/zed/.
+        #image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
         container_name: zed
         tty: true
         privileged: true
@@ -105,15 +114,9 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            # - '/dev:/dev'
-        # devices:
-        #    - '/dev/ttyUSB0:/dev/ttyUSB0'
-        # command: roslaunch zed_wrapper zed.launch
-        # command: roslaunch zed_display_rviz display_zed.launch
-        # command: roslaunch zed_rtabmap_example zed_rtabmap.launch
-        
-        depends_on:
-            - master
+            - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
+        # depends_on:
+        #     - master
         deploy:
             resources:
                 reservations:
@@ -164,8 +167,8 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - ~/.ros:/root
-        command: roslaunch --wait rtabmap_ros rtabmap.launch
+            #- ~/.ros:/root
+            - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
         deploy:

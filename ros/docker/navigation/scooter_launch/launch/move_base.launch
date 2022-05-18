@@ -26,6 +26,6 @@
 
         <remap from="odom" to="$(arg odom_frame_id)"/>
         <remap from="scan" to="/scan_filtered"/>
-        <remap from="/map" to="/rtabmap/grid_map" />
+        <remap from="/map" to="/rtabmap/map" />
     </node>
 </launch>

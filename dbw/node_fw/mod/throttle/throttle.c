@@ -3,9 +3,10 @@
 
 #include <driver/gpio.h>
 
+#include "base/base.h"
 #include "common.h"
-#include "module_types.h"
 #include "io/can.h"
+#include "module_types.h"
 #include "sys/task_glue.h"
 
 /* Define firmware module identity for the entire build. */
@@ -73,7 +74,7 @@ static void throttle_init()
 static void throttle_10Hz()
 {
     // set the relay from the CAN data
-    control_relay(CAN_Accel_Cmd.ModeCtrl);
+    control_relay(CAN_Accel_Cmd.ModeCtrl && base_dbw_currently_active());
     CAN_Accel.RelayState = relay_state;
 
     // get the pedal output from the CAN data

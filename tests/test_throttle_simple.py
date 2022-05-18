@@ -3,9 +3,9 @@
 import argparse
 import time
 
-from cand.client import Client
+from cand.client import Bus
 
-bus = Client()
+bus = Bus()
 
 
 def main():
