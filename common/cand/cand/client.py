@@ -20,7 +20,7 @@ class Bus:
                 socket_connect_timeout=REDIS_SOCKET_CONNECT_TIMEOUT,
             )
         except redis.ConnectionError as e:
-            self.log.error(f"Failed to connect to Redis: {e}")
+            self._log.error(f"Failed to connect to Redis: {e}")
             exit(-1)
 
     def get(self, name: str) -> tuple[int, dict]:
