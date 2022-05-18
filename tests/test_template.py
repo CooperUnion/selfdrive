@@ -3,7 +3,7 @@
 import argparse
 import time
 
-from cand.client import Client
+from cand.client import Bus
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
 
     args = parser.parse_args()
 
-    bus = Client()
+    bus = Bus()
 
 
 if __name__ == "__main__":

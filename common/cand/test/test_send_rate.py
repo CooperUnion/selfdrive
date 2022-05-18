@@ -1,16 +1,16 @@
 import time
 
-from cand.client import Client
+from cand.client import Bus
 
 
 def main():
-    c = Client()
+    bus = Bus()
 
     iterations = 10000
     i = 0
     start_time = time.time()
     while i - 1 < 100000000:
-        c.send("dbwNode_Status", {"SystemStatus": "ESTOP", "Counter": 141})
+        bus.send("dbwNode_Status", {"SystemStatus": "ESTOP", "Counter": 141})
         # time.sleep(0.00000001)
 
         if not i % iterations:
