@@ -58,6 +58,6 @@ $(DBW_NODE_FW): $(INSTALL_DEPENDENCIES)
 $(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
-	$(PYTHON) -m $(PIP) install $(LOCAL_PYTHON_LIBS)
-	$(PYTHON) -m $(PIP) install platformio
+	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
+	$(PYTHON) -m $(PIP) install --upgrade platformio
 	@touch $(INSTALL_DEPENDENCIES)
