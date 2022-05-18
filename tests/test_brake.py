@@ -9,11 +9,20 @@ bus = Bus()
 
 
 def run_test(percent, duration):
-    #bus.send("dbwNode_Encoder_Data", {"Encoder0": 0, "Encoder1": 1, "Time": 100})
     bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-    bus.send(
-        "dbwNode_Accel_Cmd", {"ThrottleCmd": min(percent, 100) / 100, "ModeCtrl": 1}
-    )
+
+    print('kachow')
+    bus.send("dbwNode_Brake_Cmd", {"BrakeCmd": 80 / 100})
+    time.sleep(10)
+    bus.send("dbwNode_Brake_Cmd", {"BrakeCmd": 0})
+
+    print('i am speed')
+    bus.send("dbwNode_Accel_Cmd", {"ThrottleCmd": 10 / 100, "ModeCtrl": 1})
+    time.sleep(6)
+    bus.send("dbwNode_Accel_Cmd", {"ThrottleCmd": 0, "ModeCtrl": 0})
+
+    print('kachigga')
+    bus.send("dbwNode_Brake_Cmd", {"BrakeCmd": min(percent, 100) / 100})
 
     time_start = time.time()
     i = 0
@@ -26,7 +35,7 @@ def run_test(percent, duration):
 
 
 def end_test():
-    bus.send("dbwNode_Accel_Cmd", {"ThrottleCmd": 0, "ModeCtrl": 0})
+    bus.send("dbwNode_Brake_Cmd", {"BrakeCmd": 0})
     bus.send("dbwNode_SysCmd", {"DbwActive": 0, "ESTOP": 0})
 
 
