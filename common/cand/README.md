@@ -9,20 +9,20 @@ listens for, encodes, and sends CAN messages you ask it to send.
 Run `cand` as a daemon and use `cand.client` to interact with it. For example:
 
 ```python
-from cand.client import Client
+from cand.client import Bus
 
-c = Client()
-c.send('dbwNode_Status', {'SystemStatus': 'ESTOP', 'Counter': 11})
-print(c.get('dbwNode_Encoder_Data'))
-# {'Encoder0': 133, 'Encoder1': 152, 'Time': 10000}
+bus = Bus()
+bus.send('dbwNode_Status', {'SystemStatus': 'ESTOP', 'Counter': 11})
+print(bus.get('dbwNode_Encoder_Data'))
+# (1652836556992745935, {'Encoder0': 133, 'Encoder1': 152, 'Time': 10000})
 ```
 
 ## Performance
-`cand` and the `cand.client.Client` interface are very fast. Neither
-`Client.get()` nor `Client.send()` calls block for very long, because they
-simply query or write to the Redis backend. `cand` monitors its outbound CAN
-send performance and will leave log messages when the TX buffer starts to grow
-too large. Messages will not be lost, however.
+`cand` and the `cand.client.Bus` interface are very fast. Neither `Bus.get()`
+nor `Bus.send()` calls block for very long, because they simply query or write
+to the Redis backend. `cand` monitors its outbound CAN send performance and
+will leave log messages when the TX buffer starts to grow too large. Messages
+will not be lost, however.
 
 **Note**: cand will work through its backlog of messages to be sent regardless
 of the size; we should change that behavior eventually.
