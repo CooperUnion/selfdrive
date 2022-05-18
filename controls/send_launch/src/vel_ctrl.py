@@ -37,7 +37,7 @@ class vel_ctrl:
         self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
 
     def acc_to_pedal(self, acceleration):
-        return 1*acceleration
+        return 15.4*acceleration
 
     def enc_to_velocity(self, enc, time):
         enc_ticks = 4000
