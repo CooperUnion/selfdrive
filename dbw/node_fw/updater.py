@@ -5,6 +5,12 @@ import argparse
 import cand
 
 
+def update(mod_name: str, bin_path: str):
+    bin = None
+    with open(bin_path, 'rb') as bin_fp:
+        bin = bin_fp.read()
+
+
 def main():
     argparser = argparse.ArgumentParser(description='node_fw updater')
 
