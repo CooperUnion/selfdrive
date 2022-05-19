@@ -1,5 +1,6 @@
 #include "bl.h"
 
+#include <esp_ota_ops.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -23,6 +24,8 @@ static bool ota_ready = true;
 
 static uint32_t can_BL_Magic_Packet_delta_ms;
 static uint32_t can_BL_Data_Frame_delta_ms;
+
+static const esp_partition_t *ota_partition;
 
 // ######          CAN          ###### //
 
@@ -70,13 +73,23 @@ static void bl_init()
 
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
     can_register_incoming_msg(can_BL_Data_Frame_cfg);
+
+    ota_partition = esp_partition_find_first(
+        ESP_PARTITION_TYPE_APP,
+        ESP_PARTITION_SUBTYPE_APP_OTA_0,
+        NULL
+    );
 }
 
 static void bl_10Hz()
 {
     if (!CAN_BL_Magic_Packet.Size) {
         if (can_BL_Magic_Packet_delta_ms >= TIMEOUT_MS) {
-            // handle timeout
+            // if our OTA partition is invalid changing the boot
+            // partition will fail and we'll boot into the bootloader
+            // anyways
+            esp_ota_set_boot_partition(ota_partition);
+            esp_restart();
         }
     } else if (ota_ready) {
         ota_ready = false;
