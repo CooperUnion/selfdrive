@@ -56,7 +56,13 @@ static void can_100Hz()
 {
     // update time deltas
     for (uint i = 0; i < in_msgs_count; i++) {
-        if (in_msgs[i].delta_ms) *in_msgs[i].delta_ms += 10;
+        if (in_msgs[i].delta_ms) {
+            if (10 > UINT32_MAX - *in_msgs[i].delta_ms) {
+                *in_msgs[i].delta_ms = UINT32_MAX;
+            } else {
+                *in_msgs[i].delta_ms += 10;
+            }
+        }
     }
 
     for (;;) {
