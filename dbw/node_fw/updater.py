@@ -5,10 +5,14 @@ import argparse
 import cand
 
 
-def update(mod_name: str, bin_path: str):
-    bin = None
-    with open(bin_path, 'rb') as bin_fp:
-        bin = bin_fp.read()
+class Updater:
+    def __init__(self, bus=cand.client.Bus()):
+        self.bus = bus
+
+    def update(self, mod_name: str, bin_path: str):
+        bin = None
+        with open(bin_path, 'rb') as bin_fp:
+            bin = bin_fp.read()
 
 
 def main():
@@ -22,7 +26,7 @@ def main():
 
     args = argparser.parse_args()
 
-    bus = cand.client.Bus()
+    updater = Updater()
 
 
 if __name__ == '__main__':
