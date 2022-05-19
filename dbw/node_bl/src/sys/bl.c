@@ -20,7 +20,7 @@ static void bl_10Hz();
 
 // ######     PRIVATE DATA      ###### //
 
-static bool ota_ready = true;
+static bool ota_ready;
 
 static uint32_t can_BL_Magic_Packet_delta_ms;
 static uint32_t can_BL_Data_Frame_delta_ms;
@@ -91,8 +91,8 @@ static void bl_10Hz()
             esp_ota_set_boot_partition(ota_partition);
             esp_restart();
         }
-    } else if (ota_ready) {
-        ota_ready = false;
+    } else if (!ota_ready) {
+        ota_ready = true;
         CAN_BL_Metadata.Ready = 1;
         CAN_BL_Metadata.Done  = 0;
         CAN_BL_Metadata.Abort = 0;
