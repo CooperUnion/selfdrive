@@ -17,6 +17,7 @@
 
 static void bl_init();
 static void bl_10Hz();
+static void bl_1kHz();
 
 // ######     PRIVATE DATA      ###### //
 
@@ -59,8 +60,9 @@ static can_outgoing_t can_BL_Metadata_cfg = {
 // ######    RATE FUNCTIONS     ###### //
 
 const struct rate_funcs bl_rf = {
-    .call_init  = bl_init,
-    .call_10Hz  = bl_10Hz,
+    .call_init = bl_init,
+    .call_10Hz = bl_10Hz,
+    .call_1kHz = bl_1kHz,
 };
 
 static void bl_init()
@@ -99,6 +101,11 @@ static void bl_10Hz()
         CAN_BL_Metadata.ACK   = 0;
         can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
     }
+}
+
+static void bl_1kHz()
+{
+    if (!ota_ready) return;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
