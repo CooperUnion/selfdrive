@@ -2,6 +2,8 @@
 
 import argparse
 
+import cand
+
 
 def main():
     argparser = argparse.ArgumentParser(description='node_fw updater')
@@ -13,6 +15,8 @@ def main():
     )
 
     args = argparser.parse_args()
+
+    bus = cand.client.Bus()
 
 
 if __name__ == '__main__':
