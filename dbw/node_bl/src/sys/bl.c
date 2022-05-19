@@ -81,6 +81,9 @@ static void bl_10Hz()
     } else if (ota_ready) {
         ota_ready = false;
         CAN_BL_Metadata.Ready = 1;
+        CAN_BL_Metadata.Done  = 0;
+        CAN_BL_Metadata.Abort = 0;
+        CAN_BL_Metadata.ACK   = 0;
         can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
     }
 }
