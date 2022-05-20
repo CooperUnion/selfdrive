@@ -77,3 +77,9 @@ esp_err_t can_poll(void)
         return err;
     }
 }
+
+void can_register_incoming_msg(const can_incoming_t cfg)
+{
+    in_msgs[in_msgs_cnt] = cfg;
+    in_msgs_cnt++;
+}

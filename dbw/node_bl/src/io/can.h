@@ -25,5 +25,6 @@ typedef struct can_incoming_s {
 
 esp_err_t can_init(void);
 esp_err_t can_poll(void);
+void can_register_incoming_msg(const can_incoming_t cfg);
 
 #endif
