@@ -36,6 +36,14 @@ static can_incoming_t can_BL_Magic_Packet_cfg = {
     .unpack = CAN_dbwBL_Magic_Packet_unpack,
 };
 
+static struct CAN_dbwBL_Data_Frame_t CAN_BL_Data_Frame;
+
+static can_incoming_t can_BL_Data_Frame_cfg = {
+    .id = CAN_DBWBL_DATA_FRAME_FRAME_ID,
+    .out = &CAN_BL_Data_Frame,
+    .unpack = CAN_dbwBL_Data_Frame_unpack,
+};
+
 static struct CAN_dbwBL_Metadata_t CAN_BL_Metadata;
 
 static can_outgoing_t can_BL_Metadata_cfg = {
@@ -61,6 +69,7 @@ esp_err_t bl_init(void)
     if (!ota_partition) return ESP_FAIL;
 
     can_BL_Magic_Packet_cfg.id += IGVC_MODULE_TYPE;
+    can_BL_Data_Frame_cfg.id   += IGVC_MODULE_TYPE;
     can_BL_Metadata_cfg.id     += IGVC_MODULE_TYPE;
 
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
