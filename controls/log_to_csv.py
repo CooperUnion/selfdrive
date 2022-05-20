@@ -92,7 +92,7 @@ class LogParser:
 
 
 if __name__ == "__main__":
-    (edata, tdata) = LogParser.log_to_data_classes('/home/isabellaflynn/git_repos/selfdrive/controls/data_analysis_acc_to_percent/candumps_05_18/candumps/p20.dump', '/home/isabellaflynn/git_repos/selfdrive/controls/data_analysis_acc_to_percent/igvc_can_2022-05-18.dbc')
+    (edata, tdata) = LogParser.log_to_data_classes('/home/isabellaflynn/git_repos/selfdrive/controls/send_launch/src/candumps-old/kp_0.2_ki_0.1_kd_0.01_vd_2', '/home/isabellaflynn/git_repos/selfdrive/tests/candumps/igvc_can_2022-05-18.dbc')
 
     # Filter the data using the dirty derivative
     Ts = 0.01 #dt between samples (shoudl be 10ms)
