@@ -23,6 +23,9 @@ void app_main()
     if (err != ESP_OK) bl_restart();
 
     while (true) {
+        err = blink_pulse();
+        if (err != ESP_OK) bl_restart();
+
         err = can_poll();
         if ((err != ESP_OK) && (err != ESP_ERR_TIMEOUT)) bl_restart();
 
