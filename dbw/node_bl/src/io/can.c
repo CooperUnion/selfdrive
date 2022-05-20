@@ -1,5 +1,6 @@
 #include "io/can.h"
 
+#include <driver/timer.h>
 #include <driver/twai.h>
 #include <esp_err.h>
 
@@ -30,6 +31,20 @@ esp_err_t can_init(void)
     if (err != ESP_OK) return err;
 
     err = twai_start();
+    if (err != ESP_OK) return err;
+
+    const timer_config_t timer_config = {
+        .alarm_en    = TIMER_ALARM_DIS,
+        .counter_en  = TIMER_PAUSE,
+        .intr_type   = TIMER_INTR_NONE,
+        .counter_dir = TIMER_COUNT_UP,
+        .auto_reload = TIMER_AUTORELOAD_DIS,
+        .divider     = 80,  // 1E-6 * 80MHz (microseconds)
+    };
+    err = timer_init(CAN_TIMER_GROUP, CAN_TIMER, &timer_config);
+    if (err != ESP_OK) return err;
+
+    err = timer_start(CAN_TIMER_GROUP, CAN_TIMER);
     if (err != ESP_OK) return err;
 
     return ESP_OK;
