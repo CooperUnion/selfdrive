@@ -53,7 +53,7 @@ esp_err_t can_poll(void)
         err = twai_receive(&msg, 0);
 
         if (err == ESP_OK) {
-            for (uint i = 0; i < in_msgs_cnt; i++) {
+            for (unsigned int i = 0; i < in_msgs_cnt; i++) {
                 if (in_msgs[i].id == msg.identifier) {
                     in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
                     if (in_msgs[i].timer_val) timer_get_counter_value(TIMING_GROUP, US_TIMER, in_msgs[i].timer_val);
