@@ -182,7 +182,7 @@ messages:
             width: 24
 
 - dbwBL_Metadata:
-    id: 0x4C0
+    id: 0x4B0
     cycletime: 100
 
     template: dbwnodes
@@ -202,7 +202,7 @@ messages:
             width: 1
 
 - dbwBL_Data_Frame:
-    id: 0x4B0
+    id: 0x4C0
     cycletime: 100
 
     template: dbwnodes
