@@ -68,7 +68,7 @@ esp_err_t can_poll(void)
             for (uint i = 0; i < in_msgs_cnt; i++) {
                 if (in_msgs[i].id == msg.identifier) {
                     in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
-                    if (in_msgs[i].timer_val) timer_get_counter_value(TIMER_GROUP_1, TIMER_0, in_msgs[i].timer_val);
+                    if (in_msgs[i].timer_val) timer_get_counter_value(CAN_TIMER_GROUP, CAN_TIMER, in_msgs[i].timer_val);
                 }
             }
             continue;
