@@ -3,15 +3,21 @@
 #include <driver/timer.h>
 #include <driver/twai.h>
 #include <esp_err.h>
+#include <stdbool.h>
 
 // ######        DEFINES        ###### //
 
 #define CAN_TX_GPIO 19
 #define CAN_RX_GPIO 18
 
+#define CAN_MAX_IN_MSGS 24
+
 // ######      PROTOTYPES       ###### //
 
 // ######     PRIVATE DATA      ###### //
+
+static can_incoming_t in_msgs[CAN_MAX_IN_MSGS];
+static unsigned int   in_msgs_cnt;
 
 // ######          CAN          ###### //
 
@@ -48,4 +54,26 @@ esp_err_t can_init(void)
     if (err != ESP_OK) return err;
 
     return ESP_OK;
+}
+
+esp_err_t can_poll(void)
+{
+    esp_err_t      err;
+    twai_message_t msg;
+
+    while (true) {
+        err = twai_receive(&msg, 0);
+
+        if (err == ESP_OK) {
+            for (uint i = 0; i < in_msgs_cnt; i++) {
+                if (in_msgs[i].id == msg.identifier) {
+                    in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
+                    if (in_msgs[i].timer_val) timer_get_counter_value(TIMER_GROUP_1, TIMER_0, in_msgs[i].timer_val);
+                }
+            }
+            continue;
+        }
+
+        return err;
+    }
 }

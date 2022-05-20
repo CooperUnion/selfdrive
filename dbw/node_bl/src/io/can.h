@@ -24,5 +24,6 @@ typedef struct can_incoming_s {
 } can_incoming_t;
 
 esp_err_t can_init(void);
+esp_err_t can_poll(void);
 
 #endif
