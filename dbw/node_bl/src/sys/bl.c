@@ -12,6 +12,8 @@
 
 #define MAGIC_PACKET_TIMEOUT_US 2000000
 
+#define BYTES_PER_FRAME 5
+
 // ######      PROTOTYPES       ###### //
 
 // ######     PRIVATE DATA      ###### //
@@ -20,6 +22,9 @@ static uint64_t bl_prv_timer_val;
 static uint64_t bl_cur_timer_val;
 
 static const esp_partition_t *ota_partition;
+
+static uint32_t update_siz;
+static uint32_t update_frames;
 
 // ######          CAN          ###### //
 
@@ -85,6 +90,10 @@ esp_err_t bl_magic_wait(void)
 
         return ESP_FAIL;
     }
+
+    update_siz    = CAN_BL_Magic_Packet.Size;
+    update_frames = update_siz / BYTES_PER_FRAME;
+    if (update_siz % BYTES_PER_FRAME) ++update_frames;
 
     CAN_BL_Metadata.Ready = 1;
     CAN_BL_Metadata.Done  = 0;
