@@ -5,6 +5,8 @@
 #include <esp_err.h>
 #include <stdbool.h>
 
+#include "sys/timing.h"
+
 // ######        DEFINES        ###### //
 
 #define CAN_TX_GPIO 19
@@ -39,20 +41,6 @@ esp_err_t can_init(void)
     err = twai_start();
     if (err != ESP_OK) return err;
 
-    const timer_config_t timer_config = {
-        .alarm_en    = TIMER_ALARM_DIS,
-        .counter_en  = TIMER_PAUSE,
-        .intr_type   = TIMER_INTR_NONE,
-        .counter_dir = TIMER_COUNT_UP,
-        .auto_reload = TIMER_AUTORELOAD_DIS,
-        .divider     = 80,  // 1E-6 * 80MHz (microseconds)
-    };
-    err = timer_init(CAN_TIMER_GROUP, CAN_TIMER, &timer_config);
-    if (err != ESP_OK) return err;
-
-    err = timer_start(CAN_TIMER_GROUP, CAN_TIMER);
-    if (err != ESP_OK) return err;
-
     return ESP_OK;
 }
 
@@ -68,7 +56,7 @@ esp_err_t can_poll(void)
             for (uint i = 0; i < in_msgs_cnt; i++) {
                 if (in_msgs[i].id == msg.identifier) {
                     in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
-                    if (in_msgs[i].timer_val) timer_get_counter_value(CAN_TIMER_GROUP, CAN_TIMER, in_msgs[i].timer_val);
+                    if (in_msgs[i].timer_val) timer_get_counter_value(TIMING_GROUP, US_TIMER, in_msgs[i].timer_val);
                 }
             }
             continue;

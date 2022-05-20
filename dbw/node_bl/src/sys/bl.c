@@ -6,6 +6,7 @@
 #include <esp_system.h>
 
 #include "io/can.h"
+#include "sys/timing.h"
 
 // ######        DEFINES        ###### //
 
@@ -44,7 +45,9 @@ esp_err_t bl_init(void)
     );
     if (!ota_partition) return ESP_FAIL;
 
-    err = timer_get_counter_value(CAN_TIMER_GROUP, CAN_TIMER, &bl_init_timer_val);
+    can_register_incoming_msg(can_BL_Magic_Packet_cfg);
+
+    err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_init_timer_val);
     if (err != ESP_OK) return err;
 
     return ESP_OK;
