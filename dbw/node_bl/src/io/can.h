@@ -9,6 +9,20 @@
 #define CAN_TIMER_GROUP TIMER_GROUP_1
 #define CAN_TIMER       TIMER_0
 
+typedef struct can_outgoing_s {
+    uint32_t id;
+    uint8_t dlc;
+    bool extd;
+    int (*pack)();
+} can_outgoing_t;
+
+typedef struct can_incoming_s {
+    uint32_t id;
+    void *out;
+    int (*unpack)();
+    uint64_t *timer_val;
+} can_incoming_t;
+
 esp_err_t can_init(void);
 
 #endif
