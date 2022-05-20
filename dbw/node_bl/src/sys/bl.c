@@ -102,6 +102,9 @@ esp_err_t bl_magic_wait(void)
     err = can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
     if (err != ESP_OK) return err;
 
+    err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_prv_timer_val);
+    if (err != ESP_OK) return err;
+
     return ESP_OK;
 }
 
