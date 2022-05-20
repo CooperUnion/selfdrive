@@ -32,6 +32,15 @@ static can_incoming_t can_BL_Magic_Packet_cfg = {
     .timer_val = &can_BL_Magic_Packet_timer_val,
 };
 
+static struct CAN_dbwBL_Metadata_t CAN_BL_Metadata;
+
+static can_outgoing_t can_BL_Metadata_cfg = {
+    .id = CAN_DBWBL_METADATA_FRAME_ID,
+    .extd = CAN_DBWBL_METADATA_IS_EXTENDED,
+    .dlc = CAN_DBWBL_METADATA_LENGTH,
+    .pack = CAN_dbwBL_Metadata_pack,
+};
+
 // ######   PRIVATE FUNCTIONS   ###### //
 
 // ######   PUBLIC FUNCTIONS    ###### //
@@ -48,6 +57,7 @@ esp_err_t bl_init(void)
     if (!ota_partition) return ESP_FAIL;
 
     can_BL_Magic_Packet_cfg.id += IGVC_MODULE_TYPE;
+    can_BL_Metadata_cfg.id     += IGVC_MODULE_TYPE;
 
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
 
@@ -68,6 +78,15 @@ esp_err_t bl_magic_wait(void)
 
         return ESP_FAIL;
     }
+
+    esp_err_t err;
+
+    CAN_BL_Metadata.Ready = 1;
+    CAN_BL_Metadata.Done  = 0;
+    CAN_BL_Metadata.Abort = 0;
+    CAN_BL_Metadata.ACK   = 0;
+    err = can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
+    if (err != ESP_OK) return err;
 
     return ESP_OK;
 }
