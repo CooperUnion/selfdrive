@@ -14,10 +14,20 @@
 // ######     PRIVATE DATA      ###### //
 
 static uint64_t bl_init_timer_val;
+static uint64_t can_BL_Magic_Packet_timer_val;
 
 static const esp_partition_t *ota_partition;
 
 // ######          CAN          ###### //
+
+static struct CAN_dbwBL_Magic_Packet_t CAN_BL_Magic_Packet;
+
+static can_incoming_t can_BL_Magic_Packet_cfg = {
+    .id = CAN_DBWBL_MAGIC_PACKET_FRAME_ID,
+    .out = &CAN_BL_Magic_Packet,
+    .unpack = CAN_dbwBL_Magic_Packet_unpack,
+    .timer_val = &can_BL_Magic_Packet_timer_val,
+};
 
 // ######   PRIVATE FUNCTIONS   ###### //
 
