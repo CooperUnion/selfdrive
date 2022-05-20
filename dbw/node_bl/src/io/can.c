@@ -83,3 +83,21 @@ void can_register_incoming_msg(const can_incoming_t cfg)
     in_msgs[in_msgs_cnt] = cfg;
     in_msgs_cnt++;
 }
+
+esp_err_t can_send_iface(const can_outgoing_t *iface, const void *src)
+{
+    twai_message_t msg = {
+        .identifier = iface->id,
+        .extd = iface->extd,
+        .data_length_code = iface->dlc,
+    };
+
+    if (iface->pack(msg.data, src, 8) < 0) return ESP_FAIL;
+
+    esp_err_t err;
+
+    err = twai_transmit(&msg, 0);
+    if (err != ESP_OK) return err;
+
+    return ESP_OK;
+}
