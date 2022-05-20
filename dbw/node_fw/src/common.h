@@ -15,5 +15,6 @@ typedef float float32_t;
  * COMMON MACROS
  */
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#define ABS(X) ((X < 0) ? (X * -1) : (X))
 
 #endif

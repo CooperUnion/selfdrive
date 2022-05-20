@@ -1,10 +1,8 @@
-# This is from: https://github.com/introlab/rtabmap_ros/blob/master/docker/noetic/Dockerfile
-# FROM ros:noetic-perception
-
 FROM introlab3it/rtabmap_ros:noetic
-# FROM ros:noetic-ros-base
 
 ARG DEBIAN_FRONTEND=noninteractive
+
+SHELL ["/bin/bash", "-c"]
 
 # nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES \
@@ -12,18 +10,22 @@ ENV NVIDIA_VISIBLE_DEVICES \
 ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
-#WORKDIR /app
+WORKDIR /app
 
-# # install rtabmap packages
-# ARG CACHE_DATE=2016-01-01
+RUN apt update && apt install -y git 
 
-# RUN apt-get update 
-
-# RUN apt-get install -y \
-#     ros-noetic-rtabmap \
-#     ros-noetic-rtabmap-ros
+RUN mkdir -p ros_ws/src &&\
+    git clone https://github.com/stereolabs/zed-ros-interfaces.git ros_ws/src/zed-ros-interfaces 
+    
+RUN cd ros_ws &&\
+    source /opt/ros/noetic/setup.bash &&\
+    rosdep install --from-paths src --ignore-src -r -y && \
+    catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
 
 COPY ./entrypoint.sh /
+COPY ./sources.sh /
+
+RUN cat /sources.sh >> ~/.bashrc
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
