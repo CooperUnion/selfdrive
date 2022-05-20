@@ -16,8 +16,8 @@
 
 // ######     PRIVATE DATA      ###### //
 
-static uint64_t bl_init_timer_val;
-static uint64_t can_BL_Magic_Packet_timer_val;
+static uint64_t bl_prv_timer_val;
+static uint64_t bl_cur_timer_val;
 
 static const esp_partition_t *ota_partition;
 
@@ -29,7 +29,6 @@ static can_incoming_t can_BL_Magic_Packet_cfg = {
     .id = CAN_DBWBL_MAGIC_PACKET_FRAME_ID,
     .out = &CAN_BL_Magic_Packet,
     .unpack = CAN_dbwBL_Magic_Packet_unpack,
-    .timer_val = &can_BL_Magic_Packet_timer_val,
 };
 
 static struct CAN_dbwBL_Metadata_t CAN_BL_Metadata;
@@ -61,25 +60,31 @@ esp_err_t bl_init(void)
 
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
 
-    err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_init_timer_val);
+    err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_prv_timer_val);
     if (err != ESP_OK) return err;
-
-    // give a true 2s timeout
-    can_BL_Magic_Packet_timer_val = bl_init_timer_val;
 
     return ESP_OK;
 }
 
 esp_err_t bl_magic_wait(void)
 {
+    esp_err_t err;
+
+    err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_cur_timer_val);
+    if (err != ESP_OK) return err;
+
     if (!CAN_BL_Magic_Packet.Size) {
-        if (can_BL_Magic_Packet_timer_val - bl_init_timer_val >= MAGIC_PACKET_TIMEOUT_US)
+        if (bl_cur_timer_val - bl_prv_timer_val >= MAGIC_PACKET_TIMEOUT_US) {
+            CAN_BL_Metadata.Ready = 0;
+            CAN_BL_Metadata.Done  = 0;
+            CAN_BL_Metadata.Abort = 1;
+            CAN_BL_Metadata.ACK   = 0;
+            can_send_iface(&can_BL_Metadata_cfg, &CAN_BL_Metadata);
             bl_restart();
+        }
 
         return ESP_FAIL;
     }
-
-    esp_err_t err;
 
     CAN_BL_Metadata.Ready = 1;
     CAN_BL_Metadata.Done  = 0;
