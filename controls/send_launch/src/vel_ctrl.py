@@ -14,8 +14,15 @@ class vel_ctrl:
         self.bus = Bus()
         self.vel_history = np.zeros(10)
         self.index = 0
+    def test_connection(self, twist_message, ctrl_out):
+        v_des = twist_message.linear.x
+        pedal_percentage = v_des/100
+        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
+        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
 
-#    def ctrl_from_twist(self, twist_message):
+
+#        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
+#        def ctrl_from_twist(self, twist_message):
 #        v_des = twist_message.linear.x
 #        enc = self.bus.get('dbwNode_Encoder_Data')
 #        delta = (time.time_ns() - enc[0])/1000000000
