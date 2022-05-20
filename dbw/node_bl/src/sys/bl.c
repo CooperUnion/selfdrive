@@ -47,6 +47,8 @@ esp_err_t bl_init(void)
     );
     if (!ota_partition) return ESP_FAIL;
 
+    can_BL_Magic_Packet_cfg.id += IGVC_MODULE_TYPE;
+
     can_register_incoming_msg(can_BL_Magic_Packet_cfg);
 
     err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_init_timer_val);
