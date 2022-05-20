@@ -10,6 +10,7 @@ templategroups:
     - Throttle
     - Brake
     - Encoder
+    - Steer
 
 messages:
 - dbwNode_Status:
@@ -143,6 +144,29 @@ messages:
         - Time:
             description: Microseconds since last reading.
             width: 16
+
+- dbwNode_Steer_Data:
+    id: 0x15
+    cycletime: 100
+
+    signals:
+      - Vel_Estimate:
+          description: Velocity Estimate from Odrive Encoder
+          is_signed: true
+          width: 12
+      - Pos_Estimate:
+          description: Position Estimate from  Odrive Encoder
+          is_signed: true
+          width: 12
+
+- dbwNode_Steer_Cmd:
+    id: 0x16
+    cycletime: 100
+
+    signals:
+      - DesiredPos:
+          description: Desired Position.
+          width: 8
 
 - dbwNode_Accel_Cntrls_Cmd:
     id: 0x21
