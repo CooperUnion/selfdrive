@@ -21,5 +21,8 @@ void app_main()
     while (true) {
         err = can_poll();
         if ((err != ESP_OK) && (err != ESP_ERR_TIMEOUT)) bl_restart();
+
+        err = bl_magic_wait();
+        if (err == ESP_OK) break;
     }
 }

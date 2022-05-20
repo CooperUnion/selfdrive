@@ -5,5 +5,6 @@
 
 esp_err_t bl_init(void);
 void bl_restart(void);
+esp_err_t bl_magic_wait(void);
 
 #endif

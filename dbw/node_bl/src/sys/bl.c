@@ -10,6 +10,8 @@
 
 // ######        DEFINES        ###### //
 
+#define MAGIC_PACKET_TIMEOUT_US 2000000
+
 // ######      PROTOTYPES       ###### //
 
 // ######     PRIVATE DATA      ###### //
@@ -49,6 +51,21 @@ esp_err_t bl_init(void)
 
     err = timer_get_counter_value(TIMING_GROUP, US_TIMER, &bl_init_timer_val);
     if (err != ESP_OK) return err;
+
+    // give a true 2s timeout
+    can_BL_Magic_Packet_timer_val = bl_init_timer_val;
+
+    return ESP_OK;
+}
+
+esp_err_t bl_magic_wait(void)
+{
+    if (!CAN_BL_Magic_Packet.Size) {
+        if (can_BL_Magic_Packet_timer_val - bl_init_timer_val >= MAGIC_PACKET_TIMEOUT_US)
+            bl_restart();
+
+        return ESP_FAIL;
+    }
 
     return ESP_OK;
 }
