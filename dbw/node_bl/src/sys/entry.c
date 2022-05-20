@@ -1,7 +1,7 @@
 #include <esp_err.h>
 
-#include "bl.h"
-#include "can.h"
+#include "io/can.h"
+#include "sys/bl.h"
 
 void app_main()
 {
