@@ -22,6 +22,7 @@ void app_main()
     err = bl_init();
     if (err != ESP_OK) bl_restart();
 
+    // magic packet routine
     while (true) {
         err = blink_pulse();
         if (err != ESP_OK) bl_restart();
@@ -31,5 +32,14 @@ void app_main()
 
         err = bl_magic_wait();
         if (err == ESP_OK) break;
+    }
+
+    // data frames routine
+    while (true) {
+        err = blink_pulse();
+        if (err != ESP_OK) bl_restart();
+
+        err = can_poll();
+        if ((err != ESP_OK) && (err != ESP_ERR_TIMEOUT)) bl_restart();
     }
 }
