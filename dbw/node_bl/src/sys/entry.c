@@ -3,6 +3,7 @@
 
 #include "io/can.h"
 #include "sys/bl.h"
+#include "sys/blink.h"
 #include "sys/timing.h"
 
 void app_main()
@@ -10,6 +11,9 @@ void app_main()
     esp_err_t err;
 
     err = timing_init();
+    if (err != ESP_OK) bl_restart();
+
+    err = blink_init();
     if (err != ESP_OK) bl_restart();
 
     err = can_init();
