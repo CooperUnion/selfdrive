@@ -191,3 +191,20 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+
+    lane-det2: 
+        build: docker/lane-det2/.
+        container_name: lane-det2
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=lane-det2'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/lane-det2/Lane_Detector:/app/ros_ws/src/Lane_Detector'
+        depends_on:
+            - master
+
+            
