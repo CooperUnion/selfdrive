@@ -4,6 +4,7 @@ import logging
 import os
 
 from time import time
+from time import time_ns
 
 import cand.config as cfg
 
@@ -55,7 +56,7 @@ def cand():
             continue
 
         # Serialize and post the message data
-        data = msg.decode(raw_msg.data)
+        data = (time_ns(), msg.decode(raw_msg.data))
         serialized_data = serialize(data)
 
         p.set(msg.name, serialized_data)  # commit to Redis buffer!

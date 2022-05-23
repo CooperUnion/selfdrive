@@ -3,9 +3,10 @@
 
 #include <driver/gpio.h>
 
+#include "base/base.h"
 #include "common.h"
-#include "module_types.h"
 #include "io/can.h"
+#include "module_types.h"
 #include "sys/task_glue.h"
 
 /* Define firmware module identity for the entire build. */
@@ -15,9 +16,16 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_THROTTLE;
 
 #define MODE_CTRL_PIN 16
 
+#define ENCODER_TIMEOUT_US 20000
+
+// ~10MPH
+#define ENCODER_MAX_TICKS 94
+
 // ######     PRIVATE DATA      ###### //
 
 static bool relay_state;
+
+static uint32_t can_Encoder_Data_delta_ms;
 
 // ######          CAN          ###### //
 
@@ -36,6 +44,15 @@ static const can_incoming_t can_Accel_Cmd_cfg = {
     .id = CAN_DBWNODE_ACCEL_CMD_FRAME_ID,
     .out = &CAN_Accel_Cmd,
     .unpack = CAN_dbwNode_Accel_Cmd_unpack,
+};
+
+static struct CAN_dbwNode_Encoder_Data_t CAN_Encoder_Data;
+
+static const can_incoming_t can_Encoder_Data_cfg = {
+    .id = CAN_DBWNODE_ENCODER_DATA_FRAME_ID,
+    .out = &CAN_Encoder_Data,
+    .unpack = CAN_dbwNode_Encoder_Data_unpack,
+    .delta_ms = &can_Encoder_Data_delta_ms,
 };
 
 // ######      PROTOTYPES       ###### //
@@ -68,12 +85,23 @@ static void throttle_init()
     enable_pedal_output();
 
     can_register_incoming_msg(can_Accel_Cmd_cfg);
+    can_register_incoming_msg(can_Encoder_Data_cfg);
 }
 
 static void throttle_10Hz()
 {
+    // make sure we didn't E-STOP
+    if (
+        (ABS(CAN_Encoder_Data.Encoder0) >= ENCODER_MAX_TICKS) ||
+        (ABS(CAN_Encoder_Data.Encoder1) >= ENCODER_MAX_TICKS) ||
+        (can_Encoder_Data_delta_ms >= ENCODER_TIMEOUT_US)
+    ) base_set_state_estop();
+
     // set the relay from the CAN data
-    control_relay(CAN_Accel_Cmd.ModeCtrl);
+    control_relay(
+        CAN_Accel_Cmd.ModeCtrl &&
+        base_dbw_currently_active()
+    );
     CAN_Accel.RelayState = relay_state;
 
     // get the pedal output from the CAN data

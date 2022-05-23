@@ -3,13 +3,13 @@
 import argparse
 import time
 
-from cand.client import Client
+from cand.client import Bus
 
-bus = Client()
+bus = Bus()
 
 
 def run_test(percent, duration):
-    bus.send("dbwNode_Encoder_Data", {"Encoder0": 0, "Encoder1": 1, "Time": 100})
+    #bus.send("dbwNode_Encoder_Data", {"Encoder0": 0, "Encoder1": 1, "Time": 100})
     bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
     bus.send(
         "dbwNode_Accel_Cmd", {"ThrottleCmd": min(percent, 100) / 100, "ModeCtrl": 1}
