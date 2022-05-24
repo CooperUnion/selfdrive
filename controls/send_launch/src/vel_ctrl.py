@@ -8,7 +8,7 @@ from PID_beard import PIDController
 
 from threading import Thread
 
-#from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist
 
 class vel_ctrl:
 
@@ -59,6 +59,17 @@ class vel_ctrl:
 #        print(f'v_actual: {v_actual} pedal_percentage: {pedal_percentage}')
 #        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
 #        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
+
+    def ctrl_vel_twist(self, msg: Twist):
+        v_des = msg.linear.x # Get desired velocity from Twist message
+        v_actual = self.vel_filtered
+        acceleration_desired = self.controller.PID(v_des, self.vel_filtered)
+        (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
+        print(v_actual)
+        #print(throttle_percentage)
+        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
+        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(max(throttle_percentage, 0), 100) / 100, 'ModeCtrl': 1})
+        self.bus.send('dbwNode_Brake_Cmd', {'BrakeCmd': min(max(brake_percentage, 0), 100) / 100})
 
     def ctrl_vel_fixed(self, v_des=2.2352):
         #enc = self.bus.get('dbwNode_Encoder_Data')
