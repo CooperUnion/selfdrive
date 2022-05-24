@@ -67,7 +67,8 @@ class vel_ctrl:
         v_actual = self.vel_filtered
         acceleration_desired = self.controller.PID(v_des, self.vel_filtered)
         (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
-        print(throttle_percentage)
+        print(v_actual)
+        #print(throttle_percentage)
         self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
         self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(max(throttle_percentage, 0), 100) / 100, 'ModeCtrl': 1})
         self.bus.send('dbwNode_Brake_Cmd', {'BrakeCmd': min(max(brake_percentage, 0), 100) / 100})
@@ -142,6 +143,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     c = vel_ctrl(args.kp, args.ki, args.kd)
+    count = 0
+    vd = args.vd
     while(1):
-        c.ctrl_vel_fixed(args.vd)
+        c.ctrl_vel_fixed(vd)
         time.sleep(0.1)
+        count += 1
+        if count > 60:
+            vd = 0
+
+        if count > 120:
+            vd = 0
+
+        if count > 180:
+            vd = 0
