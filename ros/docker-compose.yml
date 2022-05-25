@@ -33,7 +33,7 @@ services:
             - 'ROS_HOSTNAME=cand'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - '../common/cand:/app/cand'
+            - '../can/igvc_can.dbc:/usr/src/app/igvc_can.dbc'
         depends_on:
             - master
             - redis
