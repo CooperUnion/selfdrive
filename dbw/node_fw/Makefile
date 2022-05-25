@@ -4,6 +4,7 @@ PIO ?= platformio
 
 # build vars
 CAN           = ../../can
+PIO_DIR       = .pio
 PIO_RUNFLAGS ?=
 
 
@@ -24,7 +25,7 @@ flash: $(CAN)
 
 .PHONY: clean
 clean:
-	$(PIO) run $(PIO_RUNFLAGS) --silent --target clean
+	@rm -rvf $(PIO_DIR)
 
 
 .PHONY: $(CAN)
