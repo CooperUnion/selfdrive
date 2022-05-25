@@ -1,20 +1,25 @@
 FROM ros:noetic-ros-base
 
+# prevents prompts from popping up during installation
+# for certain packages
 ARG DEBIAN_FRONTEND=noninteractive
 
-SHELL ["/bin/bash", "-c"]
+# install basic utils
+RUN apt update && \
+    apt install -y curl vim
 
-RUN apt update && apt install -y curl
+# install python3.10 
+RUN apt update && \
+    apt install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt install -y python3.10 python3.10-distutils
 
-RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-RUN apt-get update && apt-get install -qy redis
+# priortize python3.10 for python/python3 commands
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
-RUN apt install software-properties-common -y
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install -y python3.10
-
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+# install pip for python3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 
 WORKDIR /app
 
