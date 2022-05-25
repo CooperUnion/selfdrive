@@ -7,5 +7,8 @@ set -e
 source /opt/ros/noetic/setup.bash
 #source /app/ros_ws/devel/setup.bash
 
+# build dependencies
+pip install /app/cand
+
 # https://unix.stackexchange.com/questions/466999/what-does-exec-do
 exec "$@"

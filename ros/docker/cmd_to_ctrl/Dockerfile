@@ -8,7 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
     apt install -y curl vim
 
-# install python3.10 
+# install python3.10
 RUN apt update && \
     apt install -y software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \

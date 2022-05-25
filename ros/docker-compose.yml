@@ -19,13 +19,12 @@ services:
         command: stdbuf -o L roscore
 
     redis:
-        image: redis:6.2-alpine
+        image: redis:7.0-alpine
         container_name: redis
         restart: unless-stopped
         ports:
             - '6379:6379'
-        command: redis-server --save 60 1 --requirepass MDNcVb924a --loglevel 
-    
+
     cand:
         build: docker/cand/.
         container_name: cand
@@ -33,25 +32,25 @@ services:
         environment:
             - 'ROS_HOSTNAME=cand'
             - 'ROS_MASTER_URI=http://master:11311'
-        ports:
-            - '6379:6379'
-        volumes: 
+        volumes:
             - '../common/cand:/app/cand'
         depends_on:
             - master
+            - redis
 
-    twist:
+    cmd_to_ctrl:
         build: docker/cmd_to_ctrl/.
-        container_name: twist
+        container_name: cmd_to_ctrl
         tty: true
         environment:
-            - 'ROS_HOSTNAME=twist'
+            - 'ROS_HOSTNAME=cmd_to_ctrl'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
             - '../common/cand:/app/cand'
             - '../controls/send_launch:/app/ros_ws/src/send_launch'
         depends_on:
             - master
+            - redis
 
     navigation:
         build: docker/navigation/.
@@ -95,7 +94,7 @@ services:
         command: roslaunch rplidar_ros view_rplidar.launch
         depends_on:
             - master
-    
+
     gazebo:
         build: docker-gazebo/.
         container_name: gazebo
@@ -152,9 +151,9 @@ services:
         # command: roslaunch rplidar_ros view_rplidar.launch
         depends_on:
             - master
-    
+
     ######added rviz 2/17
-    rviz: 
+    rviz:
         build: docker/rviz/.
         container_name: rviz
         tty: true
