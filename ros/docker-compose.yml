@@ -207,4 +207,19 @@ services:
         depends_on:
             - master
 
+    pure_pursuit: 
+        build: docker/pure_pursuit/.
+        container_name: pure_pursuit
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=pure_pursuit'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/pure_pursuit/pure_pursuit:/app/ros_ws/src/pure_pursuit'
+        depends_on:
+            - master
+
             
