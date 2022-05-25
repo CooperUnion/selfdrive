@@ -1,2 +1,4 @@
 build/
 devel/
+docker/cand/cand
+docker/cmd_to_ctrl/cand

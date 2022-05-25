@@ -23,6 +23,9 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 
 WORKDIR /app
 
+COPY ./cand /tmp/cand
+RUN pip install /tmp/cand && rm -rf /tmp/cand
+
 RUN mkdir ros_ws
 
 COPY ./entrypoint.sh /

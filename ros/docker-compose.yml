@@ -46,10 +46,10 @@ services:
             - 'ROS_HOSTNAME=cmd_to_ctrl'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - '../common/cand:/app/cand'
             - '../controls/send_launch:/app/ros_ws/src/send_launch'
         depends_on:
             - master
+            - cand
             - redis
 
     navigation:
