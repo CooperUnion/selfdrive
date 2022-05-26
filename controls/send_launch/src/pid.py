@@ -1,79 +1,81 @@
-from dataclasses import dataclass
-
-
 # credits to Randal W. Beard
-@dataclass(kw_only=True)
 class Controller:
-    kp:        float = 0.0
-    ki:        float = 0.0
-    kd:        float = 0.0
-    ts:        float = 0.0
-    lower_lim: float = -100.0
-    upper_lim: float = 100.0
-    sigma:     float = 1.0
-    _beta:     float = (2 * sigma - ts) / (2 * sigma - ts)
-    _y0:       float = 0.0
-    _err0:     float = 0.0
-    _err_dot:  float = 0.0
-    _int:      float = 0.0
+    def __init__(
+        self,
+        *,
+        kp:        float = 0.0,
+        ki:        float = 0.0,
+        kd:        float = 0.0,
+        ts:        float = 0.0,
+        lower_lim: float = -100.0,
+        upper_lim: float = 100.0,
+        sigma:     float = 1.0,
+    ):
+        self.kp         = kp
+        self.ki         = ki
+        self.kd         = kd
+        self.lower_lim  = lower_lim
+        self.upper_lim  = upper_lim
+        self._ts        = ts
+        self._sigma     = sigma
+        self._beta      = (2 * sigma - ts) / (2 * sigma - ts)
+        self._y0        = 0.0
+        self._err0      = 0.0
+        self._err_dot   = 0.0
+        self._int       = 0.0
 
+    @property
+    def ts(self) -> float:
+        return self._ts
 
+    @ts.setter
+    def ts(self, val: float):
+        self._ts   = val
+        self._beta = (2 * self._sigma - self._ts) / (2 * self._sigma + self._ts)
 
-#Acknowledgements: Randall Beard Feedback Control textbook pg 145
-class PIDController():
-    def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.005, llim=-100.0, ulim=100.0, sigma=1.0):
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
-        self.Ts = Ts
-        self.llim = llim
-        self.ulim = ulim
-        self.sigma = sigma
-        self.beta = (2.0*self.sigma - self.Ts) / (2.0*self.sigma + self.Ts)
-        self.y_d1 = 0
-        self.error_d1 = 0
-        self.y_dot = 0
-        self.error_dot = 0
-        self.integrator = 0
+    @ts.deleter
+    def ts(self):
+        del self._ts
 
-    def PID(_, y_r, y):
-        # Compute current error
-        error = y_r - y
-        # Integrate erro rusing trapazoidal rule
-        _.integrator = _.integrator + ((_.Ts/2) * (error + _.error_d1))
+    @property
+    def sigma(self) -> float:
+        return self._sigma
 
-        # Prevent integrator unsaturation
-        if _.ki != 0.0:
-            integrator_unsat = _.ki*_.integrator
-            _.integrator=_.saturate(integrator_unsat)/_.ki
+    @sigma.setter
+    def sigma(self, val: float):
+        self._sigma = val
+        self._beta  = (2 * self._sigma - self._ts) / (2 * self._sigma + self._ts)
 
-        # Differentiate error
-        _.error_dot = _.beta*_.error_dot + (((1-_.beta)/_.Ts) * (error - _.error_d1))
+    @sigma.deleter
+    def sigma(self):
+        del self._sigma
 
-        # PID Control
-        u_unsat = (_.kp * error) + (_.ki * _.integrator) + (_.kd * _.error_dot)
+    def _saturate(self, u):
+        return max(min(self.upper_lim, u), self.lower_lim)
 
-        # Saturate control input
-        u_sat = _.saturate(u_unsat)
+    def run(self, des: float, cur: float) -> float:
+        err = des - cur
 
-        _.error_d1 = error
-        _.y_d1 = y
-        return u_sat
+        # integrate error using the trapazoidal rule
+        self._int = self._int + ((self._ts / 2) * (err + self._err0))
 
-    def saturate(self, u):
-        return max(min(self.ulim, u), self.llim)
+        # prevent unsaturation of integrator
+        if self.ki != 0.0:
+            self._int = self._saturate(self.ki * self._int) / self.ki
 
-    def update_time_parameters(self, Ts, sigma):
-        self.Ts = Ts
-        self.sigma = sigma
-        self.beta = (2.0*self.sigma - self.Ts) / (2.0*self.sigma + self.Ts)
+        # differentiate error
+        self.err_dot  = self._beta * self._err_dot
+        self.err_dot += (((1 - self._beta) / self._ts) * (err - self._err0))
 
-    def setpoint_reset(self, y_r, y):
-        self.integrator = 0
-        self.error_d1 = y_r - y
-        self.error_dot = 0
+        # PID
+        u_unsat = (self.kp * err) + (self.ki * self._int) + (self.kd * self._err_dot)
 
-    def update_gains(self, kp, ki, kd):
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
+        self._err0 = err
+        self._y0   = cur
+
+        return self._saturate(u_unsat)
+
+    def setpoint_reset(self, des: float, cur: float):
+        self._int     = 0.0
+        self._err0    = des - cur
+        self._err_dot = 0.0
