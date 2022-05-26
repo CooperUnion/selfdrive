@@ -25,6 +25,7 @@ WORKDIR /app
 
 COPY ./cand /tmp/cand
 RUN pip install /tmp/cand && rm -rf /tmp/cand
+RUN pip install --upgrade numpy
 
 RUN mkdir ros_ws
 
