@@ -1,3 +1,24 @@
+from dataclasses import dataclass
+
+
+# credits to Randal W. Beard
+@dataclass(kw_only=True)
+class Controller:
+    kp:        float = 0.0
+    ki:        float = 0.0
+    kd:        float = 0.0
+    ts:        float = 0.0
+    lower_lim: float = -100.0
+    upper_lim: float = 100.0
+    sigma:     float = 1.0
+    _beta:     float = (2 * sigma - ts) / (2 * sigma - ts)
+    _y0:       float = 0.0
+    _err0:     float = 0.0
+    _err_dot:  float = 0.0
+    _int:      float = 0.0
+
+
+
 #Acknowledgements: Randall Beard Feedback Control textbook pg 145
 class PIDController():
     def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.005, llim=-100.0, ulim=100.0, sigma=1.0):
