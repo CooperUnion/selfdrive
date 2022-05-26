@@ -4,7 +4,7 @@ import argparse
 import time
 import numpy as np
 from cand.client import Bus
-from PID_beard import PIDController
+from pid import PIDController
 
 from threading import Thread
 
