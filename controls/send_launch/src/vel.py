@@ -61,7 +61,7 @@ class Ctrl:
 
             self._vel_hist[self._vel_index] = self._tick2vel(
                 (reading[1][self.ENOCDER0_SIGNAL_NAME] + reading[1][self.ENOCDER1_SIGNAL_NAME]) / 2,
-                reading[1][self.TIME_DETLA_US_SIGNAL_NAME],
+                reading[1][self.TIME_DETLA_US_SIGNAL_NAME] / 1_000_000,
             )
 
             self._vel_index = (self._vel_index + 1) % self._samples
