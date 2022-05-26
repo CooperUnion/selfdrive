@@ -46,7 +46,7 @@ class Ctrl:
         return self.ACCEL_TO_PEDAL_SLOPE_MAPPING * accel
 
     def _brake2pedal(self, accel: float) -> float:
-        return (self.BRAKE_TO_PEDAL_SLOPE_MAPPING * accel) - self.BRAKE_TO_PEDAL_SLOPE_MAPPING_INTERCEPT
+        return (self.BRAKE_TO_PEDAL_SLOPE_MAPPING * accel) + self.BRAKE_TO_PEDAL_SLOPE_MAPPING_INTERCEPT
 
     def _tick2vel(self, ticks: int, time: int) -> float:
         return self.TICKS_PER_M * ticks / time
