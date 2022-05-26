@@ -52,7 +52,7 @@ def main():
             kp=args.kp,
             ki=args.ki,
             kd=args.kd,
-            ts=(1 / args.rate),
+            ts=(1 / abs(args.rate)),
         ),
         cand.client.Bus(redis_host='redis'),
     )
