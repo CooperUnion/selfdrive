@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+import sys
 
 import cand
+import rospy
 
 import pid
 import vel
@@ -36,7 +38,7 @@ def main():
         type=float,
     )
 
-    args = argparser.parse_args()
+    args = argparser.parse_args(rospy.myargv(argv=sys.argv)[1:])
 
     ctrl = vel.Ctrl(
         pid.Controller(
