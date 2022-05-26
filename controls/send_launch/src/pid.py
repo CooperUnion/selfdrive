@@ -53,7 +53,7 @@ class Controller:
     def _saturate(self, u):
         return max(min(self.upper_lim, u), self.lower_lim)
 
-    def run(self, des: float, cur: float) -> float:
+    def step(self, des: float, cur: float) -> float:
         err = des - cur
 
         # integrate error using the trapazoidal rule

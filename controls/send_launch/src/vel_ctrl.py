@@ -54,7 +54,7 @@ class vel_ctrl:
 #        delta = (time.time_ns() - enc[0])/1000000000
 #        data = enc[1]
 #        v_actual = self.enc_to_velocity(data, delta)
-#        ctrl_out = self.controller.run(v_des, v_actual)
+#        ctrl_out = self.controller.step(v_des, v_actual)
 #        pedal_percentage = self.acc_to_pedal(ctrl_out)
 #        print(f'v_actual: {v_actual} pedal_percentage: {pedal_percentage}')
 #        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
@@ -63,7 +63,7 @@ class vel_ctrl:
     def ctrl_vel_twist(self, msg: Twist):
         v_des = msg.linear.x # Get desired velocity from Twist message
         v_actual = self.vel_filtered
-        acceleration_desired = self.controller.run(v_des, self.vel_filtered)
+        acceleration_desired = self.controller.step(v_des, self.vel_filtered)
         (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
         print(v_actual)
         #print(throttle_percentage)
@@ -76,7 +76,7 @@ class vel_ctrl:
         #delta = (time.time_ns() - enc[0])/1_000_000_000
         #data = enc[1]
         v_actual = self.vel_filtered
-        acceleration_desired = self.controller.run(v_des, self.vel_filtered)
+        acceleration_desired = self.controller.step(v_des, self.vel_filtered)
         (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
         print(v_actual)
         #print(throttle_percentage)
