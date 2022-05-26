@@ -49,6 +49,9 @@ def main():
         cand.client.Bus(redis_host='redis'),
     )
 
+    rospy.init_node('send_launch')
+    rospy.spin()
+
 
 if __name__ == '__main__':
     main()
