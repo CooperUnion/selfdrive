@@ -1,0 +1,2 @@
+class Ctrl:
+    pass
