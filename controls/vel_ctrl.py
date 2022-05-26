@@ -14,10 +14,10 @@ class vel_ctrl:
 
     def ctrl_from_twist(self, twist_message: Twist):
         v_des = twist_message.linear.x
-        #enc = self.bus.get(cand info idk)
         enc = self.bus.get('dbwNode_Encoder_Data')
-        # time = self.bus.get(cand info time)
-        v_actual = self.enc_to_velocity(enc['Encoder0'], 0.01)
+        delta = (time.time_ns() - enc[0])/1000000000
+        data = enc[1]
+        v_actual = self.enc_to_velocity(data, delta)
         ctrl_out = self.controller.PID(v_des, v_actual)
         pedal_percentage = self.acc_to_pedal(ctrl_out)
         print(f'v_actual: {v_actual} pedal_percentage: {pedal_percentage}')
@@ -26,10 +26,10 @@ class vel_ctrl:
 
     def ctrl_vel_fixed(self):
         v_des = 2.2352
-        #enc = self.bus.get(cand info idk)
         enc = self.bus.get('dbwNode_Encoder_Data')
-        # time = self.bus.get(cand info time)
-        v_actual = self.enc_to_velocity(enc['Encoder0'], 0.01)
+        delta = (time.time_ns() - enc[0])/1000000000
+        data = enc[1]
+        v_actual = self.enc_to_velocity(data, delta)
         ctrl_out = self.controller.PID(v_des, v_actual)
         pedal_percentage = self.acc_to_pedal(ctrl_out)
         print(f'v_actual: {v_actual} pedal_percentage: {pedal_percentage}')
