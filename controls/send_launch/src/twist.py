@@ -1,7 +1,15 @@
 import rospy
+
 from geometry_msgs.msg import Twist
 
-from vel_ctrl import vel_ctrl
+
+class Decode:
+    def __init__(self, topic: str):
+        self._topic = rospy.Subscribe(topic, Twist, self._callback)
+
+    def _callback(self, msg: Twist):
+        pass
+
 
 class TwistCan:
     def __init__(self):
