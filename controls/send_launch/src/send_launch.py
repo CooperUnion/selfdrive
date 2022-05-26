@@ -14,27 +14,34 @@ def main():
     argparser = argparse.ArgumentParser(description='send_launch')
 
     argparser.add_argument(
-        "--kp",
+        '--kp',
         default=0.0,
-        metavar="n",
+        metavar='n',
         type=float,
     )
     argparser.add_argument(
-        "--ki",
+        '--ki',
         default=0.0,
-        metavar="n",
+        metavar='n',
         type=float,
     )
     argparser.add_argument(
-        "--kd",
+        '--kd',
         default=0.0,
-        metavar="n",
+        metavar='n',
         type=float,
     )
     argparser.add_argument(
-        "--vd",
+        '--vd',
         default=0.0,
-        metavar="n",
+        metavar='n',
+        type=float,
+    )
+    argparser.add_argument(
+        '-r',
+        '--rate',
+        default=10.0,
+        metavar='Hz',
         type=float,
     )
 
@@ -45,6 +52,7 @@ def main():
             kp=args.kp,
             ki=args.ki,
             kd=args.kd,
+            ts=(1 / args.rate),
         ),
         cand.client.Bus(redis_host='redis'),
     )
