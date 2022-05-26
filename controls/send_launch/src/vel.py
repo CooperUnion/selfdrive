@@ -15,6 +15,11 @@ class Ctrl:
     BRAKE_TO_PEDAL_SLOPE_MAPPING           = -58.03
     BRAKE_TO_PEDAL_SLOPE_MAPPING_INTERCEPT = -11.33
 
+    ACCEL_CAN_MESSAGE_NAME    = 'dbwNode_Accel_Cmd'
+    THROTTLE_SIGNAL_NAME      = 'ThrottleCmd'
+    MODE_CTRL_SIGNAL_NAME     = 'ModeCtrl'
+    BRAKE_CAN_MESSAGE_NAME    = 'dbwNode_Brake_Cmd'
+    BRAKE_SIGNAL_NAME         = 'BrakeCmd'
     ENCODER_CAN_MESSAGE_NAME  = 'dbwNode_Encoder_Data'
     ENOCDER0_SIGNAL_NAME      = 'Encoder0'
     ENOCDER1_SIGNAL_NAME      = 'Encoder1'
@@ -67,3 +72,25 @@ class Ctrl:
             self._vel_index = (self._vel_index + 1) % self._samples
 
             self._vel_filtered = np.mean(self._vel_hist)
+
+    def vel_fixed(self, vel: float):
+        print(self._vel_filtered)
+        vel_set = self._pid.step(vel, self._vel_filtered)
+
+        brake = self._brake2pedal(vel_set)
+        accel = self._accel2pedal(vel_set)
+
+        # until we get F/N/R working
+        if vel <= 0.0: accel = 0.0
+
+        self._bus.send(
+            self.ACCEL_CAN_MESSAGE_NAME,
+            {
+                self.THROTTLE_SIGNAL_NAME:  min(abs(accel), 100) / 100,
+                self.MODE_CTRL_SIGNAL_NAME: 1,
+            },
+        )
+        self._bus.send(
+            self.BRAKE_CAN_MESSAGE_NAME,
+            {self.BRAKE_SIGNAL_NAME: min(abs(brake), 100) / 100},
+        )
