@@ -171,48 +171,35 @@ class angle_ctrl:
         odrive.utils.dump_errors(odrv0)
 
 
-    def abs_enc_filter(self): #ASK JACOB TO DO THIS
+    def enc_filter(self): #how to filter?????? THIS IS PROB WRONG LOL
         prev_time = 0
         index = 0
 
         while True:
-            data = self.bus.get('wherever the thing fpr the steering enc is ')                      #DONT FORGET TO FIX THIS can message for abs enc
+            data = self.bus.get('') #CHANGE TO ABS ENC
 
             if prev_time == data[0]:
                 continue
 
             prev_time = data[0]
 
-            self.ang_history[index] = angle_ctrl.enc_to_angle((data[1]['Encoder0'] + data[1]['Encoder1']) / 2, 0.01)        #AND FIX THIS TO REFLECT WHATEWVRE IS GOING ON IN THE WHEELS WHEN TURNING IDEK
-            ang_in = self.ang_history[index]
+            self.enc_history[index] = vel_ctrl.enc_to_velocity((data[1]['#ODRIVE']), 0.01) #CAHNGE TO ABS ENC
+            enc_in = self.enc_history[index]
             index = (index + 1) % self.N
 
-            self.vel_filtered = np.mean(self.vel_history)
+            self.angle_filtered = np.mean(self.vel_history)
 
     def enc_to_angle(self, data):
-        self.angle = data*data*(2*(10**(-7)))
-        return (some mapping*self.enc)                                                                                                       #this might be wrong LOL (it probably is bc she isnt linear :P)
+        self.angle = (data*data*(2*(10**(-7))))+(0.0013*data)+0.9143
+        return (self.angle)
 
     def ctrl_vel_twist(self, msg: Twist):
         theta_des = msg.angular.z # Get desired angle from Twist message
-        theta_actual = self.vel_filtered
-        self.PID_out = self.controller.run(theta_des, self.vel_filtered)
-        (throttle_percentage, brake_percentage) = self.brake_or_throttle(theta_actual, acceleration_desired)
+        theta_actual = self.angle_filtered #define angle_filtered in enc_filter
+        self.PID_out = self.controller.run(theta_des, theta_actual)
 
         self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(max(throttle_percentage, 0), 100) / 100, 'ModeCtrl': 1})
-
-
-    def ctrl_vel_fixed(self, theta_des=2.2352):
-        theta_actual = self.ang_filtered
-        vel_desired = self.controller.run(theta_des, self.ang_filtered)
-
-        #print(throttle_percentage)
-        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-        axis.controller.input_vel = self.PID_out
-
-
-
+        self.bus.send() # CAN MESSAGE FOR ODRIVE VELOCITY
 
 
 if __name__ == "__main__":
