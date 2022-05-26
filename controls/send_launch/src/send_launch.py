@@ -2,6 +2,11 @@
 
 import argparse
 
+import cand
+
+import pid
+import vel
+
 
 def main():
     argparser = argparse.ArgumentParser(description='send_launch')
@@ -32,6 +37,15 @@ def main():
     )
 
     args = argparser.parse_args()
+
+    ctrl = vel.Ctrl(
+        pid.Controller(
+            kp=args.kp,
+            ki=args.ki,
+            kd=args.kd,
+        ),
+        cand.client.Bus(redis_host='redis'),
+    )
 
 
 if __name__ == '__main__':
