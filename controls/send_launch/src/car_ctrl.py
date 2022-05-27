@@ -5,7 +5,6 @@ import time
 import numpy as np
 from cand.client import Bus
 import pid
-import can
 from threading import Thread
 
 from geometry_msgs.msg import Twist
@@ -13,6 +12,8 @@ from geometry_msgs.msg import Twist
 import ctypes
 import odrive
 from odrive.enums import *
+
+from igvcutils.can import endianswap
 
 
 
@@ -134,8 +135,8 @@ class vel_ctrl:
 class angle_ctrl:
 
     def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.1, flag=False):
-        self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts, lower_lim=-5, upper_lim= 5)
-        self.bus = can.interface.Bus('can0', bustype='socketcan')
+        self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts, lower_lim=-10, upper_lim= 10)
+        self.bus = Bus(redis_host='redis')
         self.enc_count=0
         self.ang_filtered = 0                                                                       #filtering angle,, i just copied and pasted and changed some stuff from vel_ctrl ;p
         self.N            = 4
@@ -181,30 +182,36 @@ class angle_ctrl:
         index = 0
 
         while True:
-            msg = self.bus.recv()
-            if msg.arbitration_id!= 0x1e5: continue
-            self.enc_count= int.from_bytes(msg.data[1:3], 'big', signed=True)
+            data = self.bus.get_data('steering_Absolute_Encoder')
+            if data is None: continue
+            # print(data)
+            # self.enc_count= int.from_bytes(msg.data[1:3], 'big', signed=True)
+            self.enc_count = endianswap(data['Pos'], 'little', dst_signed=True)
 
     def enc_to_angle(self, count):
-        self.angle = (count*count*(2*(10**(-7))))+(0.0013*count)+0.9143
+        self.angle = 0.0029*count + 0.0446
         return (self.angle)
     def ctrl_vel_twist(self, msg: Twist):
         theta_des = msg.angular.z # Get desired angle from Twist message
-        theta_actual = self.enc_count #define angle_filtered in enc_filter
+        theta_actual = self.enc_to_angle(self.enc_count) #define angle_filtered in enc_filter
         self.PID_out = self.controller.step(theta_des, theta_actual)
         self.axis.controller.input_vel = self.PID_out
-        print(f"td:{theta_des} | ta:{theta_actual} | PID: {self.PID_out}")
+        print(f"td:{theta_des} | enc_count: {self.enc_count} | ta:{theta_actual} | PID: {self.PID_out}")
 
 if __name__ == "__main__":
-    ang=angle_ctrl(kp=.095)
     try:
+        ang=angle_ctrl(kp=1)
+        t0 = time.time_ns()
+
         while True:
+            t1 = (time.time_ns() - t0)/1_000_000_000
             msg=Twist()
-            msg.angular.z=0
+            msg.angular.z=20*np.sin(0.2*np.pi*t1)
             ang.ctrl_vel_twist(msg)
             time.sleep(ang.controller.ts)
     except:
         ang.axis.controller.input_vel = 0
+        ang.axis.requested_state = AXIS_STATE_IDLE
 
     # parser = argparse.ArgumentParser(description="test throttle")
 
