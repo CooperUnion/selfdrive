@@ -5,7 +5,7 @@ import time
 import numpy as np
 from cand.client import Bus
 import pid
-
+import can
 from threading import Thread
 
 from geometry_msgs.msg import Twist
@@ -14,7 +14,6 @@ import ctypes
 import odrive
 from odrive.enums import *
 
-from input_thread import Input
 
 
 class vel_ctrl:
@@ -134,115 +133,119 @@ class vel_ctrl:
 
 class angle_ctrl:
 
-    def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.1):
-        # Connect to can bus interface for absolute encoder
-    bus0 = can.interface.Bus('can0', bustype='socketcan')
-    time.sleep(1)
-
-    print('Connecting to odrive...')
-    # odrv0 = odrive.find_any(timeout=0.5, serial_number=35550342033494)
-    odrv0 = odrive.find_any() #TODO: Add serial number here so that only our odrive can be connected
-    print('Connected to odrive.')
-
-    # Get axis from the odrive that is connected.
-    time.sleep(1)
-    axis = odrv0.axis0
-    time.sleep(1)
-
-    odrv0.clear_errors() # clear odrive errors before calibration
-    odrive.utils.dump_errors(odrv0)
-
-    axis.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE # Calibrate odrive
-    time.sleep(1)
-
-    # Wait for calibration to finish
-    while axis.current_state != AXIS_STATE_IDLE: # wait for odrive to finish calibration
-        time.sleep(0.1)
-
-        self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts)
-        self.bus = Bus(redis_host='redis')
+    def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.1, flag=False):
+        self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts, lower_lim=-5, upper_lim= 5)
+        self.bus = can.interface.Bus('can0', bustype='socketcan')
+        self.enc_count=0
         self.ang_filtered = 0                                                                       #filtering angle,, i just copied and pasted and changed some stuff from vel_ctrl ;p
         self.N            = 4
         self.ang_history = np.zeros(self.N)
-        self.candListener = Thread(target=self.ang_filter, daemon=True)
+        self.candListener = Thread(target=self.steering_enc_filter, daemon=True)
         self.candListener.start()
+        self.odrive_calibrated=flag
 
-        axis = odrv0.axis0
+        # Connect to can bus interface for absolute encoder
+
+        time.sleep(1)
+
+        print('Connecting to odrive...')
+        # odrv0 = odrive.find_any(timeout=0.5, serial_number=35550342033494)
+        odrv0 = odrive.find_any() #TODO: Add serial number here so that only our odrive can be connected
+        print('Connected to odrive.')
+
+        # Get axis from the odrive that is connected.
+        time.sleep(1)
+        self.axis = odrv0.axis0
+        time.sleep(1)
+
+        odrv0.clear_errors() # clear odrive errors before calibration
         odrive.utils.dump_errors(odrv0)
 
+        self.axis.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE # Calibrate odrive
+        time.sleep(1)
 
-    def enc_filter(self): #how to filter?????? THIS IS PROB WRONG LOL
+        # Wait for calibration to finish
+        while self.axis.current_state != AXIS_STATE_IDLE: # wait for odrive to finish calibration
+            time.sleep(0.1)
+
+        self.axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+        self.axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
+        self.axis.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL
+
+
+        if odrive.utils.dump_errors(odrv0) !=0: #check before cont'd
+            self.flag=True
+
+    def steering_enc_filter(self): #how to filter?????? THIS IS PROB WRONG LOL
         prev_time = 0
         index = 0
 
         while True:
-            data = self.bus.get('') #CHANGE TO ABS ENC
+            msg = self.bus.recv()
+            if msg.arbitration_id!= 0x1e5: continue
+            self.enc_count= int.from_bytes(msg.data[1:3], 'big', signed=True)
 
-            if prev_time == data[0]:
-                continue
-
-            prev_time = data[0]
-
-            self.enc_history[index] = vel_ctrl.enc_to_velocity((data[1]['#ODRIVE']), 0.01) #CAHNGE TO ABS ENC
-            enc_in = self.enc_history[index]
-            index = (index + 1) % self.N
-
-            self.angle_filtered = np.mean(self.vel_history)
-
-    def enc_to_angle(self, data):
-        self.angle = (data*data*(2*(10**(-7))))+(0.0013*data)+0.9143
+    def enc_to_angle(self, count):
+        self.angle = (count*count*(2*(10**(-7))))+(0.0013*count)+0.9143
         return (self.angle)
-
     def ctrl_vel_twist(self, msg: Twist):
         theta_des = msg.angular.z # Get desired angle from Twist message
-        theta_actual = self.angle_filtered #define angle_filtered in enc_filter
-        self.PID_out = self.controller.run(theta_des, theta_actual)
-
-        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-        self.bus.send() # CAN MESSAGE FOR ODRIVE VELOCITY
-
+        theta_actual = self.enc_count #define angle_filtered in enc_filter
+        self.PID_out = self.controller.step(theta_des, theta_actual)
+        self.axis.controller.input_vel = self.PID_out
+        print(f"td:{theta_des} | ta:{theta_actual} | PID: {self.PID_out}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="test throttle")
+    ang=angle_ctrl(kp=.095)
+    try:
+        while True:
+            msg=Twist()
+            msg.angular.z=0
+            ang.ctrl_vel_twist(msg)
+            time.sleep(ang.controller.ts)
+    except:
+        ang.axis.controller.input_vel = 0
 
-    parser.add_argument(
-        "--kp",
-        metavar="n",
-        type=float,
-        required=True,
-    )
-    parser.add_argument(
-        "--ki",
-        metavar="n",
-        type=float,
-        required=True,
-    )
-    parser.add_argument(
-        "--kd",
-        metavar="n",
-        type=float,
-        required=True,
-    )
-    parser.add_argument(
-        "--vd",
-        metavar="n",
-        type=float,
-        required=True,
-    )
+    # parser = argparse.ArgumentParser(description="test throttle")
 
-    args = parser.parse_args()
-    c = vel_ctrl(args.kp, args.ki, args.kd)
-    count = 0
-    vd = args.vd
-    while(1):
-        c.ctrl_vel_fixed(vd)
-        time.sleep(0.1)
-        count += 1
-        if count > 60:
-            vd = 0
+    # parser.add_argument(
+    #     "--kp",
+    #     metavar="n",
+    #     type=float,
+    #     required=True,
+    # )
+    # parser.add_argument(
+    #     "--ki",
+    #     metavar="n",
+    #     type=float,
+    #     required=True,
+    # )
+    # parser.add_argument(
+    #     "--kd",
+    #     metavar="n",
+    #     type=float,
+    #     required=True,
+    # )
+    # parser.add_argument(
+    #     "--vd",
+    #     metavar="n",
+    #     type=float,
+    #     required=True,
+    # )
 
-        if count > 120:
-            vd = 0
+    # args = parser.parse_args()
+    # c = vel_ctrl(args.kp, args.ki, args.kd)
+    # count = 0
+    # vd = args.vd
+    # while(1):
+    #     c.ctrl_vel_fixed(vd)
+    #     time.sleep(0.1)
+    #     count += 1
+    #     if count > 60:
+    #         vd = 0
 
-        if count > 180:
-            vd = 0
+    #     if count > 120:
+    #         vd = 0
+
+    #     if count > 180:
+    #         vd = 0
