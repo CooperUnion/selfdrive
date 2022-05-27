@@ -19,7 +19,7 @@ all: build
 
 .PHONY: clean
 clean:
-	@rm -rvf $(CAND_DST) $(IGVCUTILS_DST) $(REQUIREMENTS_DST)
+	@rm -rvf $(CAND_DST) $(IGVCUTILS_DST)
 	@$(DOCKER_COMPOSE) rm $(DOCKER_FLAGS_RM) $(DOCKER_FLAGS) $(CONTAINER)
 
 
