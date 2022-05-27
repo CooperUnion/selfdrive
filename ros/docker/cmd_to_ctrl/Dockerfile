@@ -10,7 +10,7 @@ RUN apt update && \
 
 # install python3.10
 RUN apt update && \
-    apt install -y software-properties-common && \
+    apt install -y software-properties-common libusb-1.0-0 && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt install -y python3.10 python3.10-distutils
 
@@ -24,7 +24,10 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 WORKDIR /app
 
 COPY ./cand /tmp/cand
-RUN pip install /tmp/cand && rm -rf /tmp/cand
+COPY ./igvcutils /tmp/igvcutils
+RUN pip install --upgrade pip wheel
+RUN pip install /tmp/cand /tmp/igvcutils && rm -rf /tmp/cand /tmp/igvcutils
+RUN pip install odrive pyyaml
 RUN pip install --upgrade numpy
 
 RUN mkdir ros_ws
