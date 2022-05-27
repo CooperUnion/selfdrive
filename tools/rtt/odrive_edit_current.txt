@@ -1,0 +1,3 @@
+odrivetool
+odrv0.axis0.motor.config.current_lim
+odrv0.axis0.motor.config.calibration_current
