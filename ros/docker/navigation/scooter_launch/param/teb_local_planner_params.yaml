@@ -1,17 +1,17 @@
 
 # Robot Configuration Parameters - Scooter
   # All default values for teb-acc
-  acc_lim_x: 0.5
-  acc_lim_theta: 0.5
-  
-  max_vel_x: 1.5 
-  max_vel_x_backwards: 0.5 # Picked half foward vel
+  acc_lim_x: 0.5 #m/s2
+  acc_lim_theta: 0.5 #m/s2
+   
+  max_vel_x: 2.2352 #m/s
+  max_vel_x_backwards: 0.89408 # m/s Picked half foward vel
   max_vel_theta: 0.5
 
   # Parameters for car like robots - For scooter but unecessary for simulations
-  min_turning_radius: 0.85 #0.85 # Measured value
-  wheelbase: 0.84 # Measured value
-  # cmd_angle_instead_rotval: false  Talk to Dave about this 
+  min_turning_radius: 0.85 #0.85 # Measured value set conserv value with Mike est: -pi/2 -> pi/2, 0 = straight, etc...
+  wheelbase: 1.7526 # Measured value  #### diff from front to rear axel
+  cmd_angle_instead_rotval: true 
 
 # Goal Tolerance Parameters
   # All default values for teb-tolerance

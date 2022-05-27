@@ -14,6 +14,7 @@ services:
         ports:
             - '11311:11311'
         volumes:
+            - './rosbagz:/app/rosbagz'
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         restart: unless-stopped
         command: stdbuf -o L roscore
@@ -207,19 +208,47 @@ services:
         depends_on:
             - master
 
-    pure_pursuit: 
-        build: docker/pure_pursuit/.
-        container_name: pure_pursuit
+    # # pure_pursuit: 
+    #     build: docker/pure_pursuit/.
+    #     container_name: pure_pursuit
+    #     tty: true
+    #     environment:
+    #         - 'ROS_HOSTNAME=pure_pursuit'
+    #         - 'ROS_MASTER_URI=http://master:11311'
+    #         - 'DISPLAY=$DISPLAY'
+    #         - 'QT_X11_NO_MITSHM=1'
+    #     volumes:
+    #         - '/tmp/.X11-unix:/tmp/.X11-unix'
+    #         - './docker/pure_pursuit/pure_pursuit:/app/ros_ws/src/pure_pursuit'
+    #     depends_on:
+    #         - master
+
+    pp2: 
+        build: docker/pp2/.
+        container_name: pp2
         tty: true
         environment:
-            - 'ROS_HOSTNAME=pure_pursuit'
+            - 'ROS_HOSTNAME=pp2'
             - 'ROS_MASTER_URI=http://master:11311'
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/pure_pursuit/pure_pursuit:/app/ros_ws/src/pure_pursuit'
+            - './docker/pp2/pure_pursuit:/app/ros_ws/src/pure_pursuit'
         depends_on:
             - master
 
-            
+    lane-det3:
+        build: docker/lane-det3/.
+        container_name: lane-det3
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=lane-det3'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/lane-det3/lane_costmap_layer:/app/ros_ws/src/lane_costmap_layer'
+        depends_on:
+            - master         

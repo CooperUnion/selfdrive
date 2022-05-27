@@ -7,9 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app 
 
-RUN cd /usr/include &&\
-    sudo add-apt-repository ppa:joseluisblancoc/mrpt-1.5
-    sudo apt-get update 
+RUN sudo apt-get update &&\
     sudo apt-get install libmrpt-dev mrpt-apps -y
 
 # RUN cd /usr/include &&\
@@ -20,7 +18,7 @@ RUN cd /usr/include &&\
 RUN apt update && apt install -y git &&\
     apt-get install ros-indigo-cv-bridge -y &&\
     apt-get install ros-indigo-image-transport -y &&\
-    apt-get install software-properties-common -q -y --no-install-recommends &&\
+    apt-get install software-properties-common -q -y --no-install-recommends
     
 
     # sudo add-apt-repository ppa:joseluisblancoc/mrpt-1.5 -y &&\

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+	<arg name="zed_namespace"        default="zed" />
+    <arg name="zed_node_name"        default="zed_node" />
+ 	<arg name="kinect" default="true" />
+	<!-- Whether to load the images from a folder (data set) or from the kinect -->
+	<arg name="load_images_from_folder" default="false" />
+	
+	 <!-- RGB-D related topics -->
+    <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" />
+    <arg name="depth_topic"             default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered" />
+    <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" />
+    <arg name="depth_camera_info_topic" default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/camera_info" />
+
+
+	<!-- Run the necessary nodes to bring up the car -->
+	<!--	<node pkg="pses_basis" type="car_handler" name="car_handler" output="screen">
+	<param name="kinect_on" value="true" />
+	</node> -->
+
+	<!-- Bring up lane detector -->
+	<node pkg="lane_detector" type="lane_detector" name="lane_detector" output="screen">
+		<remap from="camera_info" to="/camera_front/camera_info" />
+		<remap from="image" to="/camera_front/image_raw" />
+		<param name="images_from_folder" value="$(arg load_images_from_folder)" />
+		<param name="images_path" value="$(find lane_detector)/data/first_set" />
+	</node>
+	
+</launch>
+
+
+<!-- make sure you catkin_make the ros_ws before running command kk cool -lzl -->
+<!-- oh and before that u gotta run the mrpt installation thing bc it no work from dockerfile -lzl -->
