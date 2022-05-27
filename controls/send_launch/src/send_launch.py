@@ -46,13 +46,14 @@ def main():
     )
 
     args = argparser.parse_args(rospy.myargv(argv=sys.argv)[1:])
+    args.rate = abs(args.rate)
 
     ctrl = vel.Ctrl(
         pid.Controller(
             kp=args.kp,
             ki=args.ki,
             kd=args.kd,
-            ts=(1 / abs(args.rate)),
+            ts=(1 / args.rate),
         ),
         cand.client.Bus(redis_host='redis'),
     )
