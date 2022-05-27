@@ -36,7 +36,7 @@ echo -e "\n-> Removing any old .venv...\n"
 rm -rf .venv
 
 echo -e "\n-> Creating new venv...\n"
-python3.9 -m venv .venv
+python3 -m venv .venv
 
 echo -e "\n-> Sourcing new venv...\n"
 source .venv/bin/activate
