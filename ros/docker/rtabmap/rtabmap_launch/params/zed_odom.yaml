@@ -1,0 +1,48 @@
+# RTAB-map Configuration
+subscribe_depth:                true
+subscribe_stereo:               false
+subscribe_rgbd:                 false
+
+database_path:                  "rtabmap.db"
+
+frame_id:                       "base_link"
+map_frame_id:                   "map"
+# odom_frame_id:                  "odom"
+# odom_tf_linear_variance:        0.01
+# odom_tf_angular_variance:       0.01
+# tf_delay:                       0.02
+publish_tf:                     false
+
+odom_sensor_sync:               true
+wait_for_transform_duration:    0.2
+approx_sync:                    true
+
+map_negative_poses_ignored:     true
+
+approx_sync:                    false
+gen_scan:                       true
+visual_odometry:                false
+rgbd_sync:                      true
+approx_rgbd_odometry:           false
+
+# feature type
+Vis/FeatureType:          "10"
+Kp/DetectorStrategy:      "10"
+Rtabmap/DetectionRate:    "1"
+
+# RTAB-Map's parameters: do "rosrun rtabmap rtabmap --params" to see the list of available parameters
+RGBD/ProximityBySpace:          "true"   # Local loop closure detection (using estimated position) with locations in WM 
+RGBD/OptimizeFromGraphEnd:      "false"  # Set to false to generate map correction between /map and /odom 
+RGBD/SavedLocalizationIgnored:  "true"
+Kp/MaxDepth:                    "6.0"
+Reg/Strategy:                   "0"      # Loop closure transformation: 0=Visual, 1=ICP, 2=Visual+ICP 
+Icp/CorrespondenceRatio:        "0.3"
+Vis/MinInliers:                 "15"     # 3D visual words minimum inliers to accept loop closure 
+Vis/InlierDistance:             "0.1"    # 3D visual words correspondence distance 
+RGBD/AngularUpdate:             "0.1"    # Update map only if the robot is moving 
+RGBD/LinearUpdate:              "0.1"    # Update map only if the robot is moving 
+RGBD/ProximityPathMaxNeighbors: "0" 
+Rtabmap/TimeThr:                "1"
+Mem/RehearsalSimilarity:        "0.30"
+Reg/Force3DoF:                  "true"
+GridGlobal/MinSize:             "100"
