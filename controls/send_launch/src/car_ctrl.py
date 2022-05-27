@@ -105,7 +105,7 @@ class vel_ctrl:
         return (meters_per_tick * ticks)/time
 
     def brake_to_pedal(self, brake):
-        return (-58.03*brake)-11.33
+        return (-49.13*brake)
     # def brake_or_throttle(self, v_des, v_actual, acceleration_desired):
     #         if (not (v_des == v_actual)):
 
@@ -159,7 +159,7 @@ class angle_ctrl:
     while axis.current_state != AXIS_STATE_IDLE: # wait for odrive to finish calibration
         time.sleep(0.1)
 
-        self.controller = pid.Controller(kp=kp, ki=ki, kd=kd, ts=Ts)
+        self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts)
         self.bus = Bus(redis_host='redis')
         self.ang_filtered = 0                                                                       #filtering angle,, i just copied and pasted and changed some stuff from vel_ctrl ;p
         self.N            = 4
