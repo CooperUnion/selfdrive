@@ -7,6 +7,7 @@ import cand
 import rospy
 
 import pid
+import twist
 import vel
 
 
@@ -46,19 +47,25 @@ def main():
     )
 
     args = argparser.parse_args(rospy.myargv(argv=sys.argv)[1:])
+    args.rate = abs(args.rate)
 
     ctrl = vel.Ctrl(
         pid.Controller(
             kp=args.kp,
             ki=args.ki,
             kd=args.kd,
-            ts=(1 / abs(args.rate)),
+            ts=(1 / args.rate),
         ),
         cand.client.Bus(redis_host='redis'),
     )
+    decoder = twist.Decode('/cmd_vel')
 
     rospy.init_node('send_launch')
-    rospy.spin()
+
+    r = rospy.Rate(args.rate)
+    while not rospy.is_shutdown():
+        ctrl.set_vel(decoder.vel)
+        r.sleep()
 
 
 if __name__ == '__main__':

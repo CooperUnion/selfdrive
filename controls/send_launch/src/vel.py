@@ -73,8 +73,7 @@ class Ctrl:
 
             self._vel_filtered = np.mean(self._vel_hist)
 
-    def vel_fixed(self, vel: float):
-        print(self._vel_filtered)
+    def set_vel(self, vel: float):
         vel_set = self._pid.step(vel, self._vel_filtered)
 
         brake = self._brake2pedal(vel_set)
