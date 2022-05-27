@@ -73,3 +73,16 @@ class Bus:
         out  = can.Message(arbitration_id=msg.frame_id, data=data, is_extended_id=False)
 
         self._bus.send(out)
+
+
+def endianswap(val: int, byteorder: str, *, src_signed=False, dst_signed=False) -> int:
+    swap_byteorder = None
+    if   byteorder == 'little': swap_byteorder = 'big'
+    elif byteorder == 'big':    swap_byteorder = 'little'
+    else: raise ValueError("byteorder must be either 'little' or 'big'")
+
+    length = val.bit_length() // 8
+    if val.bit_length() % 8: length += 1
+
+    raw = val.to_bytes(length, byteorder, signed=src_signed)
+    return int.from_bytes(raw, swap_byteorder, signed=dst_signed)
