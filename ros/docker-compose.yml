@@ -42,6 +42,7 @@ services:
         build: docker/cmd_to_ctrl/.
         container_name: cmd_to_ctrl
         tty: true
+        privileged: true
         environment:
             - 'ROS_HOSTNAME=cmd_to_ctrl'
             - 'ROS_MASTER_URI=http://master:11311'
