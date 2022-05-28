@@ -18,6 +18,7 @@ def main():
         'Encoder',
         'RearEncoder',
         'PbMon',
+        'Steering'
     ]
 
     nodes = []
