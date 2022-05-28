@@ -18,6 +18,7 @@ def main():
         'Brake',
         'Encoder',
         'RearEncoder',
+        'PbMon',
     ]
 
     nodes = []
