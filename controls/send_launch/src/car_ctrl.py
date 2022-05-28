@@ -153,23 +153,32 @@ class angle_ctrl:
         # odrv0 = odrive.find_any(timeout=0.5, serial_number=35550342033494)
         odrv0 = odrive.find_any() #TODO: Add serial number here so that only our odrive can be connected
         print('Connected to odrive.')
-
         # Get axis from the odrive that is connected.
         time.sleep(1)
         self.axis = odrv0.axis0
         time.sleep(1)
+    
+        print(f"errors: {self.axis.error}")
 
-        odrv0.clear_errors() # clear odrive errors before calibration
-        odrive.utils.dump_errors(odrv0)
+        if not self.axis.motor.is_calibrated or \
+            self.axis.error or \
+            self.axis.motor.error or \
+            self.axis.sensorless_estimator.error or \
+            self.axis.encoder.error or \
+            self.axis.controller.error:
+            odrive.utils.dump_errors(odrv0)
+            odrv0.clear_errors() # clear odrive errors before calibration
+            odrive.utils.dump_errors(odrv0)
 
-        self.axis.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE # Calibrate odrive
-        time.sleep(1)
+            self.axis.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE # Calibrate odrive
+            time.sleep(1)
 
-        # Wait for calibration to finish
-        while self.axis.current_state != AXIS_STATE_IDLE: # wait for odrive to finish calibration
-            time.sleep(0.1)
+            # Wait for calibration to finish
+            while self.axis.current_state != AXIS_STATE_IDLE: # wait for odrive to finish calibration
+                time.sleep(0.1)
 
         self.axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+
         self.axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
         self.axis.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL
 
@@ -177,14 +186,26 @@ class angle_ctrl:
         if odrive.utils.dump_errors(odrv0) !=0: #check before cont'd
             self.flag=True
 
-    def steering_enc_filter(self): #how to filter?????? THIS IS PROB WRONG LOL
+    def steering_enc_filter(self): 
         prev_time = 0
         index = 0
 
         while True:
-            data = self.bus.get_data('steering_Absolute_Encoder')
-            if data is None: continue
-            # print(data)
+            msg_time, data = self.bus.get('steering_Absolute_Encoder')
+            if data is None:
+                print(f"WARNING: NO ENCODER DATA")
+
+            time_delta_ns = time.time_ns() - msg_time
+            time_delta_ms = time_delta_ns / 1_000_000
+
+            if time_delta_ms > 1000:
+                print(f"ERROR: CAN ENCODER DATA TIMEOUT")
+                self.axis.controller.input_vel = 0
+                self.axis.requested_state = AXIS_STATE_IDLE
+                exit(-5)
+                # trip ESTOP
+
+            #print(f"CAN Encoder data: {data}")
             # self.enc_count= int.from_bytes(msg.data[1:3], 'big', signed=True)
             self.enc_count = endianswap(data['Pos'], 'little', dst_signed=True)
 
@@ -192,21 +213,26 @@ class angle_ctrl:
         self.angle = 0.0029*count + 0.0446
         return (self.angle)
     def ctrl_vel_twist(self, msg: Twist):
-        theta_des = msg.angular.z # Get desired angle from Twist message
+        print(f"angular.z: {msg.angular.z}")
+        theta_des = ((msg.angular.z)*(180/np.pi))+(np.pi/2) # Get desired angle from Twist message
+        if theta_des >27:
+            theta_des=27
+        elif theta_des<-27:
+            theta_des = -27
         theta_actual = self.enc_to_angle(self.enc_count) #define angle_filtered in enc_filter
-        self.PID_out = self.controller.step(theta_des, theta_actual)
+        self.PID_out = self.controller.step(theta_des , theta_actual)
         self.axis.controller.input_vel = self.PID_out
         print(f"td:{theta_des} | enc_count: {self.enc_count} | ta:{theta_actual} | PID: {self.PID_out}")
 
 if __name__ == "__main__":
     try:
-        ang=angle_ctrl(kp=1)
+        ang=angle_ctrl(kp=1.75)
         t0 = time.time_ns()
 
         while True:
             t1 = (time.time_ns() - t0)/1_000_000_000
             msg=Twist()
-            msg.angular.z=20*np.sin(0.2*np.pi*t1)
+            msg.angular.z= -(np.pi/6)
             ang.ctrl_vel_twist(msg)
             time.sleep(ang.controller.ts)
     except:
