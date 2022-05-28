@@ -1,2 +1,4 @@
 build/
 devel/
+docker/py-steering/cand/
+docker/py-steering/igvcutils/
