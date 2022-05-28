@@ -12,6 +12,7 @@ templategroups:
     - Encoder
     - RearEncoder
     - PbMon
+    - Steering
 
 messages:
 - dbwNode_Status:
