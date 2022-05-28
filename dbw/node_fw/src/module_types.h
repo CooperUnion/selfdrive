@@ -9,6 +9,7 @@ enum firmware_module_types {
     MOD_THROTTLE = 2,
     MOD_BRAKE = 3,
     MOD_ENCODER = 4,
+    MOD_REAR_ENCODER = 5,
 };
 
 extern const enum firmware_module_types FIRMWARE_MODULE_IDENTITY;
