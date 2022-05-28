@@ -10,6 +10,7 @@ templategroups:
     - Throttle
     - Brake
     - Encoder
+    - RearEncoder
 
 messages:
 - dbwNode_Status:
@@ -129,6 +130,23 @@ messages:
 
 - dbwNode_Encoder_Data:
     id: 0x14
+    cycletime: 10
+
+    signals:
+        - Encoder0:
+            description: Encoder 0 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Encoder1:
+            description: Encoder 1 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Time:
+            description: Microseconds since last reading.
+            width: 16
+
+- dbwNode_RearEncoder_Data:
+    id: 0x15
     cycletime: 10
 
     signals:

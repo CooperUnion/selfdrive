@@ -27,6 +27,7 @@ extern const struct rate_funcs module_rf;
 static const struct rate_funcs* task_list[] = {
     &base_rf,
     &can_rf,
-    &eeprom_rf,
+    // TODO: boards crash without EEPROM
+    //&eeprom_rf,
     &module_rf,
 };
