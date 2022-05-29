@@ -11,13 +11,6 @@ class Base(threading.Thread):
 
     COUNTER_MAX = 256
 
-    NODE_STATUS_MESSGAE_NAME  = 'dbwNode_Status'
-    SYSTEM_STATUS_SIGNAL_NAME = 'SystemStatus'
-    COUNTER_SIGNAL_NAME       = 'Counter'
-    SYSCMD_MESSAGE_NAME       = 'dbwNode_SysCmd'
-    DBWACTIVE_SIGNAL_NAME     = 'DbwActive'
-    ESTOP_SIGNAL_NAME         = 'ESTOP'
-
     class _sys_states(enum.IntEnum):
         IDLE      = 0
         UNHEALTHY = 1
@@ -35,20 +28,20 @@ class Base(threading.Thread):
 
     def run(self):
         while True:
-            rec = self._bus.get(self.SYSCMD_MESSAGE_NAME)
+            rec = self._bus.get('dbwNode_SysCmd')
 
             if rec:
                 unix_time_ns, data = rec
 
-                if data[self.DBWACTIVE_SIGNAL_NAME] and \
+                if data['DbwActive'] and \
                     self._sys_state == self._sys_states.IDLE:
                     self._sys_state = self._sys_states.ACTIVE
 
-                elif not data[self.DBWACTIVE_SIGNAL_NAME] and \
+                elif not data['DbwActive'] and \
                     self._sys_state == self._sys_states.ACTIVE:
                     self._sys_state = self._sys_states.IDLE
 
-                if data[self.ESTOP_SIGNAL_NAME]:
+                if data['ESTOP']:
                     self._sys_state = self._sys_states.ESTOP
 
                 if self._sys_state == self._sys_states.ACTIVE and \
@@ -56,10 +49,10 @@ class Base(threading.Thread):
                     self._sys_state = self._sys_states.IDLE
 
             self._bus.send(
-                self.NODE_STATUS_MESSGAE_NAME + '_' + self._mod_ident,
+                'dbwNode_Status_' + self._mod_ident,
                 {
-                    self.SYSTEM_STATUS_SIGNAL_NAME: self._sys_state,
-                    self.COUNTER_SIGNAL_NAME: self._counter
+                    'SystemStatus': self._sys_state,
+                    'Counter':      self._counter,
                 },
             )
 

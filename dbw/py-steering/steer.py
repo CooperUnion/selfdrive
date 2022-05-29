@@ -15,11 +15,6 @@ class Steer(threading.Thread):
     ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
     ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
 
-    STEERING_DATA_MESSAGE_NAME    = 'dbwNode_Steering_Data'
-    STEERING_ANGLE_SIGNAL_NAME    = 'Angle'
-    STEERING_ABS_ENC_MESSAGE_NAME = 'steering_Absolute_Encoder'
-    STEERING_POS_SIGNAL_NAME      = 'Pos'
-
     def __init__(
         self,
         bus:  cand.client.Bus,
@@ -29,6 +24,9 @@ class Steer(threading.Thread):
         self._bus  = bus
         self._pid  = pid
         self._base = base
+
+        self._encoder_timeout   = 0
+        self._odrive_connection = 0
 
         self._cur_angle = 0.0
         self._prv_enc_unix_time_ns = None
@@ -40,37 +38,39 @@ class Steer(threading.Thread):
 
     def run(self):
         while True:
-            rec = self._bus.get(self.STEERING_ABS_ENC_MESSAGE_NAME)
+            rec = self._bus.get('steering_Absolute_Encoder')
 
             if rec:
                 unix_time_ns, data = rec
 
                 if time.time_ns() - unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
-                    self._base.set_state_estop()
+                    self._encoder_timeout = 1
+                else:
+                    self._encoder_timeout = 0
 
                 # the absolute encoder data is currently not decoded
                 # correctly so we'll need to re-encode the data
-                data[self.STEERING_POS_SIGNAL_NAME] = igvcutils.can.endianswap(
-                    data[self.STEERING_POS_SIGNAL_NAME],
+                data['Pos'] = igvcutils.can.endianswap(
+                    data['Pos'],
                     'little',
                     dst_signed=True,
                 )
 
-                self._cur_angle = self._enc2angle(
-                    data[self.STEERING_POS_SIGNAL_NAME],
-                )
+                self._cur_angle = self._enc2angle(data['Pos'])
 
             elif self._prv_enc_unix_time_ns:
                 if time.time_ns() - self._prv_enc_unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
-                    self._base.set_state_estop()
+                    self._encoder_timeout = 1
 
             else:
                 self._prv_enc_unix_time_ns = time.time_ns()
 
             self._bus.send(
-                self.STEERING_DATA_MESSAGE_NAME,
+                'dbwNode_Steering_Data',
                 {
-                    self.STEERING_ANGLE_SIGNAL_NAME: math.radians(self._cur_angle),
+                    'Angle':             math.radians(self._cur_angle),
+                    'EncoderTimeoutSet': self._encoder_timeout,
+                    'ODriveConnected':   self._odrive_connection,
                 },
             )
 
