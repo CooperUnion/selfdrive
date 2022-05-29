@@ -206,7 +206,7 @@ messages:
 
 - steering_Absolute_Encoder:
     id: 0x1E5
-    cycletime: 100
+    cycletime: 10
 
     signals:
         - Foo:
