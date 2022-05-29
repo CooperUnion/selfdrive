@@ -3,8 +3,12 @@ import argparse
 
 import cand
 
+import base
+
 
 def main():
+    MOD_IDENT = 'Steering'
+
     argparser = argparse.ArgumentParser(description='py-steering')
     argparser.add_argument(
         '--redis-host',
@@ -25,6 +29,14 @@ def main():
         redis_host=args.redis_host,
         redis_port=args.redis_port,
     )
+
+    based = base.Base(
+        bus=bus,
+        mod_ident=MOD_IDENT,
+    )
+    based.start()
+
+    based.join()
 
 
 if __name__ == '__main__':
