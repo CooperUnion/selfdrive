@@ -30,7 +30,7 @@ class Steer(threading.Thread):
         self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
 
         self._encoder_timeout   = 0
-        self._odrive_connection = 1 if self._od is not None else 0
+        self._odrive_connection = 1 if self._od else 0
 
         self._cur_angle = 0.0
         self._des_angle = 0.0
