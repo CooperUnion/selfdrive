@@ -34,26 +34,41 @@ class Steer(threading.Thread):
         self._axis = self._od.axis0 if self._od else None
 
         if self._od:
-            self._od.clear_errors()
+            if not self._axis.motor.is_calibrated or \
+                self._axis.error or \
+                self._axis.motor.error or \
+                self._axis.sensorless_estimator.error or \
+                self._axis.encoder.error or \
+                self._axis.controller.error:
+                self._od.clear_errors()
 
-            self._axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+                self._axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
 
-            while self._axis.current_state != odrive.enums.AXIS_STATE_IDLE:
-                pass
-
-            self._axis.requested_state                = odrive.enums.AXIS_STATE_CLOSED_LOOP_CONTROL
-            self._axis.controller.config.input_mode   = odrive.enums.INPUT_MODE_PASSTHROUGH
-            self._axis.controller.config.control_mode = odrive.enums.CONTROL_MODE_VELOCITY_CONTROL
-
+                while self._axis.current_state != odrive.enums.AXIS_STATE_IDLE:
+                    pass
 
         self._encoder_timeout   = 0
         self._odrive_connection = 1 if self._od else 0
 
+        self._odrive_enabled = False
+
         self._cur_angle = 0.0
         self._des_angle = 0.0
         self._prv_enc_unix_time_ns = None
+        self._prv_cmd_unix_time_ns = None
 
         threading.Thread.__init__(self, daemon=True)
+
+    def _odrive_en(self, yes: bool):
+        if yes and not self._odrive_enabled:
+            self._axis.requested_state                = odrive.enums.AXIS_STATE_CLOSED_LOOP_CONTROL
+            self._axis.controller.config.input_mode   = odrive.enums.INPUT_MODE_PASSTHROUGH
+            self._axis.controller.config.control_mode = odrive.enums.CONTROL_MODE_VELOCITY_CONTROL
+            self._odrive_enabled = True
+        elif not yes and self._odrive_enabled:
+            self._axis.requested_state      = odrive.enums.AXIS_STATE_IDLE
+            self._axis.controller.input_vel = 0
+            self._odrive_enabled = False
 
     def _enc2angle(self, val: int) -> float:
         return (self.ENCODER_TO_ANGLE_SLOPE_MAPPING * val) + self.ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT
@@ -114,6 +129,12 @@ class Steer(threading.Thread):
 
                     self._des_angle = math.degrees(data['Angle'])
 
+                    self._odrive_en(True)
+                    self._axis.controller.input_vel = self._pid.step(
+                        self._des_angle,
+                        self._cur_angle,
+                    )
+
                 elif self._prv_cmd_unix_time_ns:
                     if time.time_ns() - self._prv_cmd_unix_time_ns >= self.CMD_TIMEOUT_NS:
                         self._sys_state = self._sys_states.ESTOP
@@ -126,7 +147,7 @@ class Steer(threading.Thread):
                     continue
 
             elif self._od:
-                # disable odrive here
+                self._odrive_en(False)
                 pass
 
             time.sleep(self.MESSAGE_RATE_S)
