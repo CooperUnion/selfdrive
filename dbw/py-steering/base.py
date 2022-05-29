@@ -31,7 +31,7 @@ class Base(threading.Thread):
         self._sys_state = self._sys_states.IDLE
         self._counter = 0
 
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
 
     def run(self):
         while True:
