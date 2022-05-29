@@ -192,6 +192,19 @@ messages:
             is_signed: true
             width: 32
 
+- dbwNode_Steering_Cmd:
+    id: 0x18
+    cycletime: 100
+
+    signals:
+        - Angle:
+            description: Absolute steering angle in radians.
+            minimum: -0.610865238
+            maximum: 0.610865238
+            scale: 0.000000001
+            is_signed: true
+            width: 32
+
 - dbwNode_Accel_Cntrls_Cmd:
     id: 0x21
     cycletime: 100
