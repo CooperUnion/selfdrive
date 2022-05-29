@@ -25,7 +25,7 @@ class Base(threading.Thread):
         ESTOP     = 3
 
     def __init__(self, bus: cand.client.Bus, mod_ident: str):
-        self._bus      = bus
+        self._bus       = bus
         self._mod_ident = mod_ident
 
         self._sys_state = self._sys_states.IDLE
