@@ -24,6 +24,8 @@ class Base(threading.Thread):
         self._sys_state = self._sys_states.IDLE
         self._counter = 0
 
+        self._prv_cmd_unix_time_ns = 0
+
         threading.Thread.__init__(self, daemon=True)
 
     def run(self):
@@ -33,20 +35,23 @@ class Base(threading.Thread):
             if rec:
                 unix_time_ns, data = rec
 
-                if data['DbwActive'] and \
-                    self._sys_state == self._sys_states.IDLE:
-                    self._sys_state = self._sys_states.ACTIVE
+                if unix_time_ns > self._prv_cmd_unix_time_ns:
+                    self._prv_cmd_unix_time_ns = unix_time_ns
 
-                elif not data['DbwActive'] and \
-                    self._sys_state == self._sys_states.ACTIVE:
-                    self._sys_state = self._sys_states.IDLE
+                    if data['DbwActive'] and \
+                        self._sys_state == self._sys_states.IDLE:
+                        self._sys_state = self._sys_states.ACTIVE
 
-                if data['ESTOP']:
-                    self._sys_state = self._sys_states.ESTOP
+                    elif not data['DbwActive'] and \
+                        self._sys_state == self._sys_states.ACTIVE:
+                        self._sys_state = self._sys_states.IDLE
 
-                if self._sys_state == self._sys_states.ACTIVE and \
-                    time.time_ns() - unix_time_ns >= self.DBW_ACTIVE_TIMEOUT_NS:
-                    self._sys_state = self._sys_states.IDLE
+                    if data['ESTOP']:
+                        self._sys_state = self._sys_states.ESTOP
+
+                    if self._sys_state == self._sys_states.ACTIVE and \
+                        time.time_ns() - unix_time_ns >= self.DBW_ACTIVE_TIMEOUT_NS:
+                        self._sys_state = self._sys_states.IDLE
 
             self._bus.send(
                 'dbwNode_Status_' + self._mod_ident,
