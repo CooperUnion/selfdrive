@@ -81,6 +81,7 @@ class Steer(threading.Thread):
             if self._base.dbw_currently_active():
                 if self._encoder_timeout or not self._odrive_connection:
                     self._base.set_state_estop()
+                    time.sleep(self.MESSAGE_RATE_S)
                     continue
 
             time.sleep(self.MESSAGE_RATE_S)
