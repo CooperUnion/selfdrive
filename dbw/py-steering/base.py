@@ -11,6 +11,7 @@ class Base(threading.Thread):
 
     COUNTER_MAX = 256
 
+    NODE_STATUS_MESSGAE_NAME  = 'dbwNode_Status'
     SYSTEM_STATUS_SIGNAL_NAME = 'SystemStatus'
     COUNTER_SIGNAL_NAME       = 'Counter'
     SYSCMD_MESSAGE_NAME       = 'dbwNode_SysCmd'
@@ -23,9 +24,9 @@ class Base(threading.Thread):
         ACTIVE    = 2
         ESTOP     = 3
 
-    def __init__(self, bus: cand.client.Bus, status_msg_name: str):
-        self._bus             = bus
-        self._status_msg_name = status_msg_name
+    def __init__(self, bus: cand.client.Bus, mod_name: str):
+        self._bus      = bus
+        self._mod_name = mod_name
 
         self._sys_state = self._sys_states.IDLE
         self._counter = 0
@@ -55,7 +56,7 @@ class Base(threading.Thread):
                     self._sys_state = self._sys_states.IDLE
 
             self._bus.send(
-                self._status_msg_name,
+                self.NODE_STATUS_MESSGAE_NAME + '_' + self._mod_name,
                 {
                     self.SYSTEM_STATUS_SIGNAL_NAME: self._sys_state,
                     self.COUNTER_SIGNAL_NAME: self._counter
