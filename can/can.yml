@@ -199,8 +199,8 @@ messages:
     signals:
         - Angle:
             description: Absolute steering angle in radians.
-            minimum: -0.610865238
-            maximum: 0.610865238
+            minimum: -0.471238898
+            maximum: 0.471238898
             scale: 0.000000001
             is_signed: true
             width: 32
