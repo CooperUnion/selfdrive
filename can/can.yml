@@ -191,6 +191,12 @@ messages:
             scale: 0.000000001
             is_signed: true
             width: 32
+        - EncoderTimeoutSet:
+            description: Has the encoder timed out?
+            width: 1
+        - ODriveConnected:
+            description: Is the ODrive connected?
+            width: 1
 
 - dbwNode_Steering_Cmd:
     id: 0x18
