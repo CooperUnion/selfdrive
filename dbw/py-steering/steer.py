@@ -33,6 +33,7 @@ class Steer(threading.Thread):
         self._odrive_connection = 1 if self._od is not None else 0
 
         self._cur_angle = 0.0
+        self._des_angle = 0.0
         self._prv_enc_unix_time_ns = None
 
         threading.Thread.__init__(self, daemon=True)
@@ -83,5 +84,32 @@ class Steer(threading.Thread):
                     self._base.set_state_estop()
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
+
+                rec = self._bus.get('dbwNode_Steering_Cmd')
+
+                if rec:
+                    unix_time_ns, data = rec
+
+                    if time.time_ns() - unix_time_ns >= self.CMD_TIMEOUT_NS:
+                        self._sys_state = self._sys_states.ESTOP
+                        time.sleep(self.MESSAGE_RATE_S)
+                        continue
+
+                    self._des_angle = math.degrees(data['Angle'])
+
+                elif self._prv_cmd_unix_time_ns:
+                    if time.time_ns() - self._prv_cmd_unix_time_ns >= self.CMD_TIMEOUT_NS:
+                        self._sys_state = self._sys_states.ESTOP
+                        time.sleep(self.MESSAGE_RATE_S)
+                        continue
+
+                else:
+                    self._prv_cmd_unix_time_ns = time.time_ns()
+                    time.sleep(self.MESSAGE_RATE_S)
+                    continue
+
+            elif self._od:
+                # disable odrive here
+                pass
 
             time.sleep(self.MESSAGE_RATE_S)
