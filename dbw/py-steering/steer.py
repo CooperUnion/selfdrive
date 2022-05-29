@@ -5,6 +5,8 @@ import time
 import cand
 import igvcutils
 import odrive
+import odrive.enums
+import odrive.utils
 
 import base
 
@@ -12,7 +14,8 @@ import base
 class Steer(threading.Thread):
     MESSAGE_RATE_S        = 0.01
     ABS_ENC_TIMEOUT_NS    = 20_000_000
-    ODRIVE_INIT_TIMEOUT_S = 0.01
+    CMD_TIMEOUT_NS        = 200_000_000
+    ODRIVE_INIT_TIMEOUT_S = 0.5
 
     ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
     ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
@@ -27,7 +30,21 @@ class Steer(threading.Thread):
         self._pid  = pid
         self._base = base
 
-        self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
+        self._od   = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
+        self._axis = self._od.axis0 if self._od else None
+
+        if self._od:
+            self._od.clear_errors()
+
+            self._axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+
+            while self._axis.current_state != odrive.enums.AXIS_STATE_IDLE:
+                pass
+
+            self._axis.requested_state                = odrive.enums.AXIS_STATE_CLOSED_LOOP_CONTROL
+            self._axis.controller.config.input_mode   = odrive.enums.INPUT_MODE_PASSTHROUGH
+            self._axis.controller.config.control_mode = odrive.enums.CONTROL_MODE_VELOCITY_CONTROL
+
 
         self._encoder_timeout   = 0
         self._odrive_connection = 1 if self._od else 0
@@ -91,7 +108,7 @@ class Steer(threading.Thread):
                     unix_time_ns, data = rec
 
                     if time.time_ns() - unix_time_ns >= self.CMD_TIMEOUT_NS:
-                        self._sys_state = self._sys_states.ESTOP
+                        self._base.set_state_estop()
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
