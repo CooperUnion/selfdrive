@@ -8,7 +8,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='igvcutils',
-    version='0.0.3',
+    version='0.0.4',
     author='Cooper IGVC',
     author_email='igvc@cooper.edu',
     description='IGVC utilities',
