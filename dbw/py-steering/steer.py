@@ -1,4 +1,5 @@
 import threading
+import time
 
 import cand
 import igvcutils
@@ -7,8 +8,13 @@ import base
 
 
 class Steer(threading.Thread):
+    ABS_ENC_TIMEOUT_NS = 20_000_000
+
     ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
     ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
+
+    STEERING_ABS_ENC_MESSAGE_NAME = 'steering_Absolute_Encoder'
+    STEERING_POS_SIGNAL_NAME      = 'Pos'
 
     def __init__(
         self,
@@ -20,7 +26,31 @@ class Steer(threading.Thread):
         self._pid  = pid
         self._base = base
 
+        self._cur_angle = 0.0
+
         threading.Thread.__init__(self, daemon=True)
 
     def _enc2angle(self, val: int) -> float:
         return (self.ENCODER_TO_ANGLE_SLOPE_MAPPING * val) + self.ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT
+
+    def run(self):
+        while True:
+            rec = self._bus.get(self.STEERING_ABS_ENC_MESSAGE_NAME)
+
+            if rec:
+                unix_time_ns, data = rec
+
+                if time.time_ns() - unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
+                    self._base.set_state_estop()
+
+                # the absolute encoder data is currently not decoded
+                # correctly so we'll need to re-encode the data
+                data[self.STEERING_POS_SIGNAL_NAME] = igvcutils.can.endianswap(
+                    data[self.STEERING_POS_SIGNAL_NAME],
+                    'little',
+                    dst_signed=True,
+                )
+
+                self._cur_angle = self._enc2angle(
+                    data[self.STEERING_POS_SIGNAL_NAME],
+                )
