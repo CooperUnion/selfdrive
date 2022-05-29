@@ -4,6 +4,7 @@ import argparse
 import sys
 
 import cand
+import igvcutils
 import rospy
 
 import pid
@@ -50,7 +51,7 @@ def main():
     args.rate = abs(args.rate)
 
     ctrl = vel.Ctrl(
-        pid.Controller(
+        igvcutils.ctrl.Pid(
             kp=args.kp,
             ki=args.ki,
             kd=args.kd,
