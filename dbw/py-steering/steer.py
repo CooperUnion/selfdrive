@@ -1,3 +1,4 @@
+import math
 import threading
 import time
 
@@ -8,11 +9,14 @@ import base
 
 
 class Steer(threading.Thread):
+    MESSAGE_RATE_S     = 0.01
     ABS_ENC_TIMEOUT_NS = 20_000_000
 
     ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
     ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
 
+    STEERING_DATA_MESSAGE_NAME    = 'dbwNode_Steering_Data'
+    STEERING_ANGLE_SIGNAL_NAME    = 'Angle'
     STEERING_ABS_ENC_MESSAGE_NAME = 'steering_Absolute_Encoder'
     STEERING_POS_SIGNAL_NAME      = 'Pos'
 
@@ -54,3 +58,12 @@ class Steer(threading.Thread):
                 self._cur_angle = self._enc2angle(
                     data[self.STEERING_POS_SIGNAL_NAME],
                 )
+
+            self._bus.send(
+                self.STEERING_DATA_MESSAGE_NAME,
+                {
+                    self.STEERING_ANGLE_SIGNAL_NAME: math.radians(self._cur_angle),
+                },
+            )
+
+            time.sleep(self.MESSAGE_RATE_S)
