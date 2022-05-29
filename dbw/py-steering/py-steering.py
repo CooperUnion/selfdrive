@@ -2,8 +2,10 @@
 import argparse
 
 import cand
+import igvcutils
 
 import base
+import steer
 
 
 def main():
@@ -22,6 +24,24 @@ def main():
         help='redis port',
         metavar='6379',
     )
+    argparser.add_argument(
+        '--kp',
+        default=1.75,
+        metavar='n',
+        type=float,
+    )
+    argparser.add_argument(
+        '--ki',
+        default=0,
+        metavar='n',
+        type=float,
+    )
+    argparser.add_argument(
+        '--kd',
+        default=0,
+        metavar='n',
+        type=float,
+    )
 
     args = argparser.parse_args()
 
@@ -34,9 +54,25 @@ def main():
         bus=bus,
         mod_ident=MOD_IDENT,
     )
+
+    pid = igvcutils.ctrl.Pid(
+        kp=args.kp,
+        ki=args.ki,
+        kd=args.kd,
+        ts=0.01,
+    )
+
+    fidget_spinner = steer.Steer(
+        bus=bus,
+        pid=pid,
+        base=based,
+    )
+
     based.start()
+    fidget_spinner.start()
 
     based.join()
+    fidget_spinner.join()
 
 
 if __name__ == '__main__':
