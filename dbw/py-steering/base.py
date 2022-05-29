@@ -66,3 +66,9 @@ class Base(threading.Thread):
             self._counter = (self._counter + 1) % self.COUNTER_MAX
 
             time.sleep(self.MESSAGE_RATE_S)
+
+    def set_state_estop(self):
+        self._sys_state = self._sys_states.ESTOP
+
+    def dbw_currently_active(self) -> bool:
+        return self._sys_state == self._sys_states.ACTIVE
