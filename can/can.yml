@@ -10,6 +10,8 @@ templategroups:
     - Throttle
     - Brake
     - Encoder
+    - RearEncoder
+    - PbMon
 
 messages:
 - dbwNode_Status:
@@ -144,6 +146,38 @@ messages:
             description: Microseconds since last reading.
             width: 16
 
+- dbwNode_RearEncoder_Data:
+    id: 0x15
+    cycletime: 10
+
+    signals:
+        - Encoder0:
+            description: Encoder 0 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Encoder1:
+            description: Encoder 1 pulses since last reading.
+            is_signed: true
+            width: 12
+        - Time:
+            description: Microseconds since last reading.
+            width: 16
+
+- dbwNode_PbMon_Data:
+    id: 0x16
+    cycletime: 100
+
+    signals:
+        - PbSet:
+            description: State of the parking brake.
+            width: 1
+        - MagnetEnergized:
+            description: State of the parking brake magnet.
+            width: 1
+        - ArmedESTOP:
+            description: State of the ESTOP arming.
+            width: 1
+
 - dbwNode_Accel_Cntrls_Cmd:
     id: 0x21
     cycletime: 100
@@ -242,4 +276,3 @@ messages:
       - FinalSize:
           description: Number of bytes in final image size.
           width: 32
-
