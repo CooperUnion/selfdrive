@@ -24,9 +24,9 @@ class Base(threading.Thread):
         ACTIVE    = 2
         ESTOP     = 3
 
-    def __init__(self, bus: cand.client.Bus, mod_name: str):
+    def __init__(self, bus: cand.client.Bus, mod_ident: str):
         self._bus      = bus
-        self._mod_name = mod_name
+        self._mod_ident = mod_ident
 
         self._sys_state = self._sys_states.IDLE
         self._counter = 0
@@ -56,7 +56,7 @@ class Base(threading.Thread):
                     self._sys_state = self._sys_states.IDLE
 
             self._bus.send(
-                self.NODE_STATUS_MESSGAE_NAME + '_' + self._mod_name,
+                self.NODE_STATUS_MESSGAE_NAME + '_' + self._mod_ident,
                 {
                     self.SYSTEM_STATUS_SIGNAL_NAME: self._sys_state,
                     self.COUNTER_SIGNAL_NAME: self._counter
