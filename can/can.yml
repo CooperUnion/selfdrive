@@ -204,6 +204,27 @@ messages:
           width: 16
           scale: 0.001
 
+- steering_Absolute_Encoder:
+    id: 0x1E5
+    cycletime: 100
+
+    signals:
+        - Foo:
+            description: Foo.
+            width: 8
+        # TODO: add big endian support to gen_dbc.py
+        #
+        # this signal is a signed big-endian value
+        # cantools will decode this signal into an unsigned int
+        # it is the job of the programmer to re-encode this value
+        # into a signed int
+        - Pos:
+            description: Absolute encoder position.
+            width: 16
+        - Bar:
+            description: Bar.
+            width: 40
+
 - dbwUpdater_Update_Trigger:
     id: 0x4A0
     cycletime: 100
