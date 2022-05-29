@@ -4,13 +4,15 @@ import time
 
 import cand
 import igvcutils
+import odrive
 
 import base
 
 
 class Steer(threading.Thread):
-    MESSAGE_RATE_S     = 0.01
-    ABS_ENC_TIMEOUT_NS = 20_000_000
+    MESSAGE_RATE_S        = 0.01
+    ABS_ENC_TIMEOUT_NS    = 20_000_000
+    ODRIVE_INIT_TIMEOUT_S = 0.01
 
     ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
     ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
@@ -25,8 +27,10 @@ class Steer(threading.Thread):
         self._pid  = pid
         self._base = base
 
+        self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
+
         self._encoder_timeout   = 0
-        self._odrive_connection = 0
+        self._odrive_connection = 1 if self._od is not None else 0
 
         self._cur_angle = 0.0
         self._prv_enc_unix_time_ns = None
