@@ -31,6 +31,7 @@ class Steer(threading.Thread):
         self._base = base
 
         self._cur_angle = 0.0
+        self._prv_enc_unix_time_ns = None
 
         threading.Thread.__init__(self, daemon=True)
 
@@ -58,6 +59,13 @@ class Steer(threading.Thread):
                 self._cur_angle = self._enc2angle(
                     data[self.STEERING_POS_SIGNAL_NAME],
                 )
+
+            elif self._prv_enc_unix_time_ns:
+                if time.time_ns() - self._prv_enc_unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
+                    self._base.set_state_estop()
+
+            else:
+                self._prv_enc_unix_time_ns = time.time_ns()
 
             self._bus.send(
                 self.STEERING_DATA_MESSAGE_NAME,
