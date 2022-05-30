@@ -22,7 +22,7 @@ base_global_planner: "navfn/NavfnROS" #alternatives: global_planner/GlobalPlanne
 
 #We plan to integrate recovery behaviors for turtlebot but currently those belong to gopher and still have to be adapted.
 ## recovery behaviors; we avoid spinning, but we need a fall-back replanning
-#recovery_behavior_enabled: true
+recovery_behavior_enabled: false
 
 #recovery_behaviors:
   #- name: 'super_conservative_reset1'

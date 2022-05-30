@@ -1,13 +1,16 @@
 # RTAB-Map configuration
 
-subscribe_depth:        true
-subscribe_rgbd:         false
+subscribe_depth:        false
+subscribe_rgbd:         true
+subscribe_rgb:          false
 subscribe_stereo:       false
 subscribe_stereo:       false
 subscribe_scan:         false
-subscribe_scan_cloud:   false
+subscribe_scan_cloud:   true
 subscribe_user_data:    false
 subscribe_odom_info:    false
+
+gen_scan: false
 
 database_path:      "~/.ros/rtabmap.db"
 config_path:        "~/.ros/rtabmap.cfg"
@@ -18,15 +21,14 @@ odom_frame_id:  "odom"                   # odometry from odom msg to have covari
 odom_tf_angular_variance:  0.001     # If TF is used to get odometry, this is the default angular variance
 odom_tf_linear_variance:   0.001     # If TF is used to get odometry, this is the default linear variance
 tf_delay:       0.02
-publish_tf:     false                # Set to false if fusing different poses (map->odom) with UKF
+publish_tf:     true                # Set to false if fusing different poses (map->odom) with UKF
 
 odom_sensor_sync:               true
 wait_for_transform_duration:    0.2
-approx_sync:                    true
 
 queue_size: 10
 
-scan_normal_k:  0
+# scan_normal_k:  0
 
 Grid:
     3D:                     true
@@ -35,7 +37,7 @@ Grid:
     GroundIsObstacle:       false
     PreVoxelFiltering:      true
     RayTracing:             true
-    FromDepth:              true
+    FromDepth:              false
     NormalsSegmentation:    false
     CellSize:               0.05
     ClusterRadius:          0.1
@@ -50,10 +52,10 @@ Grid:
     MaxGroundHeight:        -0.4
     MaxObstacleHeight:      0.1
     NoiseFilteringMinNeighbors: 5
-    NoiseFilteringRadius:   0.1
+    NoiseFilteringRadius:   0.2
     NormalK:                20
-    RangeMin:               0.7
-    RangeMax:               3.0
+    RangeMin:               0.4
+    RangeMax:               10
 
 GridGlobal:
     Eroded:                 false       # Erode obstacle cells
@@ -68,4 +70,5 @@ GridGlobal:
     ProbMiss:               0.4         # Probability of a miss (value between 0 and 0.5)
     UpdateError:            0.01        # Graph changed detection error (m). Update map only if poses in new optimized graph have moved more than this value
 
-
+Reg:
+    Force3DoF:              true

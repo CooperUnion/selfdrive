@@ -32,7 +32,7 @@ Vis/InlierDistance:             "0.1"    # 3D visual words correspondence distan
 RGBD/AngularUpdate:             "0.1"    # Update map only if the robot is moving 
 RGBD/LinearUpdate:              "0.1"    # Update map only if the robot is moving 
 RGBD/ProximityPathMaxNeighbors: "0" 
-Rtabmap/TimeThr:                "1"
+Rtabmap/TimeThr:                "0"
 Mem/RehearsalSimilarity:        "0.30"
 Reg/Force3DoF:                  "true"
 GridGlobal/MinSize:             "100"

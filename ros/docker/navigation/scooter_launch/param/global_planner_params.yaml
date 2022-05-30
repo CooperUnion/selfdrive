@@ -14,7 +14,7 @@ GlobalPlanner:                                  # Also see: http://wiki.ros.org/
   default_tolerance: 0.0                        # If goal in obstacle, plan to the closest point in radius default_tolerance, default 0.0
   
   publish_scale: 100                            # Scale by which the published potential gets multiplied, default 100
-  planner_costmap_publish_frequency: 0.0        # default 0.0
+  planner_costmap_publish_frequency: 1.0        # default 0.0
   
   lethal_cost: 253                              # default 253
   neutral_cost: 66                              # default 50

@@ -27,5 +27,9 @@ COPY ./sources.sh /
 
 RUN cat /sources.sh >> ~/.bashrc
 
+# copy alias bash and add to bashrc
+COPY ./alias.sh /
+RUN echo "source /alias.sh" >> ~/.bashrc
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
