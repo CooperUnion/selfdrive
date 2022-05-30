@@ -41,6 +41,8 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+        volumes:
+            - './docker/3dlidar/3dlidar_launch:/app/ros_ws/src/3dlidar_launch'
         ports:
             - 2368:2368/udp
 

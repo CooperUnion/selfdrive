@@ -15,7 +15,7 @@
 
 # Goal Tolerance Parameters
   # All default values for teb-tolerance
-  yaw_goal_tolerance: 0.2  
+  yaw_goal_tolerance: 0.2
   xy_goal_tolerance: 0.2  
   free_goal_vel: false # Allows the scooter to reach goal at max speed
 
@@ -44,7 +44,7 @@
   inflation_dist: 0.6                               # Buffer zone around obstacles with non-zero penalty costs
   include_dynamic_obstacles: false                  # Motion of obstacles with non-zero velocity is predicted
   legacy_obstacle_inclusion: false                  # The strategy of connecting trajectory poses with obstacles for optimization. False: new method True: false method. Read documentation for more
-  obstacle_association_force_inclusion_factor: 1.5  # No idea what this is 
+  obstacle_association_force_inclusion_factor: 1.5  # No idea what this is
 
 # Optimization Parameters
   penalty_epsilon: 0.1                              # Adds small safety margin for penalty functions
@@ -64,3 +64,14 @@
 # Extra Parameters
   odom_topic: "odom"
   #map_frame:
+
+  footprint_model: # types: "point", "circular", "line", "two_circles", "polygon"
+    type: "circular"
+    radius: 3 # for type "circular"
+  #  line_start: [-0.3, 0.0] # for type "line"
+  #  line_end: [0.3, 0.0] # for type "line"
+  #  front_offset: 0.2 # for type "two_circles"
+  #  front_radius: 0.2 # for type "two_circles"
+  #  rear_offset: 0.2 # for type "two_circles"
+  #  rear_radius: 0.2 # for type "two_circles"
+  #  vertices: [ [0.25, -0.05], [0.18, -0.05], [0.18, -0.18], [-0.19, -0.18], [-0.25, 0], [-0.19, 0.18], [0.18, 0.18], [0.18, 0.05], [0.25, 0.05] ] # for type "polygon"
