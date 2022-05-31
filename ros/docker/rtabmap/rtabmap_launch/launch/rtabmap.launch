@@ -68,7 +68,7 @@
             <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
             <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
 
-            <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/>
+            <!-- <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> -->
         </node>
 
         <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
