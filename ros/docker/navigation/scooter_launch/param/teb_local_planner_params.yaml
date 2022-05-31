@@ -1,17 +1,18 @@
 
+TebLocalPlannerRos:
 # Robot Configuration Parameters - Scooter
   # All default values for teb-acc
   acc_lim_x: 0.5
   acc_lim_theta: 0.5
   
-  max_vel_x: 1.5 
-  max_vel_x_backwards: 0.5 # Picked half foward vel
+  max_vel_x: 0.5
+  max_vel_x_backwards: 0.0 # Picked half foward vel
   max_vel_theta: 0.5
 
   # Parameters for car like robots - For scooter but unecessary for simulations
-  min_turning_radius: 0.85 #0.85 # Measured value
-  wheelbase: 0.84 # Measured value
-  # cmd_angle_instead_rotval: false  Talk to Dave about this 
+  min_turning_radius: 2.0 #0.85 # Measured value
+  wheelbase: 1.8 # Measured value
+  cmd_angle_instead_rotvel: true
 
 # Goal Tolerance Parameters
   # All default values for teb-tolerance
@@ -37,7 +38,7 @@
 
 
 # Obstacle Parameters
-  min_obstacle_dist: 0.5                            # Change depending on what map we are using
+  min_obstacle_dist: 20                            # Change depending on what map we are using
   include_costmap_obstacles: true                   # Uses all information from local_costmap (Don't make costmap resolution too high)
   costmap_obstacles_behind_robot_dist: 1.0          # Limits the occupied local costmap behind robot
   obstacle_poses_affected: 30                       # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance
@@ -63,11 +64,11 @@
 
 # Extra Parameters
   odom_topic: "odom"
-  #map_frame:
+  map_frame: "map"
 
   footprint_model: # types: "point", "circular", "line", "two_circles", "polygon"
     type: "circular"
-    radius: 3 # for type "circular"
+    radius: 5 # for type "circular"
   #  line_start: [-0.3, 0.0] # for type "line"
   #  line_end: [0.3, 0.0] # for type "line"
   #  front_offset: 0.2 # for type "two_circles"

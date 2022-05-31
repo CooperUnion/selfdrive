@@ -34,13 +34,13 @@ global_costmap:
     obstacle_range: 2.5
     raytrace_range: 3.0
     # VoxelCostmapPlugin Parameters
-    origin _z: 0.0
+    origin _z: -2
     z_resolution: 0.2
-    z_voxels: 2
+    z_voxels: 10
     unknown_threshold: 2
     mark_threshold: 0   
     footprint_clearing_enabled: true
-    observation_sources: zed_cam  # scan
+    observation_sources: rtabmap  # scan
       #  scan:
       #     data_type: LaserScan
       #     topic: /scan_filtered
@@ -48,7 +48,7 @@ global_costmap:
       #     clearing: true             # Has to free up space for local planner is path is avalible
       #     min_obstacle_height: 0.0
       #     max_obstacle_height: 2.0
-    zed_cam:
+    rtabmap:
       data_type: PointCloud2
       topic: /rtabmap/cloud_map
       marking: true
@@ -56,7 +56,7 @@ global_costmap:
       min_obstacle_height: -10.0
       max_obstacle_height: 2.0
     
-    inflation_layer:
+  inflation_layer:
       enabled: true
-      inflation_radius: 0.55
-      cost_scaling_factor: 3.0
+      inflation_radius: 20
+      cost_scaling_factor: 1.5
