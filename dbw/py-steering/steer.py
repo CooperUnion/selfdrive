@@ -133,6 +133,7 @@ class Steer(threading.Thread):
 
             if self._base.dbw_currently_active():
                 if self._encoder_timeout or not self._odrive_connection:
+                    self._logger.critical('ESTOP: hardware not ready')
                     self._base.set_state_estop()
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
@@ -143,6 +144,7 @@ class Steer(threading.Thread):
                     unix_time_ns, data = rec
 
                     if time.time_ns() - unix_time_ns >= self.CMD_TIMEOUT_NS:
+                        self._logger.critical('ESTOP: command timeout')
                         self._base.set_state_estop()
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
@@ -157,6 +159,7 @@ class Steer(threading.Thread):
 
                 elif self._prv_cmd_unix_time_ns:
                     if time.time_ns() - self._prv_cmd_unix_time_ns >= self.CMD_TIMEOUT_NS:
+                        self._logger.critical('ESTOP: command timeout')
                         self._base.set_state_estop()
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
