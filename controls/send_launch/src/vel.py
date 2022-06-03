@@ -59,20 +59,29 @@ class Ctrl:
 
             self._vel_filtered = np.mean(self._vel_hist)
 
-    def set_vel(self, vel: float):
-        vel_set = self._pid.step(vel, self._vel_filtered)
+    def set_vel(self, target_vel: float):
+        actual_vel = self._vel_filtered
 
-        brake = self._brake2pedal(vel_set)
-        accel = self._accel2pedal(vel_set)
+        target_accel = self._pid.step(target_vel, actual_vel)
+
+        throttle_cmd = self._accel2pedal(target_accel)
+        brake_cmd    = self._brake2pedal(target_accel)
 
         # until we get F/N/R working
-        if vel <= 0.0: accel = 0.0
+        if actual_vel < 0:
+            throttle_cmd = 0
+            brake_cmd    = 60
+        else:
+            if desired_accel >= 0:
+                brake_cmd = 0
+            else:
+                throttle_cmd = 0
 
         self._bus.send(
             'dbwNode_Accel_Cmd',
-            {'ThrottleCmd': min(abs(accel), 100) / 100, 'ModeCtrl': 1},
+            {'ThrottleCmd': min(abs(throttle_cmd), 100) / 100, 'ModeCtrl': 1},
         )
         self._bus.send(
             'dbwNode_Brake_Cmd',
-            {'BrakeCmd': min(abs(brake), 100) / 100},
+            {'BrakeCmd': min(abs(brake_cmd), 100) / 100},
         )
