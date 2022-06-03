@@ -106,25 +106,15 @@ class vel_ctrl:
 
     def brake_to_pedal(self, brake):
         return (-49.13*brake)
-    # def brake_or_throttle(self, v_des, v_actual, acceleration_desired):
-    #         if (not (v_des == v_actual)):
 
-    #             if((v_actual>= 0 and v_des>= 0) or (v_actual<= 0 and v_des<= 0)):
-    #                 if(np.abs(v_actual)>np.abs(v_des) and acceleration_desired):
-    #                     return (0, self.brake_to_pedal(acceleration_desired))
-
-    #                 else:
-    #                     return (self.acc_to_pedal(acceleration_desired), 0)
-
-    #             elif ((v_actual<= 0 and v_des>= 0) or (v_actual>= 0 and v_des <= 0)):
-    #                 return(0, self.brake_to_pedal(acceleration_desired))
-    #         elif(acceleration_desired>=0):
-    #             return (self.acc_to_pedal(acceleration_desired), 0)
-    #         elif(acceleration_desired<0):
-    #             return(0, self.brake_to_pedal(acceleration_desired))
-    def brake_or_throttle(self, v_actual, acceleration_desired):
+    def brake_or_throttle(self, v_actual,v_des, acceleration_desired):
         if(v_actual<0):
-            return(0, 60)
+            if (v_actual> -0.5):
+                if (acceleration_desired >0 and v_des>0):
+                    return (self.acc_to_pedal(acceleration_desired), 0)
+                else:
+                    return(0, self.brake_to_pedal(acceleration_desired))
+
         elif(v_actual>= 0):
             if(acceleration_desired>0):
                 return (self.acc_to_pedal(acceleration_desired), 0)
