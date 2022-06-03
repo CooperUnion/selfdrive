@@ -36,7 +36,7 @@ matplotlib==3.5.2
 monotonic==1.6
 msgpack==1.0.3
 numpy==1.22.4
-odrive==0.5.1
+odrive==0.5.2
 packaging==21.3
 parso==0.8.3
 pexpect==4.8.0
