@@ -82,10 +82,15 @@ class Steer(threading.Thread):
             self._axis.controller.config.input_mode   = odrive.enums.INPUT_MODE_PASSTHROUGH
             self._axis.controller.config.control_mode = odrive.enums.CONTROL_MODE_VELOCITY_CONTROL
             self._odrive_enabled = True
+
+            self._logger.info('ODrive enabled')
+
         elif not yes and self._odrive_enabled:
             self._axis.requested_state      = odrive.enums.AXIS_STATE_IDLE
             self._axis.controller.input_vel = 0
             self._odrive_enabled = False
+
+            self._logger.info('ODrive disabled')
 
     def _enc2angle(self, val: int) -> float:
         return (self.ENCODER_TO_ANGLE_SLOPE_MAPPING * val) + self.ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT
