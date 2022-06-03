@@ -1,3 +1,4 @@
+import logging
 import math
 import threading
 import time
@@ -30,25 +31,41 @@ class Steer(threading.Thread):
         self._pid  = pid
         self._base = base
 
-        self._od   = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
-        self._axis = self._od.axis0 if self._od else None
+        self._logger = logging.getLogger('steer')
 
-        if self._od:
+        self._od   = None
+        self._axis = None
+
+        self._odrive_connection = None
+
+        try:
+            self._logger.info('attempting connection to ODrive')
+            self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
+            self._axis = self._od.axis0
+
+            self._logger.info('ODrive connected')
+            self._odrive_connection = 1
+
             if not self._axis.motor.is_calibrated or \
                 self._axis.error or \
                 self._axis.motor.error or \
                 self._axis.sensorless_estimator.error or \
                 self._axis.encoder.error or \
                 self._axis.controller.error:
+
                 self._od.clear_errors()
 
+                self._logger.info('calibrating odrive')
                 self._axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
-
                 while self._axis.current_state != odrive.enums.AXIS_STATE_IDLE:
                     pass
 
-        self._encoder_timeout   = 0
-        self._odrive_connection = 1 if self._od else 0
+        except TimeoutError:
+            self._logger.critical('could not connect to ODrive')
+            self._odrive_connection = 0
+
+
+        self._encoder_timeout = 0
 
         self._odrive_enabled = False
 
