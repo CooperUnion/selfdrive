@@ -73,6 +73,9 @@ class Steer(threading.Thread):
     def _enc2angle(self, val: int) -> float:
         return (self.ENCODER_TO_ANGLE_SLOPE_MAPPING * val) + self.ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT
 
+    def disable_odrive(self):
+        if self._od: return self._odrive_en(False)
+
     def run(self):
         while True:
             rec = self._bus.get('steering_Absolute_Encoder')

@@ -80,8 +80,13 @@ def main():
     based.start()
     fidget_spinner.start()
 
-    based.join()
-    fidget_spinner.join()
+    try:
+        based.join()
+        fidget_spinner.join()
+    # we want for our ODrive to be disabled on script failure so that we
+    # don't need to reset the device to regain manual control
+    except:
+        fidget_spinner.disable_odrive()
 
 
 if __name__ == '__main__':
