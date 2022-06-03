@@ -12,6 +12,7 @@ templategroups:
     - Encoder
     - RearEncoder
     - PbMon
+    - Strobe
 
 messages:
 - dbwNode_Status:
@@ -176,6 +177,15 @@ messages:
             width: 1
         - ArmedESTOP:
             description: State of the ESTOP arming.
+            width: 1
+
+- dbwNode_Strobe_Data:
+    id: 0x17
+    cycletime: 100
+
+    signals:
+        - Strobe:
+            description: State of the strobe light.
             width: 1
 
 - dbwNode_Accel_Cntrls_Cmd:

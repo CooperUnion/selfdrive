@@ -11,6 +11,7 @@ enum firmware_module_types {
     MOD_ENCODER = 4,
     MOD_REAR_ENCODER = 5,
     MOD_PB_MON = 6,
+    MOD_STROBE = 7,
 };
 
 extern const enum firmware_module_types FIRMWARE_MODULE_IDENTITY;
