@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import logging
 
 import cand
+import coloredlogs
 import igvcutils
 
 import base
@@ -45,10 +47,15 @@ def main():
 
     args = argparser.parse_args()
 
+    logger = logging.getLogger('py-steering')
+    coloredlogs.install()
+
     bus = cand.client.Bus(
         redis_host=args.redis_host,
         redis_port=args.redis_port,
     )
+
+    logger.info('beginning initialization')
 
     based = base.Base(
         bus=bus,
@@ -67,6 +74,8 @@ def main():
         pid=pid,
         base=based,
     )
+
+    logger.info('initialization complete')
 
     based.start()
     fidget_spinner.start()
