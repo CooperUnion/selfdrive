@@ -18,8 +18,8 @@ class Steer(threading.Thread):
     CMD_TIMEOUT_NS        = 200_000_000
     ODRIVE_INIT_TIMEOUT_S = 0.5
 
-    ENCODER_TO_ANGLE_SLOPE_MAPPING           = 0.0029
-    ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT = 0.0446
+    ENCODER_TO_ANGLE_SLOPE        = 0.0029
+    ENCODER_TO_ANGLE_SLOPE_OFFSET = 0.0446
 
     def __init__(
         self,
@@ -93,7 +93,7 @@ class Steer(threading.Thread):
             self._logger.info('ODrive disabled')
 
     def _enc2angle(self, val: int) -> float:
-        return (self.ENCODER_TO_ANGLE_SLOPE_MAPPING * val) + self.ENCODER_TO_ANGLE_SLOPE_MAPPING_INTERCEPT
+        return (self.ENCODER_TO_ANGLE_MAPPING * val) + self.ENCODER_TO_ANGLE_MAPPING_OFFSET
 
     def disable_odrive(self):
         if self._od: return self._odrive_en(False)
