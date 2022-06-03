@@ -140,7 +140,7 @@ class Steer(threading.Thread):
 
                 elif self._prv_cmd_unix_time_ns:
                     if time.time_ns() - self._prv_cmd_unix_time_ns >= self.CMD_TIMEOUT_NS:
-                        self._sys_state = self._sys_states.ESTOP
+                        self._base.set_state_estop()
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
@@ -151,6 +151,5 @@ class Steer(threading.Thread):
 
             elif self._od:
                 self._odrive_en(False)
-                pass
 
             time.sleep(self.MESSAGE_RATE_S)
