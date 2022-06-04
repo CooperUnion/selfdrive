@@ -31,6 +31,9 @@ queue_size: 10
 
 # scan_normal_k:  0
 
+Rtabmap:
+    WithGPS: true
+
 Grid:
     3D:                     true
     FlatObstacleDetected:   true
@@ -73,3 +76,9 @@ GridGlobal:
 
 Reg:
     Force3DoF:              false
+    Strategy:               0
+
+# RGBD:
+    # OptimizeRobust:         true
+    # OptimizeMaxError:       1.0
+    # LocalRadius:            20
