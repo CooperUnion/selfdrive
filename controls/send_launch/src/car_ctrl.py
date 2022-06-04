@@ -17,7 +17,7 @@ from igvcutils.can import endianswap
 
 
 
-class vel_ctrl:
+class vel_ctrl: 
 
     def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.1):
         self.controller = pid.Controller(kp=kp, ki=ki, kd=kd, ts=Ts)
@@ -28,7 +28,7 @@ class vel_ctrl:
         self.candListener = Thread(target=self.vel_filter, daemon=True)
         self.candListener.start()
 
-    def vel_filter(self):
+    def vel_filter(self):    #moving average filter
 
         prev_time = 0
         index = 0
@@ -53,25 +53,11 @@ class vel_ctrl:
         self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
         self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
 
-
-#        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
-#        def ctrl_from_twist(self, twist_message):
-#        v_des = twist_message.linear.x
-#        enc = self.bus.get('dbwNode_Encoder_Data')
-#        delta = (time.time_ns() - enc[0])/1000000000
-#        data = enc[1]
-#        v_actual = self.enc_to_velocity(data, delta)
-#        ctrl_out = self.controller.step(v_des, v_actual)
-#        pedal_percentage = self.acc_to_pedal(ctrl_out)
-#        print(f'v_actual: {v_actual} pedal_percentage: {pedal_percentage}')
-#        self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-#        self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': max(pedal_percentage, 0) / 100, 'ModeCtrl': 1})
-
     def ctrl_vel_twist(self, msg: Twist):
         v_des = msg.linear.x # Get desired velocity from Twist message
         v_actual = self.vel_filtered
         acceleration_desired = self.controller.step(v_des, self.vel_filtered)
-        (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
+        (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, v_des, acceleration_desired)
         print(v_actual)
         #print(throttle_percentage)
         self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
@@ -84,42 +70,46 @@ class vel_ctrl:
         #data = enc[1]
         v_actual = self.vel_filtered
         acceleration_desired = self.controller.step(v_des, self.vel_filtered)
-        (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, acceleration_desired)
+        (throttle_percentage, brake_percentage) = self.brake_or_throttle(v_actual, v_des, acceleration_desired)
         print(v_actual)
         #print(throttle_percentage)
         self.bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
         self.bus.send('dbwNode_Accel_Cmd', {'ThrottleCmd': min(max(throttle_percentage, 0), 100) / 100, 'ModeCtrl': 1})
         self.bus.send('dbwNode_Brake_Cmd', {'BrakeCmd': min(max(brake_percentage, 0), 100) / 100})
 
-    def acc_to_pedal(self, acceleration):
+    def acc_to_pedal(self, acceleration): #mapping from acc to % throttle
         return 15.4*acceleration
 
     def signal_processing(self, v_sample):
         pass
 
     @staticmethod
-    def enc_to_velocity(ticks, time):
+    def enc_to_velocity(ticks, time):     #velocity calculation using encoder ticks 
         enc_ticks = 4000
         wheel_circumference = 1.899156
         meters_per_tick = wheel_circumference/enc_ticks
         return (meters_per_tick * ticks)/time
 
-    def brake_to_pedal(self, brake):
+    def brake_to_pedal(self, brake): #mapping from brake to % brake
         return (-49.13*brake)
 
-    def brake_or_throttle(self, v_actual,v_des, acceleration_desired):
-        if(v_actual<0):
+    def brake_or_throttle(self, v_actual,v_des, acceleration_desired): #switch mode, returns (throttle, brake)
+        if(v_actual<0):                                                               
             if (v_actual> -0.5):
                 if (acceleration_desired >0 and v_des>0):
-                    return (self.acc_to_pedal(acceleration_desired), 0)
+                    return (self.acc_to_pedal(acceleration_desired), 0)       # accounts for rolling backwards on an incline when the desired motion is forward
                 else:
-                    return(0, self.brake_to_pedal(acceleration_desired))
+                    return(0, self.brake_to_pedal(acceleration_desired))      #accounts for rolling backwards when the desired motion is to stop in order to reverse 
+            else:
+                return (0, 50)                                                 #accounts for a non-float input-- just brakes  
 
         elif(v_actual>= 0):
             if(acceleration_desired>0):
-                return (self.acc_to_pedal(acceleration_desired), 0)
+                return (self.acc_to_pedal(acceleration_desired), 0)             #accounts for when the car is moving forward and the desired motion is to increase speed
             elif(acceleration_desired<=0):
-                return(0, self.brake_to_pedal(acceleration_desired))
+                return(0, self.brake_to_pedal(acceleration_desired))            #accounts for the the car is moving forward and the desired motion is to slow down or stop
+        else:
+            return (0,50)                                                       #accounts for a non-float input -- just brakes
 
 
 class angle_ctrl:
@@ -128,7 +118,7 @@ class angle_ctrl:
         self.controller = pid.Controller(kp=kp, ki=0, kd=0, ts=Ts, lower_lim=-10, upper_lim= 10)
         self.bus = Bus(redis_host='redis')
         self.enc_count=0
-        self.ang_filtered = 0                                                                       #filtering angle,, i just copied and pasted and changed some stuff from vel_ctrl ;p
+        self.ang_filtered = 0                                         
         self.N            = 4
         self.ang_history = np.zeros(self.N)
         self.candListener = Thread(target=self.steering_enc_filter, daemon=True)
@@ -149,7 +139,7 @@ class angle_ctrl:
         time.sleep(1)
     
         print(f"errors: {self.axis.error}")
-
+        #if there was an error, recalibrate if already calibrated, skip calibration process
         if not self.axis.motor.is_calibrated or \
             self.axis.error or \
             self.axis.motor.error or \
@@ -199,20 +189,23 @@ class angle_ctrl:
             # self.enc_count= int.from_bytes(msg.data[1:3], 'big', signed=True)
             self.enc_count = endianswap(data['Pos'], 'little', dst_signed=True)
 
-    def enc_to_angle(self, count):
+    def enc_to_angle(self, count):              #mapping from encoder count to angle in degrees
         self.angle = 0.0029*count + 0.0446
         return (self.angle)
-    def ctrl_vel_twist(self, msg: Twist):
+
+
+    def ctrl_vel_twist(self, msg: Twist):           #P controller for position (outputs velocity)
         print(f"angular.z: {msg.angular.z}")
-        theta_des = ((msg.angular.z)*(180/np.pi))+(np.pi/2) # Get desired angle from Twist message
-        if theta_des >27:
+        theta_des = ((msg.angular.z)*(180/np.pi))+(np.pi/2) # Get desired angle from Twist message, convert from rads to degrees
+        #clips output such that it doesnt exceed its limit of motion
+        if theta_des >27:                       
             theta_des=27
         elif theta_des<-27:
             theta_des = -27
-        theta_actual = self.enc_to_angle(self.enc_count) #define angle_filtered in enc_filter
+        theta_actual = self.enc_to_angle(self.enc_count) 
         self.PID_out = self.controller.step(theta_des , theta_actual)
         self.axis.controller.input_vel = self.PID_out
-        print(f"td:{theta_des} | enc_count: {self.enc_count} | ta:{theta_actual} | PID: {self.PID_out}")
+        #print(f"td:{theta_des} | enc_count: {self.enc_count} | ta:{theta_actual} | PID: {self.PID_out}")
 
 if __name__ == "__main__":
     try:
