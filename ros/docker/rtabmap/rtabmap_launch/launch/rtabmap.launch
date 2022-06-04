@@ -18,13 +18,28 @@
     <arg name="rgbd_topic"              default="$(arg zed_namespace)/rgbd_image" />
 
     <!-- Odometry topic name -->
-    <arg name="odom_topic"              default="/$(arg zed_namespace)/$(arg zed_node_name)/odom" />    
+    <arg name="odom_topic"              default="/odom_fucking_ekf" />
 
     <!-- Localization-only mode -->
     <arg name="localization"            default="false"/>
     <arg name="deletedb"                default="false"/>
     <arg     if="$(arg deletedb)"   name="rtabmap_args"    default="--delete_db_on_start"/>
     <arg unless="$(arg deletedb)"   name="rtabmap_args"    default=""/>
+
+    <!-- <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+        <param name="output_frame" value="odom"/>
+        <param name="base_footprint_frame" value="base_link"/>
+        <param name="freq" value="30.0"/>
+        <param name="sensor_timeout" value="1.0"/>
+        <param name="odom_used" value="true"/>
+        <param name="imu_used" value="true"/>
+        <param name="vo_used" value="false"/>
+        <param name="debug" value="false"/>
+        <param name="self_diagnose" value="false"/>
+
+        <remap from="odom" to="$(arg odom_topic)"/>
+        <remap from="imu_data" to="/gps/imu"/>
+    </node> -->
 
     <group ns="rtabmap">
         <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync">
@@ -67,6 +82,7 @@
             <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
             <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
             <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+            <param name="odom_frame_id" type="string" value=""/>
 
             <!-- <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> -->
         </node>
