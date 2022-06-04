@@ -91,7 +91,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <param name="general/gpu_id"                    value="$(arg gpu_id)" />
 
             <!-- Disable TF publishing -->
-            <param name="pos_tracking/publish_tf"            value="true" />
+            <param name="pos_tracking/publish_tf"            value="false" />
             <param name="pos_tracking/publish_map_tf"        value="false" />
         </node>
     </group>

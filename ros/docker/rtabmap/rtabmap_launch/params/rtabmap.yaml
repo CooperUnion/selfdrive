@@ -6,9 +6,10 @@ subscribe_rgb:          false
 subscribe_stereo:       false
 subscribe_stereo:       false
 subscribe_scan:         false
-subscribe_scan_cloud:   true
+subscribe_scan_cloud:   true # lidar on!!
 subscribe_user_data:    false
 subscribe_odom_info:    false
+# subscribe_odometry:     false
 
 gen_scan: false
 
@@ -18,13 +19,13 @@ config_path:        "~/.ros/rtabmap.cfg"
 frame_id:       "base_link"
 map_frame_id:   "map"
 odom_frame_id:  "odom"                   # odometry from odom msg to have covariance - Remapped by launch file
-odom_tf_angular_variance:  0.03     # If TF is used to get odometry, this is the default angular variance
-odom_tf_linear_variance:   0.03     # If TF is used to get odometry, this is the default linear variance
+# odom_tf_angular_variance:  0.03     # If TF is used to get odometry, this is the default angular variance
+# odom_tf_linear_variance:   0.03     # If TF is used to get odometry, this is the default linear variance
 tf_delay:       0.02
 publish_tf:     true                # Set to false if fusing different poses (map->odom) with UKF
 
-odom_sensor_sync:               true
-wait_for_transform_duration:    0.2
+odom_sensor_sync:               false
+wait_for_transform_duration:    10.0
 
 queue_size: 10
 
@@ -71,4 +72,4 @@ GridGlobal:
     UpdateError:            0.01        # Graph changed detection error (m). Update map only if poses in new optimized graph have moved more than this value
 
 Reg:
-    Force3DoF:              true
+    Force3DoF:              false
