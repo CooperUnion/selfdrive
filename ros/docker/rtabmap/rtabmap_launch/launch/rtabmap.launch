@@ -70,6 +70,7 @@
             <!-- <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" /> -->
             <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
             <remap from="odom"              to="$(arg odom_topic)" />
+            <remap from="gps/fix"               to="/gps/fix"/>
 
             <!-- map -->
             <remap from="grid_map"          to="map" />
