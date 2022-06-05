@@ -16,4 +16,10 @@
 
         <remap from="odom" to="$(arg odom_topic)"/>
     </node>
+
+    <param name="cuber_description" textfile="$(find rtabmap_launch)/urdf/cuber.urdf" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <remap from="robot_description" to="cuber_description" />
+    </node>
+
 </launch>
