@@ -1,4 +1,5 @@
 build/
 devel/
-docker/cand/cand
-docker/cmd_to_ctrl/cand
+docker/*/cand/
+docker/*/cantools/
+docker/*/igvcutils/

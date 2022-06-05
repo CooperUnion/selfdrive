@@ -1,6 +1,7 @@
 #include "base/base.h"
 
 #include <driver/gpio.h>
+#include <rom/rtc.h>
 
 #include "common.h"
 #include "module_types.h"
@@ -11,6 +12,8 @@
 
 #define LED1_PIN 32
 #define LED2_PIN 33
+
+#define DBW_ACTIVE_TIMEOUT_MS 200
 
 // ######      PROTOTYPES       ###### //
 
@@ -43,12 +46,29 @@ static can_outgoing_t can_Status_cfg = {
     .pack = CAN_dbwNode_Status_pack,
 };
 
-static struct CAN_dbwNode_SysCmd_t CAN_SysCmd;
+static struct CAN_dbwESTOP_t CAN_DBW_ESTOP;
 
-static const can_incoming_t can_SysCmd_cfg = {
-    .id = CAN_DBWNODE_SYSCMD_FRAME_ID,
-    .out = &CAN_SysCmd,
-    .unpack = CAN_dbwNode_SysCmd_unpack,
+static can_outgoing_t can_DBW_ESTOP_cfg = {
+    .id = CAN_DBWESTOP_FRAME_ID,
+    .extd = CAN_DBWESTOP_IS_EXTENDED,
+    .dlc = CAN_DBWESTOP_LENGTH,
+    .pack = CAN_dbwESTOP_pack,
+};
+
+static struct CAN_dbwActive_t CAN_DBW_Active;
+
+static can_incoming_t can_DBW_Active_cfg = {
+    .id = CAN_DBWACTIVE_FRAME_ID,
+    .out = &CAN_DBW_Active,
+    .unpack = CAN_dbwActive_unpack,
+};
+
+static struct CAN_dbwESTOP_t CAN_DBW_ESTOP_in;
+
+static can_incoming_t can_DBW_ESTOP_in_cfg = {
+    .id = CAN_DBWESTOP_FRAME_ID,
+    .out = &CAN_DBW_ESTOP_in,
+    .unpack = CAN_dbwESTOP_unpack,
 };
 
 static struct CAN_dbwNode_Info_t CAN_Info;
@@ -60,9 +80,9 @@ static void base_10Hz();
 static void base_100Hz();
 
 const struct rate_funcs base_rf = {
-    .call_init = base_init,
-    .call_10Hz = base_10Hz,
-    .call_1Hz = base_100Hz,
+    .call_init  = base_init,
+    .call_10Hz  = base_10Hz,
+    .call_100Hz = base_100Hz,
 };
 
 static void base_init()
@@ -80,27 +100,48 @@ static void base_init()
 
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
-    can_register_incoming_msg(can_SysCmd_cfg);
+    const RESET_REASON reason = rtc_get_reset_reason(0);
+    CAN_Status.Esp32ResetReasonCode = reason;
+
+    switch (reason) {
+        case POWERON_RESET:
+            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_POWERON_CHOICE;
+            break;
+
+        case RTCWDT_RTC_RESET:
+            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_WATCHDOG_RESET_CHOICE;
+            break;
+
+        default:
+            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_UNKNOWN_CHOICE;
+            break;
+    }
+
+    can_register_incoming_msg(&can_DBW_Active_cfg);
+    can_register_incoming_msg(&can_DBW_ESTOP_in_cfg);
 }
 
 static void base_10Hz()
 {
     set_status_LEDs();
-
-    CAN_Status.Counter++;
 }
 
 static void base_100Hz()
 {
-    if (CAN_SysCmd.DbwActive && system_state == SYS_STATE_IDLE) {
+    if (
+        CAN_DBW_Active.Active &&
+        (can_DBW_Active_cfg.delta_ms < DBW_ACTIVE_TIMEOUT_MS) &&
+        (system_state == SYS_STATE_IDLE)
+    ) {
         system_state = SYS_STATE_DBW_ACTIVE;
-    } else if (!CAN_SysCmd.DbwActive && system_state == SYS_STATE_DBW_ACTIVE) {
+    } else if (
+        (!CAN_DBW_Active.Active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
+        (system_state == SYS_STATE_DBW_ACTIVE)
+    ) {
         system_state = SYS_STATE_IDLE;
     }
 
-    if (CAN_SysCmd.ESTOP) {
-        system_state = SYS_STATE_ESTOP;
-    }
+    if (can_DBW_ESTOP_in_cfg.recieved) system_state = SYS_STATE_ESTOP;
 
     switch (system_state) {
         case SYS_STATE_IDLE:
@@ -121,6 +162,8 @@ static void base_100Hz()
     }
 
     can_send_iface(&can_Status_cfg, &CAN_Status);
+
+    CAN_Status.Counter++;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -187,7 +230,7 @@ static void set_status_LEDs() {
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
-bool base_dbw_currently_active()
+bool base_dbw_active()
 {
     return system_state == SYS_STATE_DBW_ACTIVE;
 }
@@ -199,9 +242,14 @@ void base_set_state_lost_can()
 }
 
 
-void base_set_state_estop()
+void base_set_state_estop(uint8_t choice)
 {
     system_state = SYS_STATE_ESTOP;
+
+    CAN_DBW_ESTOP.Source = CAN_dbwESTOP_Source_NODE_CHOICE;
+    CAN_DBW_ESTOP.Reason = choice;
+
+    can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }
 
 

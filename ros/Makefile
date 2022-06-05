@@ -12,6 +12,14 @@ CAND_DST            = docker/cand/cand docker/cmd_to_ctrl/cand
 IGVCUTILS_SRC       = ../common/igvcutils
 IGVCUTILS_DST       = docker/cmd_to_ctrl/igvcutils
 
+CAND_SRC           ?= ../common/cand
+CANTOOLS_SRC       ?= ../common/cantools
+IGVCUTILS_SRC      ?= ../common/igvcutils
+
+CAND_DST            = docker/py-steering/cand
+CANTOOLS_DST       ?= docker/py-steering/cantools
+IGVCUTILS_DST       = docker/py-steering/igvcutils
+
 
 .PHONY: all
 all: build
@@ -20,21 +28,21 @@ all: build
 .PHONY: clean
 clean:
 	@rm -rvf $(CAND_DST) $(IGVCUTILS_DST)
-	@$(DOCKER_COMPOSE) rm $(DOCKER_FLAGS_RM) $(DOCKER_FLAGS) $(CONTAINER)
 
 
 .PHONY: build
-build: python_deps
+build: pydeps
 	$(DOCKER_COMPOSE) build $(DOCKER_FLAGS_BUILD) $(DOCKER_FLAGS) $(CONTAINER)
 
 
-.PHONY: build-no-cache
-build-no-cache: python_deps
+.PHONY: build-clean
+build-clean: pydeps
 	$(DOCKER_COMPOSE) build $(DOCKER_FLAGS_BUILD) --no-cache $(DOCKER_FLAGS) $(CONTAINER)
 
 
-.PHONY: python_deps
-python_deps: $(CAND_SRC) $(IGVCUTILS_SRC)
-	@cp -r $(CAND_SRC) docker/cand/
-	@cp -r $(CAND_SRC) docker/cmd_to_ctrl/
-	@cp -r $(IGVCUTILS_SRC) docker/cmd_to_ctrl/
+.PHONY: pydeps
+pydeps:
+	@rm -rf $(CAND_DST) $(CANTOOLS_DST) $(IGVCUTILS_DST)
+	@echo $(CAND_DST)      | xargs -n 1 cp -r $(CAND_SRC)
+	@echo $(CANTOOLS_DST)  | xargs -n 1 cp -r $(CANTOOLS_SRC)
+	@echo $(IGVCUTILS_DST) | xargs -n 1 cp -r $(IGVCUTILS_SRC)

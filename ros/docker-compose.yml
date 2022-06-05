@@ -63,6 +63,16 @@ services:
         volumes:
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
+    py-steering:
+        build: docker/py-steering/.
+        container_name: py-steering
+        tty: true
+        privileged: true
+        volumes:
+            - '../dbw/py-steering:/app/py-steering'
+        depends_on:
+            - redis
+
     velodyne:
         build: docker/3dlidar/.
         container_name: velodyne
