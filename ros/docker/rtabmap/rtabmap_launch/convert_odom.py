@@ -35,7 +35,7 @@ class OdomEKF():
 
         odom = Odometry()
         odom.header = msg.header
-        odom.child_frame_id = 'base_link'
+        odom.child_frame_id = 'novatel_center'
         odom.pose = msg.pose
         odom.pose.pose.position.x -= self._x_offset
         odom.pose.pose.position.y -= self._y_offset

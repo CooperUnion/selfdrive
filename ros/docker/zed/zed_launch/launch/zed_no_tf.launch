@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <arg name="stream"                default="" /> <!-- <arg name="stream" default="<ip_address>:<port>"> -->
 
     <!-- Base frame -->
-    <arg name="base_frame"            default="base_link" />
+    <arg name="base_frame"            default="zed_camera_pos" />
 
     <!-- Publish ZED urdf -->
     <arg name="publish_urdf"          default="true" />
