@@ -39,6 +39,31 @@ class Ctrl:
     def _brake2pedal(self, accel: float) -> float:
         return (self.BRAKE_TO_PEDAL_MAPPING * accel) + self.BRAKE_TO_PEDAL_MAPPING_OFFSET
 
+    def _pedal_ctrl(self, vel_act: float, vel_des: float, accel_des: float) -> tuple[float, float]:
+        # TODO: make this clean
+        if vel_des == 0.0:
+            return 0, 50
+
+        if vel_act < 0:
+            if vel_act > -0.5:
+                if accel_des > 0 and vel_des > 0:
+                    return self._accel2pedal(accel_des), 0  # accounts for rolling backwards on an incline when the desired motion is forward
+
+                else:
+                    return 0, self._brake2pedal(accel_des)  # accounts for rolling backwards when the desired motion is to stop in order to reverse
+            else:
+                return 0, 50                                # accounts for a non-float input-- just brakes
+
+        elif vel_act >= 0:
+            if accel_des > 0:
+                return self._accel2pedal(accel_des), 0      # accounts for when the car is moving forward and the desired motion is to increase speed
+
+            elif accel_des <= 0 :
+                return 0, self._brake2pedal(accel_des)      # accounts for the the car is moving forward and the desired motion is to slow down or stop
+
+        else:
+            return 0, 50                                    # accounts for a non-float input -- just brakes
+
     def _tick2vel(self, ticks: int, time: int) -> float:
         return self.TICKS_PER_M * ticks / time
 
