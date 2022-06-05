@@ -3,6 +3,7 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
+#include "base/base.h"
 #include "common.h"
 #include "io/can.h"
 #include "module_types.h"
@@ -19,6 +20,9 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_REAR_ENCODER;
 #define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
+
+#define ENCODER_MAX_TICKS  47     // ~5 MPH
+#define ENCODER_TIMEOUT_US 20000
 
 // ######      PROTOTYPES       ###### //
 
@@ -102,6 +106,15 @@ static void encoder_100Hz()
     CAN_RearEncoder.Time     = timer_val - prv_timer_val;
 
     can_send_iface(&can_RearEncoder_Data_cfg, &CAN_RearEncoder);
+
+    if (
+        (ABS(CAN_RearEncoder.Encoder0) >= ENCODER_MAX_TICKS) ||
+        (ABS(CAN_RearEncoder.Encoder1) >= ENCODER_MAX_TICKS)
+    )
+        base_set_state_estop(CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE);
+
+    if (CAN_RearEncoder.Time >= ENCODER_TIMEOUT_US)
+        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
 
     prv_pulse_cnt[0] += CAN_RearEncoder.Encoder0;
     prv_pulse_cnt[1] += CAN_RearEncoder.Encoder1;

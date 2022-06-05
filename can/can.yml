@@ -32,20 +32,16 @@ messages:
       - Counter:
           description: Counter for fun.
           width: 8
-
-- dbwNode_SysCmd:
-    id: 0xF0
-    cycletime: 100
-
-    template: dbwnodes
-
-    signals:
-        - DbwActive:
-            description: Activate DBW mode.
-            width: 1
-        - ESTOP:
-            description: Activate E-STOP.
-            width: 1
+      - ResetReason:
+          description: Reset reason.
+          width: 2
+          choices:
+            - POWERON
+            - WATCHDOG_RESET
+            - UNKNOWN
+      - Esp32ResetReasonCode:
+          description: ESP32 reset reason code (enum RESET_REASON)
+          width: 5
 
 - dbwNode_Info:
     id: 0xD0
@@ -78,24 +74,8 @@ messages:
           description: Current relay state.
           width: 1
 
-- dbwNode_Accel_Cmd:
-    id: 0x11
-    cycletime: 100
-
-    signals:
-      - ThrottleCmd:
-          description: Throttle command.
-          minimum: 0.0
-          maximum: 1.0
-          scale: 0.01
-          width: 8
-      - ModeCtrl:
-          description: Mode control command (0/1).
-          width: 1
-
-
 - dbwNode_Brake_Data:
-    id: 0x12
+    id: 0x11
     cycletime: 100
 
     signals:
@@ -117,20 +97,8 @@ messages:
           description: Pressure Sensed.
           width: 8
 
-- dbwNode_Brake_Cmd:
-    id: 0x13
-    cycletime: 100
-
-    signals:
-      - BrakeCmd:
-          description: Brake command.
-          minimum: 0.0
-          maximum: 1.0
-          scale: 0.01
-          width: 8
-
 - dbwNode_Encoder_Data:
-    id: 0x14
+    id: 0x13
     cycletime: 10
 
     signals:
@@ -147,7 +115,7 @@ messages:
             width: 16
 
 - dbwNode_RearEncoder_Data:
-    id: 0x15
+    id: 0x14
     cycletime: 10
 
     signals:
@@ -164,7 +132,7 @@ messages:
             width: 16
 
 - dbwNode_PbMon_Data:
-    id: 0x16
+    id: 0x15
     cycletime: 100
 
     signals:
@@ -178,34 +146,25 @@ messages:
             description: State of the ESTOP arming.
             width: 1
 
-- dbwNode_Accel_Cntrls_Cmd:
-    id: 0x21
+- dbwNode_Vel_Cmd:
+    id: 0x20
     cycletime: 100
 
     signals:
-      - CharMode:
-          description: Characterization mode enable (0/1).
-          width: 1
-      - TargetVel:
-          description: Target velocity
-          width: 15
-          scale: 0.001
-      - Kp:
-          description: Proportional gain
-          width: 16
-          scale: 0.001
-      - Ki:
-          description: Integral gain
-          width: 16
-          scale: 0.001
-      - Kd:
-          description: Derivative gain
-          width: 16
-          scale: 0.001
+        - ThrottlePercent:
+            description: Throttle percentage.
+            maximum: 100
+            unit: percent
+            width: 7
+        - BrakePercent:
+            description: Brake percentage.
+            maximum: 100
+            unit: percent
+            width: 7
 
 - dbwESTOP:
     id: 0x41F
-    cycletime: 10
+    cycletime: 100
 
     signals:
       - Source:
@@ -226,11 +185,20 @@ messages:
 
 - dbwActive:
     id: 0x420
-    cycletime: 10
+    cycletime: 100
 
     signals:
       - Active:
           description: DBW is active.
+          width: 1
+
+- dbwEnable:
+    id: 0x421
+    cycletime: 100
+
+    signals:
+      - Enable:
+          description: Enable DBW active.
           width: 1
 
 - dbwUpdater_Update_Trigger:
