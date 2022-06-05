@@ -18,8 +18,8 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_THROTTLE;
 
 #define ENCODER_TIMEOUT_US 20000
 
-// ~10MPH
-#define ENCODER_MAX_TICKS 94
+// ~5MPH
+#define ENCODER_MAX_TICKS 85
 
 // ######     PRIVATE DATA      ###### //
 
