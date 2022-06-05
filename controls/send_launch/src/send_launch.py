@@ -8,7 +8,6 @@ import cand
 import igvcutils
 import rospy
 
-import pid
 import twist
 import vel
 

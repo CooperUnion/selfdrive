@@ -3,8 +3,6 @@ import threading
 import cand
 import numpy as np
 
-import pid
-
 
 class Ctrl:
     ENCODER_TICKS_PER_ROTATION = 4000
