@@ -3,6 +3,7 @@
 import argparse
 import sys
 import threading
+import time
 
 import cand
 import igvcutils
@@ -95,8 +96,6 @@ def main():
 
     send_launch = SendLaunch(
         bus=bus,
-        vel_ctrl=vel_ctrl,
-        decoder=decoder,
     )
     send_launch.start()
 
@@ -104,7 +103,7 @@ def main():
 
     r = rospy.Rate(args.rate)
     while not rospy.is_shutdown():
-        throttle_percent, brake_percent = velctrl.set_vel(decoder.vel)
+        throttle_percent, brake_percent = ctrl.set_vel(decoder.vel)
 
         send_launch.throttle_percent = throttle_percent
         send_launch.brake_percent    = brake_percent

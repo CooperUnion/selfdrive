@@ -1,6 +1,7 @@
 import threading
 
 import cand
+import igvcutils
 import numpy as np
 
 
@@ -11,7 +12,7 @@ class Ctrl:
 
     def __init__(
         self,
-        pid: pid.Controller,
+        pid: igvcutils.ctrl.Pid,
         bus: cand.client.Bus,
         *,
         samples: int = 4,
