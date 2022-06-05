@@ -8,8 +8,8 @@ units = [ ]
 
 # message timeouts
 DBWNODE_ACCEL_DATA_TIMEOUT_NS   = 200_000_000
-DBWNODE_ACCEL_CMD_TIMEOUT_NS    = 200_000_000
-DBWNODE_ENCODER_DATA_TIMEOUT_NS = 20_000_000
+DBWNODE_VEL_CMD_TIMEOUT_NS      = 200_000_000
+DBWNODE_ENCODER_DATA_TIMEOUT_NS = 200_000_000
 
 # unit timeouts
 THROTTLE_DIFF_TIMEOUT_NS = 4_000_000_000
@@ -31,7 +31,7 @@ class UnitThrottle(unit.Unit):
         data_rec = self._bus.get('dbwNode_Accel_Data')
         if data_rec is None: return self.abort('TIMEOUT')
 
-        cmd_rec = self._bus.get('dbwNode_Accel_Cmd')
+        cmd_rec = self._bus.get('dbwNode_Vel_Cmd')
         if cmd_rec is None: return self.abort('TIMEOUT')
 
         cur_time = time.time_ns()
@@ -41,10 +41,10 @@ class UnitThrottle(unit.Unit):
 
         if cur_time - data_time >= DBWNODE_ACCEL_DATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
-        if cur_time - cmd_time >= DBWNODE_ACCEL_CMD_TIMEOUT_NS:
+        if cur_time - cmd_time >= DBWNODE_VEL_CMD_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
-        perc_diff = abs(data_data['Percent'] - (cmd_data['ThrottleCmd'] * 100))
+        perc_diff = abs(data_data['Percent'] - cmd_data['ThrottlePercent'])
 
         if perc_diff > THROTTLE_PERCENT_DIFF_MAX:
             if self._throttle_diff_time_ns is None:

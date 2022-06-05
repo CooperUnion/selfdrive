@@ -24,17 +24,17 @@ static void can_send_msg(const twai_message_t *message);
 
 static bool can_ready;
 
-static can_incoming_t in_msgs[25];
+static can_incoming_t *in_msgs[25];
 static uint in_msgs_count = 0;
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void can_init();
-static void can_100Hz();
+static void can_1kHz();
 
 const struct rate_funcs can_rf = {
     .call_init = can_init,
-    .call_100Hz = can_100Hz,
+    .call_1kHz = can_1kHz,
 };
 
 static void can_init()
@@ -57,11 +57,11 @@ static void can_init()
 }
 
 
-static void can_100Hz()
+static void can_1kHz()
 {
     // update time deltas
     for (uint i = 0; i < in_msgs_count; i++) {
-        if (in_msgs[i].delta_ms) *in_msgs[i].delta_ms += 10;
+        in_msgs[i]->delta_ms += 1;
     }
 
     for (;;) {
@@ -75,9 +75,10 @@ static void can_100Hz()
 
             case ESP_OK:
                 for (uint i = 0; i < in_msgs_count; i++) {
-                    if (in_msgs[i].id == msg.identifier) {
-                        in_msgs[i].unpack(in_msgs[i].out, msg.data, msg.data_length_code);
-                        if (in_msgs[i].delta_ms) *in_msgs[i].delta_ms = 0;
+                    if (in_msgs[i]->id == msg.identifier) {
+                        in_msgs[i]->unpack(in_msgs[i]->out, msg.data, msg.data_length_code);
+                        in_msgs[i]->delta_ms = 0;
+                        in_msgs[i]->recieved = true;
                     }
                 }
                 break;
@@ -102,7 +103,7 @@ static void can_send_msg(const twai_message_t *message)
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
-void can_register_incoming_msg(const can_incoming_t cfg)
+void can_register_incoming_msg(can_incoming_t *cfg)
 {
     in_msgs[in_msgs_count] = cfg;
     in_msgs_count++;

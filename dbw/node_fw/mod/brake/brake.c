@@ -2,8 +2,9 @@
 
 #include <driver/ledc.h>
 
-#include "io/can.h"
+#include "base/base.h"
 #include "common.h"
+#include "io/can.h"
 #include "module_types.h"
 #include "sys/task_glue.h"
 
@@ -15,11 +16,13 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BRAKE;
 #define MAX_BRAKE_POWER 0.60
 
 #define PWM_PIN 16
-#define PWM_CHANNEL 0 
+#define PWM_CHANNEL 0
 #define PWM_FREQUENCY 1000
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION 16
 #define MAX_DUTY 65535
+
+#define CMD_TIMEOUT_MS 200
 
 // ######      PROTOTYPES       ###### //
 
@@ -31,7 +34,7 @@ static uint32_t convert_brake_cmd_to_duty(float32_t cmd);
 // ######     PRIVATE DATA      ###### //
 
 static ledc_timer_config_t pwm_timer = {
-    .speed_mode = 0, 
+    .speed_mode = 0,
     .duty_resolution = PWM_RESOLUTION,
     .timer_num = 0,
     .freq_hz = PWM_FREQUENCY,
@@ -57,12 +60,12 @@ static const can_outgoing_t can_Brake_Data_cfg = {
     .pack = CAN_dbwNode_Brake_Data_pack,
 };
 
-static struct CAN_dbwNode_Brake_Cmd_t CAN_Brake_Cmd;
+static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
 
-static const can_incoming_t can_Brake_Cmd_cfg = {
-    .id = CAN_DBWNODE_BRAKE_CMD_FRAME_ID,
-    .out = &CAN_Brake_Cmd,
-    .unpack = CAN_dbwNode_Brake_Cmd_unpack,
+static can_incoming_t can_Vel_Cmd_cfg = {
+    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .out = &CAN_Vel_Cmd,
+    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -80,25 +83,48 @@ struct rate_funcs module_rf = {
  *
  * Begin receiving incoming commands to the brake node over CAN
  */
-static void brake_init(){
-    
+static void brake_init()
+{
     init_pwm(pwm_timer, pwm_channel);
 
-    can_register_incoming_msg(can_Brake_Cmd_cfg);
+    can_register_incoming_msg(&can_Vel_Cmd_cfg);
 }
 
 /*
  * Get the target brake percent from the CAN data
  *
- * Set the brake output to the target percentage 
- * 
+ * Set the brake output to the target percentage
+ *
  * Update and send CAN message
  */
 static void brake_100Hz()
 {
     static float32_t prev_cmd;
 
-    float32_t cmd = CAN_dbwNode_Brake_Cmd_BrakeCmd_decode(CAN_Brake_Cmd.BrakeCmd);
+    if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
+        static uint64_t prv_delta_ms;
+        static bool     set;
+
+        if (set) {
+            if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
+                base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+        } else {
+            prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
+            set = true;
+        }
+    }
+
+    if (
+        base_dbw_active() &&
+        can_Vel_Cmd_cfg.recieved &&
+        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
+    )
+        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+
+    float32_t cmd = (base_dbw_active())
+        ? ((float32_t) CAN_Vel_Cmd.BrakePercent) / 100.0
+        : 0.0;
+
     cmd = clip_brake_cmd(pwm_channel, cmd);
 
     const float32_t alpha = 0.1;
@@ -106,8 +132,7 @@ static void brake_100Hz()
 
     prev_cmd = cmd;
 
-
-    // output pwm 
+    // output pwm
     const uint32_t duty_cmd = convert_brake_cmd_to_duty(cmd);
 
     pwm_channel.duty = duty_cmd;

@@ -3,61 +3,89 @@
 import argparse
 import time
 
-from cand.client import Bus
-
-bus = Bus()
+import cand
 
 
-def run_test(percent, duration):
-    bus.send("dbwNode_Encoder_Data", {"Encoder0": 0, "Encoder1": 1, "Time": 100})
-    bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
-    bus.send(
-        "dbwNode_Accel_Cmd", {"ThrottleCmd": min(percent, 100) / 100, "ModeCtrl": 1}
-    )
+class Test:
+    def __init__(self, *, bus: cand.client.Bus):
+        self._bus = bus
 
-    time_start = time.time()
-    i = 0
-    while True:
-        if (time.time() - time_start) > abs(duration):
-            break
-        print(f"{i} {bus.get('dbwNode_Encoder_Data')}")
-        i += 1
-        time.sleep(0.01)
+    def run(self, percent, duration):
+        self._bus.send('dbwEnable', {'Enable': 1})
+        self._bus.send(
+            'dbwNode_Vel_Cmd',
+            {'ThrottlePercent': min(abs(percent), 100), 'BrakePercent': 0},
+        )
 
+        time_start = time.time()
 
-def end_test():
-    bus.send("dbwNode_Accel_Cmd", {"ThrottleCmd": 0, "ModeCtrl": 0})
-    bus.send("dbwNode_SysCmd", {"DbwActive": 0, "ESTOP": 0})
+        i = 0
+        while True:
+            if (time.time() - time_start) > abs(duration): break
+
+            print(f"{i} {self._bus.get_data('dbwNode_Encoder_Data')}")
+
+            i += 1
+            time.sleep(0.01)
+
+    def end(self):
+        self._bus.send(
+            'dbwNode_Vel_Cmd',
+            {'ThrottlePercent': 0, 'BrakePercent': 0},
+        )
+        self._bus.send('dbwEnable', {'Enable': 0})
 
 
 def main():
-    parser = argparse.ArgumentParser(description="test throttle")
+    parser = argparse.ArgumentParser(description='test throttle')
 
     parser.add_argument(
-        "-p",
-        "--percent",
-        help="value between 0 and 100",
-        metavar="n",
+        '-p',
+        '--percent',
+        help='value within 0 and 100',
+        metavar='n',
         type=int,
         required=True,
     )
     parser.add_argument(
-        "-t",
-        "--time",
-        help="duration in seconds",
-        metavar="n.n",
+        '-t',
+        '--time',
+        help='duration in seconds',
+        metavar='n.n',
         type=float,
         required=True,
+    )
+    parser.add_argument(
+        '--redis-host',
+        default='localhost',
+        help='redis hostname',
+        metavar='localhost',
+    )
+    parser.add_argument(
+        '--redis-port',
+        default='6379',
+        help='redis hostname',
+        metavar='6379',
     )
 
     args = parser.parse_args()
 
-    run_test(args.percent, args.time)
-    end_test()
+    bus = cand.client.Bus(
+        redis_host=args.redis_host,
+        redis_port=args.redis_port,
+    )
 
+    test = Test(
+        bus=bus,
+    )
 
-if __name__ == "__main__":
     try:
-        main()
+        test.run(args.percent, args.time)
     except:
-        end_test()
+        pass
+
+    test.end()
+
+
+if __name__ == '__main__':
+    main()
