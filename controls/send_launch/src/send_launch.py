@@ -48,19 +48,19 @@ def main():
 
     argparser.add_argument(
         '--kp',
-        default=0.0,
+        default=1.3,
         metavar='n',
         type=float,
     )
     argparser.add_argument(
         '--ki',
-        default=0.0,
+        default=0.015,
         metavar='n',
         type=float,
     )
     argparser.add_argument(
         '--kd',
-        default=0.0,
+        default=1.35,
         metavar='n',
         type=float,
     )
