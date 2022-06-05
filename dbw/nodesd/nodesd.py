@@ -52,6 +52,7 @@ def main():
         'Encoder',
         'RearEncoder',
         'PbMon',
+        'Steering'
     ]
 
     nodes = [node.Node(mod, bus=bus) for mod in mod_ident]

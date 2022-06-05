@@ -12,6 +12,7 @@ templategroups:
     - Encoder
     - RearEncoder
     - PbMon
+    - Steering
 
 messages:
 - dbwNode_Status:
@@ -146,6 +147,25 @@ messages:
             description: State of the ESTOP arming.
             width: 1
 
+- dbwNode_Steering_Data:
+    id: 0x16
+    cycletime: 100
+
+    signals:
+        - Angle:
+            description: Absolute steering angle in radians.
+            minimum: -0.610865238
+            maximum: 0.610865238
+            scale: 0.000000001
+            is_signed: true
+            width: 32
+        - EncoderTimeoutSet:
+            description: Has the encoder timed out?
+            width: 1
+        - ODriveConnected:
+            description: Is the ODrive connected?
+            width: 1
+
 - dbwNode_Vel_Cmd:
     id: 0x20
     cycletime: 100
@@ -161,6 +181,40 @@ messages:
             maximum: 100
             unit: percent
             width: 7
+
+- dbwNode_Steering_Cmd:
+    id: 0x21
+    cycletime: 100
+
+    signals:
+        - Angle:
+            description: Absolute steering angle in radians.
+            minimum: -0.471238898
+            maximum: 0.471238898
+            scale: 0.000000001
+            is_signed: true
+            width: 32
+
+- steering_Absolute_Encoder:
+    id: 0x1E5
+    cycletime: 10
+
+    signals:
+        - Foo:
+            description: Foo.
+            width: 8
+        # TODO: add big endian support to gen_dbc.py
+        #
+        # this signal is a signed big-endian value
+        # cantools will decode this signal into an unsigned int
+        # it is the job of the programmer to re-encode this value
+        # into a signed int
+        - Pos:
+            description: Absolute encoder position.
+            width: 16
+        - Bar:
+            description: Bar.
+            width: 40
 
 - dbwESTOP:
     id: 0x41F
