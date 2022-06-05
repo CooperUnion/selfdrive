@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cand",
-    version="0.0.2",
+    version="0.0.3",
     author="Cooper IGVC",
     author_email="igvc@cooper.edu",
     description="CAN Service Daemon",
