@@ -2,15 +2,15 @@
 TebLocalPlannerRos:
 # Robot Configuration Parameters - Scooter
   # All default values for teb-acc
-  acc_lim_x: 0.5
-  acc_lim_theta: 0.5
+  acc_lim_x: 20.0
+  acc_lim_theta: 20.0
   
-  max_vel_x: 0.5
+  max_vel_x: 2.2
   max_vel_x_backwards: 0.0 # Picked half foward vel
-  max_vel_theta: 0.5
+  max_vel_theta: 2.0
 
   # Parameters for car like robots - For scooter but unecessary for simulations
-  min_turning_radius: 2.0 #0.85 # Measured value
+  min_turning_radius: 4.0 #0.85 # Measured value
   wheelbase: 1.8 # Measured value
   cmd_angle_instead_rotvel: true
 
@@ -38,7 +38,7 @@ TebLocalPlannerRos:
 
 
 # Obstacle Parameters
-  min_obstacle_dist: 20                            # Change depending on what map we are using
+  min_obstacle_dist: 3.0                            # Change depending on what map we are using
   include_costmap_obstacles: true                   # Uses all information from local_costmap (Don't make costmap resolution too high)
   costmap_obstacles_behind_robot_dist: 1.0          # Limits the occupied local costmap behind robot
   obstacle_poses_affected: 30                       # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance
@@ -48,19 +48,19 @@ TebLocalPlannerRos:
   obstacle_association_force_inclusion_factor: 1.5  # No idea what this is
 
 # Optimization Parameters
-  penalty_epsilon: 0.1                              # Adds small safety margin for penalty functions
+#   penalty_epsilon: 0.1                              # Adds small safety margin for penalty functions
   weight_max_vel_x: 20.0                             
-  weight_max_vel_theta: 1.0                         
-  weight_acc_lim_x: 5.0                             
-  weight_acc_lim_theta: 1.0                         
-  weight_kinematics_nh: 1000                        
-  weight_kinematics_foward_drive: 1.0               
-  weight_kinematics_turning_radius: 1.0             
-  weight_optimaltime: 1.0                           
-  weight_obstacle: 50.0                             
-  weight_viapoint: 1.0                              
-  weight_inflation: 0.1                             
-  weight_adapt_factor: 2.0                          
+#   weight_max_vel_theta: 1.0                         
+  weight_acc_lim_x: 20.0                             
+  weight_acc_lim_theta: 20.0                         
+#   weight_kinematics_nh: 1000                        
+#   weight_kinematics_foward_drive: 1.0               
+#   weight_kinematics_turning_radius: 1.0             
+  weight_optimaltime: 20.0                           
+#   weight_obstacle: 50.0                             
+#   weight_viapoint: 1.0                              
+#   weight_inflation: 0.1                             
+#   weight_adapt_factor: 2.0                          
 
 # Extra Parameters
   odom_topic: "odom"

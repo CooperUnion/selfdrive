@@ -1,8 +1,8 @@
 global_costmap:
   # Costmap_2d parameters
-  global_frame: /map
-  robot_base_frame: /base_footprint
-  update_frequency: 1.0
+  global_frame: map
+  robot_base_frame: base_link
+  update_frequency: 0.5
   publish_frequency: 0.5
   static_map: true
   transform_tolerance: 0.5
@@ -11,7 +11,7 @@ global_costmap:
   plugins:
     - {name: static_layer,            type: "costmap_2d::StaticLayer"}
     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
-    - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
+    # - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
    
    
   static_layer:
@@ -21,14 +21,14 @@ global_costmap:
     map_topic: "map"
     first_map_only: false
     subcribe_to_updates: false
-    track_unknown_space: true
+    track_unknown_space: false
     use_maximum: false
     trinary_costmap: true
 
   obstacle_layer:
     enabled: true
     # combination_method:   1       Used for ObstacleCostmapPlugin
-    # track_unknown_space:  true
+    track_unknown_space:  false
     # Global Parameters applied to all sensors
     max_obstacle_height: 1.8
     obstacle_range: 2.5
