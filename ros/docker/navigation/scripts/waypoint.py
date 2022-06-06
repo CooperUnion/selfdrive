@@ -30,7 +30,7 @@ class Waypointers:
                 continue
 
     def read_waypoints(self):
-        filename = 'cmd1.txt'
+        filename = 'waypoints.txt'
 
         with open(filename, newline='') as file:
             reader = csv.reader(file, delimiter=',', skipinitialspace=True, quotechar='|')
