@@ -1,0 +1,7 @@
+waypoint, 10, 12, 14, 16, 18, 20, 22
+stop, 2
+lanes_off
+stop, 4
+waypoint, 2, 4, 5, 1, 2, 4, 4
+lanes_on
+done
