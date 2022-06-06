@@ -48,6 +48,7 @@ services:
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
+            - './docker/navigation/scripts:/app/scripts'
 
     velodyne:
         build: docker/3dlidar/.
