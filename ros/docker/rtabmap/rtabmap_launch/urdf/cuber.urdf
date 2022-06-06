@@ -10,9 +10,9 @@
     <link name="novatel_center"/>
 
     <joint name="novatel_center_joint" type="fixed">
-        <parent link="base_link"/>
-        <child link="novatel_center"/>
-        <origin xyz="0 0 0.6858" rpy="0 3.141592653589 0"/>
+        <parent link="novatel_center"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0.6858" rpy="0 3.141592653589 3.141592653589"/>
         <!-- <origin xyz="0 0 0.6858" rpy="0 0 0"/> -->
     </joint>
 

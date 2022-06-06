@@ -41,7 +41,7 @@ Grid:
     GroundIsObstacle:       false
     PreVoxelFiltering:      true
     RayTracing:             true
-    Sensor:                 true
+    Sensor:                 false
     NormalsSegmentation:    false
     CellSize:               0.05
     ClusterRadius:          0.1
@@ -76,9 +76,9 @@ GridGlobal:
 
 Reg:
     Force3DoF:              false
-    Strategy:               0
+    # Strategy:               1
 
-# RGBD:
-    # OptimizeRobust:         true
+RGBD:
+    OptimizeRobust:         true
     # OptimizeMaxError:       1.0
     # LocalRadius:            20

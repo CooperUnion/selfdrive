@@ -41,7 +41,8 @@ class OdomEKF():
         odom.pose.pose.position.y -= self._y_offset
         odom.pose.pose.position.z -= self._z_offset
 
-        # odom.pose.pose.position.z = -odom.pose.pose.position.z
+        odom.pose.pose.position.y = -odom.pose.pose.position.y
+        odom.pose.pose.orientation.y = -odom.pose.pose.orientation.y
 
         self.ekf_pub.publish(odom)
         
