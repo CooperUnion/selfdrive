@@ -10,7 +10,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import csv
 
 class Waypointers:
-    def __init__(self):
+    def __init__(self, single=True, fileRead=False):
         rospy.init_node('waypointers', anonymous=True)
 
         # subscribe to move_base action server
@@ -21,16 +21,17 @@ class Waypointers:
 
         self.waypoints = list()
 
-        self.read_waypoints()
+        if single and not fileRead:
+            pass
+        else:
+            self.read_waypoints()
 
-        for waypoint in self.waypoints:
-            finished = self.send_goal(waypoint)
-            if finished == -1:
-                break
-            elif finished == 1:
-                continue
-
-        rospy.spin()
+            for waypoint in self.waypoints:
+                finished = self.send_goal(waypoint)
+                if finished == -1:
+                    break
+                elif finished == 1:
+                    continue
 
     def read_waypoints(self):
         filename = 'waypoints.txt'
@@ -38,9 +39,13 @@ class Waypointers:
         with open(filename, newline='') as file:
             reader = csv.reader(file, delimiter=',', skipinitialspace=True, quotechar='|')
             for row in reader:
-                waypoint = Pose(Point(row[0], row[1], row[2]), Quaternion(row[3], row[4], row[5], row[6]))
+                waypoint = self.create_waypoint(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
                 self.waypoints.append(waypoint)
     
+    @staticmethod
+    def create_waypoint(x, y, z, qx, qy, qz, qw):
+        return Pose(Point(x, y, z), Quaternion(qx, qy, qz, qw))
+
     def send_goal(self, waypoint):
         goal = MoveBaseGoal()
 
@@ -52,7 +57,7 @@ class Waypointers:
 
     def move(self, goal):
         self.move_base.send_goal(goal)
-        finished = self.move_base.wait_for_results(rospy.Duration(10))
+        finished = self.move_base.wait_for_result(rospy.Duration(10))
 
         if not finished:
             self.move_base.cancel_goal()
