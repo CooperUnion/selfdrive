@@ -10,6 +10,10 @@ class Ctrl:
     WHEEL_CIRCUMFRANCE_M       = 1.899156
     TICKS_PER_M                = WHEEL_CIRCUMFRANCE_M / ENCODER_TICKS_PER_ROTATION
 
+    ACCEL_TO_PEDAL_SLOPE_MAPPING        = 15.4
+    BRAKE_TO_PEDAL_SLOPE_MAPPING        = -58.03
+    BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET = -11.33
+
     def __init__(
         self,
         pid: igvcutils.ctrl.Pid,
