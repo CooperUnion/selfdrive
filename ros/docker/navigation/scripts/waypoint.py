@@ -1,3 +1,5 @@
+# https://www.programcreek.com/python/?code=carla-simulator%2Fros-bridge%2Fros-bridge-master%2Fcarla_waypoint_publisher%2Fsrc%2Fcarla_waypoint_publisher%2Fcarla_waypoint_publisher.py
+# https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/
 import rospy
 
 import actionlib
@@ -10,7 +12,6 @@ import csv
 class Waypointers:
     def __init__(self):
         rospy.init_node('waypointers', anonymous=True)
-        rospy.spin()
 
         # subscribe to move_base action server
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -28,6 +29,8 @@ class Waypointers:
                 break
             elif finished == 1:
                 continue
+
+        rospy.spin()
 
     def read_waypoints(self):
         filename = 'waypoints.txt'

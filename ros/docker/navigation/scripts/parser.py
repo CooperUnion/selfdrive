@@ -1,6 +1,8 @@
 import time
 import csv
 
+from waypoint import Waypointers
+
 class CommandParser:
     def __init__(self):
         self.read_from_file()
@@ -21,6 +23,8 @@ class CommandParser:
             
             if token[0] == 'wait':
                 self.wait(int(token[1]))
+            elif token[0] == 'waypoint':
+                pass
             else:
                 print(token)
     
