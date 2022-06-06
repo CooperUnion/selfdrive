@@ -11,5 +11,5 @@ class Decode:
         self.vel   = 0.0
 
     def _callback(self, msg: Twist):
-        angle = msg.angular.z
-        vel   = msg.linear.x
+        self.angle = -msg.angular.z
+        self.vel   = msg.linear.x
