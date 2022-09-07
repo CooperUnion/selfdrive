@@ -1,7 +1,7 @@
 local_costmap:
    # Costmap_2d parameters
-   global_frame: /zed/zed_node/odom
-   robot_base_frame: /base_footprint
+   global_frame: odom
+   robot_base_frame: base_link
    update_frequency: 5.0
    publish_frequency: 2.0
    static_map: false
@@ -10,9 +10,9 @@ local_costmap:
    height: 6.0
    resolution: 0.06
    transform_tolerance: 0.5
-   plugins:
-    - {name: obstacle_layer,      type: "costmap_2d::VoxelLayer"}
-    - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}
+   # plugins:
+   #  - {name: obstacle_layer,      type: "costmap_2d::VxelLayer"}
+   #  - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}
    #  - {name: person_layer,        type: "social_navigation_layers::ProxemicLayer"}
     
 

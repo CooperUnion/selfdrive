@@ -7,8 +7,8 @@ class Pid:
         ki:        float = 0.0,
         kd:        float = 0.0,
         ts:        float = 1.0,
-        lower_lim: float = -100.0,
-        upper_lim: float = 100.0,
+        lower_lim: float = -2.0,
+        upper_lim: float = 2.0,
         sigma:     float = 1.0,
     ):
         self.kp         = kp
@@ -62,6 +62,7 @@ class Pid:
         # prevent unsaturation of integrator
         if self.ki != 0.0:
             self._int = self._saturate(self.ki * self._int) / self.ki
+            self._int /= 10
 
         # differentiate error
         self.err_dot  = self._beta * self._err_dot

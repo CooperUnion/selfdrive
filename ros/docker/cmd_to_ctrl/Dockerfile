@@ -26,7 +26,7 @@ WORKDIR /app
 COPY ./cand /tmp/cand
 COPY ./igvcutils /tmp/igvcutils
 RUN pip install --upgrade pip wheel
-RUN pip install /tmp/cand /tmp/igvcutils && rm -rf /tmp/cand /tmp/igvcutils
+RUN pip install -e /tmp/cand /tmp/igvcutils
 RUN pip install odrive pyyaml
 RUN pip install --upgrade numpy
 

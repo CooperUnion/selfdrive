@@ -41,6 +41,14 @@ static can_incoming_t can_Vel_Cmd_cfg = {
     .unpack = CAN_dbwNode_Vel_Cmd_unpack,
 };
 
+static struct CAN_dbwNode_Encoder_Data_t CAN_Encoder_Data;
+
+static can_incoming_t can_Encoder_Data_cfg = {
+    .id = CAN_DBWNODE_ENCODER_DATA_FRAME_ID,
+    .out = &CAN_Encoder_Data,
+    .unpack = CAN_dbwNode_Encoder_Data_unpack,
+};
+
 // ######      PROTOTYPES       ###### //
 
 static void control_relay(bool cmd);
@@ -71,10 +79,12 @@ static void throttle_init()
     enable_pedal_output();
 
     can_register_incoming_msg(&can_Vel_Cmd_cfg);
+    can_register_incoming_msg(&can_Encoder_Data_cfg);
 }
 
 static void throttle_100Hz()
 {
+    /*
     if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
         static uint64_t prv_delta_ms;
         static bool     set;
@@ -94,6 +104,11 @@ static void throttle_100Hz()
         (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
     )
         base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+    */
+
+    if (((CAN_Encoder_Data.Encoder0 + CAN_Encoder_Data.Encoder1) / 2) > 85) {
+        base_set_state_estop(CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE);
+    }
 
     // set the relay from the CAN data
     control_relay(base_dbw_active());

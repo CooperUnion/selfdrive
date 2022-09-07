@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import coloredlogs
+import logging
 import sys
 import threading
 import time
@@ -14,10 +16,13 @@ import vel
 
 
 class SendLaunch(threading.Thread):
-    SEND_RATE_S = 0.01
+    SEND_RATE_S = 0.001
 
-    def __init__(self, *, bus: cand.client.Bus = None):
+    def __init__(self, ctrl, decoder, *, bus: cand.client.Bus = None):
+        self._log = logging.getLogger('SendLaunch')
         self._bus      = bus
+        self._ctrl = ctrl
+        self._decoder = decoder
 
         self.throttle_percent = 0
         self.brake_percent    = 0
@@ -25,8 +30,21 @@ class SendLaunch(threading.Thread):
 
         super().__init__(daemon=True)
 
+    def _run_10Hz(self):
+        self._log.info('in run_10Hz loop')
+        throttle_percent, brake_percent = self._ctrl.set_vel(self._decoder.vel)
+
+        self.throttle_percent = throttle_percent
+        self.brake_percent    = brake_percent
+        self.steering_angle   = self._decoder.angle
+
     def run(self):
+        counter = 0
         while True:
+            if counter % 10 == 0:
+                self._run_10Hz()
+                counter = 0
+
             self._bus.send(
                 'dbwNode_Vel_Cmd',
                 {
@@ -40,10 +58,15 @@ class SendLaunch(threading.Thread):
                     'Angle': self.steering_angle,
                 },
             )
+            self._log.info('Sent commands!!!!')
             time.sleep(self.SEND_RATE_S)
 
 
 def main():
+    coloredlogs.install(level='debug')
+
+    log = logging.getLogger('send_launch')
+    log.info('send_launch starting')
     argparser = argparse.ArgumentParser(description='send_launch')
 
     argparser.add_argument(
@@ -92,24 +115,24 @@ def main():
         ),
         bus=bus,
     )
+
+    log.info('created cand client and PID instance')
+
     decoder = twist.Decode('/cmd_vel')
+
+    log.info('started ROS node.')
+    rospy.init_node('send_launch')
 
     send_launch = SendLaunch(
         bus=bus,
+        ctrl=ctrl,
+        decoder=decoder,
     )
     send_launch.start()
 
-    rospy.init_node('send_launch')
+    log.info('created send_launch and started.')
 
-    r = rospy.Rate(args.rate)
-    while not rospy.is_shutdown():
-        throttle_percent, brake_percent = ctrl.set_vel(decoder.vel)
-
-        send_launch.throttle_percent = throttle_percent
-        send_launch.brake_percent    = brake_percent
-        send_launch.steering_angle   = decoder.angle
-        r.sleep()
-
+    rospy.spin()
 
 if __name__ == '__main__':
     main()

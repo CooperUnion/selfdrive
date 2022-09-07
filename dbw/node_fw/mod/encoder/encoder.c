@@ -107,6 +107,7 @@ static void encoder_100Hz()
 
     can_send_iface(&can_Encoder_Data_cfg, &CAN_Encoder);
 
+    /*
     if (
         (ABS(CAN_Encoder.Encoder0) >= ENCODER_MAX_TICKS) ||
         (ABS(CAN_Encoder.Encoder1) >= ENCODER_MAX_TICKS)
@@ -115,6 +116,7 @@ static void encoder_100Hz()
 
     if (CAN_Encoder.Time >= ENCODER_TIMEOUT_US)
         base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+    */
 
     prv_pulse_cnt[0] += CAN_Encoder.Encoder0;
     prv_pulse_cnt[1] += CAN_Encoder.Encoder1;

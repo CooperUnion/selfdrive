@@ -64,7 +64,7 @@ class Base(threading.Thread):
                     if self._sys_state != 'ESTOP':
                         self._logger.critical('state: ESTOP')
 
-                    self._sys_state = 'ESTOP'
+                    #self._sys_state = 'ESTOP'
 
             self._bus.send(
                 'dbwNode_Status_' + self._mod_ident,
@@ -81,11 +81,11 @@ class Base(threading.Thread):
             time.sleep(self.MESSAGE_RATE_S)
 
     def set_state_estop(self, reason: str, err_msg: str = None):
-        self._sys_state = 'ESTOP'
-        self._bus.send(
-            'dbwESTOP',
-            {'Source': 'NODE', 'Reason': reason},
-        )
+        #self._sys_state = 'ESTOP'
+        #self._bus.send(
+        #    'dbwESTOP',
+        #    {'Source': 'NODE', 'Reason': reason},
+        #)
         self._logger.warn(f'ESTOP reason: {reason}')
         if err_msg: self._logger.error(err_msg)
         self._logger.critical('state: ESTOP')

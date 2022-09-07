@@ -46,12 +46,12 @@ def main():
     logger = logging.getLogger('nodesd')
 
     mod_ident = [
-        'Blink',
+        #'Blink',
         'Throttle',
         'Brake',
         'Encoder',
-        'RearEncoder',
-        'PbMon',
+        #'RearEncoder',
+        #'PbMon',
         'Steering'
     ]
 
