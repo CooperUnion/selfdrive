@@ -49,6 +49,8 @@ def main():
     args = argparser.parse_args(rospy.myargv(argv=sys.argv)[1:])
     args.rate = abs(args.rate)
 
+    bus = cand.client.Bus(redis_host='redis')
+
     ctrl = vel.Ctrl(
         pid.Controller(
             kp=args.kp,
@@ -56,11 +58,13 @@ def main():
             kd=args.kd,
             ts=(1 / args.rate),
         ),
-        cand.client.Bus(redis_host='redis'),
+        bus,
     )
     decoder = twist.Decode('/cmd_vel')
 
     rospy.init_node('send_launch')
+
+    bus.send("dbwNode_SysCmd", {"DbwActive": 1, "ESTOP": 0})
 
     r = rospy.Rate(args.rate)
     while not rospy.is_shutdown():

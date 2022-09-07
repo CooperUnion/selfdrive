@@ -1,0 +1,210 @@
+# https://docs.docker.com/compose/gpu-support/
+version: '3'
+
+services:
+    master:
+        build: docker-master/.
+        container_name: master
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=master'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        ports:
+            - '11311:11311'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        restart: unless-stopped
+        command: stdbuf -o L roscore
+
+    redis:
+        image: redis:7.0-alpine
+        container_name: redis
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
+
+    cand:
+        build: docker/cand/.
+        container_name: cand
+        tty: true
+        privileged: true # doesn't do much i think?
+        environment:
+            #- 'CAN_DEVICE=can0'
+            - 'ROS_HOSTNAME=cand'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '../common/cand:/app/cand'
+            - '../can/igvc_can.dbc:/app/igvc_can.dbc'
+        depends_on:
+            - redis
+        #command: cand --dev "${CAN_DEVICE}" --dbc igvc_can.dbc
+
+    cmd_to_ctrl:
+        build: docker/cmd_to_ctrl/.
+        container_name: cmd_to_ctrl
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=cmd_to_ctrl'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '../common/cand:/app/cand'
+            - '../can/igvc_can.dbc:/app/igvc_can.dbc'
+            - '../controls/send_launch:/app/ros_ws/src/send_launch'
+        depends_on:
+            - master
+            - redis
+
+    navigation:
+        build: docker/navigation/.
+        container_name: navigation
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
+
+    velodyne:
+        build: docker/3dlidar/.
+        container_name: velodyne
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=velodyne'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        depends_on:
+            - master
+        ports:
+            - 2368:2368/udp
+
+    rplidar:
+        build: docker-rplidar/.
+        container_name: rplidar
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=rplidar'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        devices:
+            - '/dev/ttyUSB0:/dev/ttyUSB0'
+        command: roslaunch rplidar_ros view_rplidar.launch
+        depends_on:
+            - master
+
+    gazebo:
+        build: docker-gazebo/.
+        container_name: gazebo
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=gazebo'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #command: roslaunch turtlebot3_gazebo turtlebot3_house.launch
+        restart: unless-stopped
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+
+    zed:
+        build: docker/zed/.
+        #image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
+        container_name: zed
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=zed'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
+        # depends_on:
+        #     - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+        restart: unless-stopped
+
+    teleop:
+        build: docker-teleop/.
+        container_name: teleop
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=teleop'
+            - 'ROS_MASTER_URI=http://master:11311'
+        #     - 'DISPLAY=$DISPLAY'
+        #     - 'QT_X11_NO_MITSHM=1'
+        # volumes:
+        #     - '/tmp/.X11-unix:/tmp/.X11-unix'
+        # command: roslaunch rplidar_ros view_rplidar.launch
+        depends_on:
+            - master
+
+    ######added rviz 2/17
+    rviz:
+        build: docker/rviz/.
+        container_name: rviz
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=rviz'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #command: rviz
+        depends_on:
+            - master
+
+    rtabmap:
+        build: docker/rtabmap/.
+        container_name: rtabmap
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=rtabmap'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            #- ~/.ros:/root
+            - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
+        depends_on:
+            - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+
+    gps:
+        build: docker/gps/.
+        container_name: gps
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=gps'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        depends_on:
+            - master

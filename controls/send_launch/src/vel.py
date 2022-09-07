@@ -64,6 +64,8 @@ class Ctrl:
             if self._vel_prv_time == reading[0]: continue
             self._vel_prv_time = reading[0]
 
+            print(reading)
+            print('--------------')
             self._vel_hist[self._vel_index] = self._tick2vel(
                 (reading[1][self.ENOCDER0_SIGNAL_NAME] + reading[1][self.ENOCDER1_SIGNAL_NAME]) / 2,
                 reading[1][self.TIME_DETLA_US_SIGNAL_NAME] / 1_000_000,
