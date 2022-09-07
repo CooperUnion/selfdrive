@@ -11,7 +11,7 @@
         <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
         <rosparam file="$(find scooter_launch)/param/local_costmap_params.yaml" command="load" />   
         <rosparam file="$(find scooter_launch)/param/global_costmap_params.yaml" command="load" />
-        <rosparam file="$(find scooter_launch)/param/teb_new.yaml" command="load" />
+        <rosparam file="$(find scooter_launch)/param/teb_newnew.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/move_base_params.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/global_planner_params.yaml" command="load" />
         <!-- external params file that could be loaded into the move_base namespace -->
@@ -27,7 +27,7 @@
         <remap from="odom" to="$(arg odom_frame_id)"/>
         <remap from="scan" to="/scan_filtered"/>
         <remap from="/map" to="/rtabmap/map" />
-        <rosparam file="$(find scooter_launch)/param/teb_new.yaml" command="load" />
+        <rosparam file="$(find scooter_launch)/param/teb_newnew.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/dwa_local_planner_params.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/base_local_planner_params.yaml" command="load" />
     </node>
