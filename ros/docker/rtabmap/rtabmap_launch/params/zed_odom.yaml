@@ -11,7 +11,7 @@ map_frame_id:                   "map"
 # odom_tf_linear_variance:        0.01
 # odom_tf_angular_variance:       0.01
 # tf_delay:                       0.02
-publish_tf:                     false
+publish_tf:                     true
 
 odom_sensor_sync:               true
 wait_for_transform_duration:    0.2
@@ -19,7 +19,7 @@ approx_sync:                    true
 
 map_negative_poses_ignored:     true
 
-approx_sync:                    false
+approx_sync:                    true
 gen_scan:                       true
 visual_odometry:                false
 rgbd_sync:                      true
@@ -42,7 +42,7 @@ Vis/InlierDistance:             "0.1"    # 3D visual words correspondence distan
 RGBD/AngularUpdate:             "0.1"    # Update map only if the robot is moving 
 RGBD/LinearUpdate:              "0.1"    # Update map only if the robot is moving 
 RGBD/ProximityPathMaxNeighbors: "0" 
-Rtabmap/TimeThr:                "1"
+Rtabmap/TimeThr:                "0"
 Mem/RehearsalSimilarity:        "0.30"
 Reg/Force3DoF:                  "true"
 GridGlobal/MinSize:             "100"

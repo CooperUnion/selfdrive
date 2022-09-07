@@ -23,7 +23,7 @@
 
     <group ns="rtabmap">
         <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
-            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/zed_odom.yaml" />
+            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/mine-rtabmap.yaml" />
 
             <!-- determine if we subscribe to lidar -->
             <param     if="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="true"/>
@@ -56,7 +56,7 @@
         </node>
 
         <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
-            <param name="subscribe_stereo"          type="bool"     value="true"/>
+            <param name="subscribe_stereo"          type="bool"     value="false"/>
             <param name="subscribe_odom_info"       type="bool"     value="true"/>
             <param name="subscribe_depth"           type="bool"     value="true"/>
 

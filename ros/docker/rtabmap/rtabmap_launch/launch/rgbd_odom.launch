@@ -22,7 +22,7 @@
 
     <group ns="rtabmap">
         <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
-            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/zed_odom.yaml" />
+            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />
 
             <!-- determine if we subscribe to lidar -->
             <param     if="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="true"/>
