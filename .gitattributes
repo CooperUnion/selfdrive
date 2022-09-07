@@ -12,3 +12,4 @@
 /cad/wireRouting/top[[:space:]]to[[:space:]]inside[[:space:]]channel.SLDPRT filter=lfs diff=lfs merge=lfs -text
 /dbw/py-steering/zed_installer.run filter=lfs diff=lfs merge=lfs -text
 /ros/docker/rtabmap/rtabmap_launch/mesh_may29.ply filter=lfs diff=lfs merge=lfs -text
+/ros/zed_installer.run filter=lfs diff=lfs merge=lfs -text
