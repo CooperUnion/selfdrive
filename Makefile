@@ -1,6 +1,6 @@
 # tools
 PIP    ?= pip
-PYTHON ?= python3
+PYTHON ?= python3.9
 
 
 # build vars
@@ -57,6 +57,6 @@ $(ROS): $(INSTALL_DEPENDENCIES)
 
 $(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
-	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
+	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
 	@touch $(INSTALL_DEPENDENCIES)
