@@ -21,7 +21,7 @@ typedef struct can_incoming_t {
     bool recieved;
 } can_incoming_t;
 
-void can_register_incoming_msg(can_incoming_t *cfg);
-void can_send_iface(const can_outgoing_t *i, const void *s);
+void can_register_incoming_msg(can_msg_info_S *cfg, void *out);
+void can_send_iface(const can_msg_info_S *i, const void *s);
 
 #endif

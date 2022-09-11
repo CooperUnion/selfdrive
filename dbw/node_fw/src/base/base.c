@@ -117,8 +117,8 @@ static void base_init()
             break;
     }
 
-    can_register_incoming_msg(&can_DBW_Active_cfg);
-    can_register_incoming_msg(&can_DBW_ESTOP_in_cfg);
+    can_register_incoming_msg(&CAN_dbwActive_info_S, &CAN_DBW_Active);
+    can_register_incoming_msg(&CAN_dbwESTOP_info_S, &CAN_DBW_ESTOP_in);
 }
 
 static void base_10Hz()
@@ -161,7 +161,7 @@ static void base_100Hz()
             break;
     }
 
-    can_send_iface(&can_Status_cfg, &CAN_Status);
+    can_send_iface(&CAN_dbwNode_Status_info_S, &CAN_Status);
 
     CAN_Status.Counter++;
 }
@@ -249,7 +249,7 @@ void base_set_state_estop(uint8_t choice)
     CAN_DBW_ESTOP.Source = CAN_dbwESTOP_Source_NODE_CHOICE;
     CAN_DBW_ESTOP.Reason = choice;
 
-    can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
+    can_send_iface(&CAN_dbwESTOP_info_S, &CAN_DBW_ESTOP);
 }
 
 

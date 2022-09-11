@@ -25,21 +25,7 @@ static bool relay_state;
 // ######          CAN          ###### //
 
 struct CAN_dbwNode_Accel_Data_t CAN_Accel; // used by pedal.c; not static
-
-static const can_outgoing_t can_Accel_Data_cfg = {
-    .id = CAN_DBWNODE_ACCEL_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_ACCEL_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_ACCEL_DATA_LENGTH,
-    .pack = CAN_dbwNode_Accel_Data_pack,
-};
-
 static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
-
-static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
-    .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
-};
 
 // ######      PROTOTYPES       ###### //
 
@@ -70,7 +56,7 @@ static void throttle_init()
 
     enable_pedal_output();
 
-    can_register_incoming_msg(&can_Vel_Cmd_cfg);
+    can_register_incoming_msg(&CAN_dbwNode_Vel_Cmd_info_S, &CAN_Vel_Cmd);
 }
 
 static void throttle_100Hz()
@@ -104,7 +90,7 @@ static void throttle_100Hz()
     set_pedal_output(cmd); // sets CAN feedback data too
 
     // send CAN feedback message
-    can_send_iface(&can_Accel_Data_cfg, &CAN_Accel);
+    can_send_iface(&CAN_dbwNode_Accel_Data_info_S, &CAN_Accel);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

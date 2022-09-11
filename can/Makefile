@@ -1,6 +1,6 @@
 # tools
 CANTOOLS ?= cantools
-PYTHON   ?= python3
+PYTHON   ?= python3.9
 
 
 # build vars
