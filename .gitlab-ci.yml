@@ -1,1 +1,4 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 include: "dbw/node_fw/.node_fw-ci.yml"
