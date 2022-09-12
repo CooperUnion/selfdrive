@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="cand",
+    name="opencan-cand",
     version="0.0.3",
     author="Cooper IGVC",
     author_email="igvc@cooper.edu",

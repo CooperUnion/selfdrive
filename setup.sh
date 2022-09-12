@@ -16,14 +16,12 @@ if [ -x "$(command -v apt-get)" ]; then
         python3.9 \
         python3.9-venv \
         can-utils \
-        fish \
-        redis
+        fish
 elif [ -x "$(command -v dnf)" ]; then
     sudo dnf install -y -q \
         python3.9 \
         can-utils \
-        fish \
-        redis
+        fish
 else
     echo -e "---        WARNING: Package manager not found.        ---"
     echo -e "--- You need to manually install system dependencies. ---"
@@ -36,7 +34,7 @@ cd redis-stable
 make -j$(nproc)
 sudo make install
 cd ..
-rm -rf redis-stable
+rm -rf redis-stable redis-stable.tar.gz
 
 echo -e "\n-> Preparing git submodules...\n"
 git submodule update --init --recursive
