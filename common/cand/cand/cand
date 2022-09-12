@@ -10,6 +10,7 @@ import cantools
 import coloredlogs
 import logging
 import multiprocessing as mp
+import subprocess
 import redis
 import time
 
@@ -23,6 +24,26 @@ MIN_REDIS_VERSION = "7.0.0"
 
 REDIS_SOCKET_CONNECT_TIMEOUT_SEC = 0.5
 PROCESS_RESTART_SLEEP_TIME_SEC = 0.5
+
+POST_REDIS_SPAWN_SLEEP_TIME_SEC = 0.5
+
+def redis_process():
+    log = logging.getLogger("redis_runner")
+
+    while True:
+        try:
+            # start redis
+            log.info("Running Redis!")
+            p = subprocess.run(['redis-server'])
+
+            exitcode = p.wait()
+
+            raise Exception(f"Redis exited (status {exitcode}).")
+
+        except Exception as e:
+            log.error(f"FATAL ERROR IN REDIS RUNNER: {e}")
+            log.error("Attemping to restart redis.")
+        time.sleep(PROCESS_RESTART_SLEEP_TIME_SEC)
 
 
 def listener_process():
@@ -51,6 +72,8 @@ def talker_process():
 
 def main():
     parser = argparse.ArgumentParser(description="cand Options")
+
+    parser.add_argument("--external_redis", help="Don't spawn redis server", action="store_true")
 
     parser.add_argument("--dev", help="CAN device", metavar="canx", required=True)
 
@@ -89,6 +112,13 @@ def main():
 
     log.info("cand starting.")
 
+    if not args.external_redis:
+        # Spawn own redis server
+        redis_p = mp.Process(target=redis_process)
+
+        redis_p.start()
+        time.sleep(POST_REDIS_SPAWN_SLEEP_TIME_SEC)
+
     # Initialize Redis
     log.info("Trying to connect to Redis...")
     _rdb = redis.Redis(
@@ -103,8 +133,6 @@ def main():
         log.error(f"Failed to connect to Redis: {e}")
         exit(-1)
 
-    log.info("Connected to Redis successfully.")
-
     redis_version = _rdb.info()["redis_version"]
     if version.parse(redis_version) < version.parse(MIN_REDIS_VERSION):
         log.error(
@@ -112,6 +140,7 @@ def main():
         )
         exit(-1)
 
+    log.info("Redis connection ok.")
     # Initialize cantools
     try:
         _dbc = cantools.database.load_file(args.dbc)
