@@ -29,6 +29,15 @@ else
     echo -e "--- You need to manually install system dependencies. ---"
 fi
 
+echo -e "\n-> Installing Redis from source...\n"
+wget https://download.redis.io/redis-stable.tar.gz
+tar -xzvf redis-stable.tar.gz
+cd redis-stable
+make -j$(nproc)
+sudo make install
+cd ..
+rm -rf redis-stable
+
 echo -e "\n-> Preparing git submodules...\n"
 git submodule update --init --recursive
 
