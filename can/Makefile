@@ -32,4 +32,4 @@ $(CAN_GEN).c $(CAN_GEN).h: $(IGVC_DBC)
 
 
 $(IGVC_DBC): $(CAN_YML)
-	$(PYTHON) $(GENERATOR)
+	$(PYTHON) $(GENERATOR) --yml $(CAN_YML) --dbc_out $(IGVC_DBC)

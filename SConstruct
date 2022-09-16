@@ -4,7 +4,8 @@
 
 import os
 
-env = Environment()
+# We should get more disciplined about our envs later.
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
 venv = Virtualenv()
 if venv is None:
@@ -20,4 +21,4 @@ if term is not None:
 
 Export('env')
 
-env.SConscript('can/Sconscript', variant_dir='can/build', duplicate=0)
+env.SConscript('can/Sconscript', variant_dir='build/can', duplicate=0)
