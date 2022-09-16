@@ -19,6 +19,7 @@ term = os.environ.get('TERM') # for color
 if term is not None:
     env['ENV']['TERM'] = term
 
+Default(None)
 Export('env')
 
 env.SConscript('can/Sconscript', variant_dir='build/can', duplicate=0)

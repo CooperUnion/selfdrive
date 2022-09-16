@@ -24,3 +24,6 @@ gen_c_raw, gen_h_raw = env.Command(
 
 [gen_h_fixed] = env.Command(f'{CAN_GEN_PRE}.h', gen_h_raw, f"sed 's\{CAN_DB_NAME}_H\{CAN_GEN_PRE.upper()}_H\g' $SOURCE > $TARGET")
 [gen_c_fixed] = env.Command(f'{CAN_GEN_PRE}.c', gen_c_raw, f"sed 's\{gen_h_raw}\{gen_h_fixed}\g' $SOURCE > $TARGET")
+
+env.Alias('dbc', gen_dbc)
+env.Alias('ccan', [gen_c_fixed, gen_h_fixed])
