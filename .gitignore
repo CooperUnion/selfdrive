@@ -3,3 +3,4 @@
 .install-dependencies
 .venv
 .sconsign.dblite
+build
