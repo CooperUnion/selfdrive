@@ -11,7 +11,6 @@ INSTALL_DEPENDENCIES = .install-dependencies
 LOCAL_PYTHON_LIBS    = common/cand common/cantools common/igvcutils
 REQUIREMENTS_TXT     = requirements.txt
 
-
 .PHONY: help
 help:
 	@echo "Run 'make' followed by the target you wish to build:"
@@ -31,7 +30,7 @@ all: $(CAN) $(DBW_NODE_FW) $(ROS) dependencies
 .PHONY: clean
 clean:
 	@rm -rvf $(INSTALL_DEPENDENCIES)
-	@$(MAKE) -C $(CAN) clean
+	scons --clean ccan
 	@$(MAKE) -C $(DBW_NODE_FW) clean
 	@$(MAKE) -C $(ROS) clean
 
@@ -41,8 +40,8 @@ dependencies: $(INSTALL_DEPENDENCIES)
 
 
 .PHONY: $(CAN)
-$(CAN): $(INSTALL_DEPENDENCIES)
-	@$(MAKE) -C $(CAN)
+$(CAN):
+	scons ccan
 
 
 .PHONY: $(DBW_NODE_FW)

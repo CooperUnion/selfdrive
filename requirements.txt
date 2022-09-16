@@ -38,6 +38,7 @@ python-can==4.0.0
 python-dateutil==2.8.2
 redis==4.3.1
 requests==2.27.1
+scons==4.4.0
 semantic-version==2.10.0
 setuptools==63.4.3
 six==1.16.0

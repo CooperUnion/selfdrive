@@ -2,3 +2,5 @@
 *__pycache__/
 .install-dependencies
 .venv
+.sconsign.dblite
+build
