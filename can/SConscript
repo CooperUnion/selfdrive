@@ -1,14 +1,24 @@
 Import('env')
 
-CAN_DB_BAME = 'CAN'
+CAN_DB_NAME = 'CAN'
 CAN_GEN_FILES_PREFIX = 'can_gen'
+GENERATED_DBC = 'igvc_can.dbc'
 
-CAN_YML_FILE = 'can.yml'
-GENERATED_DBC_NAME = 'igvc_can.dbc'
+CAN_YML = env.File('can.yml')
+GENERATOR = env.File('gen_dbc.py')
 
 # DBC file builder
 gen_dbc = env.Command(
-        GENERATED_DBC_NAME,
-        CAN_YML_FILE,
-        "python gen_dbc.py",
+        GENERATED_DBC,
+        CAN_YML,
+        f'python {GENERATOR} --yml {CAN_YML} --dbc_out {GENERATED_DBC}',
         chdir=1)
+
+# generated C code
+gen_c_raw = env.Command(
+        [f'{CAN_DB_NAME}.{x}' for x in 'ch'],
+        GENERATED_DBC,
+        f'cantools generate_c_source {gen_dbc[0]} \
+         --database-name {CAN_DB_NAME} \
+         --use-float',
+         chdir=1)

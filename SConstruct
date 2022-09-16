@@ -20,4 +20,4 @@ if term is not None:
 
 Export('env')
 
-SConscript('can/Sconscript')
+env.SConscript('can/Sconscript', variant_dir='can/build', duplicate=0)
