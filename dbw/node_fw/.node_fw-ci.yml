@@ -18,5 +18,5 @@ build-dbw-node-firmware:
     - source .venv/bin/activate && make dbw/node_fw
   artifacts:
     paths:
-      - can/{igvc_can.dbc,can_gen.c,can_gen.h}
+      - build/can/{igvc_can.dbc,can_gen.c,can_gen.h}
       - dbw/node_fw/.pio/build/*/firmware.{bin,elf}
