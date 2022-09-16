@@ -1,0 +1,14 @@
+Import('env')
+
+CAN_DB_BAME = 'CAN'
+CAN_GEN_FILES_PREFIX = 'can_gen'
+
+CAN_YML_FILE = 'can.yml'
+GENERATED_DBC_NAME = 'igvc_can.dbc'
+
+# DBC file builder
+gen_dbc = env.Command(
+        GENERATED_DBC_NAME,
+        CAN_YML_FILE,
+        "python gen_dbc.py",
+        chdir=1)
