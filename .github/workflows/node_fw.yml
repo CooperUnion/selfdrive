@@ -13,6 +13,13 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Cache .pio
+        id: cache-pio-build-dir
+        uses: actions/cache@v3
+        with:
+          path: dbw/node_fw/.pio
+          key: pio_cache
+
       - name: Run setup
         run: ./setup.sh
 
