@@ -1,0 +1,20 @@
+name: Build node_fw
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container:
+      image: dmezh/igvc-nodefw-builder
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Run setup
+        run: ./setup.sh
+
+      - name: Build firmware
+        run: . .venv/bin/activate && make dbw/node_fw
