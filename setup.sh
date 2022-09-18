@@ -41,9 +41,6 @@ python3.9 -m venv .venv
 echo -e "\n-> Sourcing new venv...\n"
 source .venv/bin/activate
 
-echo -e "\n-> Running 'make clean'...\n"
-make clean
-
 echo -e "\n-> Running 'make dependencies'...\n"
 rm -f .install-dependencies
 make dependencies
