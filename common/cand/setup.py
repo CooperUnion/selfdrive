@@ -14,7 +14,7 @@ setuptools.setup(
     description="CAN Service Daemon",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://git.cooperigvc.org/igvc/selfdrive/-/tree/master/common/cand",
+    url="https://github.com/CooperUnion/selfdrive/tree/master/common/cand",
     packages=["cand"],
     install_requires=[
         "cantools>=37.0.7",
