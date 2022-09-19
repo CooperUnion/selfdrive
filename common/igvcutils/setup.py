@@ -14,7 +14,7 @@ setuptools.setup(
     description='IGVC utilities',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://git.cooperigvc.org/igvc/selfdrive/-/tree/master/common/igvcutils',
+    url='https://github.com/CooperUnion/selfdrive/tree/master/common/igvcutils',
     package_dir={'': 'src'},
     packages=setuptools.find_packages(where='src'),
     install_requires=[
