@@ -1,0 +1,47 @@
+name: Sync `master` to `dev`
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  make-sync-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Create source branch
+      run: |
+        git config --global push.autoSetupRemote true
+        git checkout -b 'bot-branches/sync-master-dev-${{ github.sha }}'
+        git push
+
+    - name: Make PR
+      id: make-pr
+      uses: repo-sync/pull-request@v2
+      with:
+        source_branch: 'bot-branches/sync-master-dev-${{ github.sha }}'
+        destination_branch: dev
+        github_token: ${{ secrets.BOT_PAT_SELFDRIVE }}
+        pr_title: '[SYNC-FIX] Merge out-of-sync changes from \`master\` into \`dev\`:grey_exclamation:'
+        pr_body: |
+          Hello! This PR has been automatically generated because you need to merge out-of-sync changes from \`master\` into \`dev\`.
+
+          **I will try to merge this PR on my own!**
+        pr_label: 'autosync,URGENT'
+        pr_allow_empty: true
+
+    - name: Set automerge
+      if: ${{ steps.make-pr.outputs.pr_number != '' }}
+      uses: peter-evans/enable-pull-request-automerge@v2
+      with:
+        token: ${{ secrets.BOT_PAT_SELFDRIVE }}
+        pull-request-number: ${{ steps.make-pr.outputs.pr_number }}
+        merge-method: merge
+
+    - name: Approve PR
+      if: ${{ steps.make-pr.outputs.pr_number != '' }}
+      uses: hmarr/auto-approve-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }} # approve as GH Actions
+        pull-request-number: ${{ steps.make-pr.outputs.pr_number }}
