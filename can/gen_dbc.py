@@ -1,3 +1,5 @@
+import argparse
+
 import cantools
 import cantools.database.can as candb
 
@@ -5,8 +7,7 @@ import os
 
 import strictyaml as sy
 
-VERSION = "0.002"
-OUTPUT_FILENAME = "igvc_can.dbc"
+VERSION = "0.003"
 
 def parse_signal(name: str, d: dict):
     choices = d.get("choices")
@@ -50,11 +51,18 @@ def parse_signal(name: str, d: dict):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--yml', type=str, required=True)
+    parser.add_argument('--dbc_out', type=str, required=True)
+
+    args = parser.parse_args()
+
     print(f"Cooper IGVC CAN Network Generation v{VERSION}")
 
     messages = []
 
-    f = open("can.yml", "r").read()
+    f = open(args.yml, "r").read()
     spec = sy.load(f).data
 
     for msg in spec["messages"]:
@@ -106,8 +114,8 @@ if __name__ == "__main__":
 
     db = candb.Database(messages)
 
-    cantools.database.dump_file(db, OUTPUT_FILENAME)
+    cantools.database.dump_file(db, args.dbc_out)
 
     print("")
     print("**** DONE ****")
-    os.system(f"cantools dump {OUTPUT_FILENAME}")
+    os.system(f"cantools dump {args.dbc_out}")

@@ -1,6 +1,6 @@
 # tools
 PIP    ?= pip
-PYTHON ?= python3
+PYTHON ?= python3.9
 
 
 # build vars
@@ -10,7 +10,6 @@ ROS                  = ros
 INSTALL_DEPENDENCIES = .install-dependencies
 LOCAL_PYTHON_LIBS    = common/cand common/cantools common/igvcutils
 REQUIREMENTS_TXT     = requirements.txt
-
 
 .PHONY: help
 help:
@@ -31,7 +30,7 @@ all: $(CAN) $(DBW_NODE_FW) $(ROS) dependencies
 .PHONY: clean
 clean:
 	@rm -rvf $(INSTALL_DEPENDENCIES)
-	@$(MAKE) -C $(CAN) clean
+	scons --clean ccan
 	@$(MAKE) -C $(DBW_NODE_FW) clean
 	@$(MAKE) -C $(ROS) clean
 
@@ -41,8 +40,8 @@ dependencies: $(INSTALL_DEPENDENCIES)
 
 
 .PHONY: $(CAN)
-$(CAN): $(INSTALL_DEPENDENCIES)
-	@$(MAKE) -C $(CAN)
+$(CAN):
+	scons ccan
 
 
 .PHONY: $(DBW_NODE_FW)
@@ -57,6 +56,6 @@ $(ROS): $(INSTALL_DEPENDENCIES)
 
 $(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
-	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
+	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
 	@touch $(INSTALL_DEPENDENCIES)
