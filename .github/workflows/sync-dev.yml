@@ -37,7 +37,7 @@ jobs:
       with:
         token: ${{ secrets.BOT_PAT_SELFDRIVE }}
         pull-request-number: ${{ steps.make-pr.outputs.pr_number }}
-        merge-method: rebase
+        merge-method: merge
 
     - name: Approve PR
       if: ${{ steps.make-pr.outputs.pr_number != '' }}
