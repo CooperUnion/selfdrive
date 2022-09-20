@@ -5,7 +5,7 @@ argparse-addons==0.8.0
 asgiref==3.5.2
 async-timeout==4.0.2
 bitstruct==8.14.1
-bottle==0.12.20
+bottle==0.12.23
 cand==0.0.2
 cantools==37.0.7
 certifi==2022.5.18.1
