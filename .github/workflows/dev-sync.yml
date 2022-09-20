@@ -19,6 +19,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           FROM_BRANCH: "master_test"
           TO_BRANCH: "dev"
-          PULL_REQUEST_TITLE: "[autosync] From `master` to `dev`"
+          PULL_REQUEST_TITLE: "[AUTOSYNC] Sync changes from `master` to `dev`"
+          LABELS: '["autosync", "URGENT"]'
           PULL_REQUEST_BODY: "autosync: Push to `master` triggered this PR to merge changes into `dev`"
-          TEAM_REVIEWERS: ["stewards"]
+          TEAM_REVIEWERS: '["cooperunion/stewards"]'
