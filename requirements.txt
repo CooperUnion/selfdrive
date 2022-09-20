@@ -31,7 +31,7 @@ packaging==21.3
 Pillow==9.1.1
 pip==22.2.2
 platformio==6.1.4
-pyelftools==0.28
+pyelftools==0.29
 pyparsing==3.0.9
 pyserial==3.5
 python-can==4.0.0
