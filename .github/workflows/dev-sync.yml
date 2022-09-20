@@ -1,0 +1,24 @@
+name: Sync master to dev
+on:
+  push:
+    branches:
+      - master_test
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    name: Sync master to dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Open PR
+        id: pull
+        uses: tretuna/sync-branches@1.4.0
+        with:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          FROM_BRANCH: "master_test"
+          TO_BRANCH: "dev"
+          PULL_REQUEST_TITLE: "[autosync] From `master` to `dev`"
+          PULL_REQUEST_BODY: "autosync: Push to `master` triggered this PR to merge changes into `dev`"
+          TEAM_REVIEWERS: ["stewards"]
