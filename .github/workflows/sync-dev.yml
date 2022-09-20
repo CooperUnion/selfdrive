@@ -1,0 +1,29 @@
+name: Sync `master` to `dev`
+
+on:
+  push:
+    branches:
+    - master_test
+
+jobs:
+  make-sync-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: make-pr
+      uses: repo-sync/pull-request@v2
+      with:
+        destination_branch: dev
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        pr_title: '[SYNC-FIX] Merge out-of-sync changes from \`master\` into \`dev\`:grey_exclamation:'
+        pr_body: 'Hello! This PR has been automatically generated because you need to merge out-of-sync changes from \`master\` into \`dev\`.'
+        pr_label: 'autosync,URGENT'
+        pr_allow_empty: true
+
+    - name: set-automerge
+      if: ${{steps.make-pr.outputs.pr_number}} != ''
+      uses: peter-evans/enable-pull-request-automerge@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        pull-request-number: ${{steps.make-pr.outputs.pr_number}}
+        merge-method: rebase
