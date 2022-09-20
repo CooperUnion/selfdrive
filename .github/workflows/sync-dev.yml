@@ -1,27 +1,27 @@
 on:
   push:
     branches:
-    - master_test
+      - master_test
 
 jobs:
   make-sync-pr:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Make PR
-      uses: repo-sync/pull-request@v2
+      id: cpr
+      uses: peter-evans/create-pull-request@v4
       with:
-        destination_branch: "dev"
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        pr_title: "[!AUTOSYNC!] Merge out-of-sync changes from `${{ github.ref_name }}` into `${{ github.event.repository.default_branch }}`:grey_exclamation:"
-        pr_body: "Hello! This PR has been automatically generated because you need to merge out-of-sync changes from `${{ github.ref_name }}` into `${{ github.event.repository.default_branch }}`."
-        pr_label: "autosync,URGENT"
-        pr_allow_empty: true
+        branch: dev
+        title: "[!AUTOSYNC!] Merge out-of-sync changes from `master` into `dev`:grey_exclamation:"
+        body: "Hello! This PR has been automatically generated because you need to merge out-of-sync changes from `master` into `dev`."
+        labels: |
+          autosync
+          URGENT
 
-    - name: Set automerge
-      if: steps.open-pr.outputs.pr_number != ''
+    - name: Enable Pull Request Automerge
+      if: steps.cpr.outputs.pull-request-operation == 'created'
       uses: peter-evans/enable-pull-request-automerge@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        pull-request-number: ${{ steps.open-pr.outputs.pr_number }}
+        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
         merge-method: rebase
