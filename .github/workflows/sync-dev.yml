@@ -24,7 +24,10 @@ jobs:
         destination_branch: dev_test
         github_token: ${{ secrets.BOT_PAT_SELFDRIVE }}
         pr_title: '[SYNC-FIX] Merge out-of-sync changes from \`master\` into \`dev\`:grey_exclamation:'
-        pr_body: 'Hello! This PR has been automatically generated because you need to merge out-of-sync changes from \`master\` into \`dev\`.'
+        pr_body: |
+          Hello! This PR has been automatically generated because you need to merge out-of-sync changes from \`master\` into \`dev\`.
+
+          **I will try to merge this PR on my own!**
         pr_label: 'autosync,URGENT'
         pr_allow_empty: true
 
