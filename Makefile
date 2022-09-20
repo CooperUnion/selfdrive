@@ -8,7 +8,7 @@ CAN                  = can
 DBW_NODE_FW          = dbw/node_fw
 ROS                  = ros
 INSTALL_DEPENDENCIES = .install-dependencies
-LOCAL_PYTHON_LIBS    = common/cand common/cantools common/igvcutils
+LOCAL_PYTHON_LIBS    = common/cantools common/igvcutils
 REQUIREMENTS_TXT     = requirements.txt
 
 .PHONY: help
