@@ -53,4 +53,4 @@ uvicorn==0.18.3
 wheel==0.37.1
 wrapt==1.14.1
 wsproto==1.1.0
-zeroconf==0.38.6
+zeroconf==0.39.1
