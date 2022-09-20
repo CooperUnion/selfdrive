@@ -10,10 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Create source branch
+      run: |
+        git config --global push.autoSetupRemote true
+        git checkout -b 'bot-branches/sync-master-dev-${{ github.sha }}'
+        git push
+
     - name: Make PR
       id: make-pr
       uses: repo-sync/pull-request@v2
       with:
+        source_branch: 'bot-branches/sync-master-dev-${{ github.sha }}'
         destination_branch: dev_test
         github_token: ${{ secrets.BOT_PAT_SELFDRIVE }}
         pr_title: '[SYNC-FIX] Merge out-of-sync changes from \`master\` into \`dev\`:grey_exclamation:'
