@@ -5,7 +5,7 @@ Root directory structure:
 ```
 selfdrive/
           can/    - CAN definitions and tools
-          common/ - Common libraries 
+          common/ - Common libraries
           dbw/    - Drive-by-wire firmware, watchdog, UI, etc
           ros/    - ROS environment, packages
           tools/  - Miscellaneous tools and resources
@@ -29,3 +29,15 @@ To keep a clean history and functional repo, here are the steps to follow:
 - Don't publish the code in this repo; we will be making strategically timed
   source releases. This is to protect our competitive advantage before the
   competition and to protect any development signing keys we may keep here.
+
+
+## Copyright & Licensing
+
+Copyright (C) 2022-2021  Autonomy Lab
+
+Copyright (C) 2022-2021  Cooper IGVC
+
+Distributed under the [GPLv3] or later.
+
+
+[GPLv3]: LICENSE.md
