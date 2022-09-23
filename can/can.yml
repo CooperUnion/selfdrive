@@ -98,20 +98,20 @@ messages:
           description: Pressure Sensed.
           width: 8
 
-- dbwNode_Encoder_Data:
+- ENCF_EncoderData:
     id: 0x13
     cycletime: 10
 
     signals:
-        - Encoder0:
-            description: Encoder 0 pulses since last reading.
+        - encoderLeft:
+            description: Left encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Encoder1:
-            description: Encoder 1 pulses since last reading.
+        - encoderRight:
+            description: Right encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Time:
+        - dtUs:
             description: Microseconds since last reading.
             width: 16
 
