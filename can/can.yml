@@ -75,26 +75,26 @@ messages:
           description: Current relay state.
           width: 1
 
-- dbwNode_Brake_Data:
+- BRAKE_BrakeData:
     id: 0x11
     cycletime: 100
 
     signals:
-      - Frequency:
+      - frequency:
           description: Frequency of PWM input.
           width: 16
           unit: hertz
-      - Resolution:
+      - resolution:
           description: Resolution of PWM input.
           width: 16
-      - DutyCycle:
+      - dutyCycle:
           description: Duty Cycle of PWM input.
           width: 16
-      - Percent:
+      - percent:
           description: Percentage commanded.
           width: 8
           unit: percent
-      - Pressure:
+      - pressure:
           description: Pressure Sensed.
           width: 8
 
