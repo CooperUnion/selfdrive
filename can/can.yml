@@ -132,18 +132,18 @@ messages:
             description: Microseconds since last reading.
             width: 16
 
-- dbwNode_PbMon_Data:
+- PB_ParkingBrakeData:
     id: 0x15
     cycletime: 100
 
     signals:
-        - PbSet:
+        - pbSet:
             description: State of the parking brake.
             width: 1
-        - MagnetEnergized:
+        - magnetEnergized:
             description: State of the parking brake magnet.
             width: 1
-        - ArmedESTOP:
+        - armedESTOP:
             description: State of the ESTOP arming.
             width: 1
 
