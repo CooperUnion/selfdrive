@@ -13,6 +13,7 @@ templategroups:
     - RearEncoder
     - PbMon
     - Steering
+    - Hello_World
 
 messages:
 - dbwNode_Status:
