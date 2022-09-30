@@ -15,14 +15,14 @@ templategroups:
     - Steering
 
 messages:
-- dbwNode_Status:
+- DBW_NodeStatus:
     id: 0xE0
     cycletime: 100
 
     template: dbwnodes
 
     signals:
-      - SystemStatus:
+      - systemStatus:
           description: Status of the node.
           width: 2
           choices:
@@ -30,17 +30,17 @@ messages:
             - UNHEALTHY
             - ACTIVE
             - ESTOP
-      - Counter:
+      - counter:
           description: Counter for fun.
           width: 8
-      - ResetReason:
+      - resetReason:
           description: Reset reason.
           width: 2
           choices:
             - POWERON
             - WATCHDOG_RESET
             - UNKNOWN
-      - Esp32ResetReasonCode:
+      - esp32ResetReasonCode:
           description: ESP32 reset reason code (enum RESET_REASON)
           width: 5
 

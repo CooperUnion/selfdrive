@@ -37,13 +37,13 @@ static bool wdt_trigger;
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Status_t CAN_Status;
+static struct CAN_DBW_NodeStatus_t CAN_Status;
 
 static can_outgoing_t can_Status_cfg = {
-    .id = CAN_DBWNODE_STATUS_FRAME_ID,
-    .extd = CAN_DBWNODE_STATUS_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_STATUS_LENGTH,
-    .pack = CAN_dbwNode_Status_pack,
+    .id = CAN_DBW_NODESTATUS_FRAME_ID,
+    .extd = CAN_DBW_NODESTATUS_IS_EXTENDED,
+    .dlc = CAN_DBW_NODESTATUS_LENGTH,
+    .pack = CAN_DBW_NodeStatus_pack,
 };
 
 static struct CAN_dbwESTOP_t CAN_DBW_ESTOP;
@@ -101,19 +101,19 @@ static void base_init()
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
     const RESET_REASON reason = rtc_get_reset_reason(0);
-    CAN_Status.Esp32ResetReasonCode = reason;
+    CAN_Status.esp32ResetReasonCode = reason;
 
     switch (reason) {
         case POWERON_RESET:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_POWERON_CHOICE;
+            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_POWERON_CHOICE;
             break;
 
         case RTCWDT_RTC_RESET:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_WATCHDOG_RESET_CHOICE;
+            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_WATCHDOG_RESET_CHOICE;
             break;
 
         default:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_UNKNOWN_CHOICE;
+            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_UNKNOWN_CHOICE;
             break;
     }
 
@@ -145,25 +145,25 @@ static void base_100Hz()
 
     switch (system_state) {
         case SYS_STATE_IDLE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_IDLE_CHOICE;
+            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_IDLE_CHOICE;
             break;
 
         case SYS_STATE_DBW_ACTIVE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ACTIVE_CHOICE;
+            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_ACTIVE_CHOICE;
             break;
 
         case SYS_STATE_ESTOP:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
+            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_ESTOP_CHOICE;
             break;
 
         default:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_UNHEALTHY_CHOICE;
+            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_UNHEALTHY_CHOICE;
             break;
     }
 
     can_send_iface(&can_Status_cfg, &CAN_Status);
 
-    CAN_Status.Counter++;
+    CAN_Status.counter++;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
