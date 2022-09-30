@@ -24,13 +24,13 @@ static bool relay_state;
 
 // ######          CAN          ###### //
 
-struct CAN_dbwNode_Accel_Data_t CAN_Accel; // used by pedal.c; not static
+struct CAN_DBW_NodeAccelData_t CAN_Accel; // used by pedal.c; not static
 
 static const can_outgoing_t can_Accel_Data_cfg = {
-    .id = CAN_DBWNODE_ACCEL_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_ACCEL_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_ACCEL_DATA_LENGTH,
-    .pack = CAN_dbwNode_Accel_Data_pack,
+    .id = CAN_DBW_NODEACCELDATA_FRAME_ID,
+    .extd = CAN_DBW_NODEACCELDATA_IS_EXTENDED,
+    .dlc = CAN_DBW_NODEACCELDATA_LENGTH,
+    .pack = CAN_DBW_NodeAccelData_pack,
 };
 
 static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
@@ -97,7 +97,7 @@ static void throttle_100Hz()
 
     // set the relay from the CAN data
     control_relay(base_dbw_active());
-    CAN_Accel.RelayState = relay_state;
+    CAN_Accel.relayState = relay_state;
 
     // get the pedal output from the CAN data
     float32_t cmd = ((float32_t) CAN_Vel_Cmd.ThrottlePercent) / 100.0;

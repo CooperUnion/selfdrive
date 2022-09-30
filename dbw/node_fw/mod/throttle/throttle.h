@@ -3,6 +3,6 @@
 
 #include "io/can.h"
 
-extern struct CAN_dbwNode_Accel_Data_t CAN_Accel;
+extern struct CAN_DBW_NodeAccelData_t CAN_Accel;
 
 #endif

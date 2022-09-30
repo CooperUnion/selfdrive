@@ -56,22 +56,22 @@ messages:
            description: EEPROM identity.
            width: 6
 
-- dbwNode_Accel_Data:
+- DBW_NodeAccelData:
     id: 0x10
     cycletime: 100
 
     signals:
-      - ThrottleACmd:
+      - throttleACmd:
           description: Throttle A command.
           width: 8
-      - ThrottleFCmd:
+      - throttleFCmd:
           description: Throttle B command.
           width: 8
-      - Percent:
+      - percent:
           description: Percentage commanded.
           width: 8
           unit: percent
-      - RelayState:
+      - relayState:
           description: Current relay state.
           width: 1
 
