@@ -129,11 +129,11 @@ class Steer(threading.Thread):
                 self._prv_enc_unix_time_ns = time.time_ns()
 
             self._bus.send(
-                'dbwNode_Steering_Data',
+                'DBW_NodeSteeringData',
                 {
-                    'Angle':             math.radians(self._cur_angle),
-                    'EncoderTimeoutSet': self._encoder_timeout,
-                    'ODriveConnected':   self._odrive_connection,
+                    'angle':             math.radians(self._cur_angle),
+                    'encoderTimeoutSet': self._encoder_timeout,
+                    'oDriveConnected':   self._odrive_connection,
                 },
             )
 

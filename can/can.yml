@@ -147,22 +147,22 @@ messages:
             description: State of the ESTOP arming.
             width: 1
 
-- dbwNode_Steering_Data:
+- DBW_NodeSteeringData:
     id: 0x16
     cycletime: 100
 
     signals:
-        - Angle:
+        - angle:
             description: Absolute steering angle in radians.
             minimum: -0.610865238
             maximum: 0.610865238
             scale: 0.000000001
             is_signed: true
             width: 32
-        - EncoderTimeoutSet:
+        - encoderTimeoutSet:
             description: Has the encoder timed out?
             width: 1
-        - ODriveConnected:
+        - oDriveConnected:
             description: Is the ODrive connected?
             width: 1
 
