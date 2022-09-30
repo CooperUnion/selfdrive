@@ -44,15 +44,15 @@ messages:
           description: ESP32 reset reason code (enum RESET_REASON)
           width: 5
 
-- dbwNode_Info:
+- DBW_NodeInfo:
     id: 0xD0
     cycletime: 100
 
     signals:
-      - Githash:
+      - githash:
            description: Githash of the currently-running firmware.
            width: 32
-      - EepromIdentity:
+      - eepromIdentity:
            description: EEPROM identity.
            width: 6
 

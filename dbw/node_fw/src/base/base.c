@@ -71,7 +71,7 @@ static can_incoming_t can_DBW_ESTOP_in_cfg = {
     .unpack = CAN_dbwESTOP_unpack,
 };
 
-static struct CAN_dbwNode_Info_t CAN_Info;
+static struct CAN_DBW_NodeInfo_t CAN_Info;
 
 // ######    RATE FUNCTIONS     ###### //
 
