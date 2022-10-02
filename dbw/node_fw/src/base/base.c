@@ -46,13 +46,13 @@ static can_outgoing_t can_Status_cfg = {
     .pack = CAN_DBW_NodeStatus_pack,
 };
 
-static struct CAN_dbwESTOP_t CAN_DBW_ESTOP;
+static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP;
 
 static can_outgoing_t can_DBW_ESTOP_cfg = {
-    .id = CAN_DBWESTOP_FRAME_ID,
-    .extd = CAN_DBWESTOP_IS_EXTENDED,
-    .dlc = CAN_DBWESTOP_LENGTH,
-    .pack = CAN_dbwESTOP_pack,
+    .id = CAN_DBW_ESTOP_FRAME_ID,
+    .extd = CAN_DBW_ESTOP_IS_EXTENDED,
+    .dlc = CAN_DBW_ESTOP_LENGTH,
+    .pack = CAN_DBW_ESTOP_pack,
 };
 
 static struct CAN_dbwActive_t CAN_DBW_Active;
@@ -63,12 +63,12 @@ static can_incoming_t can_DBW_Active_cfg = {
     .unpack = CAN_dbwActive_unpack,
 };
 
-static struct CAN_dbwESTOP_t CAN_DBW_ESTOP_in;
+static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP_in;
 
 static can_incoming_t can_DBW_ESTOP_in_cfg = {
-    .id = CAN_DBWESTOP_FRAME_ID,
+    .id = CAN_DBW_ESTOP_FRAME_ID,
     .out = &CAN_DBW_ESTOP_in,
-    .unpack = CAN_dbwESTOP_unpack,
+    .unpack = CAN_DBW_ESTOP_unpack,
 };
 
 static struct CAN_DBW_NodeInfo_t CAN_Info;
@@ -246,8 +246,8 @@ void base_set_state_estop(uint8_t choice)
 {
     system_state = SYS_STATE_ESTOP;
 
-    CAN_DBW_ESTOP.Source = CAN_dbwESTOP_Source_NODE_CHOICE;
-    CAN_DBW_ESTOP.Reason = choice;
+    CAN_DBW_ESTOP.source = CAN_DBW_ESTOP_source_NODE_CHOICE;
+    CAN_DBW_ESTOP.reason = choice;
 
     can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }

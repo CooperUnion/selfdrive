@@ -111,10 +111,10 @@ static void encoder_100Hz()
         (ABS(CAN_RearEncoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
         (ABS(CAN_RearEncoder.encoderRight) >= ENCODER_MAX_TICKS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE);
 
     if (CAN_RearEncoder.dtUs >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
     prv_pulse_cnt[0] += CAN_RearEncoder.encoderLeft;
     prv_pulse_cnt[1] += CAN_RearEncoder.encoderRight;

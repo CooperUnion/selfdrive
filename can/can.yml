@@ -216,19 +216,19 @@ messages:
             description: Bar.
             width: 40
 
-- dbwESTOP:
+- DBW_ESTOP:
     id: 0x41F
     cycletime: 100
 
     signals:
-      - Source:
+      - source:
           description: ESTOP source.
           width: 8
           choices:
             - NODE
             - NODESD
             - SAFED
-      - Reason:
+      - reason:
           description: ESTOP reason.
           width: 8
           choices:
