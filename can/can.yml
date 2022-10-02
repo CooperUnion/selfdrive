@@ -272,17 +272,17 @@ messages:
           description: Begin the update.
           width: 1
 
-- dbwUpdater_Update_Data:
+- DBW_UpdaterUpdateData:
     id: 0x4B0
     cycletime: 100
 
     template: dbwnodes
 
     signals:
-      - Position:
+      - position:
           description: Index of 32-bit data chunk.
           width: 24
-      - Data:
+      - data:
           description: Image data.
           width: 40
 
