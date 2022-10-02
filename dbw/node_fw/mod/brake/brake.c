@@ -60,12 +60,12 @@ static const can_outgoing_t can_Brake_Data_cfg = {
     .pack = CAN_BRAKE_BrakeData_pack,
 };
 
-static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_NodeVelCmd_t CAN_Vel_Cmd;
 
 static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .id = CAN_DBW_NODEVELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
+    .unpack = CAN_DBW_NodeVelCmd_unpack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -122,7 +122,7 @@ static void brake_100Hz()
         base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
 
     float32_t cmd = (base_dbw_active())
-        ? ((float32_t) CAN_Vel_Cmd.BrakePercent) / 100.0
+        ? ((float32_t) CAN_Vel_Cmd.brakePercent) / 100.0
         : 0.0;
 
     cmd = clip_brake_cmd(pwm_channel, cmd);

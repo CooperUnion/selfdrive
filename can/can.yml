@@ -166,17 +166,17 @@ messages:
             description: Is the ODrive connected?
             width: 1
 
-- dbwNode_Vel_Cmd:
+- DBW_NodeVelCmd:
     id: 0x20
     cycletime: 100
 
     signals:
-        - ThrottlePercent:
+        - throttlePercent:
             description: Throttle percentage.
             maximum: 100
             unit: percent
             width: 7
-        - BrakePercent:
+        - brakePercent:
             description: Brake percentage.
             maximum: 100
             unit: percent

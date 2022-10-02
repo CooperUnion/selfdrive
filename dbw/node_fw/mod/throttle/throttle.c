@@ -33,12 +33,12 @@ static const can_outgoing_t can_Accel_Data_cfg = {
     .pack = CAN_DBW_NodeAccelData_pack,
 };
 
-static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_NodeVelCmd_t CAN_Vel_Cmd;
 
 static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .id = CAN_DBW_NODEVELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
+    .unpack = CAN_DBW_NodeVelCmd_unpack,
 };
 
 // ######      PROTOTYPES       ###### //
@@ -100,7 +100,7 @@ static void throttle_100Hz()
     CAN_Accel.relayState = relay_state;
 
     // get the pedal output from the CAN data
-    float32_t cmd = ((float32_t) CAN_Vel_Cmd.ThrottlePercent) / 100.0;
+    float32_t cmd = ((float32_t) CAN_Vel_Cmd.throttlePercent) / 100.0;
     set_pedal_output(cmd); // sets CAN feedback data too
 
     // send CAN feedback message
