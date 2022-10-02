@@ -237,12 +237,12 @@ messages:
             - INVALID_STATE
             - LIMIT_EXCEEDED
 
-- dbwActive:
+- DBW_Active:
     id: 0x420
     cycletime: 100
 
     signals:
-      - Active:
+      - active:
           description: DBW is active.
           width: 1
 

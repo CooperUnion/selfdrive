@@ -55,12 +55,12 @@ static can_outgoing_t can_DBW_ESTOP_cfg = {
     .pack = CAN_DBW_ESTOP_pack,
 };
 
-static struct CAN_dbwActive_t CAN_DBW_Active;
+static struct CAN_DBW_Active_t CAN_DBW_Active;
 
 static can_incoming_t can_DBW_Active_cfg = {
-    .id = CAN_DBWACTIVE_FRAME_ID,
+    .id = CAN_DBW_ACTIVE_FRAME_ID,
     .out = &CAN_DBW_Active,
-    .unpack = CAN_dbwActive_unpack,
+    .unpack = CAN_DBW_Active_unpack,
 };
 
 static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP_in;
@@ -129,13 +129,13 @@ static void base_10Hz()
 static void base_100Hz()
 {
     if (
-        CAN_DBW_Active.Active &&
+        CAN_DBW_Active.active &&
         (can_DBW_Active_cfg.delta_ms < DBW_ACTIVE_TIMEOUT_MS) &&
         (system_state == SYS_STATE_IDLE)
     ) {
         system_state = SYS_STATE_DBW_ACTIVE;
     } else if (
-        (!CAN_DBW_Active.Active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
+        (!CAN_DBW_Active.active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
         (system_state == SYS_STATE_DBW_ACTIVE)
     ) {
         system_state = SYS_STATE_IDLE;
