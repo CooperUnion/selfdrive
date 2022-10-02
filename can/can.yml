@@ -286,14 +286,14 @@ messages:
           description: Image data.
           width: 40
 
-- dbwNode_Update_Response:
+- DBW_NodeUpdateResponse:
     id: 0x4C0
     cycletime: 100
 
     template: dbwnodes
 
     signals:
-      - Ready:
+      - ready:
           description: Ready to begin update.
           width: 1
 
