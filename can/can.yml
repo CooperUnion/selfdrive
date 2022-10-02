@@ -182,12 +182,12 @@ messages:
             unit: percent
             width: 7
 
-- dbwNode_Steering_Cmd:
+- DBW_NodeSteeringCmd:
     id: 0x21
     cycletime: 100
 
     signals:
-        - Angle:
+        - angle:
             description: Absolute steering angle in radians.
             minimum: -0.471238898
             maximum: 0.471238898
