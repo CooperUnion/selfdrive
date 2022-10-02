@@ -297,13 +297,13 @@ messages:
           description: Ready to begin update.
           width: 1
 
-- dbwUpdater_Update_Done:
+- DBW_UpdaterUpdateDone:
     id: 0x4D0
     cycletime: 100
 
     template: dbwnodes
 
     signals:
-      - FinalSize:
+      - finalSize:
           description: Number of bytes in final image size.
           width: 32
