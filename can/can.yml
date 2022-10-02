@@ -255,20 +255,20 @@ messages:
           description: Enable DBW active.
           width: 1
 
-- dbwUpdater_Update_Trigger:
+- DBW_UpdaterUpdateTrigger:
     id: 0x4A0
     cycletime: 100
 
     template: dbwnodes
 
     signals:
-      - Trigger:
+      - trigger:
           description: Trigger the update.
           width: 1
-      - Filler1:
+      - filler1:
           description: Filler.
           width: 7
-      - Begin:
+      - begin:
           description: Begin the update.
           width: 1
 
