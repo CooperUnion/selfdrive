@@ -246,12 +246,12 @@ messages:
           description: DBW is active.
           width: 1
 
-- dbwEnable:
+- DBW_Enable:
     id: 0x421
     cycletime: 100
 
     signals:
-      - Enable:
+      - enable:
           description: Enable DBW active.
           width: 1
 
