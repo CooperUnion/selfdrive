@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: can-dbc
-          path: build/can/igvc_can.dbc
+          path: build/can/fsae_can.dbc
 
       - name: 'Upload firmware binaries'
         uses: actions/upload-artifact@v3

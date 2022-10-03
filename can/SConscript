@@ -2,7 +2,7 @@ Import('env')
 
 CAN_DB_NAME = 'CAN'
 CAN_GEN_PRE = 'can_gen'
-GENERATED_DBC = 'igvc_can.dbc'
+GENERATED_DBC = 'fsae_can.dbc'
 
 CAN_YML = env.File('can.yml')
 CAN_GENERATOR = env.File('gen_dbc.py')
