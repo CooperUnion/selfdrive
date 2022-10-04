@@ -57,6 +57,8 @@ const struct rate_funcs module_rf = {
     .call_100Hz = encoder_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 static void encoder_init()
 {
     const timer_config_t timer_config = {

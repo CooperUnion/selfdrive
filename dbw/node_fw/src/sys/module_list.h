@@ -15,6 +15,7 @@ extern const struct rate_funcs eeprom_rf;
 /*
  * Single extern definition for the one-per-build mod/ module.
  */
+extern const struct rate_funcs safety_rf;
 extern const struct rate_funcs module_rf;
 
 /*
@@ -29,5 +30,6 @@ static const struct rate_funcs* task_list[] = {
     &can_rf,
     // TODO: boards crash without EEPROM
     //&eeprom_rf,
+    &safety_rf,
     &module_rf,
 };

@@ -78,6 +78,8 @@ struct rate_funcs module_rf = {
     .call_100Hz = brake_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 /*
  * Initialize pwm struct and attach output to GPIO pin
  *

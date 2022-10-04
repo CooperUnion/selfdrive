@@ -39,6 +39,8 @@ const struct rate_funcs module_rf = {
     .call_100Hz = pb_mon_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 static void pb_mon_init()
 {
     gpio_set_direction(INDUCTIVE_PROX_GPIO, GPIO_MODE_INPUT);

@@ -37,6 +37,8 @@ struct rate_funcs module_rf = {
     .call_1Hz = blink_1Hz,
 };
 
+struct rate_funcs safety_rf;
+
 /*
  * Initializes the GPIO for the LED.
  *

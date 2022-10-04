@@ -55,6 +55,8 @@ const struct rate_funcs module_rf = {
     .call_100Hz = throttle_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 /*
  * Initialize the mode control pin as a GPIO and enable the DACs.
  *
