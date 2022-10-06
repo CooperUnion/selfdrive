@@ -87,7 +87,6 @@ services:
                         - capabilities: [gpu]
         restart: unless-stopped
 
-    ######added rviz 2/17
     rviz:
         build: docker/rviz/.
         container_name: rviz
@@ -115,7 +114,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            #- ~/.ros:/root
             - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
