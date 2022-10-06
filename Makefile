@@ -6,7 +6,7 @@ PYTHON ?= python3.9
 # build vars
 CAN                  = can
 DBW_NODE_FW          = dbw/node_fw
-DBW_NODE_BL          = dbw/node_fw/igvc_bl
+DBW_NODE_BL          = dbw/node_bl
 ROS                  = ros
 INSTALL_DEPENDENCIES = .install-dependencies
 LOCAL_PYTHON_LIBS    = common/cand common/cantools common/igvcutils

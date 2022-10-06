@@ -30,14 +30,14 @@ jobs:
         id: cache-pio-build-dir
         uses: actions/cache@v3
         with:
-          path: dbw/node_fw/igvc_bl/.pio
+          path: dbw/node_bl/.pio
           key: pio_cache
 
       - name: Run setup
         run: ./setup.sh
 
       - name: Build firmware
-        run: . .venv/bin/activate && make dbw/node_fw/igvc_bl
+        run: . .venv/bin/activate && make dbw/node_bl
 
       - name: 'Upload CAN network'
         uses: actions/upload-artifact@v3
@@ -48,5 +48,5 @@ jobs:
       - name: 'Upload firmware binaries'
         uses: actions/upload-artifact@v3
         with:
-          name: node_fw-bin
-          path: dbw/node_fw/igvc_bl/.pio/build/*/firmware.bin
+          name: node_bl-bin
+          path: dbw/node_bl/.pio/build/*/firmware.bin
