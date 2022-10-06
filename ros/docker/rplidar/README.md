@@ -1,3 +1,5 @@
+## Status unknown - rplidar container
+
 ```
 n1mda@nyquist ~/Documents/igvc/selfdrive/ros/docker-rplidar (TECH-15?) $ docker logs master 
 ... logging to /root/.ros/log/258cd2cc-3eaa-11ec-8631-0242ac150002/roslaunch-3f2ef5c2d7bf-1.log
