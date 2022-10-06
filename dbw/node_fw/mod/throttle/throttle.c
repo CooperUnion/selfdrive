@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * throttle.c -- throttle module
+ *
+ * Copyright (C) 2022  Dan Mezhiborsky <daniel.mezhiborsky@cooper.edu>
+ * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
+ */
+
 #include "throttle.h"
 #include "pedal.h"
 

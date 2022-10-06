@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * encoder.c -- encoder module
+ *
+ * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
+ * Copyright (C) 2022  Giuseppe Quaratino <giuseppe.quaratino@cooper.edu>
+ */
+
 #include "encoder.h"
 
 #include <driver/gpio.h>

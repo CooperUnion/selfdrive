@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * rear_encoder.c -- rear encoder module
+ *
+ * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
+ */
+
 #include "rear_encoder.h"
 
 #include <driver/gpio.h>

@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * module_list.h -- tasking modules
+ *
+ * Copyright (C) 2021-2022  Dan Mezhiborsky <daniel.mezhiborsky@cooper.edu>
+ * Copyright (C) 2021-2022  Jacob Koziej <jacobkoziej@gmail.com>
+ */
+
 /*
  * this header is a logical part of tasking.c. It is not meant to be included
  * anywhere else and does not have include guards.
