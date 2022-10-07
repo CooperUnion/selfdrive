@@ -46,15 +46,20 @@ messages:
 
 - dbwNode_Info:
     id: 0xD0
-    cycletime: 100
+    cycletime: 1000
+
+    template: dbwnodes
 
     signals:
       - Githash:
-           description: Githash of the currently-running firmware.
-           width: 32
+          description: Githash of the currently-running firmware.
+          width: 32
+      - GitDirty:
+          description: Repository was dirty at build time.
+          width: 1
       - EepromIdentity:
-           description: EEPROM identity.
-           width: 6
+          description: EEPROM identity.
+          width: 6
 
 - dbwNode_Accel_Data:
     id: 0x10
