@@ -6,9 +6,10 @@ PYTHON ?= python3.9
 # build vars
 CAN                  = can
 DBW_NODE_FW          = dbw/node_fw
+DBW_NODE_BL          = dbw/node_bl
 ROS                  = ros
 INSTALL_DEPENDENCIES = .install-dependencies
-LOCAL_PYTHON_LIBS    = common/cand common/cantools common/igvcutils
+LOCAL_PYTHON_LIBS    = common/cantools common/igvcutils
 REQUIREMENTS_TXT     = requirements.txt
 
 .PHONY: help
@@ -47,6 +48,11 @@ $(CAN):
 .PHONY: $(DBW_NODE_FW)
 $(DBW_NODE_FW): $(INSTALL_DEPENDENCIES)
 	@$(MAKE) -C $(DBW_NODE_FW)
+
+
+.PHONY: $(DBW_NODE_BL)
+$(DBW_NODE_BL): $(INSTALL_DEPENDENCIES)
+	@$(MAKE) -C $(DBW_NODE_BL)
 
 
 .PHONY: $(ROS)
