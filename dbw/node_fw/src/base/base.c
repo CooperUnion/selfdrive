@@ -6,6 +6,7 @@
 #include "common.h"
 #include "module_types.h"
 #include "io/can.h"
+#include "libgitrev.h"
 #include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
@@ -73,14 +74,23 @@ static can_incoming_t can_DBW_ESTOP_in_cfg = {
 
 static struct CAN_dbwNode_Info_t CAN_Info;
 
+static can_outgoing_t can_dbwNode_Info_cfg = {
+    .id = CAN_DBWNODE_INFO_FRAME_ID,
+    .extd = CAN_DBWNODE_INFO_IS_EXTENDED,
+    .dlc = CAN_DBWNODE_INFO_LENGTH,
+    .pack = CAN_dbwNode_Info_pack,
+};
+
 // ######    RATE FUNCTIONS     ###### //
 
 static void base_init();
+static void base_1Hz();
 static void base_10Hz();
 static void base_100Hz();
 
 const struct rate_funcs base_rf = {
     .call_init  = base_init,
+    .call_1Hz   = base_1Hz,
     .call_10Hz  = base_10Hz,
     .call_100Hz = base_100Hz,
 };
@@ -98,6 +108,12 @@ static void base_init()
     gpio_set_level(LED1_PIN, 0);
     gpio_set_level(LED2_PIN, 0);
 
+    // set up dbwNode_Info
+    CAN_Info.Githash = GITREV_BUILD_REV;
+    CAN_Info.GitDirty = GITREV_BUILD_DIRTY;
+    can_dbwNode_Info_cfg.id += FIRMWARE_MODULE_IDENTITY;
+
+    // set up dbwNode_Status
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
     const RESET_REASON reason = rtc_get_reset_reason(0);
@@ -119,6 +135,11 @@ static void base_init()
 
     can_register_incoming_msg(&can_DBW_Active_cfg);
     can_register_incoming_msg(&can_DBW_ESTOP_in_cfg);
+}
+
+static void base_1Hz()
+{
+    can_send_iface(&can_dbwNode_Info_cfg, &CAN_Info);
 }
 
 static void base_10Hz()
