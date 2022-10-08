@@ -1,0 +1,320 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: 
+
+
+BO_ 225 dbwNode_Status_Blink: 2 Vector__XXX
+ SG_ Counter : 2|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SystemStatus : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 226 dbwNode_Status_Throttle: 2 Vector__XXX
+ SG_ Counter : 2|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SystemStatus : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 227 dbwNode_Status_Brake: 2 Vector__XXX
+ SG_ Counter : 2|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SystemStatus : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 228 dbwNode_Status_Encoder: 2 Vector__XXX
+ SG_ Counter : 2|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SystemStatus : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 224 dbwNode_Status: 2 Vector__XXX
+ SG_ Counter : 2|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SystemStatus : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 241 dbwNode_SysCmd_Blink: 1 Vector__XXX
+ SG_ ESTOP : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DbwActive : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 242 dbwNode_SysCmd_Throttle: 1 Vector__XXX
+ SG_ ESTOP : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DbwActive : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 243 dbwNode_SysCmd_Brake: 1 Vector__XXX
+ SG_ ESTOP : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DbwActive : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 244 dbwNode_SysCmd_Encoder: 1 Vector__XXX
+ SG_ ESTOP : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DbwActive : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 240 dbwNode_SysCmd: 1 Vector__XXX
+ SG_ ESTOP : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DbwActive : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 208 dbwNode_Info: 5 Vector__XXX
+ SG_ EepromIdentity : 32|6@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Githash : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 16 dbwNode_Accel_Data: 4 Vector__XXX
+ SG_ RelayState : 24|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Percent : 16|8@1+ (1,0) [0|0] "percent" Vector__XXX
+ SG_ ThrottleFCmd : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ThrottleACmd : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 17 dbwNode_Accel_Cmd: 2 Vector__XXX
+ SG_ ModeCtrl : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ThrottleCmd : 0|8@1+ (0.01,0) [0|0] "" Vector__XXX
+
+BO_ 18 dbwNode_Brake_Data: 8 Vector__XXX
+ SG_ Pressure : 56|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Percent : 48|8@1+ (1,0) [0|0] "percent" Vector__XXX
+ SG_ DutyCycle : 32|16@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Resolution : 16|16@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Frequency : 0|16@1+ (1,0) [0|0] "hertz" Vector__XXX
+
+BO_ 19 dbwNode_Brake_Cmd: 1 Vector__XXX
+ SG_ BrakeCmd : 0|8@1+ (0.01,0) [0|0] "" Vector__XXX
+
+BO_ 20 dbwNode_Encoder_Data: 5 Vector__XXX
+ SG_ Time : 24|16@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Encoder1 : 12|12@1- (1,0) [0|0] "" Vector__XXX
+ SG_ Encoder0 : 0|12@1- (1,0) [0|0] "" Vector__XXX
+
+BO_ 33 dbwNode_Accel_Cntrls_Cmd: 8 Vector__XXX
+ SG_ Kd : 48|16@1+ (0.001,0) [0|0] "" Vector__XXX
+ SG_ Ki : 32|16@1+ (0.001,0) [0|0] "" Vector__XXX
+ SG_ Kp : 16|16@1+ (0.001,0) [0|0] "" Vector__XXX
+ SG_ TargetVel : 1|15@1+ (0.001,0) [0|0] "" Vector__XXX
+ SG_ CharMode : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1185 dbwUpdater_Update_Trigger_Blink: 2 Vector__XXX
+ SG_ Begin : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Filler1 : 1|7@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Trigger : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1186 dbwUpdater_Update_Trigger_Thrott: 2 Vector__XXX
+ SG_ Begin : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Filler1 : 1|7@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Trigger : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1187 dbwUpdater_Update_Trigger_Brake: 2 Vector__XXX
+ SG_ Begin : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Filler1 : 1|7@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Trigger : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1188 dbwUpdater_Update_Trigger_Encode: 2 Vector__XXX
+ SG_ Begin : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Filler1 : 1|7@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Trigger : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1184 dbwUpdater_Update_Trigger: 2 Vector__XXX
+ SG_ Begin : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Filler1 : 1|7@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Trigger : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1201 dbwUpdater_Update_Data_Blink: 8 Vector__XXX
+ SG_ Data : 24|40@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Position : 0|24@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1202 dbwUpdater_Update_Data_Throttle: 8 Vector__XXX
+ SG_ Data : 24|40@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Position : 0|24@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1203 dbwUpdater_Update_Data_Brake: 8 Vector__XXX
+ SG_ Data : 24|40@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Position : 0|24@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1204 dbwUpdater_Update_Data_Encoder: 8 Vector__XXX
+ SG_ Data : 24|40@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Position : 0|24@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1200 dbwUpdater_Update_Data: 8 Vector__XXX
+ SG_ Data : 24|40@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Position : 0|24@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1217 dbwNode_Update_Response_Blink: 1 Vector__XXX
+ SG_ Ready : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1218 dbwNode_Update_Response_Throttle: 1 Vector__XXX
+ SG_ Ready : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1219 dbwNode_Update_Response_Brake: 1 Vector__XXX
+ SG_ Ready : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1220 dbwNode_Update_Response_Encoder: 1 Vector__XXX
+ SG_ Ready : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1216 dbwNode_Update_Response: 1 Vector__XXX
+ SG_ Ready : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1233 dbwUpdater_Update_Done_Blink: 4 Vector__XXX
+ SG_ FinalSize : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1234 dbwUpdater_Update_Done_Throttle: 4 Vector__XXX
+ SG_ FinalSize : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1235 dbwUpdater_Update_Done_Brake: 4 Vector__XXX
+ SG_ FinalSize : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1236 dbwUpdater_Update_Done_Encoder: 4 Vector__XXX
+ SG_ FinalSize : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1232 dbwUpdater_Update_Done: 4 Vector__XXX
+ SG_ FinalSize : 0|32@1+ (1,0) [0|0] "" Vector__XXX
+
+
+
+
+CM_ SG_ 225 Counter "Counter for fun.";
+CM_ SG_ 225 SystemStatus "Status of the node.";
+CM_ SG_ 226 Counter "Counter for fun.";
+CM_ SG_ 226 SystemStatus "Status of the node.";
+CM_ SG_ 227 Counter "Counter for fun.";
+CM_ SG_ 227 SystemStatus "Status of the node.";
+CM_ SG_ 228 Counter "Counter for fun.";
+CM_ SG_ 228 SystemStatus "Status of the node.";
+CM_ SG_ 224 Counter "Counter for fun.";
+CM_ SG_ 224 SystemStatus "Status of the node.";
+CM_ SG_ 241 ESTOP "Activate E-STOP.";
+CM_ SG_ 241 DbwActive "Activate DBW mode.";
+CM_ SG_ 242 ESTOP "Activate E-STOP.";
+CM_ SG_ 242 DbwActive "Activate DBW mode.";
+CM_ SG_ 243 ESTOP "Activate E-STOP.";
+CM_ SG_ 243 DbwActive "Activate DBW mode.";
+CM_ SG_ 244 ESTOP "Activate E-STOP.";
+CM_ SG_ 244 DbwActive "Activate DBW mode.";
+CM_ SG_ 240 ESTOP "Activate E-STOP.";
+CM_ SG_ 240 DbwActive "Activate DBW mode.";
+CM_ SG_ 208 EepromIdentity "EEPROM identity.";
+CM_ SG_ 208 Githash "Githash of the currently-running firmware.";
+CM_ SG_ 16 RelayState "Current relay state.";
+CM_ SG_ 16 Percent "Percentage commanded.";
+CM_ SG_ 16 ThrottleFCmd "Throttle B command.";
+CM_ SG_ 16 ThrottleACmd "Throttle A command.";
+CM_ SG_ 17 ModeCtrl "Mode control command (0/1).";
+CM_ SG_ 17 ThrottleCmd "Throttle command.";
+CM_ SG_ 18 Pressure "Pressure Sensed.";
+CM_ SG_ 18 Percent "Percentage commanded.";
+CM_ SG_ 18 DutyCycle "Duty Cycle of PWM input.";
+CM_ SG_ 18 Resolution "Resolution of PWM input.";
+CM_ SG_ 18 Frequency "Frequency of PWM input.";
+CM_ SG_ 19 BrakeCmd "Brake command.";
+CM_ SG_ 20 Time "Microseconds since last reading.";
+CM_ SG_ 20 Encoder1 "Encoder 1 pulses since last reading.";
+CM_ SG_ 20 Encoder0 "Encoder 0 pulses since last reading.";
+CM_ SG_ 33 Kd "Derivative gain";
+CM_ SG_ 33 Ki "Integral gain";
+CM_ SG_ 33 Kp "Proportional gain";
+CM_ SG_ 33 TargetVel "Target velocity";
+CM_ SG_ 33 CharMode "Characterization mode enable (0/1).";
+CM_ SG_ 1185 Begin "Begin the update.";
+CM_ SG_ 1185 Filler1 "Filler.";
+CM_ SG_ 1185 Trigger "Trigger the update.";
+CM_ SG_ 1186 Begin "Begin the update.";
+CM_ SG_ 1186 Filler1 "Filler.";
+CM_ SG_ 1186 Trigger "Trigger the update.";
+CM_ SG_ 1187 Begin "Begin the update.";
+CM_ SG_ 1187 Filler1 "Filler.";
+CM_ SG_ 1187 Trigger "Trigger the update.";
+CM_ SG_ 1188 Begin "Begin the update.";
+CM_ SG_ 1188 Filler1 "Filler.";
+CM_ SG_ 1188 Trigger "Trigger the update.";
+CM_ SG_ 1184 Begin "Begin the update.";
+CM_ SG_ 1184 Filler1 "Filler.";
+CM_ SG_ 1184 Trigger "Trigger the update.";
+CM_ SG_ 1201 Data "Image data.";
+CM_ SG_ 1201 Position "Index of 32-bit data chunk.";
+CM_ SG_ 1202 Data "Image data.";
+CM_ SG_ 1202 Position "Index of 32-bit data chunk.";
+CM_ SG_ 1203 Data "Image data.";
+CM_ SG_ 1203 Position "Index of 32-bit data chunk.";
+CM_ SG_ 1204 Data "Image data.";
+CM_ SG_ 1204 Position "Index of 32-bit data chunk.";
+CM_ SG_ 1200 Data "Image data.";
+CM_ SG_ 1200 Position "Index of 32-bit data chunk.";
+CM_ SG_ 1217 Ready "Ready to begin update.";
+CM_ SG_ 1218 Ready "Ready to begin update.";
+CM_ SG_ 1219 Ready "Ready to begin update.";
+CM_ SG_ 1220 Ready "Ready to begin update.";
+CM_ SG_ 1216 Ready "Ready to begin update.";
+CM_ SG_ 1233 FinalSize "Number of bytes in final image size.";
+CM_ SG_ 1234 FinalSize "Number of bytes in final image size.";
+CM_ SG_ 1235 FinalSize "Number of bytes in final image size.";
+CM_ SG_ 1236 FinalSize "Number of bytes in final image size.";
+CM_ SG_ 1232 FinalSize "Number of bytes in final image size.";
+BA_DEF_ BO_  "SystemMessageLongSymbol" STRING ;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "SystemMessageLongSymbol" "";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 225 100;
+BA_ "GenMsgCycleTime" BO_ 226 100;
+BA_ "GenMsgCycleTime" BO_ 227 100;
+BA_ "GenMsgCycleTime" BO_ 228 100;
+BA_ "GenMsgCycleTime" BO_ 224 100;
+BA_ "GenMsgCycleTime" BO_ 241 100;
+BA_ "GenMsgCycleTime" BO_ 242 100;
+BA_ "GenMsgCycleTime" BO_ 243 100;
+BA_ "GenMsgCycleTime" BO_ 244 100;
+BA_ "GenMsgCycleTime" BO_ 240 100;
+BA_ "GenMsgCycleTime" BO_ 208 100;
+BA_ "GenMsgCycleTime" BO_ 16 100;
+BA_ "GenMsgCycleTime" BO_ 17 100;
+BA_ "GenMsgCycleTime" BO_ 18 100;
+BA_ "GenMsgCycleTime" BO_ 19 100;
+BA_ "GenMsgCycleTime" BO_ 20 10;
+BA_ "GenMsgCycleTime" BO_ 33 100;
+BA_ "GenMsgCycleTime" BO_ 1185 100;
+BA_ "SystemMessageLongSymbol" BO_ 1186 "dbwUpdater_Update_Trigger_Throttle";
+BA_ "GenMsgCycleTime" BO_ 1186 100;
+BA_ "GenMsgCycleTime" BO_ 1187 100;
+BA_ "SystemMessageLongSymbol" BO_ 1188 "dbwUpdater_Update_Trigger_Encoder";
+BA_ "GenMsgCycleTime" BO_ 1188 100;
+BA_ "GenMsgCycleTime" BO_ 1184 100;
+BA_ "GenMsgCycleTime" BO_ 1201 100;
+BA_ "GenMsgCycleTime" BO_ 1202 100;
+BA_ "GenMsgCycleTime" BO_ 1203 100;
+BA_ "GenMsgCycleTime" BO_ 1204 100;
+BA_ "GenMsgCycleTime" BO_ 1200 100;
+BA_ "GenMsgCycleTime" BO_ 1217 100;
+BA_ "GenMsgCycleTime" BO_ 1218 100;
+BA_ "GenMsgCycleTime" BO_ 1219 100;
+BA_ "GenMsgCycleTime" BO_ 1220 100;
+BA_ "GenMsgCycleTime" BO_ 1216 100;
+BA_ "GenMsgCycleTime" BO_ 1233 100;
+BA_ "GenMsgCycleTime" BO_ 1234 100;
+BA_ "GenMsgCycleTime" BO_ 1235 100;
+BA_ "GenMsgCycleTime" BO_ 1236 100;
+BA_ "GenMsgCycleTime" BO_ 1232 100;
+VAL_ 225 SystemStatus 0 "IDLE" 1 "UNHEALTHY" 2 "ACTIVE" 3 "ESTOP" ;
+VAL_ 226 SystemStatus 0 "IDLE" 1 "UNHEALTHY" 2 "ACTIVE" 3 "ESTOP" ;
+VAL_ 227 SystemStatus 0 "IDLE" 1 "UNHEALTHY" 2 "ACTIVE" 3 "ESTOP" ;
+VAL_ 228 SystemStatus 0 "IDLE" 1 "UNHEALTHY" 2 "ACTIVE" 3 "ESTOP" ;
+VAL_ 224 SystemStatus 0 "IDLE" 1 "UNHEALTHY" 2 "ACTIVE" 3 "ESTOP" ;
+
+
+

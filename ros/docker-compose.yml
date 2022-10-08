@@ -25,18 +25,33 @@ services:
         ports:
             - '6379:6379'
 
-    twist:
-        build: docker/cmd_to_ctrl/.
-        container_name: twist
+    cand:
+        build: docker/cand/.
+        container_name: cand
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=cand'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
-            - '../common/cand:/app/cand'
+            - '../can/igvc_can.dbc:/usr/src/app/igvc_can.dbc'
         depends_on:
             - master
+            - redis
+
+    cmd_to_ctrl:
+        build: docker/cmd_to_ctrl/.
+        container_name: cmd_to_ctrl
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=cmd_to_ctrl'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '../controls/send_launch:/app/ros_ws/src/send_launch'
+        depends_on:
+            - master
+            - cand
+            - redis
 
     navigation:
         build: docker/navigation/.

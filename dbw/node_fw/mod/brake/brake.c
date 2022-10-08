@@ -101,6 +101,7 @@ static void brake_100Hz()
 {
     static float32_t prev_cmd;
 
+    /*
     if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
         static uint64_t prv_delta_ms;
         static bool     set;
@@ -120,6 +121,7 @@ static void brake_100Hz()
         (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
     )
         base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+    */
 
     float32_t cmd = (base_dbw_active())
         ? ((float32_t) CAN_Vel_Cmd.BrakePercent) / 100.0

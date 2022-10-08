@@ -7,6 +7,10 @@ DOCKER_COMPOSE ?= $(DOCKER) compose
 DOCKER_FLAGS       ?=
 DOCKER_FLAGS_BUILD ?= --progress plain --pull
 DOCKER_FLAGS_RM    ?= --force --stop
+CAND_SRC            = ../common/cand
+CAND_DST            = docker/cand/cand docker/cmd_to_ctrl/cand
+IGVCUTILS_SRC       = ../common/igvcutils
+IGVCUTILS_DST       = docker/cmd_to_ctrl/igvcutils
 
 CAND_SRC           ?= ../common/cand
 CANTOOLS_SRC       ?= ../common/cantools
