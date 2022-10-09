@@ -1,10 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
 /*
  * brake.c -- brake module
- *
- * Copyright (C) 2022  Dan Mezhiborsky <daniel.mezhiborsky@cooper.edu>
- * Copyright (C) 2022  Giuseppe Quaratino <giuseppe.quaratino@cooper.edu>
- * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
  */
 
 #include "brake.h"

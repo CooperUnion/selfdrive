@@ -1,8 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
 /*
  * blink.c -- blink module
- *
- * Copyright (C) 2021-2022  Dan Mezhiborsky <daniel.mezhiborsky@cooper.edu>
  */
 
 #include "blink.h"

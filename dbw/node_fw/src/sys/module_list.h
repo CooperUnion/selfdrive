@@ -1,9 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
 /*
  * module_list.h -- tasking modules
- *
- * Copyright (C) 2021-2022  Dan Mezhiborsky <daniel.mezhiborsky@cooper.edu>
- * Copyright (C) 2021-2022  Jacob Koziej <jacobkoziej@gmail.com>
  */
 
 /*

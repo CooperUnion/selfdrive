@@ -1,8 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
 /*
  * pb_mon.c -- parking brake monitoring module
- *
- * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
  */
 
 #include "pb_mon.h"

@@ -1,8 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
 /*
  * safety.c -- brake module safety
- *
- * Copyright (C) 2022  Jacob Koziej <jacobkoziej@gmail.com>
  */
 
 #include "base/base.h"
