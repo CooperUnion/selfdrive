@@ -9,7 +9,7 @@ import os
 
 import strictyaml as sy
 
-VERSION = "0.003"
+VERSION = "0.0.4"
 
 def parse_signal(name: str, d: dict):
     choices = d.get("choices")
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(f"Cooper IGVC CAN Network Generation v{VERSION}")
+    print(f"Cooper IGVC CAN Network Generation v{VERSION}\n")
 
     messages = []
 
@@ -100,7 +100,11 @@ if __name__ == "__main__":
         elif template_flag is None:
             pass
         else:
-            print('Error: value for "template" must be "yes"')
+            print(f'*** Error making {name}: value for "template" must be "yes"')
+            exit(-3)
+
+        if msg_width > 8:
+            print(f'*** Error making {name}: message length cannot exceed 8 bytes')
             exit(-3)
 
         messages.append(
