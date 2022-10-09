@@ -25,18 +25,18 @@ services:
         ports:
             - '6379:6379'
 
-    twist:
+    cmd_to_ctrl:
         build: docker/cmd_to_ctrl/.
-        container_name: twist
+        container_name: cmd_to_ctrl
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=cmd_to_ctrl'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
-            - '../common/cand:/app/cand'
+            - '../controls/cmd_to_ctrl:/app/ros_ws/src/cmd_to_ctrl'
         depends_on:
             - master
+            - redis
 
     navigation:
         build: docker/navigation/.

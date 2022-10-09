@@ -1,16 +1,33 @@
 FROM ros:noetic-ros-base
 
-SHELL ["/bin/bash", "-c"]
+# prevents prompts from popping up during installation
+# for certain packages
+ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && apt install -y curl
+# install basic utils
+RUN apt update && \
+    apt install -y curl vim
 
-RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+# install python3.10
+RUN apt update && \
+    apt install -y software-properties-common libusb-1.0-0 && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt install -y python3.10 python3.10-distutils
 
-RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+# priortize python3.10 for python/python3 commands
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
-RUN apt-get update && apt-get install -qy redis
+# install pip for python3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 
 WORKDIR /app
+
+COPY ./igvcutils /tmp/igvcutils
+RUN pip install --upgrade pip wheel
+RUN pip install -e /tmp/igvcutils
+RUN pip install opencan-cand odrive pyyaml
+RUN pip install --upgrade numpy
 
 RUN mkdir ros_ws
 
