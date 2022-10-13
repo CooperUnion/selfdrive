@@ -11,10 +11,10 @@ class Test:
         self._bus = bus
 
     def run(self, percent, duration):
-        self._bus.send('dbwEnable', {'Enable': 1})
+        self._bus.send('DBW_Enable', {'enable': 1})
         self._bus.send(
-            'dbwNode_Vel_Cmd',
-            {'ThrottlePercent': min(abs(percent), 100), 'BrakePercent': 0},
+            'DBW_NodeVelCmd',
+            {'throttlePercent': min(abs(percent), 100), 'brakePercent': 0},
         )
 
         time_start = time.time()
@@ -23,17 +23,17 @@ class Test:
         while True:
             if (time.time() - time_start) > abs(duration): break
 
-            print(f"{i} {self._bus.get_data('dbwNode_Encoder_Data')}")
+            print(f"{i} {self._bus.get_data('ENCF_EncoderData')}")
 
             i += 1
             time.sleep(0.01)
 
     def end(self):
         self._bus.send(
-            'dbwNode_Vel_Cmd',
-            {'ThrottlePercent': 0, 'BrakePercent': 0},
+            'DBW_NodeVelCmd',
+            {'throttlePercent': 0, 'brakePercent': 0},
         )
-        self._bus.send('dbwEnable', {'Enable': 0})
+        self._bus.send('DBW_Enable', {'enable': 0})
 
 
 def main():
