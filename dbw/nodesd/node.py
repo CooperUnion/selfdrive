@@ -11,7 +11,7 @@ class DbwEnable(threading.Thread):
     def __init__(self, *, bus: cand.client.Bus = None):
         self._bus = bus
 
-        self._logger = logging.getLogger('dbwEnable')
+        self._logger = logging.getLogger('DBW_Enable')
 
         super().__init__(daemon=True)
 
@@ -22,17 +22,17 @@ class DbwEnable(threading.Thread):
         while True:
             time.sleep(self.DBW_ACTIVE_CYCLETIME_S)
 
-            rec = self._bus.get('dbwEnable')
+            rec = self._bus.get('DBW_Enable')
             if rec is None: continue
 
             msg_time_ns, data = rec
 
             if msg_time_ns > prv_time_ns:
-                dbw_active  = data['Enable']
+                dbw_active  = data['enable']
                 prv_time_ns = msg_time_ns
                 self._logger.info(f'enable: {dbw_active}')
 
-            self._bus.send('dbwActive', {'Active': dbw_active})
+            self._bus.send('DBW_Active', {'active': dbw_active})
 
 
 class Node():
@@ -49,7 +49,7 @@ class Node():
         self._status_missing = True
 
     def service(self):
-        rec = self._bus.get(f'dbwNode_Status_{self._ident}')
+        rec = self._bus.get(f'DBW_NodeStatus_{self._ident}')
 
         if rec is None:
             self._status_missing = True
@@ -69,7 +69,7 @@ class Node():
                 # we're okay
                 old_status = self._status
 
-                self._status = stat['SystemStatus']
+                self._status = stat['systemStatus']
                 self._status_missing = False
 
                 if old_status != self._status:
