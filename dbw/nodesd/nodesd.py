@@ -17,10 +17,10 @@ def main():
     argparser = argparse.ArgumentParser(description='node daemon')
 
     argparser.add_argument(
-        '--can-dbwEnable',
+        '--can-DBW_Enable',
         action='store_true',
         default=False,
-        help='enable \'dbwEnable\' message',
+        help='enable \'DBW_Enable\' message',
     )
     argparser.add_argument(
         '--redis-host',
