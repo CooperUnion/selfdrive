@@ -39,11 +39,11 @@ class Steer(threading.Thread):
         self._odrive_connection = None
 
         try:
-            self._logger.info('attempting connection to ODrive')
+            self._logger.info('attempting connection to oDrive')
             self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
             self._axis = self._od.axis0
 
-            self._logger.info('ODrive connected')
+            self._logger.info('oDrive connected')
             self._odrive_connection = 1
 
             if \
@@ -62,7 +62,7 @@ class Steer(threading.Thread):
                     pass
 
         except TimeoutError:
-            self._logger.critical('could not connect to ODrive')
+            self._logger.critical('could not connect to oDrive')
             self._odrive_connection = 0
 
 
@@ -84,14 +84,14 @@ class Steer(threading.Thread):
             self._axis.controller.config.control_mode = odrive.enums.CONTROL_MODE_VELOCITY_CONTROL
             self._odrive_enabled = True
 
-            self._logger.info('ODrive enabled')
+            self._logger.info('oDrive enabled')
 
         elif not yes and self._odrive_enabled:
             self._axis.requested_state      = odrive.enums.AXIS_STATE_IDLE
             self._axis.controller.input_vel = 0
             self._odrive_enabled = False
 
-            self._logger.info('ODrive disabled')
+            self._logger.info('oDrive disabled')
 
     def _enc2angle(self, val: int) -> float:
         return (self.ENCODER_TO_ANGLE_SLOPE * val) + self.ENCODER_TO_ANGLE_SLOPE_OFFSET
@@ -144,7 +144,7 @@ class Steer(threading.Thread):
                     continue
 
                 if not self._odrive_connection:
-                    self._base.set_state_estop('INVALID_STATE', 'ODrive not connected')
+                    self._base.set_state_estop('INVALID_STATE', 'oDrive not connected')
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
