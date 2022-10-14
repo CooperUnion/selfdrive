@@ -1,9 +1,3 @@
-residents:
-  - dbwNode_Steering
-  - dbwNode_Brakes
-  - techPc
-  - dbwWatchdog
-
 templategroups:
   dbwnodes:
     - Blink
