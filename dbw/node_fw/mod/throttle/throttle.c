@@ -87,7 +87,10 @@ static void throttle_100Hz()
 
         if (set) {
             if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+                base_set_state_estop(
+                    CAN_dbwESTOP_Reason_TIMEOUT_CHOICE,
+                    __LINE__
+                );
         } else {
             prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
             set = true;
@@ -99,7 +102,7 @@ static void throttle_100Hz()
         can_Vel_Cmd_cfg.recieved &&
         (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
 
     // set the relay from the CAN data
     control_relay(base_dbw_active());

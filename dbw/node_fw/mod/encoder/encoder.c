@@ -117,10 +117,13 @@ static void encoder_100Hz()
         (ABS(CAN_Encoder.Encoder0) >= ENCODER_MAX_TICKS) ||
         (ABS(CAN_Encoder.Encoder1) >= ENCODER_MAX_TICKS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE);
+        base_set_state_estop(
+            CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE,
+            __LINE__
+        );
 
     if (CAN_Encoder.Time >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
 
     prv_pulse_cnt[0] += CAN_Encoder.Encoder0;
     prv_pulse_cnt[1] += CAN_Encoder.Encoder1;
