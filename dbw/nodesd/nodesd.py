@@ -66,7 +66,7 @@ def main():
         ),
     )
 
-    if args.can_dbwEnable:
+    if args.can_DBW_Enable:
         dbw_enable.start()
         logger.info('listening for \'dbwEnable\' message')
 
