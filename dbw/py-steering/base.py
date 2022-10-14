@@ -34,7 +34,7 @@ class Base(threading.Thread):
                 cur_time = time.time_ns()
 
                 if \
-                    data['Active'] and \
+                    data['active'] and \
                     cur_time - msg_time < self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'IDLE':
 
@@ -44,7 +44,7 @@ class Base(threading.Thread):
                     self._sys_state = 'ACTIVE'
 
                 elif \
-                    not data['Active'] or\
+                    not data['active'] or\
                     cur_time - msg_time >= self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'ACTIVE':
 
