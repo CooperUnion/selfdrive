@@ -25,9 +25,6 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_ENCODER;
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS  85     // slightly over 5MPH
-#define ENCODER_TIMEOUT_US 20000
-
 // ######      PROTOTYPES       ###### //
 
 static void IRAM_ATTR encoder0_chan_a(void *arg);
@@ -42,7 +39,7 @@ static int64_t prv_pulse_cnt[2];
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Encoder_Data_t CAN_Encoder;
+struct CAN_dbwNode_Encoder_Data_t CAN_Encoder;
 
 static const can_outgoing_t can_Encoder_Data_cfg = {
     .id = CAN_DBWNODE_ENCODER_DATA_FRAME_ID,
@@ -112,18 +109,6 @@ static void encoder_100Hz()
     CAN_Encoder.Time     = timer_val - prv_timer_val;
 
     can_send_iface(&can_Encoder_Data_cfg, &CAN_Encoder);
-
-    if (
-        (ABS(CAN_Encoder.Encoder0) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_Encoder.Encoder1) >= ENCODER_MAX_TICKS)
-    )
-        base_set_state_estop(
-            CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE,
-            __LINE__
-        );
-
-    if (CAN_Encoder.Time >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
 
     prv_pulse_cnt[0] += CAN_Encoder.Encoder0;
     prv_pulse_cnt[1] += CAN_Encoder.Encoder1;

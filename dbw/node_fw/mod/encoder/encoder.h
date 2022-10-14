@@ -1,6 +1,12 @@
+/*
+ * encoder.h -- encoder module
+ */
+
 #ifndef ENCODER_H
 #define ENCODER_H
 
-// if we had any public functions, we'd put their prototypes here.
+#include "io/can.h"
+
+extern struct CAN_dbwNode_Encoder_Data_t CAN_Encoder;
 
 #endif
