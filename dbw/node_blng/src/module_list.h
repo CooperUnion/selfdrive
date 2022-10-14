@@ -10,6 +10,7 @@
  */
 extern const struct rate_funcs can_rf;
 extern const struct rate_funcs eeprom_rf;
+extern const struct rate_funcs bl_rf;
 
 /*
  * List of references to the task structs. Order matters - the modules will be
@@ -22,4 +23,5 @@ static const struct rate_funcs* task_list[] = {
     &can_rf,
     // TODO: boards crash without EEPROM
     //&eeprom_rf,
+    &bl_rf,
 };
