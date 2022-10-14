@@ -189,12 +189,12 @@ messages:
             is_signed: true
             width: 32
 
-- steering_Absolute_Encoder:
+- WHL_AbsoluteEncoder:
     id: 0x1E5
     cycletime: 10
 
     signals:
-        - Foo:
+        - foo:
             description: Foo.
             width: 8
         # TODO: add big endian support to gen_dbc.py
@@ -203,10 +203,10 @@ messages:
         # cantools will decode this signal into an unsigned int
         # it is the job of the programmer to re-encode this value
         # into a signed int
-        - Pos:
+        - encoder:
             description: Absolute encoder position.
             width: 16
-        - Bar:
+        - bar:
             description: Bar.
             width: 40
 

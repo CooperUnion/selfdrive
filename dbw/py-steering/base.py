@@ -53,7 +53,7 @@ class Base(threading.Thread):
 
                     self._sys_state = 'IDLE'
 
-            rec = self._bus.get('dbwESTOP')
+            rec = self._bus.get('DBW_ESTOP')
 
             if rec:
                 msg_time, data = rec
@@ -67,7 +67,7 @@ class Base(threading.Thread):
                     self._sys_state = 'ESTOP'
 
             self._bus.send(
-                'DBW_Node_Status_' + self._mod_ident,
+                'DBW_NodeStatus_' + self._mod_ident,
                 {
                     'systemStatus':         self._sys_state,
                     'counter':              self._counter,

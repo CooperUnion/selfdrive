@@ -101,7 +101,7 @@ class Steer(threading.Thread):
 
     def run(self):
         while True:
-            rec = self._bus.get('steering_Absolute_Encoder')
+            rec = self._bus.get('WHL_AbsoluteEncoder')
 
             if rec:
                 unix_time_ns, data = rec
@@ -113,13 +113,13 @@ class Steer(threading.Thread):
 
                 # the absolute encoder data is currently not decoded
                 # correctly so we'll need to re-encode the data
-                data['Pos'] = igvcutils.can.endianswap(
-                    data['Pos'],
+                data['encoder'] = igvcutils.can.endianswap(
+                    data['encoder'],
                     'little',
                     dst_signed=True,
                 )
 
-                self._cur_angle = self._enc2angle(data['Pos'])
+                self._cur_angle = self._enc2angle(data['encoder'])
 
             elif self._prv_enc_unix_time_ns:
                 if time.time_ns() - self._prv_enc_unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
