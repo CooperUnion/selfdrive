@@ -68,7 +68,7 @@ def main():
 
     if args.can_DBW_Enable:
         dbw_enable.start()
-        logger.info('listening for \'dbwEnable\' message')
+        logger.info('listening for \'DBW_Enable\' message')
 
     logger.info('starting servicer for node(s)')
     while True:
