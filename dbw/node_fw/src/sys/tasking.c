@@ -6,7 +6,7 @@
 #include <freertos/semphr.h>
 
 #include "common.h"
-#include "sys/module_list.h"
+#include "module_list.h"
 #include "sys/watchdog.h"
 
 // ######        DEFINES        ###### //
@@ -73,7 +73,7 @@ static bool IRAM_ATTR task_granter(void* unused)
 
 /*
  * Set up the 1kHz timer interrupt task_granter(), but don't start it yet.
- * 
+ *
  * After this, it's ready to go - call timer_start(TIMER_GROUP) to start it.
  */
 static void create_tasking_interrupt()
