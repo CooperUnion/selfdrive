@@ -17,7 +17,7 @@ def main():
     img = open(f".pio/build/{args.module_name}/firmware.bin", "rb")
     img_raw = img.read()
 
-    db = cantools.database.load_file("../../can/igvc_can.dbc")
+    db = cantools.database.load_file("../../build/can/igvc_can.dbc")
 
     updater_msg = db.get_message_by_name('dbwUpdater_Update_Data')
 
