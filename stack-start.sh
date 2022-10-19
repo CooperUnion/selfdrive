@@ -8,6 +8,7 @@ init() {
 	tmux send-keys Enter
 }
 
+sudo setenforce 0
 xhost +si:localuser:root
 
 if [ "$1" == "clean" ]; then
