@@ -10,12 +10,32 @@
 #include "can.h"
 #include "can_gen.h"
 
+// ######        DEFINES        ###### //
+
 #define MAX_TRIGGER_WAIT_TIME_MS 1000
 
 #define GPIO_LED1 GPIO_NUM_33
 #define GPIO_LED2 GPIO_NUM_32
 
 static uint8_t fw_image[1024 * 160];
+
+// ######      PROTOTYPES       ###### //
+
+// ######     PRIVATE DATA      ###### //
+
+static struct {
+    const esp_partition_t *running, *boot, *update;
+} part_info;
+
+static enum {
+    BL_STATE_AWAIT_TRIGGER,
+    BL_STATE_BOOT_INTO_FW,
+    BL_STATE_RECIEVING_IMG,
+    BL_STATE_WRITING_IMG,
+    BL_STATE_FAULT,
+} bl_state;
+
+// ######          CAN          ###### //
 
 void can_send(int id, int val)
 {
@@ -35,13 +55,10 @@ void can_send(int id, int val)
     esp_err_t r = twai_transmit(&message, 0);
 }
 
-extern const uint8_t firmware_bin_start[] asm("_binary_fullfw_bin_start");
-extern const uint8_t firmware_bin_end[] asm("_binary_fullfw_bin_end");
+// ######   PRIVATE FUNCTIONS   ###### //
 
-void app_main()
+static void init_leds(void)
 {
-    can_init();
-
     gpio_pad_select_gpio(GPIO_LED1);
     gpio_set_direction(GPIO_LED1, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_LED1, 0);
@@ -49,27 +66,47 @@ void app_main()
     gpio_pad_select_gpio(GPIO_LED2);
     gpio_set_direction(GPIO_LED2, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_LED2, 0);
+}
 
-    bool state = 0;
+static void set_led1(bool state)
+{
+    gpio_set_level(GPIO_LED1, state);
+}
+
+static void set_led2(bool state)
+{
+    gpio_set_level(GPIO_LED2, state);
+}
+
+static void populate_part_info(void)
+{
+    part_info.running = esp_ota_get_running_partition();
+    part_info.boot = esp_ota_get_boot_partition();
+    part_info.update = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+}
+
+// ######   PUBLIC FUNCTIONS    ###### //
+
+void app_main()
+{
+    can_init();
+    init_leds();
+    set_led1(1);
+
+    populate_part_info();
 
     for (;;) {
-        gpio_set_level(GPIO_LED1, 1);
         vTaskDelay(200 / portTICK_PERIOD_MS);
-        state = !state;
         can_ping();
-        const esp_partition_t* running = esp_ota_get_running_partition();
-        const esp_partition_t* boot = esp_ota_get_boot_partition();
-        //const esp_partition_t* update = esp_ota_get_next_update_partition(NULL);
-        const esp_partition_t* update = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
 
-        if (running)
-            can_send(0x10, running->subtype);
-        if (boot)
-            can_send(0x11, boot->subtype);
-        if (update)
-            can_send(0x12, update->subtype);
-
-        // can_send(0x13, esp_ota_get_app_partition_count());
+        /*
+        if (part_info.running)
+            can_send(0x10, part_info.running->subtype);
+        if (part_info.boot)
+            can_send(0x11, part_info.boot->subtype);
+        if (part_info.update)
+            can_send(0x12, part_info.update->subtype);
+        */
 
         // get new firmware image
         uint32_t size = 0;
@@ -113,7 +150,7 @@ void app_main()
                         break;
                 }
             }
-            else if (skip_eligible && update) {
+            else if (skip_eligible && part_info.update) {
                 goto done;
             }
         }
@@ -122,7 +159,7 @@ void app_main()
         gpio_set_level(GPIO_LED2, 1);
 
         esp_ota_handle_t update_handle = 0;
-        esp_err_t err = esp_ota_begin(update, OTA_WITH_SEQUENTIAL_WRITES, &update_handle);
+        esp_err_t err = esp_ota_begin(part_info.update, OTA_WITH_SEQUENTIAL_WRITES, &update_handle);
 
         can_send(0x14, err);
         if (err != ESP_OK) {
@@ -145,11 +182,13 @@ void app_main()
         }
 
 done:
-        err = esp_ota_set_boot_partition(update);
+        err = esp_ota_set_boot_partition(part_info.update);
         can_send(0x17, err);
         if (err != ESP_OK) {
             continue;
         }
+
+        can_send(0x18, err);
 
         esp_restart();
     }
