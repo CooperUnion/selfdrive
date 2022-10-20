@@ -266,7 +266,7 @@ void app_main()
             }
 
             default:
-                set_bl_state(BL_STATE_BOOT_INTO_FW);
+                set_bl_state(BL_STATE_FAULT);
         }
     }
 }
