@@ -1,3 +1,6 @@
 [submodule "can/cantools"]
 	path = common/cantools
 	url = ../cantools-autonomylab.git
+[submodule "ros/docker/gazebo/igvc_self_drive_sim"]
+	path = ros/docker/gazebo/igvc_self_drive_sim
+	url = https://github.com/robustify/igvc_self_drive_sim.git
