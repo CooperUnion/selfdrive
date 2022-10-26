@@ -24,13 +24,13 @@ static bool relay_state;
 
 // ######          CAN          ###### //
 
-struct CAN_DBW_NodeAccelData_t CAN_Accel; // used by pedal.c; not static
+struct CAN_THROTTLE_AccelData_t CAN_Accel; // used by pedal.c; not static
 
 static const can_outgoing_t can_Accel_Data_cfg = {
-    .id = CAN_DBW_NODEACCELDATA_FRAME_ID,
-    .extd = CAN_DBW_NODEACCELDATA_IS_EXTENDED,
-    .dlc = CAN_DBW_NODEACCELDATA_LENGTH,
-    .pack = CAN_DBW_NodeAccelData_pack,
+    .id = CAN_THROTTLE_ACCELDATA_FRAME_ID,
+    .extd = CAN_THROTTLE_ACCELDATA_IS_EXTENDED,
+    .dlc = CAN_THROTTLE_ACCELDATA_LENGTH,
+    .pack = CAN_THROTTLE_AccelData_pack,
 };
 
 static struct CAN_DBW_NodeVelCmd_t CAN_Vel_Cmd;

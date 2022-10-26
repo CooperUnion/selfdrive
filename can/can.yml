@@ -50,7 +50,7 @@ messages:
            description: EEPROM identity.
            width: 6
 
-- DBW_NodeAccelData:
+- THROTTLE_AccelData:
     id: 0x10
     cycletime: 100
 
