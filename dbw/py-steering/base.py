@@ -67,7 +67,7 @@ class Base(threading.Thread):
                     self._sys_state = 'ESTOP'
 
             self._bus.send(
-                'DBW_NodeStatus_' + self._mod_ident,
+                'NodeStatus_' + self._mod_ident,
                 {
                     'systemStatus':         self._sys_state,
                     'counter':              self._counter,

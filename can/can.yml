@@ -9,7 +9,7 @@ templategroups:
     - WHL
 
 messages:
-- DBW_NodeStatus:
+- NodeStatus:
     id: 0xE0
     cycletime: 100
 

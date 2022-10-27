@@ -49,7 +49,7 @@ class Node():
         self._status_missing = True
 
     def service(self):
-        rec = self._bus.get(f'DBW_NodeStatus_{self._ident}')
+        rec = self._bus.get(f'NodeStatus_{self._ident}')
 
         if rec is None:
             self._status_missing = True

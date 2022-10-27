@@ -37,13 +37,13 @@ static bool wdt_trigger;
 
 // ######          CAN          ###### //
 
-static struct CAN_DBW_NodeStatus_t CAN_Status;
+static struct CAN_NodeStatus_t CAN_Status;
 
 static can_outgoing_t can_Status_cfg = {
-    .id = CAN_DBW_NODESTATUS_FRAME_ID,
-    .extd = CAN_DBW_NODESTATUS_IS_EXTENDED,
-    .dlc = CAN_DBW_NODESTATUS_LENGTH,
-    .pack = CAN_DBW_NodeStatus_pack,
+    .id = CAN_NODESTATUS_FRAME_ID,
+    .extd = CAN_NODESTATUS_IS_EXTENDED,
+    .dlc = CAN_NODESTATUS_LENGTH,
+    .pack = CAN_NodeStatus_pack,
 };
 
 static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP;
@@ -105,15 +105,15 @@ static void base_init()
 
     switch (reason) {
         case POWERON_RESET:
-            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_POWERON_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_POWERON_CHOICE;
             break;
 
         case RTCWDT_RTC_RESET:
-            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_WATCHDOG_RESET_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_WATCHDOG_RESET_CHOICE;
             break;
 
         default:
-            CAN_Status.resetReason = CAN_DBW_NodeStatus_resetReason_UNKNOWN_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_UNKNOWN_CHOICE;
             break;
     }
 
@@ -145,19 +145,19 @@ static void base_100Hz()
 
     switch (system_state) {
         case SYS_STATE_IDLE:
-            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_IDLE_CHOICE;
+            CAN_Status.systemStatus = CAN_NodeStatus_systemStatus_IDLE_CHOICE;
             break;
 
         case SYS_STATE_DBW_ACTIVE:
-            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_ACTIVE_CHOICE;
+            CAN_Status.systemStatus = CAN_NodeStatus_systemStatus_ACTIVE_CHOICE;
             break;
 
         case SYS_STATE_ESTOP:
-            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_ESTOP_CHOICE;
+            CAN_Status.systemStatus = CAN_NodeStatus_systemStatus_ESTOP_CHOICE;
             break;
 
         default:
-            CAN_Status.systemStatus = CAN_DBW_NodeStatus_systemStatus_UNHEALTHY_CHOICE;
+            CAN_Status.systemStatus = CAN_NodeStatus_systemStatus_UNHEALTHY_CHOICE;
             break;
     }
 
