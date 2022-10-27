@@ -148,7 +148,7 @@ class Steer(threading.Thread):
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
-                rec = self._bus.get('DBW_NodeSteeringCmd')
+                rec = self._bus.get('WHL_SteeringCmd')
 
                 if rec:
                     unix_time_ns, data = rec
