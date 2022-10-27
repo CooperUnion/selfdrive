@@ -13,7 +13,7 @@ class Test:
     def run(self, percent, duration):
         self._bus.send('DBW_Enable', {'enable': 1})
         self._bus.send(
-            'DBW_NodeVelCmd',
+            'DBW_VelCmd',
             {'throttlePercent': min(abs(percent), 100), 'brakePercent': 0},
         )
 
@@ -30,7 +30,7 @@ class Test:
 
     def end(self):
         self._bus.send(
-            'DBW_NodeVelCmd',
+            'DBW_VelCmd',
             {'throttlePercent': 0, 'brakePercent': 0},
         )
         self._bus.send('DBW_Enable', {'enable': 0})
