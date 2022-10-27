@@ -39,7 +39,7 @@ class Steer(threading.Thread):
         self._odrive_connection = None
 
         try:
-            self._logger.info('attempting connection to oDrive')
+            self._logger.info('attempting connection to ODrive')
             self._od = odrive.find_any(timeout=self.ODRIVE_INIT_TIMEOUT_S)
             self._axis = self._od.axis0
 
