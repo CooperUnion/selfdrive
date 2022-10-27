@@ -1,7 +1,7 @@
 #include "watchdog.h"
 
 #include <freertos/FreeRTOS.h>
-#include <soc/rtc_wdt.h>
+#include <hal/wdt_hal.h>
 
 #include "common.h"
 
