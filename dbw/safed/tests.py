@@ -28,10 +28,10 @@ class UnitThrottle(unit.Unit):
         self._throttle_diff_time_ns = None
 
     def test(self):
-        data_rec = self._bus.get('DBW_NodeAccelData')
+        data_rec = self._bus.get('THROTTLE_AccelData')
         if data_rec is None: return self.abort('TIMEOUT')
 
-        cmd_rec = self._bus.get('DBW_NodeVelCmd')
+        cmd_rec = self._bus.get('DBW_VelCmd')
         if cmd_rec is None: return self.abort('TIMEOUT')
 
         cur_time = time.time_ns()
@@ -39,9 +39,9 @@ class UnitThrottle(unit.Unit):
         data_time, data_data = data_rec
         cmd_time, cmd_data   = cmd_rec
 
-        if cur_time - data_time >= DBW_NODEACCELDATA_TIMEOUT_NS:
+        if cur_time - data_time >= THROTTLE_ACCELDATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
-        if cur_time - cmd_time >= DBW_NODEVELCMD_TIMEOUT_NS:
+        if cur_time - cmd_time >= DBW_VELCMD_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
         perc_diff = abs(data_data['percent'] - cmd_data['throttlePercent'])
