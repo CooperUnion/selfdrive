@@ -215,7 +215,7 @@ messages:
     cycletime: 100
 
     signals:
-      - source:
+      - src:
           description: ESTOP source.
           width: 8
           choices:

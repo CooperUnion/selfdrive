@@ -84,7 +84,7 @@ class Base(threading.Thread):
         self._sys_state = 'ESTOP'
         self._bus.send(
             'DBW_ESTOP',
-            {'source': 'NODE', 'reason': reason},
+            {'src': 'NODE', 'reason': reason},
         )
         self._logger.warn(f'ESTOP reason: {reason}')
         if err_msg: self._logger.error(err_msg)
