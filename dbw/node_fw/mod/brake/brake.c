@@ -60,12 +60,12 @@ static const can_outgoing_t can_Brake_Data_cfg = {
     .pack = CAN_BRAKE_BrakeData_pack,
 };
 
-static struct CAN_DBW_NodeVelCmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
 
 static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBW_NODEVELCMD_FRAME_ID,
+    .id = CAN_DBW_VELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_DBW_NodeVelCmd_unpack,
+    .unpack = CAN_DBW_VelCmd_unpack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
