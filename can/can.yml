@@ -16,7 +16,7 @@ messages:
     template: dbwnodes
 
     signals:
-      - systemStatus:
+      - sysStatus:
           description: Status of the node.
           width: 2
           choices:

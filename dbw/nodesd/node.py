@@ -69,7 +69,7 @@ class Node():
                 # we're okay
                 old_status = self._status
 
-                self._status = stat['systemStatus']
+                self._status = stat['sysStatus']
                 self._status_missing = False
 
                 if old_status != self._status:

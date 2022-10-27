@@ -69,7 +69,7 @@ class Base(threading.Thread):
             self._bus.send(
                 'NodeStatus_' + self._mod_ident,
                 {
-                    'systemStatus':         self._sys_state,
+                    'sysStatus':         self._sys_state,
                     'counter':              self._counter,
                     'resetReason':          'UNKNOWN',
                     'esp32ResetReasonCode': 0,
