@@ -38,7 +38,7 @@ messages:
           description: ESP32 reset reason code (enum RESET_REASON)
           width: 5
 
-- DBW_NodeInfo:
+- NodeInfo:
     id: 0xD0
     cycletime: 100
 
