@@ -176,7 +176,7 @@ messages:
             unit: percent
             width: 7
 
-- DBW_NodeSteeringCmd:
+- WHL_SteeringCmd:
     id: 0x21
     cycletime: 100
 
