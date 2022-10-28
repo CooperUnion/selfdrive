@@ -74,11 +74,11 @@ static can_incoming_t can_DBW_ESTOP_in_cfg = {
 
 static struct CAN_NodeInfo_t CAN_Info;
 
-static can_outgoing_t can_dbwNode_Info_cfg = {
-    .id = CAN_DBWNODE_INFO_FRAME_ID,
-    .extd = CAN_DBWNODE_INFO_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_INFO_LENGTH,
-    .pack = CAN_dbwNode_Info_pack,
+static can_outgoing_t can_NodeInfo_cfg = {
+    .id = CAN_NODEINFO_FRAME_ID,
+    .extd = CAN_NODEINFO_IS_EXTENDED,
+    .dlc = CAN_NODEINFO_LENGTH,
+    .pack = CAN_NodeInfo_pack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -109,9 +109,9 @@ static void base_init()
     gpio_set_level(LED2_PIN, 0);
 
     // set up dbwNode_Info
-    CAN_Info.Githash = GITREV_BUILD_REV;
-    CAN_Info.GitDirty = GITREV_BUILD_DIRTY;
-    can_dbwNode_Info_cfg.id += FIRMWARE_MODULE_IDENTITY;
+    CAN_Info.gitHash = GITREV_BUILD_REV;
+    CAN_Info.gitDirty = GITREV_BUILD_DIRTY;
+    can_NodeInfo_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
     // set up dbwNode_Status
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
@@ -139,7 +139,7 @@ static void base_init()
 
 static void base_1Hz()
 {
-    can_send_iface(&can_dbwNode_Info_cfg, &CAN_Info);
+    can_send_iface(&can_NodeInfo_cfg, &CAN_Info);
 }
 
 static void base_10Hz()

@@ -45,7 +45,7 @@ messages:
     template: dbwnodes
 
     signals:
-      - githash:
+      - gitHash:
            description: Githash of the currently-running firmware.
            width: 32
       - gitDirty:
