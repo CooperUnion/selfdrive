@@ -1,11 +1,11 @@
-#include "base/base.h"
+#include "node_base.h"
 
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
 #include "common.h"
 #include "module_types.h"
-#include "io/can.h"
+#include "can.h"
 #include "libgitrev.h"
 #include "task_glue.h"
 

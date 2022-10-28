@@ -4,9 +4,8 @@
 #include <driver/twai.h>
 #include <stdio.h>
 
-#include "base/base.h"
+#include "node_base.h"
 #include "common.h"
-#include "sys/watchdog.h"
 #include "task_glue.h"
 
 #include "can_gen.h"
