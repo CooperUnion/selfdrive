@@ -3,7 +3,7 @@
  * anywhere else and does not have include guards.
  */
 
-#include "sys/task_glue.h"
+#include "task_glue.h"
 
 /*
  * List an extern definition for each src/ module's struct rate_tasks.
@@ -28,6 +28,6 @@ static const struct rate_funcs* task_list[] = {
     &base_rf,
     &can_rf,
     // TODO: boards crash without EEPROM
-    //&eeprom_rf,
+    &eeprom_rf,
     &module_rf,
 };

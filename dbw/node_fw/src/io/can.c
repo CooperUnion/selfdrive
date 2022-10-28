@@ -6,8 +6,8 @@
 
 #include "base/base.h"
 #include "common.h"
-#include "sys/task_glue.h"
 #include "sys/watchdog.h"
+#include "task_glue.h"
 
 #include "can_gen.h"
 

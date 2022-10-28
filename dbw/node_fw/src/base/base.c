@@ -7,7 +7,7 @@
 #include "module_types.h"
 #include "io/can.h"
 #include "libgitrev.h"
-#include "sys/task_glue.h"
+#include "task_glue.h"
 
 // ######        DEFINES        ###### //
 
