@@ -46,6 +46,9 @@ messages:
       - githash:
            description: Githash of the currently-running firmware.
            width: 32
+      - gitDirty:
+           description: Repository was dirty at build time.
+           width: 6
       - eepromIdentity:
            description: EEPROM identity.
            width: 6
