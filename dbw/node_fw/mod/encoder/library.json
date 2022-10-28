@@ -1,0 +1,8 @@
+{
+  "name": "cuber-encoder",
+  "version": "rolling",
+  "description": "Encoder DBW node",
+  "build": {
+    "libLDFMode": "deep"
+  }
+}

@@ -2,7 +2,7 @@
 
 #include <driver/gpio.h>
 
-#include "io/can.h"
+#include "can.h"
 #include "module_types.h"
 #include "task_glue.h"
 

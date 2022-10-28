@@ -2,10 +2,10 @@
 
 #include <driver/ledc.h>
 
-#include "base/base.h"
 #include "common.h"
-#include "io/can.h"
+#include "can.h"
 #include "module_types.h"
+#include "node_base.h"
 #include "task_glue.h"
 
 /* Define firmware module identity for the entire build. */
