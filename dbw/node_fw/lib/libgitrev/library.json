@@ -1,0 +1,11 @@
+{
+  "name": "libgitrev",
+  "version": "1.0.0",
+  "description": "Connector for build-time git revision.",
+  "build": {
+    "flags": [
+      "!python3 rev.py",
+      "!python3 dirty.py"
+    ]
+  }
+}

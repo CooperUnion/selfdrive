@@ -11,7 +11,7 @@ CAN_GENERATOR = env.File('gen_dbc.py')
 [gen_dbc] = env.Command(
         GENERATED_DBC,
         CAN_YML,
-        f'python {CAN_GENERATOR} --yml $SOURCE --dbc_out $TARGET')
+        f'{CAN_GENERATOR} --yml $SOURCE --dbc_out $TARGET')
 
 # generated C code
 gen_c_raw, gen_h_raw = env.Command(

@@ -19,7 +19,7 @@ Copyright (C) 2021-2022  Autonomy Lab
 
 Copyright (C) 2021-2022  Cooper IGVC
 
-Distributed under the [GPLv3] or later.
+Distributed under the [GPLv3] only.
 
 
 [GPLv3]: LICENSE.md

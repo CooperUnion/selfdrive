@@ -40,7 +40,9 @@ messages:
 
 - NodeInfo:
     id: 0xD0
-    cycletime: 100
+    cycletime: 1000
+
+    template: dbwnodes
 
     signals:
       - githash:
@@ -48,7 +50,7 @@ messages:
            width: 32
       - gitDirty:
            description: Repository was dirty at build time.
-           width: 6
+           width: 1
       - eepromIdentity:
            description: EEPROM identity.
            width: 6

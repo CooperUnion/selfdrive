@@ -1,0 +1,7 @@
+.pio
+.vscode
+.devcontainer
+
+# esp-idf will generate sdkconfig.TARGETs from sdkconfig.defaults.
+sdkconfig.*
+!sdkconfig.defaults
