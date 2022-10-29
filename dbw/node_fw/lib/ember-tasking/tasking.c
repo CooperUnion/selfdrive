@@ -1,4 +1,5 @@
-#include "sys/tasking.h"
+#include "tasking.h"
+#include "task_glue.h"
 
 #include <driver/timer.h>
 #include <freertos/FreeRTOS.h>
@@ -6,8 +7,7 @@
 #include <freertos/semphr.h>
 
 #include "common.h"
-#include "sys/module_list.h"
-#include "sys/watchdog.h"
+#include "watchdog.h"
 
 // ######        DEFINES        ###### //
 
@@ -32,6 +32,9 @@ static SemaphoreHandle_t sem_1Hz = NULL;
 static SemaphoreHandle_t sem_10Hz = NULL;
 static SemaphoreHandle_t sem_100Hz = NULL;
 static SemaphoreHandle_t sem_1kHz = NULL;
+
+extern const struct rate_funcs* ember_task_list[];
+extern const size_t ember_task_count;
 
 // ######   PRIVATE FUNCTIONS   ###### //
 
@@ -101,9 +104,9 @@ static IRAM_ATTR void module_runner_1Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_1Hz, portMAX_DELAY) == pdTRUE) {
-            for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-                if (task_list[i]->call_1Hz)
-                    task_list[i]->call_1Hz();
+            for (uint i = 0; i < ember_task_count; i++) {
+                if (ember_task_list[i]->call_1Hz)
+                    ember_task_list[i]->call_1Hz();
             }
             task_1Hz_wdt_kick();
         }
@@ -114,9 +117,9 @@ static IRAM_ATTR void module_runner_10Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_10Hz, portMAX_DELAY) == pdTRUE) {
-            for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-                if (task_list[i]->call_10Hz)
-                    task_list[i]->call_10Hz();
+            for (uint i = 0; i < ember_task_count; i++) {
+                if (ember_task_list[i]->call_10Hz)
+                    ember_task_list[i]->call_10Hz();
             }
             task_10Hz_wdt_kick();
         }
@@ -127,9 +130,9 @@ static IRAM_ATTR void module_runner_100Hz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_100Hz, portMAX_DELAY) == pdTRUE) {
-            for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-                if (task_list[i]->call_100Hz)
-                    task_list[i]->call_100Hz();
+            for (uint i = 0; i < ember_task_count; i++) {
+                if (ember_task_list[i]->call_100Hz)
+                    ember_task_list[i]->call_100Hz();
             }
             task_100Hz_wdt_kick();
         }
@@ -140,9 +143,9 @@ static IRAM_ATTR void module_runner_1kHz()
 {
     for (;;) {
         if (xSemaphoreTake(sem_1kHz, portMAX_DELAY) == pdTRUE) {
-            for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-                if (task_list[i]->call_1kHz)
-                    task_list[i]->call_1kHz();
+            for (uint i = 0; i < ember_task_count; i++) {
+                if (ember_task_list[i]->call_1kHz)
+                    ember_task_list[i]->call_1kHz();
             }
             task_1kHz_wdt_kick();
         }
@@ -184,9 +187,9 @@ void tasking_init()
  */
 void modules_init()
 {
-    for (uint i = 0; i < ARRAY_SIZE(task_list); i++) {
-        if (task_list[i]->call_init)
-            task_list[i]->call_init();
+    for (uint i = 0; i < ember_task_count; i++) {
+        if (ember_task_list[i]->call_init)
+            ember_task_list[i]->call_init();
     }
 }
 

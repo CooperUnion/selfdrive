@@ -1,4 +1,4 @@
-#include "sys/watchdog.h"
+#include "watchdog.h"
 
 #include <freertos/FreeRTOS.h>
 #include <soc/rtc_wdt.h>
@@ -28,24 +28,6 @@ static volatile bool task_100Hz_checkin;
 static volatile bool task_1kHz_checkin;
 
 // ######   PRIVATE FUNCTIONS   ###### //
-
-/*
- * Set up and activate the rtc watchdog with the given timeout. Note that there
- * can only be one watchdog active at a time - this function will override any
- * previous active watchdog.
- * 
- * //todo: error handling
- */
-static void set_up_rtc_watchdog(uint timeout_ms)
-{
-    rtc_wdt_protect_off(); // allows us to modify the rtc watchdog registers
-    rtc_wdt_disable();
-    rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
-    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
-    rtc_wdt_set_time(RTC_WDT_STAGE0, timeout_ms);
-    rtc_wdt_enable();
-    rtc_wdt_protect_on(); // disables modifying the rtc watchdog registers
-}
 
 /*
  * Kick hardware watchdog.
@@ -141,6 +123,25 @@ void IRAM_ATTR task_wdt_servicer()
 }
 
 /*
+ * Set up and activate the rtc watchdog with the given timeout. Note that there
+ * can only be one watchdog active at a time - this function will override any
+ * previous active watchdog.
+ * 
+ * //todo: error handling
+ */
+void set_up_rtc_watchdog(uint timeout_ms)
+{
+    rtc_wdt_protect_off(); // allows us to modify the rtc watchdog registers
+    rtc_wdt_disable();
+    rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
+    rtc_wdt_set_time(RTC_WDT_STAGE0, timeout_ms);
+    rtc_wdt_enable();
+    rtc_wdt_protect_on(); // disables modifying the rtc watchdog registers
+}
+
+
+/*
  * Configure the watchdog with a temporarily larger timeout so we can run the
  * taskinig init and call_init()'s and have some insurance against the system 
  * hanging while we do it.
@@ -160,7 +161,8 @@ void set_up_rtc_watchdog_final()
     set_up_rtc_watchdog(FINAL_TIMEOUT_MS);
 }
 
-void set_up_rtc_watchdog_fwupdate()
+void set_up_rtc_watchdog_1sec()
 {
     set_up_rtc_watchdog(FW_UPDATE_TIMEOUT_MS);
 }
+
