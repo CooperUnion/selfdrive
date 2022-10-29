@@ -4,16 +4,16 @@
 #define MODULE_TYPE_SCHEMA 0
 
 // This is used in various places and must be synchronized with CAN definitions.
-enum firmware_module_types {
-    MOD_UNDEF = 0,
-    MOD_BLINK = 1,
-    MOD_THROTTLE = 2,
-    MOD_BRAKE = 3,
-    MOD_ENCODER = 4,
-    MOD_REAR_ENCODER = 5,
-    MOD_PB_MON = 6,
+enum cuber_node_types {
+    NODE_UNDEF = 0,
+    NODE_BLINK = 1,
+    NODE_THROTTLE = 2,
+    NODE_BRAKE = 3,
+    NODE_ENCODER = 4,
+    NODE_REAR_ENCODER = 5,
+    NODE_PB_MON = 6,
 };
 
-extern const enum firmware_module_types FIRMWARE_MODULE_IDENTITY;
+extern const enum cuber_node_types CUBER_NODE_IDENTITY;
 
 #endif

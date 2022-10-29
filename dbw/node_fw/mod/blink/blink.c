@@ -7,7 +7,7 @@
 #include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BLINK;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BLINK;
 
 // ######        DEFINES        ###### //
 

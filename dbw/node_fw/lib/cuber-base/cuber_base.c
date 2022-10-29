@@ -111,10 +111,10 @@ static void base_init()
     // set up dbwNode_Info
     CAN_Info.gitHash     = GITREV_BUILD_REV;
     CAN_Info.gitDirty    = GITREV_BUILD_DIRTY;
-    can_NodeInfo_cfg.id += FIRMWARE_MODULE_IDENTITY;
+    can_NodeInfo_cfg.id += CUBER_NODE_IDENTITY;
 
     // set up dbwNode_Status
-    can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
+    can_Status_cfg.id += CUBER_NODE_IDENTITY;
 
     const RESET_REASON reason = rtc_get_reset_reason(0);
     CAN_Status.esp32ResetReasonCode = reason;
