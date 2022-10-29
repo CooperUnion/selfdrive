@@ -3,10 +3,10 @@
 #include <driver/ledc.h>
 
 #include "common.h"
-#include "can.h"
-#include "module_types.h"
-#include "node_base.h"
-#include "task_glue.h"
+#include "cuber_base.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
 const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BRAKE;

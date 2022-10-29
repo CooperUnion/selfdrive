@@ -1,14 +1,12 @@
-#include "can.h"
+#include "ember_can.h"
 
 #include <esp_ota_ops.h>
 #include <driver/twai.h>
 #include <stdio.h>
 
-#include "node_base.h"
 #include "common.h"
-#include "task_glue.h"
-
-#include "can_gen.h"
+#include "cuber_base.h"
+#include "ember_taskglue.h"
 
 // ######        DEFINES        ###### //
 

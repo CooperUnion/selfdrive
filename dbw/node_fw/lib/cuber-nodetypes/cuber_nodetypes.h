@@ -1,4 +1,5 @@
-#ifndef MODULE_TYPES_H
+#ifndef CUBER_NODETYPES_H
+#define CUBER_NODETYPES_H
 
 #define MODULE_TYPE_SCHEMA 0
 

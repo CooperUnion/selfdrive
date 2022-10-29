@@ -2,7 +2,7 @@
 
 #include "eeprom.h"
 
-#include "task_glue.h"
+#include "ember_taskglue.h"
 
 struct rate_funcs eeprom_rf = {
   .call_init = eeprom_init,

@@ -4,7 +4,7 @@
  */
 
 #include "common.h"
-#include "task_glue.h"
+#include "ember_taskglue.h"
 
 /*
  * List an extern definition for each module's struct rate_tasks.

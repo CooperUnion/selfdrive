@@ -1,13 +1,13 @@
-#include "node_base.h"
+#include "cuber_base.h"
 
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
 #include "common.h"
-#include "module_types.h"
-#include "can.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 #include "libgitrev.h"
-#include "task_glue.h"
 
 // ######        DEFINES        ###### //
 

@@ -3,8 +3,8 @@
 #include <driver/gpio.h>
 
 #include "common.h"
-#include "module_types.h"
-#include "task_glue.h"
+#include "cuber_nodetypes.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
 const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BLINK;
