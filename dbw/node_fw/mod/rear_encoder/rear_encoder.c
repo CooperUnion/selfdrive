@@ -52,7 +52,7 @@ static const can_outgoing_t can_RearEncoder_Data_cfg = {
 static void encoder_init();
 static void encoder_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = encoder_init,
     .call_100Hz = encoder_100Hz,
 };

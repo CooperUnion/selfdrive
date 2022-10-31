@@ -50,7 +50,7 @@ static void control_relay(bool cmd);
 static void throttle_init();
 static void throttle_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = throttle_init,
     .call_100Hz = throttle_100Hz,
 };

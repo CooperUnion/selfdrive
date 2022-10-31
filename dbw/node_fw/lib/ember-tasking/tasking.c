@@ -33,7 +33,7 @@ static SemaphoreHandle_t sem_10Hz = NULL;
 static SemaphoreHandle_t sem_100Hz = NULL;
 static SemaphoreHandle_t sem_1kHz = NULL;
 
-extern const struct rate_funcs* ember_task_list[];
+extern ember_rate_funcs_S* ember_task_list[];
 extern const size_t ember_task_count;
 
 // ######   PRIVATE FUNCTIONS   ###### //

@@ -4,7 +4,7 @@
 
 #include "ember_taskglue.h"
 
-struct rate_funcs eeprom_rf = {
+ember_rate_funcs_S eeprom_rf = {
   .call_init = eeprom_init,
 };
 

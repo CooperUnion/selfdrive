@@ -88,7 +88,7 @@ static void base_1Hz();
 static void base_10Hz();
 static void base_100Hz();
 
-const struct rate_funcs base_rf = {
+ember_rate_funcs_S base_rf = {
     .call_init  = base_init,
     .call_1Hz   = base_1Hz,
     .call_10Hz  = base_10Hz,

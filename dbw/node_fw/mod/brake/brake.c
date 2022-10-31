@@ -73,7 +73,7 @@ static can_incoming_t can_Vel_Cmd_cfg = {
 static void brake_init();
 static void brake_100Hz();
 
-struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init = brake_init,
     .call_100Hz = brake_100Hz,
 };

@@ -9,14 +9,14 @@
 /*
  * List an extern definition for each module's struct rate_tasks.
  */
-extern const struct rate_funcs base_rf;
-extern const struct rate_funcs can_rf;
-extern const struct rate_funcs eeprom_rf;
+extern ember_rate_funcs_S base_rf;
+extern ember_rate_funcs_S can_rf;
+extern ember_rate_funcs_S eeprom_rf;
 
 /*
  * Single extern definition for the one-per-build mod/ module.
  */
-extern const struct rate_funcs module_rf;
+extern ember_rate_funcs_S module_rf;
 
 /*
  * List of references to the task structs. Order matters - the modules will be
@@ -25,7 +25,7 @@ extern const struct rate_funcs module_rf;
  * The functions within each rate (1Hz, 10Hz, etc) will also run in the order
  * they appear here, but it's best not to rely on that fact for program logic.
  */
-const struct rate_funcs* ember_task_list[] = {
+ember_rate_funcs_S* ember_task_list[] = {
     &base_rf,
     &can_rf,
     // TODO: boards crash without EEPROM

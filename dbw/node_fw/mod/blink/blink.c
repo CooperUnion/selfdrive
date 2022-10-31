@@ -32,7 +32,7 @@ static void blink_1Hz();
  *
  * Note that it's perfectly okay that the rate functions are declared as static.
  */
-struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init = blink_init,
     .call_1Hz = blink_1Hz,
 };

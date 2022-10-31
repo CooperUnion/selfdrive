@@ -34,7 +34,7 @@ static const can_outgoing_t can_PbMon_Data_cfg = {
 static void pb_mon_init();
 static void pb_mon_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = pb_mon_init,
     .call_100Hz = pb_mon_100Hz,
 };
