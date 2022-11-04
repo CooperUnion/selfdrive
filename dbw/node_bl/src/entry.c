@@ -79,15 +79,15 @@ void app_main()
             twai_message_t msg;
             if (twai_receive(&msg, pdTICKS_TO_MS(MAX_TRIGGER_WAIT_TIME_MS)) == ESP_OK) {
                 switch (msg.identifier) {
-                    case CAN_DBWUPDATER_UPDATE_TRIGGER_FRAME_ID:
+                    case CAN_DBW_UPDATERUPDATETRIGGER_FRAME_ID:
                     {
                         skip_eligible = false;
                         gpio_set_level(GPIO_LED1, 1);
                         gpio_set_level(GPIO_LED2, 1);
-                        can_send(CAN_DBWNODE_UPDATE_RESPONSE_FRAME_ID, 0);
+                        can_send(CAN_DBW_NODEUPDATERESPONSE_FRAME_ID, 0);
                         break;
                     }
-                    case CAN_DBWUPDATER_UPDATE_DATA_FRAME_ID:
+                    case CAN_DBW_UPDATERUPDATEDATA_FRAME_ID:
                     {
                         gpio_set_level(GPIO_LED2, led2_state);
                         led2_state = !led2_state;
@@ -101,7 +101,7 @@ void app_main()
                         memcpy(fw_image + position, msg.data + 3, 5);
                         break;
                     }
-                    case CAN_DBWUPDATER_UPDATE_DONE_FRAME_ID:
+                    case CAN_DBW_UPDATERUPDATEDONE_FRAME_ID:
                     {
                         size |= msg.data[0];
                         size |= msg.data[1] << 8;

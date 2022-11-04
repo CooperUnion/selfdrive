@@ -11,10 +11,10 @@ class Test:
         self._bus = bus
 
     def run(self):
-        self._bus.send('dbwEnable', {'Enable': 1})
+        self._bus.send('DBW_Enable', {'enable': 1})
 
     def end(self):
-        self._bus.send('dbwEnable', {'Enable': 0})
+        self._bus.send('DBW_Enable', {'enable': 0})
 
 
 def main():
