@@ -129,7 +129,7 @@ class Steer(threading.Thread):
                 self._prv_enc_unix_time_ns = time.time_ns()
 
             self._bus.send(
-                'WHL_SteeringData',
+                'STEER_SteeringData',
                 {
                     'angle':             math.radians(self._cur_angle),
                     'encoderTimeoutSet': self._encoder_timeout,
@@ -148,7 +148,7 @@ class Steer(threading.Thread):
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
-                rec = self._bus.get('WHL_SteeringCmd')
+                rec = self._bus.get('STEER_SteeringCmd')
 
                 if rec:
                     unix_time_ns, data = rec

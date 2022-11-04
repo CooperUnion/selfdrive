@@ -6,7 +6,7 @@ templategroups:
     - ENCF
     - ENCR
     - PB
-    - WHL
+    - STEER
 
 messages:
 - NodeStatus:
@@ -146,7 +146,7 @@ messages:
             description: State of the ESTOP arming.
             width: 1
 
-- WHL_SteeringData:
+- STEER_SteeringData:
     id: 0x16
     cycletime: 100
 
@@ -181,7 +181,7 @@ messages:
             unit: percent
             width: 7
 
-- WHL_SteeringCmd:
+- STEER_SteeringCmd:
     id: 0x21
     cycletime: 100
 
