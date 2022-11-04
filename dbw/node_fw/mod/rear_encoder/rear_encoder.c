@@ -113,18 +113,6 @@ static void encoder_100Hz()
 
     can_send_iface(&can_RearEncoder_Data_cfg, &CAN_RearEncoder);
 
-    if (
-        (ABS(CAN_RearEncoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_RearEncoder.encoderRight) >= ENCODER_MAX_TICKS)
-    )
-        base_set_state_estop(
-            CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE,
-            __LINE__
-        );
-
-    if (CAN_RearEncoder.dtUs >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
-
     prv_pulse_cnt[0] += CAN_RearEncoder.encoderLeft;
     prv_pulse_cnt[1] += CAN_RearEncoder.encoderRight;
     prv_timer_val    += CAN_RearEncoder.dtUs;
