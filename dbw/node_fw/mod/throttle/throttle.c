@@ -81,29 +81,6 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
-        static uint64_t prv_delta_ms;
-        static bool     set;
-
-        if (set) {
-            if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(
-                    CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE,
-                    __LINE__
-                );
-        } else {
-            prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
-            set = true;
-        }
-    }
-
-    if (
-        base_dbw_active() &&
-        can_Vel_Cmd_cfg.recieved &&
-        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
-
     // set the relay from the CAN data
     control_relay(base_dbw_active());
     CAN_Accel.relayState = relay_state;

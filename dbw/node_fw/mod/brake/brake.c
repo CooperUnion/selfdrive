@@ -62,9 +62,9 @@ static const can_outgoing_t can_Brake_Data_cfg = {
     .pack = CAN_BRAKE_BrakeData_pack,
 };
 
-struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
 
-can_incoming_t can_Vel_Cmd_cfg = {
+static can_incoming_t can_Vel_Cmd_cfg = {
     .id = CAN_DBW_VELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
     .unpack = CAN_DBW_VelCmd_unpack,
