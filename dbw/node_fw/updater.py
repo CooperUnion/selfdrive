@@ -19,9 +19,9 @@ def main():
 
     db = cantools.database.load_file("../../can/igvc_can.dbc")
 
-    updater_msg = db.get_message_by_name('dbwUpdater_Update_Data')
+    updater_msg = db.get_message_by_name('DBW_UpdaterUpdateData')
 
-    trigger_msg = db.get_message_by_name('dbwUpdater_Update_Trigger')
+    trigger_msg = db.get_message_by_name('DBW_UpdaterUpdateTrigger')
 
     bus = can.interface.Bus('can0', bustype='socketcan')
 
@@ -29,7 +29,7 @@ def main():
     t_data = trigger_msg.encode({'Begin': 0, 'Filler1': 0, 'Trigger': 1})
     t_msg = can.Message(arbitration_id=trigger_msg.frame_id, data=t_data, is_extended_id=False)
 
-    response_msg = db.get_message_by_name('dbwNode_Update_Response')
+    response_msg = db.get_message_by_name('DBW_NodeUpdateResponse')
 
     print("> Sending trigger message for ~10 seconds...")
     for i in range(0, 100):
@@ -60,7 +60,7 @@ def main():
 
 #                print(img_raw[i:i+4].hex())
 
-            done_msg = db.get_message_by_name('dbwUpdater_Update_Done')
+            done_msg = db.get_message_by_name('DBW_UpdaterUpdateDone')
 
             d_data = done_msg.encode({'FinalSize': len(img_raw)})
             d_msg = can.Message(arbitration_id=done_msg.frame_id, data=d_data, is_extended_id=False)

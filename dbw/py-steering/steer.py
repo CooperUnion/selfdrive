@@ -56,7 +56,7 @@ class Steer(threading.Thread):
 
                 self._od.clear_errors()
 
-                self._logger.warn('calibrating odrive')
+                self._logger.warn('calibrating ODrive')
                 self._axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
                 while self._axis.current_state != odrive.enums.AXIS_STATE_IDLE:
                     pass
@@ -101,7 +101,7 @@ class Steer(threading.Thread):
 
     def run(self):
         while True:
-            rec = self._bus.get('steering_Absolute_Encoder')
+            rec = self._bus.get('WHL_AbsoluteEncoder')
 
             if rec:
                 unix_time_ns, data = rec
@@ -113,13 +113,13 @@ class Steer(threading.Thread):
 
                 # the absolute encoder data is currently not decoded
                 # correctly so we'll need to re-encode the data
-                data['Pos'] = igvcutils.can.endianswap(
-                    data['Pos'],
+                data['encoder'] = igvcutils.can.endianswap(
+                    data['encoder'],
                     'little',
                     dst_signed=True,
                 )
 
-                self._cur_angle = self._enc2angle(data['Pos'])
+                self._cur_angle = self._enc2angle(data['encoder'])
 
             elif self._prv_enc_unix_time_ns:
                 if time.time_ns() - self._prv_enc_unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
@@ -129,11 +129,11 @@ class Steer(threading.Thread):
                 self._prv_enc_unix_time_ns = time.time_ns()
 
             self._bus.send(
-                'dbwNode_Steering_Data',
+                'STEER_SteeringData',
                 {
-                    'Angle':             math.radians(self._cur_angle),
-                    'EncoderTimeoutSet': self._encoder_timeout,
-                    'ODriveConnected':   self._odrive_connection,
+                    'angle':             math.radians(self._cur_angle),
+                    'encoderTimeoutSet': self._encoder_timeout,
+                    'oDriveConnected':   self._odrive_connection,
                 },
             )
 
@@ -148,7 +148,7 @@ class Steer(threading.Thread):
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
-                rec = self._bus.get('dbwNode_Steering_Cmd')
+                rec = self._bus.get('STEER_SteeringCmd')
 
                 if rec:
                     unix_time_ns, data = rec
@@ -158,7 +158,7 @@ class Steer(threading.Thread):
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
-                    self._des_angle = math.degrees(data['Angle'])
+                    self._des_angle = math.degrees(data['angle'])
 
                     self._odrive_en(True)
                     self._axis.controller.input_vel = self._pid.step(

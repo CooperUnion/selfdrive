@@ -53,21 +53,21 @@ static ledc_channel_config_t pwm_channel = {
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Brake_Data_t CAN_Brake;
+static struct CAN_BRAKE_BrakeData_t CAN_Brake;
 
 static const can_outgoing_t can_Brake_Data_cfg = {
-    .id = CAN_DBWNODE_BRAKE_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_BRAKE_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_BRAKE_DATA_LENGTH,
-    .pack = CAN_dbwNode_Brake_Data_pack,
+    .id = CAN_BRAKE_BRAKEDATA_FRAME_ID,
+    .extd = CAN_BRAKE_BRAKEDATA_IS_EXTENDED,
+    .dlc = CAN_BRAKE_BRAKEDATA_LENGTH,
+    .pack = CAN_BRAKE_BrakeData_pack,
 };
 
-struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
+struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
 
 can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .id = CAN_DBW_VELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
+    .unpack = CAN_DBW_VelCmd_unpack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -106,7 +106,7 @@ static void brake_100Hz()
     static float32_t prev_cmd;
 
     float32_t cmd = (base_dbw_active())
-        ? ((float32_t) CAN_Vel_Cmd.BrakePercent) / 100.0
+        ? ((float32_t) CAN_Vel_Cmd.brakePercent) / 100.0
         : 0.0;
 
     cmd = clip_brake_cmd(pwm_channel, cmd);
@@ -144,10 +144,10 @@ static void init_pwm(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_ch
 static void send_brake_feedback(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel)
 {
     // update and send message
-    CAN_Brake.Frequency = pwm_timer.freq_hz;
-    CAN_Brake.Resolution = pwm_timer.duty_resolution;
-    CAN_Brake.Percent = 100 * ((float32_t) pwm_channel.duty / (float32_t) MAX_DUTY);
-    CAN_Brake.DutyCycle = pwm_channel.duty;
+    CAN_Brake.frequency = pwm_timer.freq_hz;
+    CAN_Brake.resolution = pwm_timer.duty_resolution;
+    CAN_Brake.percent = 100 * ((float32_t) pwm_channel.duty / (float32_t) MAX_DUTY);
+    CAN_Brake.dutyCycle = pwm_channel.duty;
 
     can_send_iface(&can_Brake_Data_cfg, &CAN_Brake);
 }

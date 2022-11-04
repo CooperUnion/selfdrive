@@ -6,6 +6,7 @@
 #include "common.h"
 #include "module_types.h"
 #include "io/can.h"
+#include "libgitrev.h"
 #include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
@@ -37,50 +38,59 @@ static bool wdt_trigger;
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Status_t CAN_Status;
+static struct CAN_NodeStatus_t CAN_Status;
 
 static can_outgoing_t can_Status_cfg = {
-    .id = CAN_DBWNODE_STATUS_FRAME_ID,
-    .extd = CAN_DBWNODE_STATUS_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_STATUS_LENGTH,
-    .pack = CAN_dbwNode_Status_pack,
+    .id = CAN_NODESTATUS_FRAME_ID,
+    .extd = CAN_NODESTATUS_IS_EXTENDED,
+    .dlc = CAN_NODESTATUS_LENGTH,
+    .pack = CAN_NodeStatus_pack,
 };
 
-static struct CAN_dbwESTOP_t CAN_DBW_ESTOP;
+static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP;
 
 static can_outgoing_t can_DBW_ESTOP_cfg = {
-    .id = CAN_DBWESTOP_FRAME_ID,
-    .extd = CAN_DBWESTOP_IS_EXTENDED,
-    .dlc = CAN_DBWESTOP_LENGTH,
-    .pack = CAN_dbwESTOP_pack,
+    .id = CAN_DBW_ESTOP_FRAME_ID,
+    .extd = CAN_DBW_ESTOP_IS_EXTENDED,
+    .dlc = CAN_DBW_ESTOP_LENGTH,
+    .pack = CAN_DBW_ESTOP_pack,
 };
 
-static struct CAN_dbwActive_t CAN_DBW_Active;
+static struct CAN_DBW_Active_t CAN_DBW_Active;
 
 static can_incoming_t can_DBW_Active_cfg = {
-    .id = CAN_DBWACTIVE_FRAME_ID,
+    .id = CAN_DBW_ACTIVE_FRAME_ID,
     .out = &CAN_DBW_Active,
-    .unpack = CAN_dbwActive_unpack,
+    .unpack = CAN_DBW_Active_unpack,
 };
 
-static struct CAN_dbwESTOP_t CAN_DBW_ESTOP_in;
+static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP_in;
 
 static can_incoming_t can_DBW_ESTOP_in_cfg = {
-    .id = CAN_DBWESTOP_FRAME_ID,
+    .id = CAN_DBW_ESTOP_FRAME_ID,
     .out = &CAN_DBW_ESTOP_in,
-    .unpack = CAN_dbwESTOP_unpack,
+    .unpack = CAN_DBW_ESTOP_unpack,
 };
 
-static struct CAN_dbwNode_Info_t CAN_Info;
+static struct CAN_NodeInfo_t CAN_Info;
+
+static can_outgoing_t can_NodeInfo_cfg = {
+    .id = CAN_NODEINFO_FRAME_ID,
+    .extd = CAN_NODEINFO_IS_EXTENDED,
+    .dlc = CAN_NODEINFO_LENGTH,
+    .pack = CAN_NodeInfo_pack,
+};
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void base_init();
+static void base_1Hz();
 static void base_10Hz();
 static void base_100Hz();
 
 const struct rate_funcs base_rf = {
     .call_init  = base_init,
+    .call_1Hz   = base_1Hz,
     .call_10Hz  = base_10Hz,
     .call_100Hz = base_100Hz,
 };
@@ -98,27 +108,38 @@ static void base_init()
     gpio_set_level(LED1_PIN, 0);
     gpio_set_level(LED2_PIN, 0);
 
+    // set up dbwNode_Info
+    CAN_Info.gitHash     = GITREV_BUILD_REV;
+    CAN_Info.gitDirty    = GITREV_BUILD_DIRTY;
+    can_NodeInfo_cfg.id += FIRMWARE_MODULE_IDENTITY;
+
+    // set up dbwNode_Status
     can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
     const RESET_REASON reason = rtc_get_reset_reason(0);
-    CAN_Status.Esp32ResetReasonCode = reason;
+    CAN_Status.esp32ResetReasonCode = reason;
 
     switch (reason) {
         case POWERON_RESET:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_POWERON_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_POWERON_CHOICE;
             break;
 
         case RTCWDT_RTC_RESET:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_WATCHDOG_RESET_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_WATCHDOG_RESET_CHOICE;
             break;
 
         default:
-            CAN_Status.ResetReason = CAN_dbwNode_Status_ResetReason_UNKNOWN_CHOICE;
+            CAN_Status.resetReason = CAN_NodeStatus_resetReason_UNKNOWN_CHOICE;
             break;
     }
 
     can_register_incoming_msg(&can_DBW_Active_cfg);
     can_register_incoming_msg(&can_DBW_ESTOP_in_cfg);
+}
+
+static void base_1Hz()
+{
+    can_send_iface(&can_NodeInfo_cfg, &CAN_Info);
 }
 
 static void base_10Hz()
@@ -129,13 +150,13 @@ static void base_10Hz()
 static void base_100Hz()
 {
     if (
-        CAN_DBW_Active.Active &&
+        CAN_DBW_Active.active &&
         (can_DBW_Active_cfg.delta_ms < DBW_ACTIVE_TIMEOUT_MS) &&
         (system_state == SYS_STATE_IDLE)
     ) {
         system_state = SYS_STATE_DBW_ACTIVE;
     } else if (
-        (!CAN_DBW_Active.Active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
+        (!CAN_DBW_Active.active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
         (system_state == SYS_STATE_DBW_ACTIVE)
     ) {
         system_state = SYS_STATE_IDLE;
@@ -145,32 +166,31 @@ static void base_100Hz()
 
     switch (system_state) {
         case SYS_STATE_IDLE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_IDLE_CHOICE;
+            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_IDLE_CHOICE;
             break;
 
         case SYS_STATE_DBW_ACTIVE:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ACTIVE_CHOICE;
+            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_ACTIVE_CHOICE;
             break;
 
         case SYS_STATE_ESTOP:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_ESTOP_CHOICE;
+            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_ESTOP_CHOICE;
             break;
 
         default:
-            CAN_Status.SystemStatus = CAN_dbwNode_Status_SystemStatus_UNHEALTHY_CHOICE;
+            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_UNHEALTHY_CHOICE;
             break;
     }
 
     can_send_iface(&can_Status_cfg, &CAN_Status);
 
-    CAN_Status.Counter++;
+    CAN_Status.counter++;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
 
 /*
  * Blink the status LEDs according to system state.
- *
  * Timings are intended for 10Hz.
  */
 static void set_status_LEDs() {
@@ -246,9 +266,9 @@ void base_set_state_estop(uint8_t choice, uint16_t line)
 {
     system_state = SYS_STATE_ESTOP;
 
-    CAN_DBW_ESTOP.Source   = CAN_dbwESTOP_Source_NODE_CHOICE;
-    CAN_DBW_ESTOP.Location = line;
-    CAN_DBW_ESTOP.Reason   = choice;
+    CAN_DBW_ESTOP.src      = CAN_DBW_ESTOP_src_NODE_CHOICE;
+    CAN_DBW_ESTOP.location = line;
+    CAN_DBW_ESTOP.reason   = choice;
 
     can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }

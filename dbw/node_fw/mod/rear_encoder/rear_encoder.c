@@ -42,13 +42,13 @@ static int64_t prv_pulse_cnt[2];
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_RearEncoder_Data_t CAN_RearEncoder;
+static struct CAN_ENCR_EncoderData_t CAN_RearEncoder;
 
 static const can_outgoing_t can_RearEncoder_Data_cfg = {
-    .id = CAN_DBWNODE_REARENCODER_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_REARENCODER_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_REARENCODER_DATA_LENGTH,
-    .pack = CAN_dbwNode_RearEncoder_Data_pack,
+    .id = CAN_ENCR_ENCODERDATA_FRAME_ID,
+    .extd = CAN_ENCR_ENCODERDATA_IS_EXTENDED,
+    .dlc = CAN_ENCR_ENCODERDATA_LENGTH,
+    .pack = CAN_ENCR_EncoderData_pack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -107,27 +107,27 @@ static void encoder_100Hz()
 
     timer_get_counter_value(TIMER_GROUP_1, TIMER_0, &timer_val);
 
-    CAN_RearEncoder.Encoder0 = pulse_cnt[0] - prv_pulse_cnt[0];
-    CAN_RearEncoder.Encoder1 = pulse_cnt[1] - prv_pulse_cnt[1];
-    CAN_RearEncoder.Time     = timer_val - prv_timer_val;
+    CAN_RearEncoder.encoderLeft  = pulse_cnt[0] - prv_pulse_cnt[0];
+    CAN_RearEncoder.encoderRight = pulse_cnt[1] - prv_pulse_cnt[1];
+    CAN_RearEncoder.dtUs         = timer_val - prv_timer_val;
 
     can_send_iface(&can_RearEncoder_Data_cfg, &CAN_RearEncoder);
 
     if (
-        (ABS(CAN_RearEncoder.Encoder0) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_RearEncoder.Encoder1) >= ENCODER_MAX_TICKS)
+        (ABS(CAN_RearEncoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
+        (ABS(CAN_RearEncoder.encoderRight) >= ENCODER_MAX_TICKS)
     )
         base_set_state_estop(
-            CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE,
+            CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE,
             __LINE__
         );
 
-    if (CAN_RearEncoder.Time >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
+    if (CAN_RearEncoder.dtUs >= ENCODER_TIMEOUT_US)
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
 
-    prv_pulse_cnt[0] += CAN_RearEncoder.Encoder0;
-    prv_pulse_cnt[1] += CAN_RearEncoder.Encoder1;
-    prv_timer_val    += CAN_RearEncoder.Time;
+    prv_pulse_cnt[0] += CAN_RearEncoder.encoderLeft;
+    prv_pulse_cnt[1] += CAN_RearEncoder.encoderRight;
+    prv_timer_val    += CAN_RearEncoder.dtUs;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

@@ -28,21 +28,21 @@ static bool relay_state;
 
 // ######          CAN          ###### //
 
-struct CAN_dbwNode_Accel_Data_t CAN_Accel; // used by pedal.c; not static
+struct CAN_THROTTLE_AccelData_t CAN_Accel; // used by pedal.c; not static
 
 static const can_outgoing_t can_Accel_Data_cfg = {
-    .id = CAN_DBWNODE_ACCEL_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_ACCEL_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_ACCEL_DATA_LENGTH,
-    .pack = CAN_dbwNode_Accel_Data_pack,
+    .id = CAN_THROTTLE_ACCELDATA_FRAME_ID,
+    .extd = CAN_THROTTLE_ACCELDATA_IS_EXTENDED,
+    .dlc = CAN_THROTTLE_ACCELDATA_LENGTH,
+    .pack = CAN_THROTTLE_AccelData_pack,
 };
 
-static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
 
 static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .id = CAN_DBW_VELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
+    .unpack = CAN_DBW_VelCmd_unpack,
 };
 
 // ######      PROTOTYPES       ###### //
@@ -88,7 +88,7 @@ static void throttle_100Hz()
         if (set) {
             if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
                 base_set_state_estop(
-                    CAN_dbwESTOP_Reason_TIMEOUT_CHOICE,
+                    CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE,
                     __LINE__
                 );
         } else {
@@ -102,14 +102,14 @@ static void throttle_100Hz()
         can_Vel_Cmd_cfg.recieved &&
         (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
 
     // set the relay from the CAN data
     control_relay(base_dbw_active());
-    CAN_Accel.RelayState = relay_state;
+    CAN_Accel.relayState = relay_state;
 
     // get the pedal output from the CAN data
-    float32_t cmd = ((float32_t) CAN_Vel_Cmd.ThrottlePercent) / 100.0;
+    float32_t cmd = ((float32_t) CAN_Vel_Cmd.throttlePercent) / 100.0;
     set_pedal_output(cmd); // sets CAN feedback data too
 
     // send CAN feedback message

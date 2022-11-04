@@ -7,6 +7,6 @@
 
 #include "io/can.h"
 
-extern struct CAN_dbwNode_Encoder_Data_t CAN_Encoder;
+extern struct CAN_ENCF_EncoderData_t CAN_Encoder;
 
 #endif

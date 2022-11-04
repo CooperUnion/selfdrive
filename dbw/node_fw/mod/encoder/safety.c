@@ -30,16 +30,16 @@ struct rate_funcs safety_rf = {
 static void safety_100Hz()
 {
     if (
-        (ABS(CAN_Encoder.Encoder0) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_Encoder.Encoder1) >= ENCODER_MAX_TICKS)
+        (ABS(CAN_Encoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
+        (ABS(CAN_Encoder.encoderRight) >= ENCODER_MAX_TICKS)
     )
         base_set_state_estop(
-            CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE,
+            CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE,
             __LINE__
         );
 
-    if (CAN_Encoder.Time >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
+    if (CAN_Encoder.dtUs >= ENCODER_TIMEOUT_US)
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

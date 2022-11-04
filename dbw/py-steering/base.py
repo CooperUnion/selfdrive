@@ -26,7 +26,7 @@ class Base(threading.Thread):
 
     def run(self):
         while True:
-            rec = self._bus.get('dbwActive')
+            rec = self._bus.get('DBW_Active')
 
             if rec and self._sys_state != 'ESTOP':
                 msg_time, data = rec
@@ -34,7 +34,7 @@ class Base(threading.Thread):
                 cur_time = time.time_ns()
 
                 if \
-                    data['Active'] and \
+                    data['active'] and \
                     cur_time - msg_time < self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'IDLE':
 
@@ -44,7 +44,7 @@ class Base(threading.Thread):
                     self._sys_state = 'ACTIVE'
 
                 elif \
-                    not data['Active'] or\
+                    not data['active'] or\
                     cur_time - msg_time >= self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'ACTIVE':
 
@@ -53,7 +53,7 @@ class Base(threading.Thread):
 
                     self._sys_state = 'IDLE'
 
-            rec = self._bus.get('dbwESTOP')
+            rec = self._bus.get('DBW_ESTOP')
 
             if rec:
                 msg_time, data = rec
@@ -67,12 +67,12 @@ class Base(threading.Thread):
                     self._sys_state = 'ESTOP'
 
             self._bus.send(
-                'dbwNode_Status_' + self._mod_ident,
+                'NodeStatus_' + self._mod_ident,
                 {
-                    'SystemStatus':         self._sys_state,
-                    'Counter':              self._counter,
-                    'ResetReason':          'UNKNOWN',
-                    'Esp32ResetReasonCode': 0,
+                    'sysStatus':         self._sys_state,
+                    'counter':              self._counter,
+                    'resetReason':          'UNKNOWN',
+                    'esp32ResetReasonCode': 0,
                 },
             )
 
@@ -83,8 +83,8 @@ class Base(threading.Thread):
     def set_state_estop(self, reason: str, err_msg: str = None):
         self._sys_state = 'ESTOP'
         self._bus.send(
-            'dbwESTOP',
-            {'Source': 'NODE', 'Reason': reason},
+            'DBW_ESTOP',
+            {'src': 'NODE', 'reason': reason},
         )
         self._logger.warn(f'ESTOP reason: {reason}')
         if err_msg: self._logger.error(err_msg)

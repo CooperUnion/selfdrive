@@ -28,10 +28,10 @@ class UnitThrottle(unit.Unit):
         self._throttle_diff_time_ns = None
 
     def test(self):
-        data_rec = self._bus.get('dbwNode_Accel_Data')
+        data_rec = self._bus.get('THROTTLE_AccelData')
         if data_rec is None: return self.abort('TIMEOUT')
 
-        cmd_rec = self._bus.get('dbwNode_Vel_Cmd')
+        cmd_rec = self._bus.get('DBW_VelCmd')
         if cmd_rec is None: return self.abort('TIMEOUT')
 
         cur_time = time.time_ns()
@@ -39,12 +39,12 @@ class UnitThrottle(unit.Unit):
         data_time, data_data = data_rec
         cmd_time, cmd_data   = cmd_rec
 
-        if cur_time - data_time >= DBWNODE_ACCEL_DATA_TIMEOUT_NS:
+        if cur_time - data_time >= THROTTLE_ACCELDATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
-        if cur_time - cmd_time >= DBWNODE_VEL_CMD_TIMEOUT_NS:
+        if cur_time - cmd_time >= DBW_VELCMD_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
-        perc_diff = abs(data_data['Percent'] - cmd_data['ThrottlePercent'])
+        perc_diff = abs(data_data['percent'] - cmd_data['throttlePercent'])
 
         if perc_diff > THROTTLE_PERCENT_DIFF_MAX:
             if self._throttle_diff_time_ns is None:
@@ -62,25 +62,25 @@ units.append(UnitThrottle())
 
 class UnitVelocity(unit.Unit):
     def test(self):
-        encoder_rec = self._bus.get('dbwNode_Encoder_Data')
+        encoder_rec = self._bus.get('ENCF_EncoderData')
         if encoder_rec is None: return self.abort('TIMEOUT')
 
         cur_time = time.time_ns()
 
         encoder_time, encoder_data = encoder_rec
 
-        if cur_time - encoder_time >= DBWNODE_ENCODER_DATA_TIMEOUT_NS:
+        if cur_time - encoder_time >= ENCF_ENCODERDATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
         encoder_max = max(
-            abs(encoder_data['Encoder0']),
-            abs(encoder_data['Encoder1']),
+            abs(encoder_data['encoderLeft']),
+            abs(encoder_data['encoderRight']),
         )
 
-        if encoder_data['Time'] <= ENCODER_DELTA_TIMEOUT_MIN_US:
+        if encoder_data['dtUs'] <= ENCODER_DELTA_TIMEOUT_MIN_US:
             return self.abort('TIMEOUT')
 
-        if encoder_data['Time'] >= ENCODER_DELTA_TIMEOUT_MAX_US:
+        if encoder_data['dtUs'] >= ENCODER_DELTA_TIMEOUT_MAX_US:
             return self.abort('TIMEOUT')
 
         if encoder_max > ENCODER_5MPH_TICKS:

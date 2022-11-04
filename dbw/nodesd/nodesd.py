@@ -17,10 +17,10 @@ def main():
     argparser = argparse.ArgumentParser(description='node daemon')
 
     argparser.add_argument(
-        '--can-dbwEnable',
+        '--can-DBW_Enable',
         action='store_true',
         default=False,
-        help='enable \'dbwEnable\' message',
+        help='enable \'DBW_Enable\' message',
     )
     argparser.add_argument(
         '--redis-host',
@@ -66,9 +66,9 @@ def main():
         ),
     )
 
-    if args.can_dbwEnable:
+    if args.can_DBW_Enable:
         dbw_enable.start()
-        logger.info('listening for \'dbwEnable\' message')
+        logger.info('listening for \'DBW_Enable\' message')
 
     logger.info('starting servicer for node(s)')
     while True:

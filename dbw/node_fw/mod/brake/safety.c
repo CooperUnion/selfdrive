@@ -37,7 +37,7 @@ static void safety_100Hz()
         if (set) {
             if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
                 base_set_state_estop(
-                    CAN_dbwESTOP_Reason_TIMEOUT_CHOICE,
+                    CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE,
                     __LINE__
                 );
         } else {
@@ -49,7 +49,7 @@ static void safety_100Hz()
     }
 
     if (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE, __LINE__);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE, __LINE__);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
