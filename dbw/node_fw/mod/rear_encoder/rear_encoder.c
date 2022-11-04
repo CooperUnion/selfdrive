@@ -101,9 +101,9 @@ static void encoder_100Hz()
 
     timer_get_counter_value(TIMER_GROUP_1, TIMER_0, &timer_val);
 
-    CAN_RearEncoder.encoderLeft = pulse_cnt[0] - prv_pulse_cnt[0];
+    CAN_RearEncoder.encoderLeft  = pulse_cnt[0] - prv_pulse_cnt[0];
     CAN_RearEncoder.encoderRight = pulse_cnt[1] - prv_pulse_cnt[1];
-    CAN_RearEncoder.dtUs     = timer_val - prv_timer_val;
+    CAN_RearEncoder.dtUs         = timer_val - prv_timer_val;
 
     can_send_iface(&can_RearEncoder_Data_cfg, &CAN_RearEncoder);
 

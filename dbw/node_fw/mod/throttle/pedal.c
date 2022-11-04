@@ -77,5 +77,5 @@ void set_pedal_output(float32_t cmd)
 
     CAN_Accel.throttleACmd = thr_A_cmd;
     CAN_Accel.throttleFCmd = thr_F_cmd;
-    CAN_Accel.percent = cmd * 100;
+    CAN_Accel.percent      = cmd * 100;
 }

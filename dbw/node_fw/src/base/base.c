@@ -109,8 +109,8 @@ static void base_init()
     gpio_set_level(LED2_PIN, 0);
 
     // set up dbwNode_Info
-    CAN_Info.gitHash = GITREV_BUILD_REV;
-    CAN_Info.gitDirty = GITREV_BUILD_DIRTY;
+    CAN_Info.gitHash     = GITREV_BUILD_REV;
+    CAN_Info.gitDirty    = GITREV_BUILD_DIRTY;
     can_NodeInfo_cfg.id += FIRMWARE_MODULE_IDENTITY;
 
     // set up dbwNode_Status
