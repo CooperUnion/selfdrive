@@ -1,0 +1,5 @@
+{
+  "name": "can-gen",
+  "version": "rolling",
+  "description": "Generated CAN bus definitions and code"
+}

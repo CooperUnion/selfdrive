@@ -1,3 +1,6 @@
 [submodule "can/cantools"]
 	path = common/cantools
 	url = ../cantools-autonomylab.git
+[submodule "dbw/node_fw/lib/ember"]
+	path = dbw/node_fw/lib/ember
+	url = ../ember.git
