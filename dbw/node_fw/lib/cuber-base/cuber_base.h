@@ -1,5 +1,5 @@
-#ifndef BASE_H
-#define BASE_H
+#ifndef CUBER_BASE_H
+#define CUBER_BASE_H
 
 #include <stdbool.h>
 #include <stdint.h>

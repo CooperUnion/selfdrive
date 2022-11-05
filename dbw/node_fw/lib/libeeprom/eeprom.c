@@ -5,9 +5,6 @@
 #include <esp_err.h>
 #include <stdint.h>
 
-#include "common.h"
-#include "sys/task_glue.h"
-
 // ######        DEFINES        ###### //
 
 #define EEPROM_PAGESIZ  64
@@ -29,8 +26,6 @@
 
 // ######      PROTOTYPES       ###### //
 
-static void eeprom_init();
-
 static esp_err_t sel_read(uint16_t addr);
 
 // ######     PRIVATE DATA      ###### //
@@ -39,11 +34,7 @@ static uint16_t internal_addr;
 
 // ######    RATE FUNCTIONS     ###### //
 
-const struct rate_funcs eeprom_rf = {
-    .call_init = eeprom_init,
-};
-
-static void eeprom_init()
+void eeprom_init()
 {
     gpio_set_direction(EEPROM_WP_GPIO, GPIO_MODE_OUTPUT);
     EEPROM_WP(true);

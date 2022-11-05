@@ -3,11 +3,11 @@
 #include <driver/gpio.h>
 
 #include "common.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_nodetypes.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BLINK;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BLINK;
 
 // ######        DEFINES        ###### //
 
@@ -32,7 +32,7 @@ static void blink_1Hz();
  *
  * Note that it's perfectly okay that the rate functions are declared as static.
  */
-struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init = blink_init,
     .call_1Hz = blink_1Hz,
 };

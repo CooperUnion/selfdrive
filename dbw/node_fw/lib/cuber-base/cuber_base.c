@@ -1,13 +1,13 @@
-#include "base/base.h"
+#include "cuber_base.h"
 
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
 #include "common.h"
-#include "module_types.h"
-#include "io/can.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 #include "libgitrev.h"
-#include "sys/task_glue.h"
 
 // ######        DEFINES        ###### //
 
@@ -88,7 +88,7 @@ static void base_1Hz();
 static void base_10Hz();
 static void base_100Hz();
 
-const struct rate_funcs base_rf = {
+ember_rate_funcs_S base_rf = {
     .call_init  = base_init,
     .call_1Hz   = base_1Hz,
     .call_10Hz  = base_10Hz,
@@ -111,10 +111,10 @@ static void base_init()
     // set up dbwNode_Info
     CAN_Info.gitHash     = GITREV_BUILD_REV;
     CAN_Info.gitDirty    = GITREV_BUILD_DIRTY;
-    can_NodeInfo_cfg.id += FIRMWARE_MODULE_IDENTITY;
+    can_NodeInfo_cfg.id += CUBER_NODE_IDENTITY;
 
     // set up dbwNode_Status
-    can_Status_cfg.id += FIRMWARE_MODULE_IDENTITY;
+    can_Status_cfg.id += CUBER_NODE_IDENTITY;
 
     const RESET_REASON reason = rtc_get_reset_reason(0);
     CAN_Status.esp32ResetReasonCode = reason;

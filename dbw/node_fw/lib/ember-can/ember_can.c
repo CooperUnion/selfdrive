@@ -1,15 +1,12 @@
-#include "can.h"
+#include "ember_can.h"
 
 #include <esp_ota_ops.h>
 #include <driver/twai.h>
 #include <stdio.h>
 
-#include "base/base.h"
 #include "common.h"
-#include "sys/task_glue.h"
-#include "sys/watchdog.h"
-
-#include "can_gen.h"
+#include "cuber_base.h"
+#include "ember_taskglue.h"
 
 // ######        DEFINES        ###### //
 
@@ -32,7 +29,7 @@ static uint in_msgs_count = 0;
 static void can_init();
 static void can_1kHz();
 
-const struct rate_funcs can_rf = {
+ember_rate_funcs_S can_rf = {
     .call_init = can_init,
     .call_1kHz = can_1kHz,
 };

@@ -14,4 +14,6 @@ void set_up_rtc_watchdog_for_init();
 void set_up_rtc_watchdog_final();
 void set_up_rtc_watchdog_fwupdate();
 
+void set_up_rtc_watchdog(uint32_t timeout_ms);
+
 #endif

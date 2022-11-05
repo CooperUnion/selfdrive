@@ -3,14 +3,14 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
-#include "base/base.h"
 #include "common.h"
-#include "io/can.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_base.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_ENCODER;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
 
 // ######        DEFINES        ###### //
 
@@ -52,7 +52,7 @@ static const can_outgoing_t can_Encoder_Data_cfg = {
 static void encoder_init();
 static void encoder_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = encoder_init,
     .call_100Hz = encoder_100Hz,
 };

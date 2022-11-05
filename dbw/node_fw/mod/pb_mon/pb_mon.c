@@ -2,12 +2,12 @@
 
 #include <driver/gpio.h>
 
-#include "io/can.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_PB_MON;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_PB_MON;
 
 // ######        DEFINES        ###### //
 
@@ -34,7 +34,7 @@ static const can_outgoing_t can_PbMon_Data_cfg = {
 static void pb_mon_init();
 static void pb_mon_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = pb_mon_init,
     .call_100Hz = pb_mon_100Hz,
 };

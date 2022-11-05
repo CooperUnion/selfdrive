@@ -1,5 +1,5 @@
-#ifndef CAN_H
-#define CAN_H
+#ifndef EMBER_CAN_H
+#define EMBER_CAN_H
 
 #include <driver/twai.h>
 
