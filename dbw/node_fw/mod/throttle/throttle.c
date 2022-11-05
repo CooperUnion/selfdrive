@@ -20,8 +20,6 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_THROTTLE;
 
 #define MODE_CTRL_PIN 16
 
-#define CMD_TIMEOUT_MS 200
-
 // ######     PRIVATE DATA      ###### //
 
 static bool relay_state;
