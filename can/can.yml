@@ -1,198 +1,194 @@
-residents:
-  - dbwNode_Steering
-  - dbwNode_Brakes
-  - techPc
-  - dbwWatchdog
+---
 
 templategroups:
   dbwnodes:
-    - Blink
-    - Throttle
-    - Brake
-    - Encoder
-    - RearEncoder
-    - PbMon
-    - Steering
+    - BLINK
+    - THROTTLE
+    - BRAKE
+    - ENCF
+    - ENCR
+    - PB
+    - STEER
 
 messages:
-- dbwNode_Status:
-    id: 0xE0
-    cycletime: 100
+  - NodeStatus:
+      id: 0xE0
+      cycletime: 100
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - SystemStatus:
-          description: Status of the node.
-          width: 2
-          choices:
-            - IDLE
-            - UNHEALTHY
-            - ACTIVE
-            - ESTOP
-      - Counter:
-          description: Counter for fun.
-          width: 8
-      - ResetReason:
-          description: Reset reason.
-          width: 2
-          choices:
-            - POWERON
-            - WATCHDOG_RESET
-            - UNKNOWN
-      - Esp32ResetReasonCode:
-          description: ESP32 reset reason code (enum RESET_REASON)
-          width: 5
+      signals:
+        - sysStatus:
+            description: Status of the node.
+            width: 2
+            choices:
+              - IDLE
+              - UNHEALTHY
+              - ACTIVE
+              - ESTOP
+        - counter:
+            description: Counter for fun.
+            width: 8
+        - resetReason:
+            description: Reset reason.
+            width: 2
+            choices:
+              - POWERON
+              - WATCHDOG_RESET
+              - UNKNOWN
+        - esp32ResetReasonCode:
+            description: ESP32 reset reason code (enum RESET_REASON)
+            width: 5
 
-- dbwNode_Info:
-    id: 0xD0
-    cycletime: 1000
+  - NodeInfo:
+      id: 0xD0
+      cycletime: 1000
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - Githash:
-          description: Githash of the currently-running firmware.
-          width: 32
-      - GitDirty:
-          description: Repository was dirty at build time.
-          width: 1
-      - EepromIdentity:
-          description: EEPROM identity.
-          width: 6
+      signals:
+        - gitHash:
+            description: Githash of the currently-running firmware.
+            width: 32
+        - gitDirty:
+            description: Repository was dirty at build time.
+            width: 1
+        - eepromIdentity:
+            description: EEPROM identity.
+            width: 6
 
-- dbwNode_Accel_Data:
-    id: 0x10
-    cycletime: 100
+  - THROTTLE_AccelData:
+      id: 0x10
+      cycletime: 100
 
-    signals:
-      - ThrottleACmd:
-          description: Throttle A command.
-          width: 8
-      - ThrottleFCmd:
-          description: Throttle B command.
-          width: 8
-      - Percent:
-          description: Percentage commanded.
-          width: 8
-          unit: percent
-      - RelayState:
-          description: Current relay state.
-          width: 1
+      signals:
+        - throttleACmd:
+            description: Throttle A command.
+            width: 8
+        - throttleFCmd:
+            description: Throttle B command.
+            width: 8
+        - percent:
+            description: Percentage commanded.
+            width: 8
+            unit: percent
+        - relayState:
+            description: Current relay state.
+            width: 1
 
-- dbwNode_Brake_Data:
-    id: 0x11
-    cycletime: 100
+  - BRAKE_BrakeData:
+      id: 0x11
+      cycletime: 100
 
-    signals:
-      - Frequency:
-          description: Frequency of PWM input.
-          width: 16
-          unit: hertz
-      - Resolution:
-          description: Resolution of PWM input.
-          width: 16
-      - DutyCycle:
-          description: Duty Cycle of PWM input.
-          width: 16
-      - Percent:
-          description: Percentage commanded.
-          width: 8
-          unit: percent
-      - Pressure:
-          description: Pressure Sensed.
-          width: 8
+      signals:
+        - frequency:
+            description: Frequency of PWM input.
+            width: 16
+            unit: hertz
+        - resolution:
+            description: Resolution of PWM input.
+            width: 16
+        - dutyCycle:
+            description: Duty Cycle of PWM input.
+            width: 16
+        - percent:
+            description: Percentage commanded.
+            width: 8
+            unit: percent
+        - pressure:
+            description: Pressure Sensed.
+            width: 8
 
-- dbwNode_Encoder_Data:
-    id: 0x13
-    cycletime: 10
+  - ENCF_EncoderData:
+      id: 0x13
+      cycletime: 10
 
-    signals:
-        - Encoder0:
-            description: Encoder 0 pulses since last reading.
+      signals:
+        - encoderLeft:
+            description: Left encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Encoder1:
-            description: Encoder 1 pulses since last reading.
+        - encoderRight:
+            description: Right encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Time:
+        - dtUs:
             description: Microseconds since last reading.
             width: 16
 
-- dbwNode_RearEncoder_Data:
-    id: 0x14
-    cycletime: 10
+  - ENCR_EncoderData:
+      id: 0x14
+      cycletime: 10
 
-    signals:
-        - Encoder0:
-            description: Encoder 0 pulses since last reading.
+      signals:
+        - encoderLeft:
+            description: Left encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Encoder1:
-            description: Encoder 1 pulses since last reading.
+        - encoderRight:
+            description: Right encoder pulses since last reading.
             is_signed: true
             width: 12
-        - Time:
+        - dtUs:
             description: Microseconds since last reading.
             width: 16
 
-- dbwNode_PbMon_Data:
-    id: 0x15
-    cycletime: 100
+  - PB_ParkingBrakeData:
+      id: 0x15
+      cycletime: 100
 
-    signals:
-        - PbSet:
+      signals:
+        - pbSet:
             description: State of the parking brake.
             width: 1
-        - MagnetEnergized:
+        - magnetEnergized:
             description: State of the parking brake magnet.
             width: 1
-        - ArmedESTOP:
+        - armedESTOP:
             description: State of the ESTOP arming.
             width: 1
 
-- dbwNode_Steering_Data:
-    id: 0x16
-    cycletime: 100
+  - STEER_SteeringData:
+      id: 0x16
+      cycletime: 100
 
-    signals:
-        - Angle:
+      signals:
+        - angle:
             description: Absolute steering angle in radians.
             minimum: -0.610865238
             maximum: 0.610865238
             scale: 0.000000001
             is_signed: true
             width: 32
-        - EncoderTimeoutSet:
+        - encoderTimeoutSet:
             description: Has the encoder timed out?
             width: 1
-        - ODriveConnected:
+        - oDriveConnected:
             description: Is the ODrive connected?
             width: 1
 
-- dbwNode_Vel_Cmd:
-    id: 0x20
-    cycletime: 100
+  - DBW_VelCmd:
+      id: 0x20
+      cycletime: 100
 
-    signals:
-        - ThrottlePercent:
+      signals:
+        - throttlePercent:
             description: Throttle percentage.
             maximum: 100
             unit: percent
             width: 7
-        - BrakePercent:
+        - brakePercent:
             description: Brake percentage.
             maximum: 100
             unit: percent
             width: 7
 
-- dbwNode_Steering_Cmd:
-    id: 0x21
-    cycletime: 100
+  - STEER_SteeringCmd:
+      id: 0x21
+      cycletime: 100
 
-    signals:
-        - Angle:
+      signals:
+        - angle:
             description: Absolute steering angle in radians.
             minimum: -0.471238898
             maximum: 0.471238898
@@ -200,12 +196,12 @@ messages:
             is_signed: true
             width: 32
 
-- steering_Absolute_Encoder:
-    id: 0x1E5
-    cycletime: 10
+  - WHL_AbsoluteEncoder:
+      id: 0x1E5
+      cycletime: 10
 
-    signals:
-        - Foo:
+      signals:
+        - foo:
             description: Foo.
             width: 8
         # TODO: add big endian support to gen_dbc.py
@@ -214,101 +210,101 @@ messages:
         # cantools will decode this signal into an unsigned int
         # it is the job of the programmer to re-encode this value
         # into a signed int
-        - Pos:
+        - encoder:
             description: Absolute encoder position.
             width: 16
-        - Bar:
+        - bar:
             description: Bar.
             width: 40
 
-- dbwESTOP:
-    id: 0x41F
-    cycletime: 100
+  - DBW_ESTOP:
+      id: 0x41F
+      cycletime: 100
 
-    signals:
-      - Source:
-          description: ESTOP source.
-          width: 8
-          choices:
-            - NODE
-            - NODESD
-            - SAFED
-      - Reason:
-          description: ESTOP reason.
-          width: 8
-          choices:
-            - FAIL
-            - TIMEOUT
-            - INVALID_STATE
-            - LIMIT_EXCEEDED
+      signals:
+        - src:
+            description: ESTOP source.
+            width: 8
+            choices:
+              - NODE
+              - NODESD
+              - SAFED
+        - reason:
+            description: ESTOP reason.
+            width: 8
+            choices:
+              - FAIL
+              - TIMEOUT
+              - INVALID_STATE
+              - LIMIT_EXCEEDED
 
-- dbwActive:
-    id: 0x420
-    cycletime: 100
+  - DBW_Active:
+      id: 0x420
+      cycletime: 100
 
-    signals:
-      - Active:
-          description: DBW is active.
-          width: 1
+      signals:
+        - active:
+            description: DBW is active.
+            width: 1
 
-- dbwEnable:
-    id: 0x421
-    cycletime: 100
+  - DBW_Enable:
+      id: 0x421
+      cycletime: 100
 
-    signals:
-      - Enable:
-          description: Enable DBW active.
-          width: 1
+      signals:
+        - enable:
+            description: Enable DBW active.
+            width: 1
 
-- dbwUpdater_Update_Trigger:
-    id: 0x4A0
-    cycletime: 100
+  - DBW_UpdaterUpdateTrigger:
+      id: 0x4A0
+      cycletime: 100
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - Trigger:
-          description: Trigger the update.
-          width: 1
-      - Filler1:
-          description: Filler.
-          width: 7
-      - Begin:
-          description: Begin the update.
-          width: 1
+      signals:
+        - trigger:
+            description: Trigger the update.
+            width: 1
+        - filler1:
+            description: Filler.
+            width: 7
+        - begin:
+            description: Begin the update.
+            width: 1
 
-- dbwUpdater_Update_Data:
-    id: 0x4B0
-    cycletime: 100
+  - DBW_UpdaterUpdateData:
+      id: 0x4B0
+      cycletime: 100
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - Position:
-          description: Index of 32-bit data chunk.
-          width: 24
-      - Data:
-          description: Image data.
-          width: 40
+      signals:
+        - position:
+            description: Index of 32-bit data chunk.
+            width: 24
+        - data:
+            description: Image data.
+            width: 40
 
-- dbwNode_Update_Response:
-    id: 0x4C0
-    cycletime: 100
+  - DBW_NodeUpdateResponse:
+      id: 0x4C0
+      cycletime: 100
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - Ready:
-          description: Ready to begin update.
-          width: 1
+      signals:
+        - ready:
+            description: Ready to begin update.
+            width: 1
 
-- dbwUpdater_Update_Done:
-    id: 0x4D0
-    cycletime: 100
+  - DBW_UpdaterUpdateDone:
+      id: 0x4D0
+      cycletime: 100
 
-    template: dbwnodes
+      template: dbwnodes
 
-    signals:
-      - FinalSize:
-          description: Number of bytes in final image size.
-          width: 32
+      signals:
+        - finalSize:
+            description: Number of bytes in final image size.
+            width: 32

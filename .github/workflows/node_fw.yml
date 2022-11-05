@@ -1,6 +1,6 @@
 name: Build node_fw
 
-on: [push]
+on: [pull_request, push, workflow_dispatch]
 
 jobs:
   pre_job:

@@ -75,7 +75,7 @@ void set_pedal_output(float32_t cmd)
     dac_output_voltage(DAC_CHANNEL_1, thr_F_cmd);
     dac_output_voltage(DAC_CHANNEL_2, thr_A_cmd);
 
-    CAN_Accel.ThrottleACmd = thr_A_cmd;
-    CAN_Accel.ThrottleFCmd = thr_F_cmd;
-    CAN_Accel.Percent = cmd * 100;
+    CAN_Accel.throttleACmd = thr_A_cmd;
+    CAN_Accel.throttleFCmd = thr_F_cmd;
+    CAN_Accel.percent      = cmd * 100;
 }

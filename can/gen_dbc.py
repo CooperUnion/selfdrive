@@ -90,7 +90,7 @@ if __name__ == "__main__":
                 messages.append(
                     candb.Message(
                         frame_id=int(data["id"], 16) + t_id + 1,
-                        name=name + "_" + t,
+                        name=t + "_" + name,
                         length=msg_width,
                         cycle_time=int(data["cycletime"]),
                         # fix sender #
