@@ -24,7 +24,7 @@
 static void safety_100Hz(void);
 
 struct rate_funcs safety_rf = {
-    .call_init = safety_100Hz,
+    .call_100Hz = safety_100Hz,
 };
 
 static void safety_100Hz()
