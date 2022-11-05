@@ -1,13 +1,14 @@
 #include "watchdog.h"
 
 #include <freertos/FreeRTOS.h>
-#include <soc/rtc_wdt.h>
+#include <hal/wdt_hal.h>
+#include <soc/rtc.h>
 
 #include "common.h"
 
 /*
- * watchdog - EXPERIMENTAL IMPLEMENTATION
-*/
+ * watchdog - Save the system if all else fails
+ */
 
 // ######        DEFINES        ###### //
 
@@ -27,6 +28,8 @@ static volatile bool task_10Hz_checkin;
 static volatile bool task_100Hz_checkin;
 static volatile bool task_1kHz_checkin;
 
+static wdt_hal_context_t wdt_ctx;
+
 // ######   PRIVATE FUNCTIONS   ###### //
 
 /*
@@ -34,12 +37,37 @@ static volatile bool task_1kHz_checkin;
  */
 static IRAM_ATTR void kick_rtc_watchdog()
 {
-    rtc_wdt_protect_off();
-    rtc_wdt_feed();
-    rtc_wdt_protect_on();
+    wdt_hal_write_protect_disable(&wdt_ctx);
+    wdt_hal_feed(&wdt_ctx);
+    wdt_hal_write_protect_enable(&wdt_ctx);
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
+
+/*
+ * Set up and activate the rtc watchdog with the given timeout. Note that there
+ * can only be one watchdog active at a time - this function will override any
+ * previous active watchdog.
+ *
+ * Refer to:
+ * https://github.com/espressif/esp-idf/blob/master/components/hal/include/hal/wdt_hal.h
+ * https://github.com/espressif/esp-idf/blob/4c3322ed6003b87422bd79fe9e67f1cb347c6e2f/components/esp_hw_support/rtc_wdt.c#L91
+ */
+void set_up_rtc_watchdog(uint timeout_ms)
+{
+    const uint32_t timeout_ticks =
+        (uint32_t) ((uint64_t) rtc_clk_slow_freq_get_hz() * timeout_ms / 1000);
+
+    // it's okay to call wdt_hal_init() on an already-active timer. It will
+    // destroy the existing context and stop all active RTC watchdogs before
+    // setting up again.
+    wdt_hal_init(&wdt_ctx, WDT_RWDT, 0, false);
+
+    wdt_hal_write_protect_disable(&wdt_ctx);
+    wdt_hal_config_stage(&wdt_ctx, WDT_STAGE0, timeout_ticks, WDT_STAGE_ACTION_RESET_RTC);
+    wdt_hal_enable(&wdt_ctx);
+    wdt_hal_write_protect_enable(&wdt_ctx);
+}
 
 void task_1Hz_wdt_kick()
 {
@@ -121,25 +149,6 @@ void IRAM_ATTR task_wdt_servicer()
     }
     // implicit else is that the watchdog resets the SoC shortly after
 }
-
-/*
- * Set up and activate the rtc watchdog with the given timeout. Note that there
- * can only be one watchdog active at a time - this function will override any
- * previous active watchdog.
- * 
- * //todo: error handling
- */
-void set_up_rtc_watchdog(uint timeout_ms)
-{
-    rtc_wdt_protect_off(); // allows us to modify the rtc watchdog registers
-    rtc_wdt_disable();
-    rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
-    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
-    rtc_wdt_set_time(RTC_WDT_STAGE0, timeout_ms);
-    rtc_wdt_enable();
-    rtc_wdt_protect_on(); // disables modifying the rtc watchdog registers
-}
-
 
 /*
  * Configure the watchdog with a temporarily larger timeout so we can run the
