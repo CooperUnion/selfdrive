@@ -29,6 +29,8 @@ struct rate_funcs safety_rf = {
 
 static void safety_100Hz()
 {
+    if (!base_dbw_active()) return;
+
     if (
         (ABS(CAN_Encoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
         (ABS(CAN_Encoder.encoderRight) >= ENCODER_MAX_TICKS)
