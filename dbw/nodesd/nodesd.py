@@ -46,13 +46,13 @@ def main():
     logger = logging.getLogger('nodesd')
 
     mod_ident = [
-        'Blink',
-        'Throttle',
-        'Brake',
-        'Encoder',
-        'RearEncoder',
-        'PbMon',
-        'Steering'
+        'BLINK',
+        'THROTTLE',
+        'BRAKE',
+        'ENCF',
+        'ENCR',
+        'PB',
+        'STEER'
     ]
 
     nodes = [node.Node(mod, bus=bus) for mod in mod_ident]
