@@ -1,3 +1,7 @@
+/*
+ * rear_encoder.c -- rear encoder module
+ */
+
 #include "rear_encoder.h"
 
 #include <driver/gpio.h>
@@ -57,6 +61,8 @@ const struct rate_funcs module_rf = {
     .call_100Hz = encoder_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 static void encoder_init()
 {
     const timer_config_t timer_config = {
@@ -106,15 +112,6 @@ static void encoder_100Hz()
     CAN_RearEncoder.dtUs         = timer_val - prv_timer_val;
 
     can_send_iface(&can_RearEncoder_Data_cfg, &CAN_RearEncoder);
-
-    if (
-        (ABS(CAN_RearEncoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_RearEncoder.encoderRight) >= ENCODER_MAX_TICKS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE);
-
-    if (CAN_RearEncoder.dtUs >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
     prv_pulse_cnt[0] += CAN_RearEncoder.encoderLeft;
     prv_pulse_cnt[1] += CAN_RearEncoder.encoderRight;

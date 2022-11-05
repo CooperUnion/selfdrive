@@ -229,6 +229,9 @@ messages:
               - NODE
               - NODESD
               - SAFED
+        - location:
+            description: ESTOP location in source.
+            width: 16
         - reason:
             description: ESTOP reason.
             width: 8

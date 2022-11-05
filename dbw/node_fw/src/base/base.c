@@ -262,12 +262,13 @@ void base_set_state_lost_can()
 }
 
 
-void base_set_state_estop(uint8_t choice)
+void base_set_state_estop(uint8_t choice, uint16_t line)
 {
     system_state = SYS_STATE_ESTOP;
 
-    CAN_DBW_ESTOP.src = CAN_DBW_ESTOP_src_NODE_CHOICE;
-    CAN_DBW_ESTOP.reason = choice;
+    CAN_DBW_ESTOP.src      = CAN_DBW_ESTOP_src_NODE_CHOICE;
+    CAN_DBW_ESTOP.location = line;
+    CAN_DBW_ESTOP.reason   = choice;
 
     can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }

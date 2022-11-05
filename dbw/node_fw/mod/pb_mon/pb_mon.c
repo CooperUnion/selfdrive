@@ -1,3 +1,7 @@
+/*
+ * pb_mon.c -- parking brake monitoring module
+ */
+
 #include "pb_mon.h"
 
 #include <driver/gpio.h>
@@ -38,6 +42,8 @@ const struct rate_funcs module_rf = {
     .call_init  = pb_mon_init,
     .call_100Hz = pb_mon_100Hz,
 };
+
+struct rate_funcs safety_rf;
 
 static void pb_mon_init()
 {

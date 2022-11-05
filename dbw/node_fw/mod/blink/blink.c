@@ -1,3 +1,7 @@
+/*
+ * blink.c -- blink module
+ */
+
 #include "blink.h"
 
 #include <driver/gpio.h>
@@ -36,6 +40,8 @@ struct rate_funcs module_rf = {
     .call_init = blink_init,
     .call_1Hz = blink_1Hz,
 };
+
+struct rate_funcs safety_rf;
 
 /*
  * Initializes the GPIO for the LED.

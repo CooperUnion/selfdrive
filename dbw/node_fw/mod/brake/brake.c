@@ -1,3 +1,7 @@
+/*
+ * brake.c -- brake module
+ */
+
 #include "brake.h"
 
 #include <driver/ledc.h>
@@ -21,8 +25,6 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BRAKE;
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION 16
 #define MAX_DUTY 65535
-
-#define CMD_TIMEOUT_MS 200
 
 // ######      PROTOTYPES       ###### //
 
@@ -78,6 +80,8 @@ struct rate_funcs module_rf = {
     .call_100Hz = brake_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 /*
  * Initialize pwm struct and attach output to GPIO pin
  *
@@ -100,26 +104,6 @@ static void brake_init()
 static void brake_100Hz()
 {
     static float32_t prev_cmd;
-
-    if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
-        static uint64_t prv_delta_ms;
-        static bool     set;
-
-        if (set) {
-            if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-        } else {
-            prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
-            set = true;
-        }
-    }
-
-    if (
-        base_dbw_active() &&
-        can_Vel_Cmd_cfg.recieved &&
-        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
     float32_t cmd = (base_dbw_active())
         ? ((float32_t) CAN_Vel_Cmd.brakePercent) / 100.0

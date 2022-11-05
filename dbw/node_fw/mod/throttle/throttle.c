@@ -1,3 +1,7 @@
+/*
+ * throttle.c -- throttle module
+ */
+
 #include "throttle.h"
 #include "pedal.h"
 
@@ -15,8 +19,6 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_THROTTLE;
 // ######        DEFINES        ###### //
 
 #define MODE_CTRL_PIN 16
-
-#define CMD_TIMEOUT_MS 200
 
 // ######     PRIVATE DATA      ###### //
 
@@ -55,6 +57,8 @@ const struct rate_funcs module_rf = {
     .call_100Hz = throttle_100Hz,
 };
 
+struct rate_funcs safety_rf;
+
 /*
  * Initialize the mode control pin as a GPIO and enable the DACs.
  *
@@ -75,26 +79,6 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
-        static uint64_t prv_delta_ms;
-        static bool     set;
-
-        if (set) {
-            if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-        } else {
-            prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
-            set = true;
-        }
-    }
-
-    if (
-        base_dbw_active() &&
-        can_Vel_Cmd_cfg.recieved &&
-        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-
     // set the relay from the CAN data
     control_relay(base_dbw_active());
     CAN_Accel.relayState = relay_state;

@@ -1,3 +1,7 @@
+/*
+ * encoder.c -- encoder module
+ */
+
 #include "encoder.h"
 
 #include <driver/gpio.h>
@@ -21,9 +25,6 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_ENCODER;
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS  85     // slightly over 5MPH
-#define ENCODER_TIMEOUT_US 20000
-
 // ######      PROTOTYPES       ###### //
 
 static void IRAM_ATTR encoder0_chan_a(void *arg);
@@ -38,7 +39,7 @@ static int64_t prv_pulse_cnt[2];
 
 // ######          CAN          ###### //
 
-static struct CAN_ENCF_EncoderData_t CAN_Encoder;
+struct CAN_ENCF_EncoderData_t CAN_Encoder;
 
 static const can_outgoing_t can_Encoder_Data_cfg = {
     .id = CAN_ENCF_ENCODERDATA_FRAME_ID,
@@ -56,6 +57,8 @@ const struct rate_funcs module_rf = {
     .call_init  = encoder_init,
     .call_100Hz = encoder_100Hz,
 };
+
+struct rate_funcs safety_rf;
 
 static void encoder_init()
 {
@@ -106,15 +109,6 @@ static void encoder_100Hz()
     CAN_Encoder.dtUs         = timer_val - prv_timer_val;
 
     can_send_iface(&can_Encoder_Data_cfg, &CAN_Encoder);
-
-    if (
-        (ABS(CAN_Encoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_Encoder.encoderRight) >= ENCODER_MAX_TICKS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE);
-
-    if (CAN_Encoder.dtUs >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
     prv_pulse_cnt[0] += CAN_Encoder.encoderLeft;
     prv_pulse_cnt[1] += CAN_Encoder.encoderRight;
