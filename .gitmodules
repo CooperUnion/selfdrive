@@ -4,6 +4,3 @@
 [submodule "dbw/node_fw/lib/ember"]
 	path = dbw/node_fw/lib/ember
 	url = ../ember.git
-[submodule "dbw/node_fw/lib/libgitrev"]
-	path = dbw/node_fw/lib/libgitrev
-	url = ../libgitrev.git
