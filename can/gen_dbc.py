@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-import argparse
-
 import cantools
 import cantools.database.can as candb
 
@@ -9,7 +5,8 @@ import os
 
 import strictyaml as sy
 
-VERSION = "0.0.4"
+VERSION = "0.002"
+OUTPUT_FILENAME = "igvc_can.dbc"
 
 def parse_signal(name: str, d: dict):
     choices = d.get("choices")
@@ -53,18 +50,11 @@ def parse_signal(name: str, d: dict):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--yml', type=str, required=True)
-    parser.add_argument('--dbc_out', type=str, required=True)
-
-    args = parser.parse_args()
-
-    print(f"Cooper IGVC CAN Network Generation v{VERSION}\n")
+    print(f"Cooper IGVC CAN Network Generation v{VERSION}")
 
     messages = []
 
-    f = open(args.yml, "r").read()
+    f = open("can.yml", "r").read()
     spec = sy.load(f).data
 
     for msg in spec["messages"]:
@@ -100,11 +90,7 @@ if __name__ == "__main__":
         elif template_flag is None:
             pass
         else:
-            print(f'*** Error making {name}: value for "template" must be "yes"')
-            exit(-3)
-
-        if msg_width > 8:
-            print(f'*** Error making {name}: message length cannot exceed 8 bytes')
+            print('Error: value for "template" must be "yes"')
             exit(-3)
 
         messages.append(
@@ -120,8 +106,8 @@ if __name__ == "__main__":
 
     db = candb.Database(messages)
 
-    cantools.database.dump_file(db, args.dbc_out)
+    cantools.database.dump_file(db, OUTPUT_FILENAME)
 
     print("")
     print("**** DONE ****")
-    os.system(f"cantools dump {args.dbc_out}")
+    os.system(f"cantools dump {OUTPUT_FILENAME}")

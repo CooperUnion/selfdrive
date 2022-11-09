@@ -17,11 +17,10 @@ typedef struct can_incoming_t {
     uint32_t id;
     void *out;
     int (*unpack)();
-    uint64_t delta_ms;
-    bool recieved;
+    uint32_t delta_ms;
 } can_incoming_t;
 
-void can_register_incoming_msg(can_incoming_t *cfg);
+void can_register_incoming_msg(const can_incoming_t cfg);
 void can_send_iface(const can_outgoing_t *i, const void *s);
 
 #endif

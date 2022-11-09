@@ -27,6 +27,6 @@
       "require_upload_port": true,
       "speed": 460800
     },
-    "url": "https://cooperigvc.org",
+    "url": "https://en.wikipedia.org/wiki/ESP32",
     "vendor": "Cooper IGVC"
   }

@@ -6,7 +6,7 @@ subscribe_rgb:          false
 subscribe_stereo:       false
 subscribe_stereo:       false
 subscribe_scan:         false
-subscribe_scan_cloud:   true # lidar on!!
+subscribe_scan_cloud:   false # lidar off!!!
 subscribe_user_data:    false
 subscribe_odom_info:    false
 # subscribe_odometry:     false
@@ -19,8 +19,8 @@ config_path:        "~/.ros/rtabmap.cfg"
 frame_id:       "base_link"
 map_frame_id:   "map"
 odom_frame_id:  ""                   # odometry from odom msg to have covariance - Remapped by launch file
-# odom_tf_angular_variance:  0.03     # If TF is used to get odometry, this is the default angular variance
-# odom_tf_linear_variance:   0.03     # If TF is used to get odometry, this is the default linear variance
+odom_tf_angular_variance:  0.03     # If TF is used to get odometry, this is the default angular variance
+odom_tf_linear_variance:   0.03     # If TF is used to get odometry, this is the default linear variance
 tf_delay:       0.02
 publish_tf:     true                # Set to false if fusing different poses (map->odom) with UKF
 
