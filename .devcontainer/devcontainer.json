@@ -1,0 +1,5 @@
+{
+  "image": "dmezh/igvc-nodefw-builder:latest",
+  "features": {
+  }
+}
