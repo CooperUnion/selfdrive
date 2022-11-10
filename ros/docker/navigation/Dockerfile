@@ -5,12 +5,14 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app
 
 # install dep and such
-RUN apt update && apt install -y git
+RUN apt update && apt upgrade -y
+RUN apt install -y git
 
-# clone ros repo
+# clone ros repos
 RUN mkdir -p ros_ws/src &&\
-    git clone https://github.com/ros-planning/navigation.git ros_ws/src/navigation &&\
-    git clone https://github.com/rst-tu-dortmund/teb_local_planner.git ros_ws/src/teb_local_planner
+    git clone  --branch 1.17.2 https://github.com/ros-planning/navigation.git ros_ws/src/navigation &&\
+    git clone https://github.com/rst-tu-dortmund/teb_local_planner.git ros_ws/src/teb_local_planner &&\
+        cd ros_ws/src/teb_local_planner && git checkout 0e839074c3407ff9ee2206a49567a20bd49fd8cc
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\ 
