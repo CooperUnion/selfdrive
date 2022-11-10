@@ -9,7 +9,7 @@
 
     <!-- ZED Node -->
     <group ns="$(arg zed_namespace)">
-        <include file="$(find zed_wrapper)/launch/include/zed_no_tf.launch.xml">
+        <include file="$(find zed_wrapper)/launch/include/zed_camera.launch.xml">
             <arg name="svo_file"        value="$(arg svo_file)" />
             <arg name="node_name"       value="$(arg zed_node_name)" />
             <arg name="camera_model"    value="$(arg camera_model)" />
