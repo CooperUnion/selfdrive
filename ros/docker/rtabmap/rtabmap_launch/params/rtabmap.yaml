@@ -79,7 +79,7 @@ Reg:
     # Strategy:               1
 
 RGBD:
-    OptimizeRobust:         true
+    OptimizeRobust:         false
     # OptimizeMaxError:       1.0
     # LocalRadius:            20
 

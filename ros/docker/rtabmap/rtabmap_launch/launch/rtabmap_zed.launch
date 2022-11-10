@@ -32,7 +32,7 @@
     <!-- Odom stuff -->
     <arg name="odom_args" default=""/>
     <arg name="wait_for_transform"      default="3.0"/>
-    <arg name="odom_topic"              default="/odom_rgbd" />
+    <arg name="odom_topic"              default="/$(arg zed_namespace)/$(arg zed_node_name)/odom" />
 
     <group ns="rtabmap">
         <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync">
@@ -41,24 +41,7 @@
             <remap from="rgb/camera_info" to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info"/>
             <param name="approx_sync"     value="true"/>
         </node>
-
-        <node name="stereo_odometry" pkg="rtabmap_ros" type="stereo_odometry" args="$(arg odom_args)">
-            <param name="frame_id"                    type="string" value="base_link"/>
-            <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
-            <!-- <param name="Reg/Force3DoF"               type="string" value="true"/>
-            <param name="Vis/InlierDistance"          type="string" value="0.05"/> -->
-            <param name="publish_tf"                  type="bool"   value="true"/>
-            <param name="subscribe_rgbd"              type="bool"   value="false"/>
-
-            <remap from="left/image_rect"    to="$(arg left_image_rect)"/>
-            <remap from="right/image_rect"   to="$(arg right_image_rect)"/>
-            <remap from="left/camera_info"   to="$(arg left_camera_info)"/>
-            <remap from="right/camera_info"  to="$(arg right_camera_info)"/>
-
-            <remap from="odom"            to="$(arg odom_topic)"/>
-            <!-- <remap from="rgbd_image"      to="$(arg rgbd_topic)"/> -->
-        </node>
-
+        
         <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
             <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />
 
