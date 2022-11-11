@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<robot name="gem_sensors" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+
+  <!-- Camera -->
+  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/camera.urdf.xacro" />
+  <xacro:camera_sim name="camera_front" parent="base_footprint" >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:camera_sim>
+
+  <!-- LIDAR -->
+  <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
+  <xacro:hokuyo_utm30lx name="laser" parent="base_footprint" ros_topic="scan" update_rate="40" ray_count="720" min_angle="-90" max_angle="90" >
+    <origin xyz="2.75 0 0.85" rpy="0 0 0" />
+  </xacro:hokuyo_utm30lx>
+
+  <!-- GPS -->
+  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/gps.urdf.xacro" />
+  <xacro:gps name="gps" parent="base_footprint" >
+    <origin xyz="0.8 0 2.35" rpy="0 0 0" />
+  </xacro:gps>
+
+  <!-- Sonar sensors -->
+  <xacro:include filename="$(find hector_sensors_description)/urdf/sonar_sensor.urdf.xacro" />
+
+  <xacro:sonar_sensor name="front_center" parent="base_footprint" ros_topic="sonar/front_center" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="2.8 0 0.5" rpy="0 0 0" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="front_left" parent="base_footprint" ros_topic="sonar/front_left" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="2.62 0.4 0.9" rpy="0 0 0" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="front_right" parent="base_footprint" ros_topic="sonar/front_right" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="2.62 -0.4 0.9" rpy="0 0 0" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="left_side_front" parent="base_footprint" ros_topic="sonar/left_side_front" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="2.4 0.64 0.9" rpy="0 0 ${M_PI/2}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="right_side_front" parent="base_footprint" ros_topic="sonar/right_side_front" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="2.4 -0.64 0.9" rpy="0 0 ${-M_PI/2}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="rear_center" parent="base_footprint" ros_topic="sonar/rear_center" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="-0.39 0 0.5" rpy="0 0 ${M_PI}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="rear_left" parent="base_footprint" ros_topic="sonar/rear_left" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="-0.39 0.6 0.5" rpy="0 0 ${M_PI}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="rear_right" parent="base_footprint" ros_topic="sonar/rear_right" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="-0.39 -0.6 0.5" rpy="0 0 ${M_PI}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="left_side_rear" parent="base_footprint" ros_topic="sonar/left_side_rear" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="0 0.71 0.71" rpy="0 0 ${M_PI/2}" />
+  </xacro:sonar_sensor>
+
+  <xacro:sonar_sensor name="right_side_rear" parent="base_footprint" ros_topic="sonar/right_side_rear" update_rate="20" min_range="0.1" max_range="2" field_of_view="0.17" ray_count="3" >
+    <origin xyz="0 -0.71 0.71" rpy="0 0 ${-M_PI/2}" />
+  </xacro:sonar_sensor>
+
+</robot>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find igvc_self_drive_gazebo)/launch/load_task_world.launch" >
+    <arg name="auto_camera" value="true" />
+  </include>
+
+  <include file="$(find igvc_self_drive_gazebo)/launch/spawn_gem.launch" >
+    <arg name="start_x" value="43.23" />
+    <arg name="start_y" value="-160.42" />
+    <arg name="start_yaw" value="3.1415" />
+    <arg name="twist_mode" value="true" />
+    <arg name="pub_tf" value="false" />
+  </include>
+
+</launch>
