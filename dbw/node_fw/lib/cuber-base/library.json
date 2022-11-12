@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "CUber base management task",
   "dependencies": {
-    "libgitrev": "https://github.com/CooperUnion/libgitrev/archive/refs/tags/v1.0.1.zip"
+    "libgitrev": "https://github.com/CooperUnion/libgitrev/archive/refs/tags/v1.0.1.zip",
+    "cuber-nodetypes": "^1.0.0"
   }
 }

@@ -6,6 +6,7 @@
 #include "common.h"
 #include "cuber_nodetypes.h"
 #include "ember_can.h"
+#include "ember_can_callbacks.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
 
@@ -250,13 +251,13 @@ static void set_status_LEDs() {
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
-bool base_dbw_active()
+bool base_dbw_active(void)
 {
     return system_state == SYS_STATE_DBW_ACTIVE;
 }
 
 
-void base_set_state_lost_can()
+void ember_can_callback_notify_lost_can(void)
 {
     system_state = SYS_STATE_LOST_CAN;
 }
@@ -273,7 +274,7 @@ void base_set_state_estop(uint8_t choice)
 }
 
 
-void base_set_wdt_trigger()
+void base_set_wdt_trigger(void)
 {
     wdt_trigger = true;
 }
