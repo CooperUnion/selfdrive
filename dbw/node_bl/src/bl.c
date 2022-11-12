@@ -34,7 +34,7 @@ static enum bl_state_E {
     BL_STATE_AWAIT_TRIGGER,
     BL_STATE_BOOT_INTO_FW,
     BL_STATE_RECIEVING_IMG,
-    BL_STATE_WRITING_IMG,
+    BL_STATE_COMMIT_UPDATE,
     BL_STATE_FAULT,
 } bl_state;
 
@@ -204,7 +204,7 @@ void app_main()
                             total_size |= msg.data[2] << 16;
                             total_size |= msg.data[3] << 24;
 
-                            set_bl_state(BL_STATE_WRITING_IMG);
+                            set_bl_state(BL_STATE_COMMIT_UPDATE);
                             break;
                         }
 
@@ -216,7 +216,7 @@ void app_main()
                 break;
             }
 
-            case BL_STATE_WRITING_IMG:
+            case BL_STATE_COMMIT_UPDATE:
             {
                 set_led1(0);
                 set_led2(1);

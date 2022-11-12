@@ -15,7 +15,7 @@ BL_BOOT_INTO_FW...............BOOTING INTO APPLICATION..................(boot in
 BL_ISOTP_NEGOTIATE............WAIT FOR ISOTP TRANSFER TO BEGIN..........BL_ISOTP_TRANSFER
 BL_ISOTP_TRANSFER.............ACTIVE ISOTP TRANSFER.....................BL_WRITEBACK
 BL_WRITEBACK..................WRITING BUFFER TO FLASH...................BL_ISOTP_TRANSFER or BL_TRY_COMMIT_UPDATE
-BL_TRY_COMMIT_UPDATE..........TRY TO FINALIZE UPDATE....................BL_BOOT_INTO_FW OR BL_FAULT
+BL_TRY_COMMIT_UPDATE..........TRY TO FINALIZE UPDATE....................BL_BOOT_INTO_FW
 BL_FAULT......................BOOTLOADER FAULT..........................(reset SoC)
 
 # To apply a firmware update:
@@ -44,7 +44,7 @@ The Ember bootloader expects the following to be preprocessor defined at
 bootloader build time:
 
 ```c
-#define EMBER_BL_TRIGGER_MSG_ID    (some CAN message ID) // rx
+#define EMBER_BL_COMMAND_MSG_ID    (some CAN message ID) // rx
 #define EMBER_BL_REPORTING_MSG_ID  (some CAN message ID) // tx
 
 #define EMBER_BL_ISOTP_SEND_MSG_ID (some CAN message ID) // tx
