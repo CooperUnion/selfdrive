@@ -9,6 +9,12 @@
     <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
   </xacro:camera_sim>
 
+  <!-- Stereo Camera -->
+  <!-- <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/stereo.sdf.xacro" />
+  <xacro:camera_sim name="camera_front" parent="base_footprint" >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:camera_sim> -->
+
   <!-- LIDAR -->
   <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
   <xacro:hokuyo_utm30lx name="laser" parent="base_footprint" ros_topic="scan" update_rate="40" ray_count="720" min_angle="-90" max_angle="90" >
