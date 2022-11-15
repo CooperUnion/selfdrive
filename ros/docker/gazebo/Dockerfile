@@ -58,10 +58,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # install dep and such
-RUN apt update && apt install -y git
+RUN apt update && apt upgrade -y && apt install -y git
 
 RUN mkdir -p ros_ws/src &&\
-    git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git ros_ws/src/gazebo-packages
+    git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git ros_ws/src/gazebo-packages &&\
+    git clone https://github.com/ros-teleop/teleop_twist_keyboard.git ros_ws/src/teleop_twist
 
 # install silly packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -80,6 +81,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-polled-camera \
     ros-noetic-diagnostic-updater \
     ros-noetic-camera-info-manager \
+    ros-noetic-xacro \
+    ros-noetic-robot-state-publisher \
+    ros-noetic-hector-gazebo-plugins \
+    ros-noetic-hector-models \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cd ros_ws &&\
