@@ -105,15 +105,10 @@ esp_err_t eeprom_read(uint16_t addr, uint8_t *data, size_t len)
     buf[1] = addr >> 8;
     buf[2] = addr & 0xff;
 
-    // ensure we can read
-    while (true) {
-        val = sel_read(internal_addr);
-        if (val == ESP_OK) break;
-
-        // when the EEPROM is busy writing it will
-        // not send an ACK, returning ESP_FAIL
-        if (val != ESP_FAIL) goto error;
-    }
+    // when the EEPROM is busy writing it will
+    // not send an ACK, returning ESP_FAIL
+    val = sel_read(internal_addr);
+    if (val != ESP_OK) goto error;
 
     cmd = i2c_cmd_link_create();
     if (!cmd) return ESP_ERR_NO_MEM;
