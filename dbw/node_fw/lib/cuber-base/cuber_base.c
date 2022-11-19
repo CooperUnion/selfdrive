@@ -11,8 +11,8 @@
 
 // ######        DEFINES        ###### //
 
-#define LED1_PIN 32
-#define LED2_PIN 33
+#define LED1_PIN 17
+#define LED2_PIN 18
 
 #define DBW_ACTIVE_TIMEOUT_MS 200
 

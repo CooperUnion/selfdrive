@@ -6,9 +6,9 @@
 void app_main()
 {
     /* set boot partition back to bootloader */
-    ember_bltools_set_boot_partition_to_factory();
+    // ember_bltools_set_boot_partition_to_factory();
 
     /* begin running tasks */
-    ember_tasking_begin();
+    // ember_tasking_begin();
 }
 
