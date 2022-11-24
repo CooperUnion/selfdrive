@@ -4,16 +4,16 @@
   <xacro:property name="M_PI" value="3.1415926535897931" />
 
   <!-- Camera -->
-  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/camera.urdf.xacro" />
-  <xacro:camera_sim name="camera_front" parent="base_footprint" >
-    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
-  </xacro:camera_sim>
-
-  <!-- Stereo Camera -->
-  <!-- <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/stereo.sdf.xacro" />
+  <!-- <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/camera.urdf.xacro" />
   <xacro:camera_sim name="camera_front" parent="base_footprint" >
     <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
   </xacro:camera_sim> -->
+
+  <!-- Stereo Camera -->
+  <xacro:include filename="$(find hector_sensors_description)/urdf/generic_stereo_camera.urdf.xacro" />
+  <xacro:generic_stereo_camera name="stereo_front" parent="base_footprint" ros_topic="sensor_msgs/Image" cam_info_topic="sensor_msgs/CameraInfo" update_rate="30.0" res_x="800" res_y="800" image_format="R8G8B8" hfov="1.396" baseline="0"   >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:generic_stereo_camera>
 
   <!-- LIDAR -->
   <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
