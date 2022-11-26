@@ -3,7 +3,6 @@
 import argparse
 import can
 import cantools
-import re
 
 from pprint import pprint
 from time import sleep
@@ -17,7 +16,7 @@ def main():
     img = open(f".pio/build/{args.module_name}/firmware.bin", "rb")
     img_raw = img.read()
 
-    db = cantools.database.load_file("../../can/igvc_can.dbc")
+    db = cantools.database.load_file("../../build/can/igvc_can.dbc")
 
     updater_msg = db.get_message_by_name('DBW_UpdaterUpdateData')
 
@@ -35,6 +34,8 @@ def main():
     for i in range(0, 100):
         bus.send(t_msg)
         msg = bus.recv(timeout = 0)
+        if msg is not None:
+            print(f"Got {msg}")
         if msg is not None and msg.arbitration_id == response_msg.frame_id:
             print("> Got response!")
 
