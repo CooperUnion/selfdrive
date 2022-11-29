@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package>
+  <name>kvh1750</name>
+  <version>1.0.0</version>
+  <description>KVH 1750 IMU Driver</description>
+
+  <maintainer email="jpz@vt.edu">Jason Ziglar</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>BSD</license>
+
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/kvh1750</url> -->
+
+  <author email="erichahn@vt.edu">Eric Hahn</author>
+  <author email="jpz@vt.edu">Jason Ziglar</author>
+  <author email="lakdant@gmail.com">Lakshitha Dantanarayana</author>
+
+  <test_depend>gtest</test_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>serial</build_depend>
+  <build_depend>tf</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>serial</run_depend>
+  <run_depend>tf</run_depend>
+
+</package>
