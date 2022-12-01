@@ -168,3 +168,19 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+
+    controls:
+        build: docker/controls/.
+        container_name: controls
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=controls'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/controls/controls_launch:/app/ros_ws/src/controls_launch'
+        depends_on:
+            - master
