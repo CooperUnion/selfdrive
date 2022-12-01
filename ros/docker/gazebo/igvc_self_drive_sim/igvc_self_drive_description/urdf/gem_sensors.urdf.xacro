@@ -9,17 +9,65 @@
     <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
   </xacro:camera_sim> -->
 
+  <!-- Published Topics -->
+  <!-- /stereo_front/left/camera_info
+       /stereo_front/left/image_raw
+       /stereo_front/left/parameter_descriptions
+       /stereo_front/left/parameter_updates
+       /stereo_front/right/camera_info
+       /stereo_front/right/image_raw
+       /stereo_front/right/parameter_descriptions
+       /stereo_front/right/parameter_updates -->
+  
   <!-- Stereo Camera -->
-  <!-- <xacro:include filename="$(find hector_sensors_description)/urdf/generic_stereo_camera.urdf.xacro" />
+  <xacro:include filename="$(find hector_sensors_description)/urdf/generic_stereo_camera.urdf.xacro" />
   <xacro:generic_stereo_camera name="stereo_front" parent="base_footprint" ros_topic="sensor_msgs/Image" cam_info_topic="sensor_msgs/CameraInfo" update_rate="30.0" res_x="800" res_y="800" image_format="R8G8B8" hfov="1.396" baseline="0"   >
     <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
-  </xacro:generic_stereo_camera> -->
+  </xacro:generic_stereo_camera>
+
+  <!-- Published Topics -->
+  <!-- /kinect_camera_model/depth/camera_info
+       /kinect_camera_model/depth/image_raw
+       /kinect_camera_model/depth/points
+       /kinect_camera_model/rgb/camera_info
+       /kinect_camera_model/rgb/image_raw -->
 
   <!-- Kinect Camera -->
   <xacro:include filename="$(find hector_sensors_description)/urdf/kinect_camera.urdf.xacro" />
   <xacro:kinect_camera name="kinect_camera_model" parent="base_footprint"   >
     <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
   </xacro:kinect_camera>
+
+  <!-- Published Topics -->
+  <!-- /realsense_camera_model/depth/camera_info
+       /realsense_camera_model/depth/image_raw
+       /realsense_camera_model/depth/points
+       /realsense_camera_model/parameter_descriptions
+       /realsense_camera_model/parameter_updates
+       /realsense_camera_model/rgb/camera_info
+       /realsense_camera_model/rgb/rgb/image_raw -->
+
+  <!-- Realsense Camera -->
+  <!-- <xacro:include filename="$(find hector_sensors_description)/urdf/realsense_camera.urdf.xacro" />
+  <xacro:realsense_camera name="realsense_camera_model" parent="base_footprint"   >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:realsense_camera> -->
+
+  <!-- Published Topics -->
+  <!-- /realsense_d435_camera_model/color/camera_info
+       /realsense_d435_camera_model/color/image_raw
+       /realsense_d435_camera_model/depth/camera_info
+       /realsense_d435_camera_model/depth/image_raw
+       /realsense_d435_camera_model/depth/points
+       /realsense_d435_camera_model/parameter_descriptions
+       /realsense_d435_camera_model/parameter_updates -->
+
+
+  <!-- Realsense d435 Camera -->
+  <xacro:include filename="$(find hector_sensors_description)/urdf/realsense_d435_camera.urdf.xacro" />
+  <xacro:realsense_d435_camera name="realsense_d435_camera_model" parent="base_footprint"   >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:realsense_d435_camera>
 
   <!-- LIDAR -->
   <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
