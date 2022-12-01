@@ -2,21 +2,27 @@
 #include <math.h>
 #include<stdio.h>
 
+//created for testing
+Pid startup(float kp,float ki,float kd,float lower_lim,float upper_lim,float ts,float sigma){
+  return newPid(kp,ki,kd,lower_lim, upper_lim, ts, sigma);
+}
 
-Pid newPid(float kp,float ki,float kd,float ts,float lower_lim,float upper_lim,float sigma) {
-        Pid pid; 
-        pid.kp         = kp;
-        pid.ki         = ki;
-        pid.kd         = kd;
-        pid.lower_lim  = lower_lim;
-        pid.upper_lim  = upper_lim;
-        pid._ts        = ts;
-        pid._sigma     = sigma;
-        pid.beta      = (2 * sigma - ts) / (2 * sigma - ts);
-        pid.y0        = 0.0;
-        pid.err0      = 0.0;
-        pid.err_dot   = 0.0;
-        pid._int      = 0.0;
+//PID struct for PID tests
+Pid newPid(float kp,float ki,float kd,float lower_lim,float upper_lim,float ts,float sigma) {
+    Pid pid; 
+    pid.kp         = kp;
+    pid.ki         = ki;
+    pid.kd         = kd;
+    pid.lower_lim  = lower_lim;
+    pid.upper_lim  = upper_lim;
+    pid._ts        = ts;
+    pid._sigma     = sigma;
+    pid.beta      = (2 * sigma - ts) / (2 * sigma - ts);
+    pid.y0        = 0.0;
+    pid.err0      = 0.0;
+    pid.err_dot   = 0.0;
+    pid._int      = 0.0;
+    return pid;
 }
 
 
@@ -30,17 +36,18 @@ float max(float a, float b) {
   return b;
 }
 
-  /*saturate but idfk what im doing */
-float saturate(Pid *self, float u){
-  return max(min(self->upper_lim, u), self->lower_lim);
+//satutes value in pidupdatecontroller 
+float saturate(Pid *pid, float u){
+  float sat= max(min(pid->upper_lim, u), pid->lower_lim);
+  return sat;
 }
 
-float tsSetter(Pid * pid, float val){
+void tsSetter(Pid *pid, float val){
   pid->_ts = val; 
   pid->beta = (2 * pid->_sigma - pid->_ts) / (2 * pid->_sigma + pid->_ts);
 }
 
-float sigmaSetter(Pid * pid, float val){
+void sigmaSetter(Pid * pid, float val){
   pid->_sigma = val; 
   pid->beta = (2 * pid->_sigma - pid->_ts) / (2 * pid->_sigma + pid->_ts);
 } 
@@ -58,7 +65,7 @@ float PIDController_Update(Pid *pid, float des, float cur) {
     pid->err_dot= (((1-pid->beta)/pid->_ts)*(error - pid->err0));
     
     float val_unsat = (proportional + (pid->ki*pid->_int) + (pid->kd*pid->err_dot));
-    float sat=saturate(&pid,val_unsat);
+    float sat=saturate(pid,val_unsat);
 
     pid->err0 = error;
     pid->y0 = cur;

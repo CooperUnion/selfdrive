@@ -21,15 +21,19 @@ typedef struct Pid{
     float pidout;
 } Pid;
 
+Pid startup(float kp,float ki,float kd,float ts,float lower_lim,float upper_lim,float sigma);
 
 Pid newPid(float kp,float ki,float kd,float ts,float lower_lim,float upper_lim,float sigma);
 
-float PIDController_Update(Pid *self, float des, float cur);
+float saturate(Pid *pid, float u);
 
-float tsSetter(Pid * pid, float val); 
+float PIDController_Update(Pid *pid, float des, float cur);
 
-float sigmaSetter(Pid * pid, float val); 
+void  tsSetter(Pid * pid, float val); 
+
+void sigmaSetter(Pid * pid, float val); 
 
 void setpointReset(Pid * pid, float des, float cur); 
+
 
 #endif

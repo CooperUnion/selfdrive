@@ -1,1 +1,1 @@
-Program("test",["test.c","Pid.c","unity.c", "switch.h"])
+Program("test",["test.c","Pid.c","unity.c", "switch.c"])
