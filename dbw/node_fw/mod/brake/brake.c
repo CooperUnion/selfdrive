@@ -114,12 +114,12 @@ static void brake_100Hz()
         }
     }
 
-    if (
-        base_dbw_active() &&
+    if (base_dbw_active() &&
         can_Vel_Cmd_cfg.recieved &&
-        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-    )
+        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS))
+    {
         base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
+    }
 
     float32_t cmd = (base_dbw_active())
         ? ((float32_t) CAN_Vel_Cmd.brakePercent) / 100.0

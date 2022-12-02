@@ -3,7 +3,7 @@
     "core": "esp32",
     "f_cpu": "240000000L",
     "f_flash": "80000000L",
-    "flash_mode": "qio",
+    "flash_mode": "opi",
     "hwids": [
       [
         "0x303A",

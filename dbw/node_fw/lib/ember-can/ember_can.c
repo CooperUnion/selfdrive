@@ -10,8 +10,8 @@
 
 // ######        DEFINES        ###### //
 
-#define CAN_TX_GPIO 44
-#define CAN_RX_GPIO 43
+#define CAN_TX_GPIO 39
+#define CAN_RX_GPIO 38
 
 // ######      PROTOTYPES       ###### //
 

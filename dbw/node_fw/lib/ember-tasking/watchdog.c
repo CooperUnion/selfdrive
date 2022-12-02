@@ -145,7 +145,7 @@ void IRAM_ATTR task_wdt_servicer()
     violated |= tick_count_1Hz > 1000;
 
     if (!violated) {
-        kick_rtc_watchdog();
+        // kick_rtc_watchdog();
     }
     // implicit else is that the watchdog resets the SoC shortly after
 }
