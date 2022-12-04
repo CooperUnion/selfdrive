@@ -2,6 +2,8 @@ FROM ros:noetic-ros-base
 
 SHELL ["/bin/bash", "-c"]
 
+WORKDIR /app
+
 RUN apt update && apt install -y curl
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
@@ -10,14 +12,13 @@ RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://
 
 RUN apt-get update && apt-get install -qy redis
 
-WORKDIR /app
-
-RUN mkdir ros_ws
+RUN mkdir -p ros_ws/src
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
     rosdep install --from-paths src --ignore-src -r -y && \
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
+    # chmod +x /app/ros_ws/src/pure_pursuit_launch/src/pure_pursuit.py
 
 COPY ./entrypoint.sh /
 COPY ./alias.sh /
