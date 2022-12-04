@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
@@ -22,9 +24,9 @@ class Publish:
 class Controller:
     def __init__(self):
         self.sub = Subscribe()
-        self.pub = Publish()
-        self.pose = self.sub.sub_twist.data
-        self.path - self.sub.sub_path.data
+        self.pose = self.sub.sub_twist
+        self.path = self.sub.sub_path
+        self.pub = Publish(self.pose)
     def pure_pursuit(self):
         while True:
             self.pose.linear.x += 10
@@ -33,6 +35,6 @@ class Controller:
             
 
 if __name__ == '__main__':
-    rospy.init_node('pure-pursuit', anonymous=True)
+    rospy.init_node('pure_pursuit', anonymous=True)
     Controller()
     rospy.spin()
