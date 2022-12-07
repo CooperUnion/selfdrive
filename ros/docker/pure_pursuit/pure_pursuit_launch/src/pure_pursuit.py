@@ -13,7 +13,7 @@ class Subscribe:
             rospy.loginfo("I heard %s", msg.data)
 
 class Publish:
-    def __init__(self, pose):
+    def __init__(self):
         self.pose = pose
         self.pub_twist = rospy.Publisher('/pure_pursuit/twist', Twist, queue_size=2)
         self.rate = rospy.Rate(2)
@@ -24,13 +24,13 @@ class Publish:
 class Controller:
     def __init__(self):
         self.sub = Subscribe()
-        self.pose = self.sub.sub_twist
-        self.path = self.sub.sub_path
-        self.pub = Publish(self.pose)
+        self.pub = Publish()
     def pure_pursuit(self):
         while True:
-            self.pose.linear.x += 10
-            self.pose.linear.y += 10
+            self.sub.sub_twist.linear.x += 10
+            self.sub.sub_twist.linear.y += 10
+
+            #pose = {linear: {x: controllerx, y: contollery }}
             self.pub.publish(self.pose)
             
 
