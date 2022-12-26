@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: dmezh/igvc-nodefw-builder
+    strategy:
+      matrix:
+        nodes: [blink, brake, encoder, pb_mon, rear_encoder, throttle]
 
     steps:
       - uses: actions/checkout@v3
@@ -37,7 +40,7 @@ jobs:
         run: ./setup.sh
 
       - name: Build firmware
-        run: . .venv/bin/activate && make dbw/node_fw
+        run: . .venv/bin/activate && make dbw/node_fw MOD=${{ matrix.nodes }}
 
       - name: 'Upload CAN network'
         uses: actions/upload-artifact@v3
