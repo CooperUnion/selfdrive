@@ -30,4 +30,12 @@ bin_check() {
     fi
 }
 
+whitespace_check() {
+    git diff --cached --check > /dev/null 2>&1 && return
+
+    printf '%b: whitespace problem detected: run `git diff --cached --check`\n' "$MSG_ERROR"
+    exit 1
+}
+
 bin_check
+whitespace_check
