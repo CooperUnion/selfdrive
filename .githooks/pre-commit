@@ -1,0 +1,33 @@
+#!/bin/sh
+
+COLOR_RED="\033[1;31m"
+COLOR_YELLOW="\033[1;33m"
+FORMAT_BOLD="\033[1m"
+FORMAT_NONE="\033[0m"
+
+MSG_ERROR="${FORMAT_BOLD}${COLOR_RED}ERROR${FORMAT_NONE}"
+MSG_WARNING="${FORMAT_BOLD}${COLOR_YELLOW}WARNING${FORMAT_NONE}"
+
+
+bin_check() {
+    lfs_files=$(git lfs ls-files --name-only)
+    staged_files=$(git diff --cached --diff-filter=d --name-only)
+
+    for file in $staged_files; do
+        # ignore files tracked with Git LFS
+        test -z "${lfs_files##*"$file"*}" && continue
+
+        mime_encoding=$(file --brief --mime-encoding "$file")
+        if [ -z "${mime_encoding##*binary*}" ]; then
+            bin_found=true
+            printf '%b: binary file `%s`\n' "$MSG_WARNING" "$file"
+        fi
+    done
+
+    if [ -n "${bin_found:-}" ]; then
+        printf '%b: binary file(s) detected: unstage or track with Git LFS to commit\n' "$MSG_ERROR"
+        exit 1
+    fi
+}
+
+bin_check
