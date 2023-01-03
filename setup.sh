@@ -30,6 +30,9 @@ else
     echo -e "--- You need to manually install system dependencies. ---"
 fi
 
+echo -e "\n-> Setting git hooks path...\n"
+git config core.hooksPath .githooks
+
 echo -e "\n-> Preparing git submodules...\n"
 git submodule update --init --recursive
 
