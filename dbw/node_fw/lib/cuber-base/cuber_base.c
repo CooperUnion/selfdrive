@@ -58,7 +58,7 @@ void CANTX_populate_TEST_NodeStatus(struct CAN_Message_TEST_NodeStatus * const m
             break;
     }
 
-    static uint8_t counter;
+    static typeof(m->TEST_counter) counter;
     m->TEST_counter = counter++;
 
     switch (reset_reason) {
