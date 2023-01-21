@@ -39,50 +39,6 @@ static bool wdt_trigger;
 
 static RESET_REASON reset_reason;
 
-// ######          CAN          ###### //
-
-void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const m)
-{
-    switch (system_state) {
-        case SYS_STATE_IDLE:
-            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_IDLE;
-            break;
-        case SYS_STATE_DBW_ACTIVE:
-            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ACTIVE;
-            break;
-        case SYS_STATE_ESTOP:
-            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
-            break;
-        default:
-            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_UNHEALTHY;
-            break;
-    }
-
-    static typeof(m->counter) counter;
-    m->counter = counter++;
-
-    switch (reset_reason) {
-        case POWERON_RESET:
-            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
-            break;
-        case RTCWDT_RTC_RESET:
-            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
-            break;
-        default:
-            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
-            break;
-    }
-
-    m->esp32ResetReasonCode = reset_reason;
-}
-
-void CANTX_populateTemplate_NodeInfo(struct CAN_TMessage_DBWNodeInfo * const m)
-{
-    m->gitHash = GITREV_BUILD_REV;
-    m->gitDirty = GITREV_BUILD_DIRTY;
-    m->eepromIdentity = 0; // no eeprom identity at the moment
-}
-
 // ######    RATE FUNCTIONS     ###### //
 
 static void base_init();
@@ -227,4 +183,48 @@ void base_set_state_estop(uint8_t choice)
 void base_set_wdt_trigger(void)
 {
     wdt_trigger = true;
+}
+
+// ######         CAN TX         ###### //
+
+void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const m)
+{
+    switch (system_state) {
+        case SYS_STATE_IDLE:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_IDLE;
+            break;
+        case SYS_STATE_DBW_ACTIVE:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ACTIVE;
+            break;
+        case SYS_STATE_ESTOP:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+            break;
+        default:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_UNHEALTHY;
+            break;
+    }
+
+    static typeof(m->counter) counter;
+    m->counter = counter++;
+
+    switch (reset_reason) {
+        case POWERON_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
+            break;
+        case RTCWDT_RTC_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
+            break;
+        default:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
+            break;
+    }
+
+    m->esp32ResetReasonCode = reset_reason;
+}
+
+void CANTX_populateTemplate_NodeInfo(struct CAN_TMessage_DBWNodeInfo * const m)
+{
+    m->gitHash = GITREV_BUILD_REV;
+    m->gitDirty = GITREV_BUILD_DIRTY;
+    m->eepromIdentity = 0; // no eeprom identity at the moment
 }
