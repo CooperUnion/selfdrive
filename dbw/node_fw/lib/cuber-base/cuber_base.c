@@ -41,46 +41,46 @@ static RESET_REASON reset_reason;
 
 // ######          CAN          ###### //
 
-void CANTX_populate_TEST_NodeStatus(struct CAN_Message_TEST_NodeStatus * const m)
+void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const m)
 {
     switch (system_state) {
         case SYS_STATE_IDLE:
-            m->TEST_sysStatus = CAN_TEST_SYSSTATUS_IDLE;
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_IDLE;
             break;
         case SYS_STATE_DBW_ACTIVE:
-            m->TEST_sysStatus = CAN_TEST_SYSSTATUS_ACTIVE;
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ACTIVE;
             break;
         case SYS_STATE_ESTOP:
-            m->TEST_sysStatus = CAN_TEST_SYSSTATUS_ESTOP;
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
             break;
         default:
-            m->TEST_sysStatus = CAN_TEST_SYSSTATUS_UNHEALTHY;
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_UNHEALTHY;
             break;
     }
 
-    static typeof(m->TEST_counter) counter;
-    m->TEST_counter = counter++;
+    static typeof(m->counter) counter;
+    m->counter = counter++;
 
     switch (reset_reason) {
         case POWERON_RESET:
-            m->TEST_resetReason = CAN_TEST_RESETREASON_POWERON;
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
             break;
         case RTCWDT_RTC_RESET:
-            m->TEST_resetReason = CAN_TEST_RESETREASON_WATCHDOG_RESET;
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
             break;
         default:
-            m->TEST_resetReason = CAN_TEST_RESETREASON_UNKNOWN;
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
             break;
     }
 
-    m->TEST_esp32ResetReasonCode = reset_reason;
+    m->esp32ResetReasonCode = reset_reason;
 }
 
-void CANTX_populate_TEST_NodeInfo(struct CAN_Message_TEST_NodeInfo * const m)
+void CANTX_populateTemplate_NodeInfo(struct CAN_TMessage_DBWNodeInfo * const m)
 {
-    m->TEST_gitHash = GITREV_BUILD_REV;
-    m->TEST_gitDirty = GITREV_BUILD_DIRTY;
-    m->TEST_eepromIdentity = 0; // no eeprom identity at the moment
+    m->gitHash = GITREV_BUILD_REV;
+    m->gitDirty = GITREV_BUILD_DIRTY;
+    m->eepromIdentity = 0; // no eeprom identity at the moment
 }
 
 // ######    RATE FUNCTIONS     ###### //
