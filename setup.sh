@@ -36,6 +36,7 @@ if [ -x "$(command -v rustup)" ]; then
 else
     # rustup and accept defaults (-y)
     curl https://sh.rustup.rs -sSf | sh -s -- -y
+    source "$HOME/.cargo/env"
 fi
 
 echo -e "\n-> Preparing git submodules...\n"
