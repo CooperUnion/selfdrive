@@ -308,3 +308,15 @@ messages:
         - finalSize:
             description: Number of bytes in final image size.
             width: 32
+
+  - TECH_FakeCmdVel:
+      id: 0x4E0
+      cycletime: 100
+
+      signals:
+        - DesiredVel:
+            description: supposed linear.x output.
+            width: 32 #???? girl tf is a width
+        - Angle:
+            decription: supposed angle *giggle*
+            width: 32 #probably idfk
