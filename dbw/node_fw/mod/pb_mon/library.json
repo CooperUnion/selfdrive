@@ -1,0 +1,8 @@
+{
+  "name": "cuber-pbmon",
+  "version": "rolling",
+  "description": "Parking brake monitor DBW node",
+  "build": {
+    "libLDFMode": "deep"
+  }
+}

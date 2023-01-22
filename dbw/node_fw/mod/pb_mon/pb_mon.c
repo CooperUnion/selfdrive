@@ -2,12 +2,12 @@
 
 #include <driver/gpio.h>
 
-#include "io/can.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_PB_MON;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_PB_MON;
 
 // ######        DEFINES        ###### //
 
@@ -20,13 +20,13 @@ const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_PB_MON;
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_PbMon_Data_t CAN_PbMon;
+static struct CAN_PB_ParkingBrakeData_t CAN_PbMon;
 
 static const can_outgoing_t can_PbMon_Data_cfg = {
-    .id = CAN_DBWNODE_PBMON_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_PBMON_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_PBMON_DATA_LENGTH,
-    .pack = CAN_dbwNode_PbMon_Data_pack,
+    .id = CAN_PB_PARKINGBRAKEDATA_FRAME_ID,
+    .extd = CAN_PB_PARKINGBRAKEDATA_IS_EXTENDED,
+    .dlc = CAN_PB_PARKINGBRAKEDATA_LENGTH,
+    .pack = CAN_PB_ParkingBrakeData_pack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -34,7 +34,7 @@ static const can_outgoing_t can_PbMon_Data_cfg = {
 static void pb_mon_init();
 static void pb_mon_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = pb_mon_init,
     .call_100Hz = pb_mon_100Hz,
 };
@@ -50,10 +50,10 @@ static void pb_mon_init()
 
 static void pb_mon_100Hz()
 {
-    CAN_PbMon.PbSet           = gpio_get_level(INDUCTIVE_PROX_GPIO);
-    CAN_PbMon.MagnetEnergized = gpio_get_level(MAGNET_GPIO);
+    CAN_PbMon.pbSet           = gpio_get_level(INDUCTIVE_PROX_GPIO);
+    CAN_PbMon.magnetEnergized = gpio_get_level(MAGNET_GPIO);
 
-    CAN_PbMon.ArmedESTOP = CAN_PbMon.PbSet && CAN_PbMon.MagnetEnergized;
+    CAN_PbMon.armedESTOP = CAN_PbMon.pbSet && CAN_PbMon.magnetEnergized;
 
     can_send_iface(&can_PbMon_Data_cfg, &CAN_PbMon);
 }

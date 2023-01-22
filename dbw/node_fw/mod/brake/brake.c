@@ -2,14 +2,14 @@
 
 #include <driver/ledc.h>
 
-#include "base/base.h"
 #include "common.h"
-#include "io/can.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_base.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_BRAKE;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BRAKE;
 
 // ######        DEFINES        ###### //
 
@@ -51,21 +51,21 @@ static ledc_channel_config_t pwm_channel = {
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Brake_Data_t CAN_Brake;
+static struct CAN_BRAKE_BrakeData_t CAN_Brake;
 
 static const can_outgoing_t can_Brake_Data_cfg = {
-    .id = CAN_DBWNODE_BRAKE_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_BRAKE_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_BRAKE_DATA_LENGTH,
-    .pack = CAN_dbwNode_Brake_Data_pack,
+    .id = CAN_BRAKE_BRAKEDATA_FRAME_ID,
+    .extd = CAN_BRAKE_BRAKEDATA_IS_EXTENDED,
+    .dlc = CAN_BRAKE_BRAKEDATA_LENGTH,
+    .pack = CAN_BRAKE_BrakeData_pack,
 };
 
-static struct CAN_dbwNode_Vel_Cmd_t CAN_Vel_Cmd;
+static struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
 
 static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBWNODE_VEL_CMD_FRAME_ID,
+    .id = CAN_DBW_VELCMD_FRAME_ID,
     .out = &CAN_Vel_Cmd,
-    .unpack = CAN_dbwNode_Vel_Cmd_unpack,
+    .unpack = CAN_DBW_VelCmd_unpack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -73,7 +73,7 @@ static can_incoming_t can_Vel_Cmd_cfg = {
 static void brake_init();
 static void brake_100Hz();
 
-struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init = brake_init,
     .call_100Hz = brake_100Hz,
 };
@@ -107,7 +107,7 @@ static void brake_100Hz()
 
         if (set) {
             if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+                base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
         } else {
             prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
             set = true;
@@ -119,10 +119,10 @@ static void brake_100Hz()
         can_Vel_Cmd_cfg.recieved &&
         (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
     float32_t cmd = (base_dbw_active())
-        ? ((float32_t) CAN_Vel_Cmd.BrakePercent) / 100.0
+        ? ((float32_t) CAN_Vel_Cmd.brakePercent) / 100.0
         : 0.0;
 
     cmd = clip_brake_cmd(pwm_channel, cmd);
@@ -160,10 +160,10 @@ static void init_pwm(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_ch
 static void send_brake_feedback(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel)
 {
     // update and send message
-    CAN_Brake.Frequency = pwm_timer.freq_hz;
-    CAN_Brake.Resolution = pwm_timer.duty_resolution;
-    CAN_Brake.Percent = 100 * ((float32_t) pwm_channel.duty / (float32_t) MAX_DUTY);
-    CAN_Brake.DutyCycle = pwm_channel.duty;
+    CAN_Brake.frequency = pwm_timer.freq_hz;
+    CAN_Brake.resolution = pwm_timer.duty_resolution;
+    CAN_Brake.percent = 100 * ((float32_t) pwm_channel.duty / (float32_t) MAX_DUTY);
+    CAN_Brake.dutyCycle = pwm_channel.duty;
 
     can_send_iface(&can_Brake_Data_cfg, &CAN_Brake);
 }

@@ -23,7 +23,7 @@ class Unit:
 
     def abort(self, reason: str = 'FAIL') -> bool:
         self._logger.error(f'aborted for \'{reason}\'')
-        self._bus.send('dbwESTOP', {'Source': 'SAFED', 'Reason': reason})
+        self._bus.send('DBW_ESTOP', {'src': 'SAFED', 'reason': reason})
         return False
 
     def test(self):

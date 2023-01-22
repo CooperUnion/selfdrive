@@ -3,7 +3,7 @@ version: '3'
 
 services:
     master:
-        build: docker-master/.
+        build: docker/master/.
         container_name: master
         tty: true
         environment:
@@ -71,11 +71,14 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+        volumes:
+            - './docker/3dlidar/3dlidar_launch:/app/ros_ws/src/3dlidar_launch'
         ports:
             - 2368:2368/udp
+            - 8308:8308/udp
 
     rplidar:
-        build: docker-rplidar/.
+        build: docker/rplidar/.
         container_name: rplidar
         tty: true
         environment:
@@ -90,25 +93,6 @@ services:
         command: roslaunch rplidar_ros view_rplidar.launch
         depends_on:
             - master
-
-    gazebo:
-        build: docker-gazebo/.
-        container_name: gazebo
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=gazebo'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        #command: roslaunch turtlebot3_gazebo turtlebot3_house.launch
-        restart: unless-stopped
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
 
     zed:
         build: docker/zed/.
@@ -133,22 +117,6 @@ services:
                         - capabilities: [gpu]
         restart: unless-stopped
 
-    teleop:
-        build: docker-teleop/.
-        container_name: teleop
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=teleop'
-            - 'ROS_MASTER_URI=http://master:11311'
-        #     - 'DISPLAY=$DISPLAY'
-        #     - 'QT_X11_NO_MITSHM=1'
-        # volumes:
-        #     - '/tmp/.X11-unix:/tmp/.X11-unix'
-        # command: roslaunch rplidar_ros view_rplidar.launch
-        depends_on:
-            - master
-
-    ######added rviz 2/17
     rviz:
         build: docker/rviz/.
         container_name: rviz

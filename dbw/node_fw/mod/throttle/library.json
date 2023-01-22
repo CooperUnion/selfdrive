@@ -1,0 +1,8 @@
+{
+  "name": "cuber-throttle",
+  "version": "rolling",
+  "description": "Throttle DBW node",
+  "build": {
+    "libLDFMode": "deep"
+  }
+}

@@ -3,14 +3,14 @@
 #include <driver/gpio.h>
 #include <driver/timer.h>
 
-#include "base/base.h"
 #include "common.h"
-#include "io/can.h"
-#include "module_types.h"
-#include "sys/task_glue.h"
+#include "cuber_base.h"
+#include "cuber_nodetypes.h"
+#include "ember_can.h"
+#include "ember_taskglue.h"
 
 /* Define firmware module identity for the entire build. */
-const enum firmware_module_types FIRMWARE_MODULE_IDENTITY = MOD_ENCODER;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
 
 // ######        DEFINES        ###### //
 
@@ -38,13 +38,13 @@ static int64_t prv_pulse_cnt[2];
 
 // ######          CAN          ###### //
 
-static struct CAN_dbwNode_Encoder_Data_t CAN_Encoder;
+static struct CAN_ENCF_EncoderData_t CAN_Encoder;
 
 static const can_outgoing_t can_Encoder_Data_cfg = {
-    .id = CAN_DBWNODE_ENCODER_DATA_FRAME_ID,
-    .extd = CAN_DBWNODE_ENCODER_DATA_IS_EXTENDED,
-    .dlc = CAN_DBWNODE_ENCODER_DATA_LENGTH,
-    .pack = CAN_dbwNode_Encoder_Data_pack,
+    .id = CAN_ENCF_ENCODERDATA_FRAME_ID,
+    .extd = CAN_ENCF_ENCODERDATA_IS_EXTENDED,
+    .dlc = CAN_ENCF_ENCODERDATA_LENGTH,
+    .pack = CAN_ENCF_EncoderData_pack,
 };
 
 // ######    RATE FUNCTIONS     ###### //
@@ -52,7 +52,7 @@ static const can_outgoing_t can_Encoder_Data_cfg = {
 static void encoder_init();
 static void encoder_100Hz();
 
-const struct rate_funcs module_rf = {
+ember_rate_funcs_S module_rf = {
     .call_init  = encoder_init,
     .call_100Hz = encoder_100Hz,
 };
@@ -101,24 +101,24 @@ static void encoder_100Hz()
 
     timer_get_counter_value(TIMER_GROUP_1, TIMER_0, &timer_val);
 
-    CAN_Encoder.Encoder0 = pulse_cnt[0] - prv_pulse_cnt[0];
-    CAN_Encoder.Encoder1 = pulse_cnt[1] - prv_pulse_cnt[1];
-    CAN_Encoder.Time     = timer_val - prv_timer_val;
+    CAN_Encoder.encoderLeft  = pulse_cnt[0] - prv_pulse_cnt[0];
+    CAN_Encoder.encoderRight = pulse_cnt[1] - prv_pulse_cnt[1];
+    CAN_Encoder.dtUs         = timer_val - prv_timer_val;
 
     can_send_iface(&can_Encoder_Data_cfg, &CAN_Encoder);
 
     if (
-        (ABS(CAN_Encoder.Encoder0) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_Encoder.Encoder1) >= ENCODER_MAX_TICKS)
+        (ABS(CAN_Encoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
+        (ABS(CAN_Encoder.encoderRight) >= ENCODER_MAX_TICKS)
     )
-        base_set_state_estop(CAN_dbwESTOP_Reason_LIMIT_EXCEEDED_CHOICE);
+        base_set_state_estop(CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE);
 
-    if (CAN_Encoder.Time >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_dbwESTOP_Reason_TIMEOUT_CHOICE);
+    if (CAN_Encoder.dtUs >= ENCODER_TIMEOUT_US)
+        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
 
-    prv_pulse_cnt[0] += CAN_Encoder.Encoder0;
-    prv_pulse_cnt[1] += CAN_Encoder.Encoder1;
-    prv_timer_val    += CAN_Encoder.Time;
+    prv_pulse_cnt[0] += CAN_Encoder.encoderLeft;
+    prv_pulse_cnt[1] += CAN_Encoder.encoderRight;
+    prv_timer_val    += CAN_Encoder.dtUs;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

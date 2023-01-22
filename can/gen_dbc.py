@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 
 import cantools
@@ -7,7 +9,7 @@ import os
 
 import strictyaml as sy
 
-VERSION = "0.003"
+VERSION = "0.0.4"
 
 def parse_signal(name: str, d: dict):
     choices = d.get("choices")
@@ -58,7 +60,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(f"Cooper IGVC CAN Network Generation v{VERSION}")
+    print(f"Cooper IGVC CAN Network Generation v{VERSION}\n")
 
     messages = []
 
@@ -88,7 +90,7 @@ if __name__ == "__main__":
                 messages.append(
                     candb.Message(
                         frame_id=int(data["id"], 16) + t_id + 1,
-                        name=name + "_" + t,
+                        name=t + "_" + name,
                         length=msg_width,
                         cycle_time=int(data["cycletime"]),
                         # fix sender #
@@ -98,7 +100,11 @@ if __name__ == "__main__":
         elif template_flag is None:
             pass
         else:
-            print('Error: value for "template" must be "yes"')
+            print(f'*** Error making {name}: value for "template" must be "yes"')
+            exit(-3)
+
+        if msg_width > 8:
+            print(f'*** Error making {name}: message length cannot exceed 8 bytes')
             exit(-3)
 
         messages.append(
