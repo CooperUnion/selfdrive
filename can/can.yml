@@ -1,52 +1,9 @@
 ---
 
-templategroups:
-  dbwnodes:
-    - BLINK
-    - THROTTLE
-    - BRAKE
-    - ENCF
-    - ENCR
-    - PB
-    - STEER
-
-messages:
-  - NodeStatus:
-      id: 0xE0
-      cycletime: 100
-
-      template: dbwnodes
-
-      signals:
-        - sysStatus:
-            description: Status of the node.
-            width: 2
-            choices:
-              - IDLE
-              - UNHEALTHY
-              - ACTIVE
-              - ESTOP
-        - counter:
-            description: Counter for fun.
-            width: 8
-        - resetReason:
-            description: Reset reason.
-            width: 2
-            choices:
-              - POWERON
-              - WATCHDOG_RESET
-              - UNKNOWN
-        - esp32ResetReasonCode:
-            description: ESP32 reset reason code (enum RESET_REASON)
-            width: 5
-
-  - NodeInfo:
-      id: 0xD0
-      cycletime: 1000
-
-      template: dbwnodes
-
-      signals:
+message_templates:
+- DBWNodeInfo:
+    cycletime: 1000
+    signals:
         - gitHash:
             description: Githash of the currently-running firmware.
             width: 32
@@ -57,254 +14,359 @@ messages:
             description: EEPROM identity.
             width: 6
 
-  - THROTTLE_AccelData:
-      id: 0x10
-      cycletime: 100
+- DBWNodeStatus:
+    cycletime: 100
 
-      signals:
-        - throttleACmd:
-            description: Throttle A command.
-            width: 8
-        - throttleFCmd:
-            description: Throttle B command.
-            width: 8
-        - percent:
-            description: Percentage commanded.
-            width: 8
-            unit: percent
-        - relayState:
-            description: Current relay state.
-            width: 1
+    signals:
+      - sysStatus:
+          description: Status of the node.
+          enumerated_values:
+            - IDLE
+            - UNHEALTHY
+            - ACTIVE
+            - ESTOP
+      - counter:
+          description: Counter for fun.
+          width: 8
+      - resetReason:
+          description: Reset reason.
+          enumerated_values:
+            - POWERON
+            - WATCHDOG_RESET
+            - UNKNOWN
+      - esp32ResetReasonCode:
+          description: ESP32 reset reason code (enum RESET_REASON)
+          width: 5
 
-  - BRAKE_BrakeData:
-      id: 0x11
-      cycletime: 100
-
-      signals:
-        - frequency:
-            description: Frequency of PWM input.
-            width: 16
-            unit: hertz
-        - resolution:
-            description: Resolution of PWM input.
-            width: 16
-        - dutyCycle:
-            description: Duty Cycle of PWM input.
-            width: 16
-        - percent:
-            description: Percentage commanded.
-            width: 8
-            unit: percent
-        - pressure:
-            description: Pressure Sensed.
-            width: 8
-
-  - ENCF_EncoderData:
-      id: 0x13
-      cycletime: 10
-
-      signals:
+- EncoderData:
+    cycletime: 10
+    signals:
         - encoderLeft:
             description: Left encoder pulses since last reading.
-            is_signed: true
             width: 12
         - encoderRight:
             description: Right encoder pulses since last reading.
-            is_signed: true
             width: 12
         - dtUs:
             description: Microseconds since last reading.
             width: 16
 
-  - ENCR_EncoderData:
-      id: 0x14
-      cycletime: 10
+nodes:
+- TEST:
+    rx: "*"
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD0
 
-      signals:
-        - encoderLeft:
-            description: Left encoder pulses since last reading.
-            is_signed: true
-            width: 12
-        - encoderRight:
-            description: Right encoder pulses since last reading.
-            is_signed: true
-            width: 12
-        - dtUs:
-            description: Microseconds since last reading.
-            width: 16
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE0
 
-  - PB_ParkingBrakeData:
-      id: 0x15
-      cycletime: 100
+- THROTTLE:
+    rx:
+    - DBW_Active
+    - DBW_VelCmd
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD1
 
-      signals:
-        - pbSet:
-            description: State of the parking brake.
-            width: 1
-        - magnetEnergized:
-            description: State of the parking brake magnet.
-            width: 1
-        - armedESTOP:
-            description: State of the ESTOP arming.
-            width: 1
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE1
 
-  - STEER_SteeringData:
-      id: 0x16
-      cycletime: 100
+    - AccelData:
+        id: 0x10
+        cycletime: 100
 
-      signals:
-        - angle:
-            description: Absolute steering angle in radians.
-            minimum: -0.610865238
-            maximum: 0.610865238
-            scale: 0.000000001
-            is_signed: true
-            width: 32
-        - encoderTimeoutSet:
-            description: Has the encoder timed out?
-            width: 1
-        - oDriveConnected:
-            description: Is the ODrive connected?
-            width: 1
+        signals:
+          - throttleACmd:
+              description: Throttle A command.
+              width: 8
 
-  - DBW_VelCmd:
-      id: 0x20
-      cycletime: 100
+          - throttleFCmd:
+              description: Throttle B command.
+              width: 8
 
-      signals:
-        - throttlePercent:
-            description: Throttle percentage.
-            maximum: 100
-            unit: percent
-            width: 7
-        - brakePercent:
-            description: Brake percentage.
-            maximum: 100
-            unit: percent
-            width: 7
+          - percent:
+              description: Percentage commanded.
+              width: 8
+              unit: percent
 
-  - STEER_SteeringCmd:
-      id: 0x21
-      cycletime: 100
+          - relayState:
+              description: Current relay state.
+              width: 1
 
-      signals:
-        - angle:
-            description: Absolute steering angle in radians.
-            minimum: -0.471238898
-            maximum: 0.471238898
-            scale: 0.000000001
-            is_signed: true
-            width: 32
+- BRAKE:
+    rx:
+    - DBW_Active
+    - DBW_VelCmd
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD2
 
-  - WHL_AbsoluteEncoder:
-      id: 0x1E5
-      cycletime: 10
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE2
 
-      signals:
-        - foo:
-            description: Foo.
-            width: 8
-        # TODO: add big endian support to gen_dbc.py
-        #
-        # this signal is a signed big-endian value
-        # cantools will decode this signal into an unsigned int
-        # it is the job of the programmer to re-encode this value
-        # into a signed int
-        - encoder:
-            description: Absolute encoder position.
-            width: 16
-        - bar:
-            description: Bar.
-            width: 40
+    - BrakeData:
+          id: 0x11
+          cycletime: 100
 
-  - DBW_ESTOP:
-      id: 0x41F
-      cycletime: 100
+          signals:
+            - frequency:
+                description: Frequency of PWM input.
+                width: 16
+                unit: hertz
+            - resolution:
+                description: Resolution of PWM input.
+                width: 16
+            - dutyCycle:
+                description: Duty Cycle of PWM input.
+                width: 16
+            - percent:
+                description: Percentage commanded.
+                width: 8
+                unit: percent
+            - pressure:
+                description: Pressure Sensed.
+                width: 8
 
-      signals:
-        - src:
-            description: ESTOP source.
-            width: 8
-            choices:
-              - NODE
-              - NODESD
-              - SAFED
-        - reason:
-            description: ESTOP reason.
-            width: 8
-            choices:
-              - FAIL
-              - TIMEOUT
-              - INVALID_STATE
-              - LIMIT_EXCEEDED
+- ENCF:
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD3
 
-  - DBW_Active:
-      id: 0x420
-      cycletime: 100
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE3
 
-      signals:
-        - active:
-            description: DBW is active.
-            width: 1
+    - EncoderData:
+        from_template: EncoderData
+        id: 0x13
 
-  - DBW_Enable:
-      id: 0x421
-      cycletime: 100
+- ENCR:
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD4
 
-      signals:
-        - enable:
-            description: Enable DBW active.
-            width: 1
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE4
 
-  - DBW_UpdaterUpdateTrigger:
-      id: 0x4A0
-      cycletime: 100
+    - EncoderData:
+        from_template: EncoderData
+        id: 0x14
 
-      template: dbwnodes
+- PB:
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD5
 
-      signals:
-        - trigger:
-            description: Trigger the update.
-            width: 1
-        - filler1:
-            description: Filler.
-            width: 7
-        - begin:
-            description: Begin the update.
-            width: 1
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE5
 
-  - DBW_UpdaterUpdateData:
-      id: 0x4B0
-      cycletime: 100
+    - ParkingBrakeData:
+        id: 0x15
+        cycletime: 100
 
-      template: dbwnodes
+        signals:
+          - pbSet:
+              description: State of the parking brake.
+              width: 1
 
-      signals:
-        - position:
-            description: Index of 32-bit data chunk.
-            width: 24
-        - data:
-            description: Image data.
-            width: 40
+          - magnetEnergized:
+              description: State of the parking brake magnet.
+              width: 1
 
-  - DBW_NodeUpdateResponse:
-      id: 0x4C0
-      cycletime: 100
+          - armedESTOP:
+              description: State of the ESTOP arming.
+              width: 1
 
-      template: dbwnodes
+- STEER:
+    rx:
+      - DBW_ESTOP
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD6
 
-      signals:
-        - ready:
-            description: Ready to begin update.
-            width: 1
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE6
 
-  - DBW_UpdaterUpdateDone:
-      id: 0x4D0
-      cycletime: 100
+    - SteeringData:
+        id: 0x16
+        cycletime: 100
 
-      template: dbwnodes
+        signals:
+          - angle:
+              description: Absolute steering angle in radians.
+              # minimum: -0.610865238
+              # maximum: 0.610865238
+              scale: 0.000000001
+              # is_signed: true
+              width: 32
 
-      signals:
-        - finalSize:
-            description: Number of bytes in final image size.
-            width: 32
+          - encoderTimeoutSet:
+              description: Has the encoder timed out?
+              width: 1
+
+          - oDriveConnected:
+              description: Is the ODrive connected?
+              width: 1
+
+    - SteeringCmd:
+        id: 0x21
+        cycletime: 100
+
+        signals:
+          - angleCmd:
+              description: Absolute steering angle in radians.
+              # minimum: -0.471238898
+              # maximum: 0.471238898
+              scale: 0.000000001
+              # is_signed: true
+              width: 32
+
+- DBW:
+    messages:
+    - VelCmd:
+        id: 0x20
+        cycletime: 100
+
+        signals:
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+          - brakePercent:
+              description: Brake percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+
+    - ESTOP:
+        id: 0x41F
+        cycletime: 100
+
+        signals:
+          - src:
+              description: ESTOP source.
+              width: 8
+              enumerated_values:
+                - NODE
+                - NODESD
+                - SAFED
+
+          - reason:
+              description: ESTOP reason.
+              width: 8
+              enumerated_values:
+                - FAIL
+                - TIMEOUT
+                - INVALID_STATE
+                - LIMIT_EXCEEDED
+
+    - Active:
+        id: 0x420
+        cycletime: 100
+
+        signals:
+          - active:
+              description: DBW is active.
+              width: 1
+
+    - Enable:
+        id: 0x421
+        cycletime: 100
+
+        signals:
+          - enable:
+              description: Enable DBW active.
+              width: 1
+
+- WHL:
+    messages:
+    - AbsoluteEncoder:
+        id: 0x1E5
+        cycletime: 10
+
+        signals:
+          - foo:
+              description: Foo.
+              width: 8
+
+            # TODO: add big endian support to OpenCAN
+            #
+            # this signal is a signed big-endian value
+            # OpenCAN will decode this signal into an unsigned int
+            # it is the job of the programmer to re-encode this value
+            # into a signed int
+          - encoder:
+              description: Absolute encoder position.
+              width: 16
+
+          - bar:
+              description: Bar.
+              width: 40
+
+  # - DBW_UpdaterUpdateTrigger:
+  #     id: 0x4A0
+  #     cycletime: 100
+
+  #     template: dbwnodes
+
+  #     signals:
+  #       - trigger:
+  #           description: Trigger the update.
+  #           width: 1
+  #       - filler1:
+  #           description: Filler.
+  #           width: 7
+  #       - begin:
+  #           description: Begin the update.
+  #           width: 1
+
+  # - DBW_UpdaterUpdateData:
+  #     id: 0x4B0
+  #     cycletime: 100
+
+  #     template: dbwnodes
+
+  #     signals:
+  #       - position:
+  #           description: Index of 32-bit data chunk.
+  #           width: 24
+  #       - data:
+  #           description: Image data.
+  #           width: 40
+
+  # - DBW_NodeUpdateResponse:
+  #     id: 0x4C0
+  #     cycletime: 100
+
+  #     template: dbwnodes
+
+  #     signals:
+  #       - ready:
+  #           description: Ready to begin update.
+  #           width: 1
+
+  # - DBW_UpdaterUpdateDone:
+  #     id: 0x4D0
+  #     cycletime: 100
+
+  #     template: dbwnodes
+
+  #     signals:
+  #       - finalSize:
+  #           description: Number of bytes in final image size.
+  #           width: 32
