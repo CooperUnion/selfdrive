@@ -34,7 +34,8 @@ echo -e "-> Preparing Rust toolchain...\n"
 if [ -x "$(command -v rustup)" ]; then
     rustup update
 else
-    curl https://sh.rustup.rs -sSf | sh
+    # rustup and accept defaults (-y)
+    curl https://sh.rustup.rs -sSf | sh -s -- -y
 fi
 
 echo -e "\n-> Preparing git submodules...\n"
