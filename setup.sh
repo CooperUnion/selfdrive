@@ -13,7 +13,8 @@ echo -e ""
 echo -e "-> Preparing system dependencies...\n"
 if [ -x "$(command -v apt-get)" ]; then
     sudo apt-get update -qq
-    sudo apt-get install -y -qq \`
+    sudo apt-get install -y -qq \
+        build-essential \
         python3.9 \
         python3.9-venv \
         can-utils \
@@ -25,6 +26,9 @@ elif [ -x "$(command -v dnf)" ]; then
         can-utils \
         fish \
         redis
+
+    sudo dnf group install -y -q \
+        "C Development Tools and Libraries" "Development Tools"
 else
     echo -e "---        WARNING: Package manager not found.        ---"
     echo -e "--- You need to manually install system dependencies. ---"
