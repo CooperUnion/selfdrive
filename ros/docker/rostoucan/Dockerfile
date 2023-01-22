@@ -7,6 +7,22 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
+RUN apt install -y python3.9
+
+RUN apt install -y python3-pip
+
+RUN pip install opencan-cand
+
+RUN apt update && apt install -y curl
+
+RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+
+RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+RUN apt-get update && apt-get install -qy redis
+
+
+
 # clone ros repo
 RUN mkdir -p ros_ws/src
 
@@ -16,6 +32,9 @@ RUN cd ros_ws &&\
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
 
 COPY ./entrypoint.sh /
+
+COPY ./alias.sh /
+RUN echo "source /alias.sh" >> ~/.bashrc
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
