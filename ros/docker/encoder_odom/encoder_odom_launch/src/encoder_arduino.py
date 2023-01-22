@@ -6,18 +6,13 @@ import tf2_ros
 import math
 from math import sin, cos, pi
 
+# Used for Arudino
+import pyfirmata
+import time
+
 from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
-
-class Subscribe:
-    def __init__(self):
-        self.vel = rospy.Subscriber('/enc_vel', Float32, self.callback)
-        self.angle = rospy.Subscriber('/enc_angle', Float32, self.callback)
-        # self.steer = rospy.Subscriber('/enc_steer', Float32, self.callback)
-    def callback(msg):
-        while True:
-            rospy.loginfo("I heard %s", msg.data)
 
 # The Odometry message type contains the following messages:
 # header (Coordinate frame for the pose)
@@ -54,14 +49,15 @@ class Encoder_Odom:
         self.delta_y = 0.0
         self.delta_th = 0.0
         
-    def calc_odom(self,current_time,last_time):
+    def calc_odom(self,enc_vel,enc_omega,current_time,last_time):
         
-        self.vx = self.sub.vel
-        self.vth = self.sub.angle
+        # Change these lines
+        self.vx = enc_vel
+        self.vth = enc_omega
 
         self.dt = (current_time - last_time).to_sec()
         self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
-        self.delta_y = (vvx * sin(self.th) + self.vy * cos(self.th)) * self.dt
+        self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
         self.delta_th = self.vth * self.dt
         
         self.x += self.delta_x
@@ -77,6 +73,26 @@ class Encoder_Odom:
             "odom"
         )
 
+# Encoder variables
+wheel_radius = 1.0
+circumfrence = 3.1415926 * 2 * wheel_radius
+enc_res = 2048
+tick_distance = circumfrence/enc_res
+wheel_spacing = 1.0
+prev_left_ticks = 0
+prev_right_ticks = 0
+
+# Initalize Arduino board variables
+board = pyfirmata.Arduino('/dev/ttyACM0')
+left_enc_pin = 5
+right_enc_pin = 6
+# Used to continuously read values from Arduino board
+it = pyfirmata.util.Iterator(board)
+it.start()
+
+board.analog[left_enc_pin].mode = pyfirmata.INPUT
+board.analog[right_enc_pin].mode = pyfirmata.INPUT
+
 # Initialize time variables
 current_time = rospy.Time.now()
 last_time = rospy.Time.now()
@@ -90,7 +106,22 @@ if __name__ == '__main__':
     # rospy.init_node('encoder_odom', anonymous=True)
 
     current_time = rospy.Time.now()
-    encoder_odom.calc_odom(current_time,last_time)
+    left_ticks = board.analog[left_enc_pin].read
+    right_ticks = board.analog[right_enc_pin].read
+    
+    # Not sure if we need to include sleep time since the measurements are limited by the rate of the publisher
+    # time.sleep(0.1)
+    delta_left = left_ticks - prev_left_ticks
+    delta_right = right_ticks - prev_right_ticks
+
+    v_left = (delta_left * tick_distance) / (current_time - last_time).to_sec()
+    v_right = (delta_right * tick_distance) / (current_time - last_time).to_sec()
+
+    # 10 is a scaling factor used to characterize system
+    enc_vel = ((v_right + v_left) / 2) * 10
+    enc_omega = ((v_right - v_left) / wheel_spacing) * 10
+
+    encoder_odom.calc_odom(enc_vel,enc_omega,current_time,last_time)
 
     odom_msg = Odometry()
     odom_msg.header.stamp = current_time
@@ -104,5 +135,6 @@ if __name__ == '__main__':
     odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
     
     last_time = current_time
-    
+    prev_left_ticks = left_ticks
+    prev_right_ticks = right_ticks
     rospy.spin()
