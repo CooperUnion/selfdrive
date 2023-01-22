@@ -1,7 +1,6 @@
 Import('env')
 
-OPENCAN_BIN = '~/opencan/target/debug/opencan-cli'
-CODEGEN_CMD = OPENCAN_BIN + " codegen"
+OPENCAN_BIN = env.File('../../build/cargo/bin/opencan-cli')
 
 CAN_YML = env.File('can.yml')
 
@@ -11,7 +10,7 @@ GEN_FILENAMES = [f'opencan_{x}' for x in ['rx.c', 'rx.h', 'tx.c', 'tx.h', 'callb
 gen_files = env.Command(
         GEN_FILENAMES,
         CAN_YML,
-        f'{CODEGEN_CMD} $SOURCE $TARGET.dir BRAKE'
+        f'{OPENCAN_BIN} codegen $SOURCE $TARGET.dir BRAKE'
 )
 
 env.Alias('ccan', gen_files)

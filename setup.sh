@@ -13,7 +13,7 @@ echo -e ""
 echo -e "-> Preparing system dependencies...\n"
 if [ -x "$(command -v apt-get)" ]; then
     sudo apt-get update -qq
-    sudo apt-get install -y -qq \``
+    sudo apt-get install -y -qq \`
         python3.9 \
         python3.9-venv \
         can-utils \
