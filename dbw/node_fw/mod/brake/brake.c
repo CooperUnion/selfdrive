@@ -81,9 +81,10 @@ static void brake_100Hz()
 {
     static float32_t prev_cmd;
 
-    /* if (!CAN_is_node_DBW_ok()) {
-        base_set_state_estop();
-    } */
+    // check now even though base also checks
+    if (!CANRX_is_node_DBW_ok()) {
+        base_set_state_estop(0 /* dummy value, API will change */);
+    }
 
     float32_t cmd = (base_dbw_active())
         ? ((float32_t) CANRX_get_DBW_brakePercent()) / 100.0
