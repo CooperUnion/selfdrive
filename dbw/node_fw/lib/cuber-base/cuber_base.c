@@ -74,7 +74,7 @@ static void base_10Hz()
 
 static void base_100Hz()
 {
-    if (!CANRX_is_node_DBW_ok())
+    if (system_state == SYS_STATE_DBW_ACTIVE && !CANRX_is_node_DBW_ok())
     {
         system_state = SYS_STATE_ESTOP;
     }

@@ -22,13 +22,12 @@ ADD . $BUILD_DIR
 WORKDIR $BUILD_DIR
 RUN git clean -ffdx
 
-# cache some pip downloads by doing this, and get platformio
-RUN make dependencies
+RUN ./setup.sh
 
-WORKDIR dbw/node_fw
+# cache some pio dependencies
+RUN source .venv/bin/activate && \
+    cd dbw/node_fw && \
+    python3.9 -m platformio pkg install && \
+    yes | python3.9 -m platformio system prune
 
-RUN python3.9 -m platformio pkg install \
-    && yes | python3.9 -m platformio system prune
-
-WORKDIR $BUILD_DIR
 RUN rm -rf *
