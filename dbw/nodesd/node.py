@@ -28,15 +28,15 @@ class DbwEnable(threading.Thread):
             msg_time_ns, data = rec
 
             if msg_time_ns > prv_time_ns:
-                dbw_active  = data['enable']
+                dbw_active  = data['DBW_enable']
                 prv_time_ns = msg_time_ns
                 self._logger.info(f'enable: {dbw_active}')
 
-            self._bus.send('DBW_Active', {'active': dbw_active})
+            self._bus.send('DBW_Active', {'DBW_active': dbw_active})
 
 
 class Node():
-    STATUS_TIMEOUT_MS = 20
+    STATUS_TIMEOUT_MS = 200
     STATUS_TIMEOUT_NS = STATUS_TIMEOUT_MS * 1_000_000
 
     def __init__(self, ident: str, *, bus: cand.client.Bus = None):
@@ -49,7 +49,7 @@ class Node():
         self._status_missing = True
 
     def service(self):
-        rec = self._bus.get(f'NodeStatus_{self._ident}')
+        rec = self._bus.get(f'{self._ident}_NodeStatus')
 
         if rec is None:
             self._status_missing = True
@@ -69,7 +69,7 @@ class Node():
                 # we're okay
                 old_status = self._status
 
-                self._status = stat['sysStatus']
+                self._status = stat[f'{self._ident}_sysStatus']
                 self._status_missing = False
 
                 if old_status != self._status:
