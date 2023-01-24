@@ -7,6 +7,9 @@ import os
 # We should get more disciplined about our envs later.
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
+# Save the repo root in the env
+env['REPO_ROOT'] = env.Dir('.')
+
 venv = Virtualenv()
 if venv is None:
     print("!!! WARNING: Not running in a virtualenv!")

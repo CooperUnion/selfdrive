@@ -1,16 +1,24 @@
 Import('env')
 
-OPENCAN_BIN = env.File('../../build/cargo/bin/opencan-cli')
+OPENCAN_BIN     = env.File('$REPO_ROOT/build/cargo/bin/opencan-cli')
+GENERATED_DBC   = env.File('igvc_can.dbc')
+CAN_YML         = env.File('can.yml')
 
-CAN_YML = env.File('can.yml')
+DBC_EMITTER     = env.File('create-dbc.py')
 
-# generate C files
-GEN_FILENAMES = [f'opencan_{x}' for x in ['rx.c', 'rx.h', 'tx.c', 'tx.h', 'callbacks.h', 'templates.h']]
-
-gen_files = env.Command(
-        GEN_FILENAMES,
-        CAN_YML,
-        f'{OPENCAN_BIN} codegen $SOURCE $TARGET.dir BRAKE'
+# Make emitter script
+[dbc_emitter] = env.Command(
+    DBC_EMITTER,
+    CAN_YML,
+    f'{OPENCAN_BIN} compose $SOURCE --dump-python > $TARGET'
 )
 
-env.Alias('ccan', gen_files)
+# Make DBC by running emitter script
+[dbc] = env.Command(
+    GENERATED_DBC,
+    DBC_EMITTER,
+    [f'python3 {DBC_EMITTER.path}',
+     Move("$TARGET", "opencan.dbc")]
+)
+
+env.Alias('dbc', dbc)
