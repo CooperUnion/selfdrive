@@ -6,8 +6,10 @@
 #include "common.h"
 #include "cuber_base.h"
 #include "cuber_nodetypes.h"
-#include "ember_can.h"
 #include "ember_taskglue.h"
+
+#include "opencan_rx.h"
+#include "opencan_tx.h"
 
 /* Define firmware module identity for the entire build. */
 const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_THROTTLE;
@@ -21,25 +23,6 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_THROTTLE;
 // ######     PRIVATE DATA      ###### //
 
 static bool relay_state;
-
-// ######          CAN          ###### //
-
-struct CAN_THROTTLE_AccelData_t CAN_Accel; // used by pedal.c; not static
-
-static const can_outgoing_t can_Accel_Data_cfg = {
-    .id = CAN_THROTTLE_ACCELDATA_FRAME_ID,
-    .extd = CAN_THROTTLE_ACCELDATA_IS_EXTENDED,
-    .dlc = CAN_THROTTLE_ACCELDATA_LENGTH,
-    .pack = CAN_THROTTLE_AccelData_pack,
-};
-
-static struct CAN_DBW_VelCmd_t CAN_Vel_Cmd;
-
-static can_incoming_t can_Vel_Cmd_cfg = {
-    .id = CAN_DBW_VELCMD_FRAME_ID,
-    .out = &CAN_Vel_Cmd,
-    .unpack = CAN_DBW_VelCmd_unpack,
-};
 
 // ######      PROTOTYPES       ###### //
 
@@ -69,42 +52,21 @@ static void throttle_init()
     control_relay(0);
 
     enable_pedal_output();
-
-    can_register_incoming_msg(&can_Vel_Cmd_cfg);
 }
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !can_Vel_Cmd_cfg.recieved) {
-        static uint64_t prv_delta_ms;
-        static bool     set;
-
-        if (set) {
-            if (can_Vel_Cmd_cfg.delta_ms - prv_delta_ms >= CMD_TIMEOUT_MS)
-                base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-        } else {
-            prv_delta_ms = can_Vel_Cmd_cfg.delta_ms;
-            set = true;
-        }
+    if (base_dbw_active() && !CANRX_is_node_DBW_ok()) {
+        base_set_state_estop(0 /* placeholder */);
     }
 
-    if (
-        base_dbw_active() &&
-        can_Vel_Cmd_cfg.recieved &&
-        (can_Vel_Cmd_cfg.delta_ms >= CMD_TIMEOUT_MS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-
-    // set the relay from the CAN data
+    /* set the relay based on whether DBW is active */
     control_relay(base_dbw_active());
-    CAN_Accel.relayState = relay_state;
 
-    // get the pedal output from the CAN data
-    float32_t cmd = ((float32_t) CAN_Vel_Cmd.throttlePercent) / 100.0;
+    /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
+    float32_t cmd = ((float32_t) CANRX_get_DBW_throttlePercent()) / 100.0;
+
     set_pedal_output(cmd); // sets CAN feedback data too
-
-    // send CAN feedback message
-    can_send_iface(&can_Accel_Data_cfg, &CAN_Accel);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -119,3 +81,12 @@ static void control_relay(bool cmd)
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
+
+// ######        CAN TX         ###### //
+
+void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
+    m->THROTTLE_throttleACmd = 0; // just leaving these off for now
+    m->THROTTLE_throttleFCmd = 0; // just leaving these off for now
+    m->THROTTLE_percent = current_pedal_percent();
+    m->THROTTLE_relayState = relay_state;
+}
