@@ -31,7 +31,7 @@ all: $(CAN) $(DBW_NODE_FW) $(ROS) dependencies
 .PHONY: clean
 clean:
 	@rm -rvf $(INSTALL_DEPENDENCIES)
-	scons --clean ccan
+	scons --clean dbc
 	@$(MAKE) -C $(DBW_NODE_FW) clean
 	@$(MAKE) -C $(ROS) clean
 
@@ -42,7 +42,7 @@ dependencies: $(INSTALL_DEPENDENCIES)
 
 .PHONY: $(CAN)
 $(CAN):
-	scons ccan
+	scons dbc
 
 
 .PHONY: $(DBW_NODE_FW)
