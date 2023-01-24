@@ -135,6 +135,8 @@ nodes:
                 width: 8
 
 - ENCF:
+    rx:
+    - DBW_Active
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -149,6 +151,8 @@ nodes:
         id: 0x13
 
 - ENCR:
+    rx:
+    - DBW_Active
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -163,6 +167,8 @@ nodes:
         id: 0x14
 
 - PB:
+    rx:
+    - DBW_Active
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -191,6 +197,7 @@ nodes:
 
 - STEER:
     rx:
+      - DBW_Active
       - DBW_ESTOP
     messages:
     - NodeInfo:
