@@ -184,6 +184,17 @@ void base_set_wdt_trigger(void)
     wdt_trigger = true;
 }
 
+// ######         CAN RX         ###### //
+
+void CANRX_onRxCallback_DBW_ESTOP(
+    const struct CAN_MessageRaw_DBW_ESTOP * const raw,
+    const struct CAN_Message_DBW_ESTOP * const dec)
+{
+    (void)raw;
+
+    system_state = SYS_STATE_ESTOP;
+}
+
 // ######         CAN TX         ###### //
 
 void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const m)

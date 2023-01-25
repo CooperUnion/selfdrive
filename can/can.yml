@@ -66,6 +66,7 @@ nodes:
 - THROTTLE:
     rx:
     - DBW_Active
+    - DBW_ESTOP
     - DBW_VelCmd
     messages:
     - NodeInfo:
@@ -101,6 +102,7 @@ nodes:
 - BRAKE:
     rx:
     - DBW_Active
+    - DBW_ESTOP
     - DBW_VelCmd
     messages:
     - NodeInfo:
@@ -137,6 +139,7 @@ nodes:
 - ENCF:
     rx:
     - DBW_Active
+    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -153,6 +156,7 @@ nodes:
 - ENCR:
     rx:
     - DBW_Active
+    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -169,6 +173,7 @@ nodes:
 - PB:
     rx:
     - DBW_Active
+    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -262,7 +267,6 @@ nodes:
 
     - ESTOP:
         id: 0x41F
-        cycletime: 100
 
         signals:
           - src:
