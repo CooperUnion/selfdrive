@@ -113,13 +113,13 @@ class Steer(threading.Thread):
 
                 # the absolute encoder data is currently not decoded
                 # correctly so we'll need to re-encode the data
-                data['encoder'] = igvcutils.can.endianswap(
-                    data['encoder'],
+                data['WHL_encoder'] = igvcutils.can.endianswap(
+                    data['WHL_encoder'],
                     'little',
                     dst_signed=True,
                 )
 
-                self._cur_angle = self._enc2angle(data['encoder'])
+                self._cur_angle = self._enc2angle(data['WHL_encoder'])
 
             elif self._prv_enc_unix_time_ns:
                 if time.time_ns() - self._prv_enc_unix_time_ns >= self.ABS_ENC_TIMEOUT_NS:
@@ -131,9 +131,9 @@ class Steer(threading.Thread):
             self._bus.send(
                 'STEER_SteeringData',
                 {
-                    'angle':             math.radians(self._cur_angle),
-                    'encoderTimeoutSet': self._encoder_timeout,
-                    'oDriveConnected':   self._odrive_connection,
+                    'STEER_angle':             math.radians(self._cur_angle),
+                    'STEER_encoderTimeoutSet': self._encoder_timeout,
+                    'STEER_oDriveConnected':   self._odrive_connection,
                 },
             )
 
@@ -158,7 +158,7 @@ class Steer(threading.Thread):
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
-                    self._des_angle = math.degrees(data['angle'])
+                    self._des_angle = math.degrees(data['STEER_angle'])
 
                     self._odrive_en(True)
                     self._axis.controller.input_vel = self._pid.step(

@@ -20,6 +20,8 @@ struct throttle_output {
 static const struct throttle_output thr_A = {0.5f, 2.5f};
 static const struct throttle_output thr_F = {1.5f, 4.5f};
 
+static float32_t current_percent;
+
 // ######      PROTOTYPES       ###### //
 
 static uint8_t voltage_to_pwm(float32_t v);
@@ -72,10 +74,12 @@ void set_pedal_output(float32_t cmd)
     const uint8_t thr_F_cmd = convert_throttle_command(thr_F, cmd);
     const uint8_t thr_A_cmd = convert_throttle_command(thr_A, cmd);
 
+    current_percent = cmd;
+
     dac_output_voltage(DAC_CHANNEL_1, thr_F_cmd);
     dac_output_voltage(DAC_CHANNEL_2, thr_A_cmd);
+}
 
-    CAN_Accel.throttleACmd = thr_A_cmd;
-    CAN_Accel.throttleFCmd = thr_F_cmd;
-    CAN_Accel.percent      = cmd * 100;
+float32_t current_pedal_percent(void) {
+    return current_percent;
 }

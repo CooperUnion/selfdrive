@@ -13,13 +13,13 @@ endif
 
 
 .PHONY: all
-all: can
+all:
 	$(PIO) run $(PIO_RUNFLAGS)
 	find . -type f ! -name "sdkconfig.defaults" -maxdepth 1 | egrep sdkconfig | xargs rm
 
 
 .PHONY: flash
-flash: can
+flash:
 	$(PIO) run $(PIO_RUNFLAGS) --target upload
 	find . -type f ! -name "sdkconfig.defaults" -maxdepth 1 | egrep sdkconfig | xargs rm
 
@@ -27,8 +27,3 @@ flash: can
 .PHONY: clean
 clean:
 	@rm -rvf $(PIO_DIR)
-
-
-.PHONY: can
-can:
-	scons -D ccan

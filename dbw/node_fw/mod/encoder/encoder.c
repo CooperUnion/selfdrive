@@ -1,13 +1,12 @@
 #include "encoder.h"
 
 #include <driver/gpio.h>
-#include <driver/timer.h>
 
 #include "common.h"
 #include "cuber_base.h"
 #include "cuber_nodetypes.h"
-#include "ember_can.h"
 #include "ember_taskglue.h"
+#include "opencan_tx.h"
 
 /* Define firmware module identity for the entire build. */
 const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
@@ -34,18 +33,6 @@ static void IRAM_ATTR encoder1_chan_b(void *arg);
 // ######     PRIVATE DATA      ###### //
 
 static volatile int64_t pulse_cnt[2];
-static int64_t prv_pulse_cnt[2];
-
-// ######          CAN          ###### //
-
-static struct CAN_ENCF_EncoderData_t CAN_Encoder;
-
-static const can_outgoing_t can_Encoder_Data_cfg = {
-    .id = CAN_ENCF_ENCODERDATA_FRAME_ID,
-    .extd = CAN_ENCF_ENCODERDATA_IS_EXTENDED,
-    .dlc = CAN_ENCF_ENCODERDATA_LENGTH,
-    .pack = CAN_ENCF_EncoderData_pack,
-};
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -59,16 +46,6 @@ ember_rate_funcs_S module_rf = {
 
 static void encoder_init()
 {
-    const timer_config_t timer_config = {
-        .alarm_en    = TIMER_ALARM_DIS,
-        .counter_en  = TIMER_PAUSE,
-        .intr_type   = TIMER_INTR_NONE,
-        .counter_dir = TIMER_COUNT_UP,
-        .auto_reload = TIMER_AUTORELOAD_DIS,
-        .divider     = 80,  // 1E-6 * 80MHz (microseconds)
-    };
-    timer_init(TIMER_GROUP_1, TIMER_0, &timer_config);
-
     gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
     gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
     gpio_set_direction(ENCODER1_CHAN_A, GPIO_MODE_INPUT);
@@ -90,35 +67,18 @@ static void encoder_init()
     gpio_isr_handler_add(ENCODER0_CHAN_B, encoder0_chan_b, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_A, encoder1_chan_a, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
-
-    timer_start(TIMER_GROUP_1, TIMER_0);
 }
 
 static void encoder_100Hz()
 {
-    static uint64_t timer_val;
-    static uint64_t prv_timer_val;
+    // check if we're over speed and trigger estop if so
+    const int32_t left_ticks = pulse_cnt[0];
+    const int32_t right_ticks = pulse_cnt[1];
 
-    timer_get_counter_value(TIMER_GROUP_1, TIMER_0, &timer_val);
-
-    CAN_Encoder.encoderLeft  = pulse_cnt[0] - prv_pulse_cnt[0];
-    CAN_Encoder.encoderRight = pulse_cnt[1] - prv_pulse_cnt[1];
-    CAN_Encoder.dtUs         = timer_val - prv_timer_val;
-
-    can_send_iface(&can_Encoder_Data_cfg, &CAN_Encoder);
-
-    if (
-        (ABS(CAN_Encoder.encoderLeft) >= ENCODER_MAX_TICKS) ||
-        (ABS(CAN_Encoder.encoderRight) >= ENCODER_MAX_TICKS)
-    )
-        base_set_state_estop(CAN_DBW_ESTOP_reason_LIMIT_EXCEEDED_CHOICE);
-
-    if (CAN_Encoder.dtUs >= ENCODER_TIMEOUT_US)
-        base_set_state_estop(CAN_DBW_ESTOP_reason_TIMEOUT_CHOICE);
-
-    prv_pulse_cnt[0] += CAN_Encoder.encoderLeft;
-    prv_pulse_cnt[1] += CAN_Encoder.encoderRight;
-    prv_timer_val    += CAN_Encoder.dtUs;
+    if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
+        (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
+        base_set_state_estop(0 /* placeholder */);
+    }
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -204,3 +164,10 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
+
+// ######        CAN TX         ###### //
+
+void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m) {
+    m->encoderLeft = pulse_cnt[0];
+    m->encoderRight = pulse_cnt[1];
+}

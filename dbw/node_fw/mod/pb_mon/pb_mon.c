@@ -3,8 +3,8 @@
 #include <driver/gpio.h>
 
 #include "cuber_nodetypes.h"
-#include "ember_can.h"
 #include "ember_taskglue.h"
+#include "opencan_tx.h"
 
 /* Define firmware module identity for the entire build. */
 const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_PB_MON;
@@ -18,25 +18,12 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_PB_MON;
 
 // ######     PRIVATE DATA      ###### //
 
-// ######          CAN          ###### //
-
-static struct CAN_PB_ParkingBrakeData_t CAN_PbMon;
-
-static const can_outgoing_t can_PbMon_Data_cfg = {
-    .id = CAN_PB_PARKINGBRAKEDATA_FRAME_ID,
-    .extd = CAN_PB_PARKINGBRAKEDATA_IS_EXTENDED,
-    .dlc = CAN_PB_PARKINGBRAKEDATA_LENGTH,
-    .pack = CAN_PB_ParkingBrakeData_pack,
-};
-
 // ######    RATE FUNCTIONS     ###### //
 
 static void pb_mon_init();
-static void pb_mon_100Hz();
 
 ember_rate_funcs_S module_rf = {
     .call_init  = pb_mon_init,
-    .call_100Hz = pb_mon_100Hz,
 };
 
 static void pb_mon_init()
@@ -48,16 +35,17 @@ static void pb_mon_init()
     gpio_pulldown_en(MAGNET_GPIO);
 }
 
-static void pb_mon_100Hz()
-{
-    CAN_PbMon.pbSet           = gpio_get_level(INDUCTIVE_PROX_GPIO);
-    CAN_PbMon.magnetEnergized = gpio_get_level(MAGNET_GPIO);
-
-    CAN_PbMon.armedESTOP = CAN_PbMon.pbSet && CAN_PbMon.magnetEnergized;
-
-    can_send_iface(&can_PbMon_Data_cfg, &CAN_PbMon);
-}
-
 // ######   PRIVATE FUNCTIONS   ###### //
 
 // ######   PUBLIC FUNCTIONS    ###### //
+
+// ######        CAN TX         ###### //
+
+void CANTX_populate_PB_ParkingBrakeData(struct CAN_Message_PB_ParkingBrakeData * const m) {
+    bool pb_set      = gpio_get_level(INDUCTIVE_PROX_GPIO);
+    bool magnet_on   = gpio_get_level(MAGNET_GPIO);
+
+    m->PB_pbSet           = pb_set;
+    m->PB_magnetEnergized = magnet_on;
+    m->PB_armedESTOP      = pb_set && magnet_on;
+}

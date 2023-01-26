@@ -5,10 +5,10 @@
 
 #include "common.h"
 #include "cuber_nodetypes.h"
-#include "ember_can.h"
-#include "ember_can_callbacks.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
+#include "opencan_rx.h"
+#include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
 
@@ -37,61 +37,16 @@ static enum system_states system_state = SYS_STATE_UNDEF;
 
 static bool wdt_trigger;
 
-// ######          CAN          ###### //
-
-static struct CAN_NodeStatus_t CAN_Status;
-
-static can_outgoing_t can_Status_cfg = {
-    .id = CAN_NODESTATUS_FRAME_ID,
-    .extd = CAN_NODESTATUS_IS_EXTENDED,
-    .dlc = CAN_NODESTATUS_LENGTH,
-    .pack = CAN_NodeStatus_pack,
-};
-
-static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP;
-
-static can_outgoing_t can_DBW_ESTOP_cfg = {
-    .id = CAN_DBW_ESTOP_FRAME_ID,
-    .extd = CAN_DBW_ESTOP_IS_EXTENDED,
-    .dlc = CAN_DBW_ESTOP_LENGTH,
-    .pack = CAN_DBW_ESTOP_pack,
-};
-
-static struct CAN_DBW_Active_t CAN_DBW_Active;
-
-static can_incoming_t can_DBW_Active_cfg = {
-    .id = CAN_DBW_ACTIVE_FRAME_ID,
-    .out = &CAN_DBW_Active,
-    .unpack = CAN_DBW_Active_unpack,
-};
-
-static struct CAN_DBW_ESTOP_t CAN_DBW_ESTOP_in;
-
-static can_incoming_t can_DBW_ESTOP_in_cfg = {
-    .id = CAN_DBW_ESTOP_FRAME_ID,
-    .out = &CAN_DBW_ESTOP_in,
-    .unpack = CAN_DBW_ESTOP_unpack,
-};
-
-static struct CAN_NodeInfo_t CAN_Info;
-
-static can_outgoing_t can_NodeInfo_cfg = {
-    .id = CAN_NODEINFO_FRAME_ID,
-    .extd = CAN_NODEINFO_IS_EXTENDED,
-    .dlc = CAN_NODEINFO_LENGTH,
-    .pack = CAN_NodeInfo_pack,
-};
+static RESET_REASON reset_reason;
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void base_init();
-static void base_1Hz();
 static void base_10Hz();
 static void base_100Hz();
 
 ember_rate_funcs_S base_rf = {
     .call_init  = base_init,
-    .call_1Hz   = base_1Hz,
     .call_10Hz  = base_10Hz,
     .call_100Hz = base_100Hz,
 };
@@ -109,38 +64,7 @@ static void base_init()
     gpio_set_level(LED1_PIN, 0);
     gpio_set_level(LED2_PIN, 0);
 
-    // set up dbwNode_Info
-    CAN_Info.gitHash     = GITREV_BUILD_REV;
-    CAN_Info.gitDirty    = GITREV_BUILD_DIRTY;
-    can_NodeInfo_cfg.id += CUBER_NODE_IDENTITY;
-
-    // set up dbwNode_Status
-    can_Status_cfg.id += CUBER_NODE_IDENTITY;
-
-    const RESET_REASON reason = rtc_get_reset_reason(0);
-    CAN_Status.esp32ResetReasonCode = reason;
-
-    switch (reason) {
-        case POWERON_RESET:
-            CAN_Status.resetReason = CAN_NodeStatus_resetReason_POWERON_CHOICE;
-            break;
-
-        case RTCWDT_RTC_RESET:
-            CAN_Status.resetReason = CAN_NodeStatus_resetReason_WATCHDOG_RESET_CHOICE;
-            break;
-
-        default:
-            CAN_Status.resetReason = CAN_NodeStatus_resetReason_UNKNOWN_CHOICE;
-            break;
-    }
-
-    can_register_incoming_msg(&can_DBW_Active_cfg);
-    can_register_incoming_msg(&can_DBW_ESTOP_in_cfg);
-}
-
-static void base_1Hz()
-{
-    can_send_iface(&can_NodeInfo_cfg, &CAN_Info);
+    reset_reason = rtc_get_reset_reason(0);
 }
 
 static void base_10Hz()
@@ -150,42 +74,21 @@ static void base_10Hz()
 
 static void base_100Hz()
 {
-    if (
-        CAN_DBW_Active.active &&
-        (can_DBW_Active_cfg.delta_ms < DBW_ACTIVE_TIMEOUT_MS) &&
-        (system_state == SYS_STATE_IDLE)
-    ) {
-        system_state = SYS_STATE_DBW_ACTIVE;
-    } else if (
-        (!CAN_DBW_Active.active || (can_DBW_Active_cfg.delta_ms >= DBW_ACTIVE_TIMEOUT_MS)) &&
-        (system_state == SYS_STATE_DBW_ACTIVE)
-    ) {
-        system_state = SYS_STATE_IDLE;
+    if (system_state == SYS_STATE_DBW_ACTIVE && !CANRX_is_node_DBW_ok())
+    {
+        system_state = SYS_STATE_ESTOP;
     }
-
-    if (can_DBW_ESTOP_in_cfg.recieved) system_state = SYS_STATE_ESTOP;
-
-    switch (system_state) {
-        case SYS_STATE_IDLE:
-            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_IDLE_CHOICE;
-            break;
-
-        case SYS_STATE_DBW_ACTIVE:
-            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_ACTIVE_CHOICE;
-            break;
-
-        case SYS_STATE_ESTOP:
-            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_ESTOP_CHOICE;
-            break;
-
-        default:
-            CAN_Status.sysStatus = CAN_NodeStatus_sysStatus_UNHEALTHY_CHOICE;
-            break;
+    else if (CANRX_get_DBW_active())
+    {
+        if (system_state == SYS_STATE_IDLE)
+        {
+            system_state = SYS_STATE_DBW_ACTIVE;
+        }
+        else
+        {
+            // keep current system state
+        }
     }
-
-    can_send_iface(&can_Status_cfg, &CAN_Status);
-
-    CAN_Status.counter++;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -265,16 +168,73 @@ void ember_can_callback_notify_lost_can(void)
 
 void base_set_state_estop(uint8_t choice)
 {
+    // we'll have oneshot message support soon
+
     system_state = SYS_STATE_ESTOP;
 
-    CAN_DBW_ESTOP.src = CAN_DBW_ESTOP_src_NODE_CHOICE;
-    CAN_DBW_ESTOP.reason = choice;
+    // CAN_DBW_ESTOP.src = CAN_DBW_ESTOP_src_NODE_CHOICE;
+    // CAN_DBW_ESTOP.reason = choice;
 
-    can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
+    // can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }
 
 
 void base_set_wdt_trigger(void)
 {
     wdt_trigger = true;
+}
+
+// ######         CAN RX         ###### //
+
+void CANRX_onRxCallback_DBW_ESTOP(
+    const struct CAN_MessageRaw_DBW_ESTOP * const raw,
+    const struct CAN_Message_DBW_ESTOP * const dec)
+{
+    (void)raw;
+
+    system_state = SYS_STATE_ESTOP;
+}
+
+// ######         CAN TX         ###### //
+
+void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const m)
+{
+    switch (system_state) {
+        case SYS_STATE_IDLE:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_IDLE;
+            break;
+        case SYS_STATE_DBW_ACTIVE:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ACTIVE;
+            break;
+        case SYS_STATE_ESTOP:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+            break;
+        default:
+            m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_UNHEALTHY;
+            break;
+    }
+
+    static typeof(m->counter) counter;
+    m->counter = counter++;
+
+    switch (reset_reason) {
+        case POWERON_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
+            break;
+        case RTCWDT_RTC_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
+            break;
+        default:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
+            break;
+    }
+
+    m->esp32ResetReasonCode = reset_reason;
+}
+
+void CANTX_populateTemplate_NodeInfo(struct CAN_TMessage_DBWNodeInfo * const m)
+{
+    m->gitHash = GITREV_BUILD_REV;
+    m->gitDirty = GITREV_BUILD_DIRTY;
+    m->eepromIdentity = 0; // no eeprom identity at the moment
 }

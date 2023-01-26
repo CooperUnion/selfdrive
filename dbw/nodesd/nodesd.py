@@ -10,7 +10,7 @@ import coloredlogs
 import node
 
 
-NODE_STATUS_CYCLE_TIME_S = 0.01
+NODE_STATUS_CYCLE_TIME_S = 0.1
 
 
 def main():
@@ -46,13 +46,13 @@ def main():
     logger = logging.getLogger('nodesd')
 
     mod_ident = [
-        'Blink',
-        'Throttle',
-        'Brake',
-        'Encoder',
-        'RearEncoder',
-        'PbMon',
-        'Steering'
+        'BRAKE',
+        'ENCF',
+        'ENCR',
+        'PB',
+        'STEER',
+        'TEST',
+        'THROTTLE'
     ]
 
     nodes = [node.Node(mod, bus=bus) for mod in mod_ident]

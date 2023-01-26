@@ -31,7 +31,7 @@ all: $(CAN) $(DBW_NODE_FW) $(ROS) dependencies
 .PHONY: clean
 clean:
 	@rm -rvf $(INSTALL_DEPENDENCIES)
-	scons --clean ccan
+	scons --clean dbc
 	@$(MAKE) -C $(DBW_NODE_FW) clean
 	@$(MAKE) -C $(ROS) clean
 
@@ -42,7 +42,7 @@ dependencies: $(INSTALL_DEPENDENCIES)
 
 .PHONY: $(CAN)
 $(CAN):
-	scons ccan
+	scons dbc
 
 
 .PHONY: $(DBW_NODE_FW)
@@ -64,4 +64,5 @@ $(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
+	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev 6875c435
 	@touch $(INSTALL_DEPENDENCIES)

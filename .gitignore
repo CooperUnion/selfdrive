@@ -1,6 +1,10 @@
-*.egg-info
+# Build / generated files
 *__pycache__/
+*.egg-info
 .install-dependencies
-.venv
 .sconsign.dblite
+.venv
 build
+
+# Local developer files
+.vscode

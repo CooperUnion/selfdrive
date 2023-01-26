@@ -11,10 +11,10 @@ class Test:
         self._bus = bus
 
     def run(self, percent, duration):
-        self._bus.send('DBW_Enable', {'enable': 1})
+        self._bus.send('DBW_Enable', {'DBW_enable': 1})
         self._bus.send(
             'DBW_VelCmd',
-            {'throttlePercent': min(abs(percent), 100), 'brakePercent': 0},
+            {'DBW_throttlePercent': min(abs(percent), 100), 'DBW_brakePercent': 0},
         )
 
         time_start = time.time()
@@ -31,9 +31,9 @@ class Test:
     def end(self):
         self._bus.send(
             'DBW_VelCmd',
-            {'throttlePercent': 0, 'brakePercent': 0},
+            {'DBW_throttlePercent': 0, 'DBW_brakePercent': 0},
         )
-        self._bus.send('DBW_Enable', {'enable': 0})
+        self._bus.send('DBW_Enable', {'DBW_enable': 0})
 
 
 def main():
