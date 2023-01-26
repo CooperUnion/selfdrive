@@ -36,16 +36,19 @@ jobs:
       - name: Run setup
         run: ./setup.sh
 
+      - name: Build CAN network
+        run: . .venv/bin/activate && scons dbc
+
       - name: Build firmware
         run: . .venv/bin/activate && make dbw/node_fw
 
-      - name: 'Upload CAN network'
+      - name: Upload CAN network
         uses: actions/upload-artifact@v3
         with:
           name: can-dbc
           path: build/can/igvc_can.dbc
 
-      - name: 'Upload firmware binaries'
+      - name: Upload firmware binaries
         uses: actions/upload-artifact@v3
         with:
           name: node_fw-bin
