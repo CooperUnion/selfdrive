@@ -42,13 +42,10 @@ message_templates:
     cycletime: 10
     signals:
         - encoderLeft:
-            description: Left encoder pulses since last reading.
-            width: 12
+            description: Left encoder pulses (continuous, bidirectional, and overflowing).
+            width: 16
         - encoderRight:
-            description: Right encoder pulses since last reading.
-            width: 12
-        - dtUs:
-            description: Microseconds since last reading.
+            description: Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
 nodes:
