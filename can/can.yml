@@ -49,53 +49,6 @@ message_templates:
             width: 16
 
 nodes:
-- TEST:
-    rx: "*"
-    messages:
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0xD0
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0xE0
-
-- THROTTLE:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
-    - DBW_VelCmd
-    messages:
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0xD1
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0xE1
-
-    - AccelData:
-        id: 0x10
-        cycletime: 100
-
-        signals:
-          - throttleACmd:
-              description: Throttle A command.
-              width: 8
-
-          - throttleFCmd:
-              description: Throttle B command.
-              width: 8
-
-          - percent:
-              description: Percentage commanded.
-              width: 8
-              unit: percent
-
-          - relayState:
-              description: Current relay state.
-              width: 1
-
 - BRAKE:
     rx:
     - DBW_Active
@@ -132,6 +85,63 @@ nodes:
             - pressure:
                 description: Pressure Sensed.
                 width: 8
+
+- DBW:
+    messages:
+    - VelCmd:
+        id: 0x20
+        cycletime: 100
+
+        signals:
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+          - brakePercent:
+              description: Brake percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+
+    - ESTOP:
+        id: 0x41F
+
+        signals:
+          - src:
+              description: ESTOP source.
+              width: 8
+              enumerated_values:
+                - NODE
+                - NODESD
+                - SAFED
+
+          - reason:
+              description: ESTOP reason.
+              width: 8
+              enumerated_values:
+                - FAIL
+                - TIMEOUT
+                - INVALID_STATE
+                - LIMIT_EXCEEDED
+
+    - Active:
+        id: 0x420
+        cycletime: 100
+
+        signals:
+          - active:
+              description: DBW is active.
+              width: 1
+
+    - Enable:
+        id: 0x421
+        cycletime: 100
+
+        signals:
+          - enable:
+              description: Enable DBW active.
+              width: 1
 
 - ENCF:
     rx:
@@ -244,61 +254,51 @@ nodes:
               # is_signed: true
               width: 32
 
-- DBW:
+- TEST:
+    rx: "*"
     messages:
-    - VelCmd:
-        id: 0x20
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD0
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE0
+
+- THROTTLE:
+    rx:
+    - DBW_Active
+    - DBW_ESTOP
+    - DBW_VelCmd
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD1
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE1
+
+    - AccelData:
+        id: 0x10
         cycletime: 100
 
         signals:
-          - throttlePercent:
-              description: Throttle percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
-          - brakePercent:
-              description: Brake percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
-
-    - ESTOP:
-        id: 0x41F
-
-        signals:
-          - src:
-              description: ESTOP source.
+          - throttleACmd:
+              description: Throttle A command.
               width: 8
-              enumerated_values:
-                - NODE
-                - NODESD
-                - SAFED
 
-          - reason:
-              description: ESTOP reason.
+          - throttleFCmd:
+              description: Throttle B command.
               width: 8
-              enumerated_values:
-                - FAIL
-                - TIMEOUT
-                - INVALID_STATE
-                - LIMIT_EXCEEDED
 
-    - Active:
-        id: 0x420
-        cycletime: 100
+          - percent:
+              description: Percentage commanded.
+              width: 8
+              unit: percent
 
-        signals:
-          - active:
-              description: DBW is active.
-              width: 1
-
-    - Enable:
-        id: 0x421
-        cycletime: 100
-
-        signals:
-          - enable:
-              description: Enable DBW active.
+          - relayState:
+              description: Current relay state.
               width: 1
 
 - WHL:
@@ -325,56 +325,3 @@ nodes:
           - bar:
               description: Bar.
               width: 40
-
-  # - DBW_UpdaterUpdateTrigger:
-  #     id: 0x4A0
-  #     cycletime: 100
-
-  #     template: dbwnodes
-
-  #     signals:
-  #       - trigger:
-  #           description: Trigger the update.
-  #           width: 1
-  #       - filler1:
-  #           description: Filler.
-  #           width: 7
-  #       - begin:
-  #           description: Begin the update.
-  #           width: 1
-
-  # - DBW_UpdaterUpdateData:
-  #     id: 0x4B0
-  #     cycletime: 100
-
-  #     template: dbwnodes
-
-  #     signals:
-  #       - position:
-  #           description: Index of 32-bit data chunk.
-  #           width: 24
-  #       - data:
-  #           description: Image data.
-  #           width: 40
-
-  # - DBW_NodeUpdateResponse:
-  #     id: 0x4C0
-  #     cycletime: 100
-
-  #     template: dbwnodes
-
-  #     signals:
-  #       - ready:
-  #           description: Ready to begin update.
-  #           width: 1
-
-  # - DBW_UpdaterUpdateDone:
-  #     id: 0x4D0
-  #     cycletime: 100
-
-  #     template: dbwnodes
-
-  #     signals:
-  #       - finalSize:
-  #           description: Number of bytes in final image size.
-  #           width: 32
