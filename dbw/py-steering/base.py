@@ -34,7 +34,7 @@ class Base(threading.Thread):
                 cur_time = time.time_ns()
 
                 if \
-                    data['active'] and \
+                    data['DBW_active'] and \
                     cur_time - msg_time < self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'IDLE':
 
@@ -44,7 +44,7 @@ class Base(threading.Thread):
                     self._sys_state = 'ACTIVE'
 
                 elif \
-                    not data['active'] or\
+                    not data['DBW_active'] or\
                     cur_time - msg_time >= self.DBW_ACTIVE_TIMEOUT_NS and \
                     self._sys_state == 'ACTIVE':
 
@@ -67,12 +67,12 @@ class Base(threading.Thread):
                     self._sys_state = 'ESTOP'
 
             self._bus.send(
-                'NodeStatus_' + self._mod_ident,
+                self._mod_ident + "_NodeStatus",
                 {
-                    'sysStatus':         self._sys_state,
-                    'counter':              self._counter,
-                    'resetReason':          'UNKNOWN',
-                    'esp32ResetReasonCode': 0,
+                    self._mod_ident + '_sysStatus':              self._sys_state,
+                    self._mod_ident + '_counter':                self._counter,
+                    self._mod_ident + '_resetReason':            'UNKNOWN',
+                    self._mod_ident + '_esp32ResetReasonCode':   0,
                 },
             )
 
@@ -84,7 +84,7 @@ class Base(threading.Thread):
         self._sys_state = 'ESTOP'
         self._bus.send(
             'DBW_ESTOP',
-            {'src': 'NODE', 'reason': reason},
+            {'DBW_src': 'NODE', 'DBW_reason': reason},
         )
         self._logger.warn(f'ESTOP reason: {reason}')
         if err_msg: self._logger.error(err_msg)

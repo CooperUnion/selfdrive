@@ -11,7 +11,7 @@ import steer
 
 
 def main():
-    MOD_IDENT = 'Steering'
+    MOD_IDENT = 'STEER'
 
     argparser = argparse.ArgumentParser(description='py-steering')
     argparser.add_argument(
