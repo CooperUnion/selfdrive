@@ -48,6 +48,12 @@ jobs:
           name: can-dbc
           path: build/can/igvc_can.dbc
 
+      - name: Upload OpenCAN Codegen Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: opencan-codegen-files
+          path: dbw/node_fw/.pio/build/opencan_generated/*
+
       - name: Upload firmware binaries
         uses: actions/upload-artifact@v3
         with:
