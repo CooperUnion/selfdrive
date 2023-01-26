@@ -1,6 +1,8 @@
 name: Build node_bl
 
-on: [pull_request, push, workflow_dispatch]
+# node_bl job triggers disabled for now while bootloader is under rework
+# on: [pull_request, push, workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   pre_job:
