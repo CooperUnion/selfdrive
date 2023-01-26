@@ -24,8 +24,6 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BRAKE;
 #define PWM_RESOLUTION 16
 #define MAX_DUTY 65535
 
-#define CMD_TIMEOUT_MS 200
-
 // ######      PROTOTYPES       ###### //
 
 static void init_pwm(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel);

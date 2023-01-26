@@ -18,8 +18,6 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_THROTTLE;
 
 #define MODE_CTRL_PIN 16
 
-#define CMD_TIMEOUT_MS 200
-
 // ######     PRIVATE DATA      ###### //
 
 static bool relay_state;
