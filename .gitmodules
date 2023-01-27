@@ -7,3 +7,7 @@
 [submodule "dbw/node_fw/ccmn_defs"]
 	path = dbw/node_fw/ccmn_defs
 	url = ../ccmn_defs.git
+[submodule "dbw/ember_bl/lib/ember"]
+	path = dbw/ember_bl/lib/ember
+	url = ../ember.git
+

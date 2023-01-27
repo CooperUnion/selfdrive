@@ -309,6 +309,9 @@ nodes:
         from_template: DBWNodeStatus
         id: 0xE0
 
+- TESTBL:
+    messages:
+
 - THROTTLE:
     rx:
     - DBW_Active
