@@ -7,13 +7,14 @@
 #include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
+#include "node_pins.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
 
-#define LED1_PIN 32
-#define LED2_PIN 33
+#define LED1_PIN NODE_BOARD_PIN_LED1
+#define LED2_PIN NODE_BOARD_PIN_LED2
 
 #define DBW_ACTIVE_TIMEOUT_MS 200
 
