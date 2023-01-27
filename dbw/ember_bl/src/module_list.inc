@@ -9,6 +9,7 @@
 /*
  * List an extern definition for each module's struct rate_tasks.
  */
+extern ember_rate_funcs_S leds_rf;
 extern ember_rate_funcs_S can_rf;
 
 /*
@@ -24,6 +25,7 @@ extern ember_rate_funcs_S module_rf;
  * they appear here, but it's best not to rely on that fact for program logic.
  */
 ember_rate_funcs_S* ember_task_list[] = {
+    &leds_rf,
     &can_rf,
 };
 
