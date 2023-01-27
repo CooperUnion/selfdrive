@@ -192,3 +192,10 @@ services:
             - './docker/rostoucan:/app/ros_ws/src/rostoucan'
         depends_on:
             - master
+
+    redis:
+        image: redis:7.0-alpine
+        container_name: redis
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
