@@ -86,6 +86,23 @@ nodes:
                 description: Pressure Sensed.
                 width: 8
 
+- CTRL:
+    rx:
+    - DBW_Active
+    - DBW_ESTOP
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD4
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE4
+
+    - EncoderData:
+        from_template: EncoderData
+        id: 0x14
+
 - DBW:
     messages:
     - VelCmd:
@@ -159,23 +176,6 @@ nodes:
     - EncoderData:
         from_template: EncoderData
         id: 0x13
-
-- ENCR:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
-    messages:
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0xD4
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0xE4
-
-    - EncoderData:
-        from_template: EncoderData
-        id: 0x14
 
 - PB:
     rx:
