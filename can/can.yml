@@ -310,7 +310,18 @@ nodes:
         id: 0xE0
 
 - TESTBL:
+    rx:
+    - UPD_IsoTpTx
     messages:
+    - IsoTpTx:
+        id: 0x301
+
+- UPD:
+    rx:
+    - TESTBL_IsoTpTx
+    messages:
+    - IsoTpTx:
+        id: 0x330
 
 - THROTTLE:
     rx:
