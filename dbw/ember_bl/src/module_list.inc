@@ -11,6 +11,7 @@
  */
 extern ember_rate_funcs_S leds_rf;
 extern ember_rate_funcs_S can_rf;
+extern ember_rate_funcs_S bl_rf;
 
 /*
  * Single extern definition for the one-per-build mod/ module.
@@ -27,6 +28,7 @@ extern ember_rate_funcs_S module_rf;
 ember_rate_funcs_S* ember_task_list[] = {
     &leds_rf,
     &can_rf,
+    &bl_rf,
 };
 
 const size_t ember_task_count = ARRAY_SIZE(ember_task_list);

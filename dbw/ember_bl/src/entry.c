@@ -16,8 +16,8 @@ void app_main() {
     /* begin running tasks */
     ember_tasking_begin();
 
-    for (;;) {
-        printf("Hello :)\n");
-        vTaskDelay(200 / portTICK_PERIOD_MS);
-    }
+    // for (;;) {
+    //     printf("Hello :)\n");
+    //     vTaskDelay(200 / portTICK_PERIOD_MS);
+    // }
 }
