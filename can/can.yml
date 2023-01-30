@@ -312,9 +312,24 @@ nodes:
 - TESTBL:
     rx:
     - UPD_IsoTpTx
+    - UPD_UpdateControl
     messages:
     - IsoTpTx:
         id: 0x301
+    - Status:
+        id: 0x302
+        cycletime: 20
+
+        signals:
+          - state:
+              enumerated_values:
+                - AWAIT_TRIGGER
+                - RECV_CHUNK
+                - COMMIT_CHUNK
+                - FINALIZE
+                - REBOOT_FW
+                - FAULT
+                - RESET
 
 - UPD:
     rx:
@@ -322,6 +337,17 @@ nodes:
     messages:
     - IsoTpTx:
         id: 0x330
+    - UpdateControl:
+        id: 0x2A0
+        cycletime: 20
+
+        signals:
+          - updateSizeBytes:
+              description: Total update binary size in bytes.
+              width: 24
+          - currentIsoTpChunk:
+              description: Current isotp 4095-byte chunk.
+              width: 12
 
 - THROTTLE:
     rx:
