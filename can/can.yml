@@ -299,7 +299,9 @@ nodes:
               width: 32
 
 - TEST:
-    rx: "*"
+    rx:
+    - DBW_Active
+    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
