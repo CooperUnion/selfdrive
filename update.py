@@ -20,16 +20,25 @@ chunk = 0
 class TargetNode():
     def __init__(self, node: str, total_size: int):
         self.bus = Bus()
-        self.node = node
-        self.total_size = total_size
-        self.update_control_thread = Thread(target = self.update_control)
         self.log = logging.getLogger(f"target_node_{node}")
 
+        self.node = node
+        self.total_size = total_size
+
+        self.stop_set = False
+
+        self.update_control_thread = Thread(target = self.update_control, daemon = True)
         self.update_control_thread.start()
         self.log.info("Started UpdateControl thread.")
 
+    def stop(self) -> None:
+        self.stop_set = True
+
     def update_control(self) -> None:
         while True:
+            if self.stop_set:
+                exit(0)
+
             signals = {
                 'UPD_updateSizeBytes': self.total_size,
                 'UPD_currentIsoTpChunk': chunk
@@ -99,6 +108,7 @@ def main():
         chunk_data = firmware[start:end]
         isotp_stack.send(chunk_data)
 
+
         log.debug('Waiting for isotp stack to be done transmitting')
         while isotp_stack.transmitting():
             isotp_stack.process()
@@ -110,12 +120,27 @@ def main():
             if bl_state == 'RECV_CHUNK':
                 sleep(0.005) # give the node some time, but this shouldn't be needed
                 break
+            elif bl_state == 'FAULT':
+                log.error('Node is in FAULT; aborting.')
+                node.stop()
+                exit(-1)
             elif bl_state != 'COMMIT_CHUNK':
-                log.error('Node not in expected state!')
+                log.error(f'Node in unexpected state {bl_state}; aborting.')
                 exit(-1)
             else:
                 sleep(SLEEP_WAIT)
 
+    # stop the updatecontrol transmission right now so we don't trigger another update
+    # once we're back in the firmware
+    node.stop
+
+    log.info('Update done; waiting for node to exit bootloader.')
+    while node.is_alive():
+        if node.state() == 'FAULT':
+            log.error('Node is in FAULT; update might have failed')
+            exit(-1)
+
+    log.info('Done!')
     exit(0)
 
 

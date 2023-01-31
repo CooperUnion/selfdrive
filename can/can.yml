@@ -303,6 +303,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
+    - UPD_UpdateControl
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

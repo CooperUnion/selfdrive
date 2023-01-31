@@ -1,5 +1,6 @@
 #include "cuber_base.h"
 
+#include <esp_system.h>
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
@@ -9,6 +10,7 @@
 #include "node_pins.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "watchdog.h"
 
 // ######        DEFINES        ###### //
 
@@ -69,6 +71,21 @@ static void base_init()
 static void base_10Hz()
 {
     set_status_LEDs();
+    if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
+        if (system_state == SYS_STATE_IDLE) {
+            /* It's update time. Disable interrupts. */
+            portDISABLE_INTERRUPTS();
+
+            /**
+             * Set the RTC watchdog timeout to 1 second to give us some time
+             * since the task_wdt_servicer() is not running anymore.
+             */
+            set_up_rtc_watchdog_1sec();
+
+            /* Reboot */
+            esp_restart();
+        }
+    }
 }
 
 static void base_100Hz()
