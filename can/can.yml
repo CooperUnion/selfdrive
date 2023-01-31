@@ -32,6 +32,7 @@ message_templates:
           description: Reset reason.
           enumerated_values:
             - POWERON
+            - SW_RESET
             - WATCHDOG_RESET
             - UNKNOWN
       - esp32ResetReasonCode:

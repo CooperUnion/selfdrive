@@ -220,6 +220,9 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
         case POWERON_RESET:
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
             break;
+        case RTC_SW_CPU_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_SW_RESET;
+            break;
         case RTCWDT_RTC_RESET:
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
             break;
