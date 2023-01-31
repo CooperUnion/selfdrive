@@ -10,7 +10,6 @@ from time import sleep
 from tqdm import trange
 
 CHUNK_SIZE = 4095
-node = 'TESTBL'
 iface = 'can0'
 
 # current chunk; global and shared
@@ -27,7 +26,7 @@ class TargetNode():
         self.update_control_thread.start()
         self.log.info("Started UpdateControl thread.")
 
-    def update_control(self):
+    def update_control(self) -> None:
         while True:
             signals = {
                 'UPD_updateSizeBytes': self.total_size,
@@ -37,7 +36,7 @@ class TargetNode():
             self.bus.send('UPD_UpdateControl', signals)
             sleep(0.02)
 
-    def state(self):
+    def state(self) -> str:
         message = f'{self.node}_Status'
         data = self.bus.get_data(message)
         if data is None:
@@ -45,6 +44,17 @@ class TargetNode():
             exit(-1)
 
         return data[f'{self.node}_state']
+
+    def is_alive(self) -> bool:
+        message = f'{self.node}_Status'
+        dt = self.bus.get_time_delta(message)
+
+        if dt is None:
+            return False
+
+        ALIVE_DELTA_NS = 500 * 1000 # 0.5 seconds
+        return dt <= ALIVE_DELTA_NS
+
 
 def main():
     global chunk
@@ -63,7 +73,11 @@ def main():
     log.info(f'Read firmware binary ({total_size} bytes).')
 
     node = TargetNode('TESTBL', total_size)
-    log.info(f'Tracking target node TESTBL.')
+    log.info(f'Tracking target node {node.node}')
+
+    log.info(f'Waiting for {node.node} to come up...')
+    while not node.is_alive():
+        pass
 
     while node.state() != 'RECV_CHUNK':
         log.info(f"Waiting for node to be in RECV_CHUNK.... current is {node.state()}")
@@ -84,13 +98,13 @@ def main():
         log.debug('Waiting for isotp stack to be done transmitting')
         while isotp_stack.transmitting():
             isotp_stack.process()
-            sleep(0.0035)
 
         log.debug('Waiting for node to be in RECV_CHUNK again')
         while True:
             bl_state = node.state()
 
             if bl_state == 'RECV_CHUNK':
+                sleep(0.002) # give the node some time, but this shouldn't be needed
                 break
             elif bl_state != 'COMMIT_CHUNK':
                 log.error('Node not in expected state!')
