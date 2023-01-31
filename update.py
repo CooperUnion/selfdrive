@@ -12,6 +12,8 @@ from tqdm import trange
 CHUNK_SIZE = 4095
 iface = 'can0'
 
+SLEEP_WAIT = 0.01
+
 # current chunk; global and shared
 chunk = 0
 
@@ -52,7 +54,7 @@ class TargetNode():
         if dt is None:
             return False
 
-        ALIVE_DELTA_NS = 500 * 1000 # 0.5 seconds
+        ALIVE_DELTA_NS = 500 * 1000 * 1000 # 0.5 seconds
         return dt <= ALIVE_DELTA_NS
 
 
@@ -77,14 +79,16 @@ def main():
 
     log.info(f'Waiting for {node.node} to come up...')
     while not node.is_alive():
-        pass
+        sleep(SLEEP_WAIT)
 
+    log.info(f"Waiting for node to be in RECV_CHUNK....")
     while node.state() != 'RECV_CHUNK':
-        log.info(f"Waiting for node to be in RECV_CHUNK.... current is {node.state()}")
-        sleep(0.2)
+        sleep(SLEEP_WAIT)
+
+    sleep(SLEEP_WAIT)
 
     log.info('Begin sending firmware image.')
-    for i, _ in enumerate(trange(0, len(firmware), 4095)):
+    for i, _ in enumerate(trange(0, len(firmware), CHUNK_SIZE)):
         chunk = i
 
         start = i * CHUNK_SIZE
@@ -104,13 +108,13 @@ def main():
             bl_state = node.state()
 
             if bl_state == 'RECV_CHUNK':
-                sleep(0.002) # give the node some time, but this shouldn't be needed
+                sleep(0.005) # give the node some time, but this shouldn't be needed
                 break
             elif bl_state != 'COMMIT_CHUNK':
                 log.error('Node not in expected state!')
                 exit(-1)
             else:
-                sleep(0.05)
+                sleep(SLEEP_WAIT)
 
     exit(0)
 
