@@ -13,6 +13,7 @@ CHUNK_SIZE = 4095
 node = 'TESTBL'
 iface = 'can0'
 
+# current chunk; global and shared
 chunk = 0
 
 class TargetNode():
@@ -53,7 +54,7 @@ def main():
 
     isotp_stack = isotp.CanStack(
         can.interface.Bus(iface, bustype = 'socketcan'),
-        address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=0x301, txid=0x330)
+        address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=0x301, txid=0x330),
     )
     log.info('Created isotp stack')
 
@@ -64,9 +65,8 @@ def main():
     node = TargetNode('TESTBL', total_size)
     log.info(f'Tracking target node TESTBL.')
 
-    log.info(f'Waiting for node to be in RECV_CHUNK...')
     while node.state() != 'RECV_CHUNK':
-        print(f"Waiting for node to be in RECV.... current is {node.state()}")
+        log.info(f"Waiting for node to be in RECV_CHUNK.... current is {node.state()}")
         sleep(0.2)
 
     log.info('Begin sending firmware image.')
@@ -76,7 +76,7 @@ def main():
         start = i * CHUNK_SIZE
         end = min(start + CHUNK_SIZE, total_size)
 
-        log.info(f"Sending chunk::: {start}...{end}")
+        log.debug(f"Sending chunk::: {start}...{end}")
 
         chunk_data = firmware[start:end]
         isotp_stack.send(chunk_data)
@@ -84,7 +84,7 @@ def main():
         log.debug('Waiting for isotp stack to be done transmitting')
         while isotp_stack.transmitting():
             isotp_stack.process()
-            sleep(isotp_stack.sleep_time())
+            sleep(0.0035)
 
         log.debug('Waiting for node to be in RECV_CHUNK again')
         while True:
