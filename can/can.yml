@@ -325,3 +325,15 @@ nodes:
           - bar:
               description: Bar.
               width: 40
+
+- SUPERVISOR:
+    rx: "*"
+    messages:
+    - SupervisorStatus:
+        from_template: DBWNodeStatus
+        id: 0x1A
+        
+        signals:
+          - supStatus:
+              description: Status of supervisor.
+              width: 1
