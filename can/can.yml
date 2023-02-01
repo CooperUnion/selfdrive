@@ -53,7 +53,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
-    - DBW_VelCmd
+    - CTRL_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -103,24 +103,24 @@ nodes:
         from_template: EncoderData
         id: 0x14
 
-- DBW:
-    messages:
-    - VelCmd:
+    - VelocityCommand:
         id: 0x20
         cycletime: 100
 
         signals:
-          - throttlePercent:
-              description: Throttle percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
           - brakePercent:
               description: Brake percentage.
               # maximum: 100
               unit: percent
               width: 7
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
 
+- DBW:
+    messages:
     - ESTOP:
         id: 0x41F
 
@@ -269,7 +269,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
-    - DBW_VelCmd
+    - CTRL_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

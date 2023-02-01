@@ -167,7 +167,15 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 
 // ######        CAN TX         ###### //
 
-void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m) {
-    m->encoderLeft = pulse_cnt[0];
+void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
+{
+    // TODO: populate with calculated values
+    m->CTRL_brakePercent    = 0;
+    m->CTRL_throttlePercent = 0;
+}
+
+void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
+{
+    m->encoderLeft  = pulse_cnt[0];
     m->encoderRight = pulse_cnt[1];
 }
