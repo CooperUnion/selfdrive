@@ -1,4 +1,4 @@
-#include "encoder.h"
+#include "ctrl.h"
 
 #include <driver/gpio.h>
 
@@ -9,7 +9,7 @@
 #include "opencan_tx.h"
 
 /* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_REAR_ENCODER;
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_CTRL;
 
 // ######        DEFINES        ###### //
 
@@ -36,15 +36,15 @@ static volatile int64_t pulse_cnt[2];
 
 // ######    RATE FUNCTIONS     ###### //
 
-static void encoder_init();
-static void encoder_100Hz();
+static void ctrl_init();
+static void ctrl_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init  = encoder_init,
-    .call_100Hz = encoder_100Hz,
+    .call_init  = ctrl_init,
+    .call_100Hz = ctrl_100Hz,
 };
 
-static void encoder_init()
+static void ctrl_init()
 {
     gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
     gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
@@ -69,7 +69,7 @@ static void encoder_init()
     gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
 }
 
-static void encoder_100Hz()
+static void ctrl_100Hz()
 {
     // check if we're over speed and trigger estop if so
     const int32_t left_ticks = pulse_cnt[0];
@@ -167,7 +167,15 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 
 // ######        CAN TX         ###### //
 
-void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m) {
-    m->encoderLeft = pulse_cnt[0];
+void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
+{
+    // TODO: populate with calculated values
+    m->CTRL_brakePercent    = 0;
+    m->CTRL_throttlePercent = 0;
+}
+
+void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
+{
+    m->encoderLeft  = pulse_cnt[0];
     m->encoderRight = pulse_cnt[1];
 }
