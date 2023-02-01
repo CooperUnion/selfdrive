@@ -12,7 +12,7 @@ ROStopic = '/cmd_vel'
 class CANtouROS:
     def __init__(self):
         self.bus = cand.client.Bus()
-        pub = rospy.Publisher(ROStopic, Twist, self.callback)
+        rospy.Publisher(ROStopic, Twist, self.callback)
     def callback(self,msg):
         # self.bus.send(CANmessage, {
         #     'linearVelCmd': 1.0,
@@ -22,6 +22,8 @@ class CANtouROS:
         data_time, data_data = data_rec
         msg.linear.x = data_data['linearVelCmd']
         msg.angular.z = data_data['angularVelCmd']
+        while True:
+            rospy.loginfo("I heard %s", msg.linear.x)
 
         
 

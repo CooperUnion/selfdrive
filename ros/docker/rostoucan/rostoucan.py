@@ -21,7 +21,7 @@ class ROStouCAN:
             rospy.loginfo("I heard %s", msg.linear.x)
     
 if __name__ == '__main__':
-    rospy.init_node('roscan!', anonymous=True)
+    rospy.init_node('roscan', anonymous=True)
     ROStouCAN()
     rospy.spin()
 
@@ -29,6 +29,10 @@ if __name__ == '__main__':
 # python3.9 -m pip install opencan-cand
 
 # start redis container
-# set up vcan on local machine sudo modprobe vcan
+# set up vcan on local machine 
+# sudo modprobe vcan
+# sudo ip link add dev vcan0 type vcan
+# sudo ip link set up vcan0
 # start cand on local machine candump vcan0
 # redis local host flag on cand --redis_host localhost
+
