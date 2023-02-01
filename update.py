@@ -124,7 +124,7 @@ def main():
                 log.error('Node is in FAULT; aborting.')
                 node.stop()
                 exit(-1)
-            elif bl_state != 'COMMIT_CHUNK':
+            elif bl_state not in ['COMMIT_CHUNK', 'FINALIZE', 'CHECK_DESC']:
                 log.error(f'Node in unexpected state {bl_state}; aborting.')
                 exit(-1)
             else:

@@ -329,6 +329,7 @@ nodes:
               enumerated_values:
                 - AWAIT_TRIGGER
                 - RECV_CHUNK
+                - CHECK_DESC
                 - COMMIT_CHUNK
                 - FINALIZE
                 - REBOOT_FW

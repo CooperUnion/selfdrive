@@ -2,10 +2,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include <esp_app_format.h>
+#include <esp_err.h>
 #include <esp_ota_ops.h>
 #include <esp_system.h>
 #include <esp_timer.h>
 
+#include "ember_app_desc.h"
 #include "ember_taskglue.h"
 #include "isotp.h"
 #include "isotp_user.h"
@@ -23,6 +26,7 @@ enum bl_state {
     BL_STATE_INIT,
     BL_STATE_AWAIT_TRIGGER,
     BL_STATE_RECV_CHUNK,
+    BL_STATE_CHECK_DESC,
     BL_STATE_COMMIT_CHUNK,
     BL_STATE_FINALIZE,
     BL_STATE_REBOOT_FW,
@@ -64,6 +68,7 @@ void CANTX_populate_TESTBL_Status(struct CAN_Message_TESTBL_Status * const m)
         case BL_STATE_INIT:             s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
         case BL_STATE_AWAIT_TRIGGER:    s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
         case BL_STATE_RECV_CHUNK:       s = CAN_TESTBL_STATE_RECV_CHUNK;        break;
+        case BL_STATE_CHECK_DESC:       s = CAN_TESTBL_STATE_CHECK_DESC;        break;
         case BL_STATE_COMMIT_CHUNK:     s = CAN_TESTBL_STATE_COMMIT_CHUNK;      break;
         case BL_STATE_FINALIZE:         s = CAN_TESTBL_STATE_FINALIZE;          break;
         case BL_STATE_REBOOT_FW:        s = CAN_TESTBL_STATE_REBOOT_FW;         break;
@@ -88,13 +93,32 @@ const ember_rate_funcs_S bl_rf = {
 static void bl_init(void) {
     set_state(BL_STATE_INIT);
 
+    log("^^^ EMBER BOOTLOADER v0.1.0 ^^^\n");
+    log("--> This bootloader image's node identity is: %s\n", ember_app_description.node_identity);
+    log("*** Looking for app partition...\n");
+
     // Find the app partition.
     app_partition =
         esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
     if (!app_partition) {
-        log("Failed to find app partition.\n");
+        log("!!! Failed to find app partition.\n");
         set_state(BL_STATE_RESET);
         return;
+    } else {
+        log("--> Found app partition.\n");
+        // esp_ota_get_state_partition not working...
+        log("*** Getting app information...\n");
+
+        esp_ota_img_states_t app_state;
+
+        const esp_err_t ret =
+            esp_ota_get_state_partition(app_partition, &app_state);
+
+        if (ret == ESP_OK) {
+            log("*** App is in state %d\n.", app_state);
+        } else {
+            log("!!! Couldn't get app partition state: %s\n", esp_err_to_name(ret));
+        }
     }
 
     isotp_init_link(
@@ -112,7 +136,8 @@ static void bl_init(void) {
     const esp_err_t err = (call);                                       \
     if (err != ESP_OK) {                                                \
         log(                                                            \
-            "Got error in checked op `%s` (err = %d)\n", #call, err);   \
+            "!!! Got error in checked op `%s` (err = %d, %s)\n",        \
+            #call, err, esp_err_to_name(err));                          \
         next_state = BL_STATE_FAULT;                                    \
         break;                                                          \
     }                                                                   \
@@ -132,7 +157,7 @@ static void bl_1kHz(void) {
 
         case BL_STATE_AWAIT_TRIGGER:
             if (CANRX_is_node_UPD_ok() && CANRX_get_UPD_currentIsoTpChunk() == 0U) {
-                log("UPD is present; update triggered.\n");
+                log("--> UPD is present; update triggered.\n");
 
                 // Note the total number of bytes
                 update_size = CANRX_get_UPD_updateSizeBytes();
@@ -142,7 +167,7 @@ static void bl_1kHz(void) {
 
                 next_state = BL_STATE_RECV_CHUNK;
             } else if (time_in_state() > 1500U) {
-                log("UPD not detected, skipping update.\n");
+                log("--> UPD not detected, skipping update.\n");
                 next_state = BL_STATE_REBOOT_FW;
             }
             break;
@@ -156,8 +181,7 @@ static void bl_1kHz(void) {
 
             static uint16_t current_chunk;
             if (isotp_ret == ISOTP_RET_OK) {
-                log("Got new ISOTP full message with size %"PRIu16": %"PRIu16"\n", this_chunk_size, current_chunk);
-                log("starting data: %lx\n", *(uint32_t *)isotp_chunk_data);
+                log("--> Got new ISOTP full message with size %"PRIu16": %"PRIu16"\n", this_chunk_size, current_chunk);
             }
             /**********************/
 
@@ -165,22 +189,54 @@ static void bl_1kHz(void) {
                 // Does our chunk count match the UPD chunk count?
                 uint16_t upd_chunk = CANRX_get_UPD_currentIsoTpChunk();
                 if (upd_chunk != current_chunk) {
-                    log("Chunk count mismatch: UPD is on chunk %"PRIu16" and we're on %"PRIu16"\n",
+                    log("!!! Chunk count mismatch: UPD is on chunk %"PRIu16" and we're on %"PRIu16"\n",
                         upd_chunk, current_chunk);
                     next_state = BL_STATE_FAULT;
                 }
 
                 bytes_so_far += this_chunk_size;
-                next_state = BL_STATE_COMMIT_CHUNK;
+
+                if (current_chunk == 0) {
+                    next_state = BL_STATE_CHECK_DESC;
+                } else {
+                    next_state = BL_STATE_COMMIT_CHUNK;
+                }
             } else if (time_in_state() > 1500U) {  // expected chunk but didn't get one
-                log("Expected isotp chunk but didn't get one.\n");
+                log("!!! Expected isotp chunk but didn't get one.\n");
                 next_state = BL_STATE_FAULT;
             }
             break;
 
+        case BL_STATE_CHECK_DESC:;
+            // get the app description out of the first chunk
+            void *new_app_desc_addr =
+                // see ember_app_desc.h
+                isotp_chunk_data +
+                sizeof(esp_image_header_t) +
+                sizeof(esp_image_segment_header_t) +
+                sizeof(esp_app_desc_t);
+
+            ember_app_desc_v1_t new_app_desc;
+            memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
+
+            const bool identities_match = !strncmp(
+                ember_app_description.node_identity,
+                new_app_desc.node_identity,
+                sizeof(ember_app_description.node_identity));
+
+            if (identities_match) {
+                log("--> Identity of new app matches bootloader. Proceeding.\n");
+            } else {
+                log("--> Identity of new app (\"%.16s\") does not match bootloader!\n", new_app_desc.node_identity);
+            }
+
+            next_state = BL_STATE_COMMIT_CHUNK;
+
+            break;
+
         case BL_STATE_COMMIT_CHUNK:
             // Let's write it in.
-            log("Committing chunk %d with size %"PRIu16"...\n", current_chunk, this_chunk_size);
+            log("--> Committing chunk %d...\n", current_chunk);
             ESP_CHECKED(esp_ota_write(ota_handle, isotp_chunk_data, this_chunk_size));
 
             if (bytes_so_far < update_size) {
@@ -197,13 +253,13 @@ static void bl_1kHz(void) {
 
         case BL_STATE_FINALIZE:
             // Finalize the update
-            log("Finalizing update...\n");
+            log("--> Finalizing update...\n");
             ESP_CHECKED(esp_ota_end(ota_handle));
             next_state = BL_STATE_REBOOT_FW;
             break;
 
         case BL_STATE_REBOOT_FW:
-            log("Setting boot partition to app...\n");
+            log("--> Setting boot partition to app...\n");
             ESP_CHECKED(esp_ota_set_boot_partition(app_partition));
 
             next_state = BL_STATE_RESET;
@@ -224,7 +280,7 @@ static void bl_1kHz(void) {
             break; // should be unreachable
 
         default:
-            log("!! Invalid state %d\n", bl_state);
+            log("!!! Invalid state %d\n", bl_state);
             next_state = BL_STATE_RESET;
             break;
     }
@@ -245,6 +301,7 @@ static void set_state(const enum bl_state next_state) {
         case BL_STATE_INIT:             s = "INIT";             break;
         case BL_STATE_AWAIT_TRIGGER:    s = "AWAIT_TRIGGER";    break;
         case BL_STATE_RECV_CHUNK:       s = "RECV_CHUNK";       break;
+        case BL_STATE_CHECK_DESC:       s = "CHECK_DESC";       break;
         case BL_STATE_COMMIT_CHUNK:     s = "COMMIT_CHUNK";     break;
         case BL_STATE_FINALIZE:         s = "FINALIZE";         break;
         case BL_STATE_REBOOT_FW:        s = "REBOOT_FW";        break;
@@ -252,7 +309,7 @@ static void set_state(const enum bl_state next_state) {
         case BL_STATE_FAULT:            s = "FAULT";            break;
     }
 
-    log("At %"PRIu32": next state is %s\n\n", state_start_time, s);
+    log("--> At %"PRIu32": next state is %s\n", state_start_time, s);
 }
 
 static uint32_t time_in_state(void) {
@@ -264,7 +321,7 @@ static uint32_t time_in_state(void) {
 void isotp_user_debug(const char* message, ...) {
     va_list args;
     va_start(args, message);
-    fprintf(stderr, "ISOTP Says: ");
+    fprintf(stderr, "*** ISOTP Says: ");
     vfprintf(stderr, message, args);
     fprintf(stderr, "\n");
     va_end(args);
