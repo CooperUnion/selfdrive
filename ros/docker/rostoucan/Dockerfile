@@ -11,8 +11,6 @@ RUN apt install -y python3.9
 
 RUN apt install -y python3-pip
 
-RUN pip install opencan-cand
-
 RUN apt update && apt install -y curl
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
