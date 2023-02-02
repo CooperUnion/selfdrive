@@ -52,9 +52,8 @@ nodes:
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
-    - DBW_Active
-    - DBW_ESTOP
     - DBW_VelocityCommand
+    - DBW_TestDay
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -88,9 +87,6 @@ nodes:
                 width: 8
 
 - CTRL:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -122,45 +118,6 @@ nodes:
 
 - DBW:
     messages:
-    - ESTOP:
-        id: 0x41F
-
-        signals:
-          - src:
-              description: ESTOP source.
-              width: 8
-              enumerated_values:
-                - NODE
-                - NODESD
-                - SAFED
-
-          - reason:
-              description: ESTOP reason.
-              width: 8
-              enumerated_values:
-                - FAIL
-                - TIMEOUT
-                - INVALID_STATE
-                - LIMIT_EXCEEDED
-
-    - Active:
-        id: 0x420
-        cycletime: 100
-
-        signals:
-          - active:
-              description: DBW is active.
-              width: 1
-
-    - Enable:
-        id: 0x421
-        cycletime: 100
-
-        signals:
-          - enable:
-              description: Enable DBW active.
-              width: 1
-
     - VelocityCommand:
         id: 0x666
         cycletime: 100
@@ -174,11 +131,19 @@ nodes:
           # TODO: determine realistic bounds
 #         - angularVelocity:
 #             description: Velocity in rad/s
+    - TestDay:
+        id: 0x667
+        cycletime: 100
+
+        signals:
+          - throttlePercent:
+              description: throttle percent
+              width: 7
+          - brakePercent:
+              description: brake percent
+              width: 7
 
 - ENCF:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -193,9 +158,6 @@ nodes:
         id: 0x13
 
 - PB:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -223,9 +185,6 @@ nodes:
               width: 1
 
 - STEER:
-    rx:
-      - DBW_Active
-      - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -282,9 +241,9 @@ nodes:
 
 - THROTTLE:
     rx:
-    - DBW_Active
-    - DBW_ESTOP
     - CTRL_VelocityCommand
+    - DBW_TestDay
+    - CTRL_EncoderData
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

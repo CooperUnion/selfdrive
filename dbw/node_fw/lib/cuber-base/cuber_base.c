@@ -43,12 +43,10 @@ static RESET_REASON reset_reason;
 
 static void base_init();
 static void base_10Hz();
-static void base_100Hz();
 
 ember_rate_funcs_S base_rf = {
     .call_init  = base_init,
     .call_10Hz  = base_10Hz,
-    .call_100Hz = base_100Hz,
 };
 
 static void base_init()
@@ -70,25 +68,6 @@ static void base_init()
 static void base_10Hz()
 {
     set_status_LEDs();
-}
-
-static void base_100Hz()
-{
-    if (system_state == SYS_STATE_DBW_ACTIVE && !CANRX_is_node_DBW_ok())
-    {
-        system_state = SYS_STATE_ESTOP;
-    }
-    else if (CANRX_get_DBW_active())
-    {
-        if (system_state == SYS_STATE_IDLE)
-        {
-            system_state = SYS_STATE_DBW_ACTIVE;
-        }
-        else
-        {
-            // keep current system state
-        }
-    }
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -184,16 +163,12 @@ void base_set_wdt_trigger(void)
     wdt_trigger = true;
 }
 
-// ######         CAN RX         ###### //
-
-void CANRX_onRxCallback_DBW_ESTOP(
-    const struct CAN_MessageRaw_DBW_ESTOP * const raw,
-    const struct CAN_Message_DBW_ESTOP * const dec)
+bool base_estoped()
 {
-    (void)raw;
-
-    system_state = SYS_STATE_ESTOP;
+    return system_state == SYS_STATE_ESTOP;
 }
+
+// ######         CAN RX         ###### //
 
 // ######         CAN TX         ###### //
 

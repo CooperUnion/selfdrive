@@ -75,6 +75,7 @@ static void ctrl_100Hz()
     const int32_t left_ticks = pulse_cnt[0];
     const int32_t right_ticks = pulse_cnt[1];
 
+    // TODO: BIG BUG
     if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
         (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
         base_set_state_estop(0 /* placeholder */);
