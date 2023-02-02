@@ -10,7 +10,7 @@ enum cuber_node_types {
     NODE_THROTTLE = 2,
     NODE_BRAKE = 3,
     NODE_ENCODER = 4,
-    NODE_REAR_ENCODER = 5,
+    NODE_CTRL = 5,
     NODE_PB_MON = 6,
 };
 
