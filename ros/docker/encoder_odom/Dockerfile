@@ -12,7 +12,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://
 
 RUN apt-get update && apt-get install -qy redis
 
-RUN mkdir ros_ws
+RUN mkdir -p ros_ws/src
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
