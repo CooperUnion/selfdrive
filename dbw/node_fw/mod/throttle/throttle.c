@@ -17,7 +17,7 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_THROTTLE;
 // ######        DEFINES        ###### //
 
 #define MODE_CTRL_PIN 16
-#define ENCODER_MAX_TICKS  85     // slightly over 5MPH
+#define ENCODER_MAX_TICKS 1000     // slightly over 5MPH
 
 // ######     PRIVATE DATA      ###### //
 
@@ -55,10 +55,6 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (!CANRX_is_node_CTRL_ok()) {
-        base_set_state_estop(0 /* placeholder */);
-    }
-
     static uint16_t prv_left_ticks;
     static uint16_t prv_right_ticks;
 
@@ -75,7 +71,7 @@ static void throttle_100Hz()
     prv_right_ticks = right_ticks;
 
     /* set the relay based on whether DBW is active */
-    control_relay(!base_estoped() && CANRX_is_node_DBW_ok());
+    control_relay(!base_estoped() && CANRX_is_node_DBW_ok() && CANRX_get_DBW_throttlePercent());
 
     /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
     float32_t cmd = ((float32_t) CANRX_get_DBW_throttlePercent()) / 100.0;
