@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import tf_conversions
 import tf2_ros
 import math
 from math import sin, cos, pi
@@ -64,7 +63,7 @@ class Encoder_Odom:
         self.y += self.delta_y
         self.th += self.delta_th
 
-        self.odom_quat = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
+        self.odom_quat = tf2_ros.transformations.quaternion_from_euler(0, 0, self.th)
         self.broadcaster.sendTransform(
             (self.x, self.y, 0.),
             self.odom_quat,

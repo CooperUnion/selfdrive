@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import tf_conversions
 import tf2_ros
 import math
 from math import sin, cos, pi
@@ -26,7 +25,7 @@ class Subscribe:
 # twist (with covariance if provided by ekf)
 class Publish:
     def __init__(self):
-        self.odom = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
+        self.odom = rospy.Publisher('/encoder_odom', Odometry, queue_size=50)
         # increase rate for RTABmap
         self.rate = rospy.Rate(1.0)
     def publish(self,data):
@@ -68,7 +67,7 @@ class Encoder_Odom:
         self.y += self.delta_y
         self.th += self.delta_th
 
-        self.odom_quat = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
+        self.odom_quat = tf2_ros.transformations.quaternion_from_euler(0, 0, self.th)
         self.broadcaster.sendTransform(
             (self.x, self.y, 0.),
             self.odom_quat,
@@ -77,17 +76,13 @@ class Encoder_Odom:
             "odom"
         )
 
-# Initialize time variables
+# Initialize node
+rospy.init_node('encoder_odom', anonymous=True)
 current_time = rospy.Time.now()
 last_time = rospy.Time.now()
-
-# Not sure whether or not to initialize outside of the loop
-rospy.init_node('encoder_odom', anonymous=True)
 encoder_odom = Encoder_Odom()
 
 if __name__ == '__main__':
-    
-    # rospy.init_node('encoder_odom', anonymous=True)
 
     current_time = rospy.Time.now()
     encoder_odom.calc_odom(current_time,last_time)
