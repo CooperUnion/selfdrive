@@ -6,6 +6,14 @@ WORKDIR /app
 
 RUN apt update && apt install -y curl
 
+RUN apt-get -y update
+
+# RUN apt install -y python3-pip 
+
+# RUN pip3 install tf
+
+RUN apt-get install -y python3-tf2-ros
+
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 
 RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list

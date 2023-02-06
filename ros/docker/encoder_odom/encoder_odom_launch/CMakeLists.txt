@@ -9,7 +9,6 @@ project(encoder_odom_launch)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
-  tf2
   std_msgs
 )
 
