@@ -270,7 +270,6 @@ nodes:
               width: 32
 
 - TECH:
-    rx:
     messages:
     - FakeCmdVel:
         id: 0x4E0
@@ -281,7 +280,7 @@ nodes:
               description: supposed linear.x output.
               width: 32 #???? girl tf is a width
           - Angle:
-              decription: supposed angle *giggle*
+              description: supposed angle *giggle*
               width: 32 #probably idfk
 
 - TEST:
