@@ -27,16 +27,18 @@ class ROStouCAN:
 class CANtouROS:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
+        self.msg = UInt16MultiArray()
         self.pub = rospy.Publisher(EncoderTicks, UInt16MultiArray, queue_size=2)
         self.rate = rospy.Rate(1)
     def publish(self):
         data = self.bus.get_data(EncoderCAN)
+        self.msg.data = [data['encoderLeft'], data['encoderRight']]
         # ticks = [data['encoderLeft'], data['encoderRight']]
         # Not sure why this not working ^
-        ticks = [15000, 121]
-        msgEncoder = UInt16MultiArray(data=ticks)
+        # ticks = [15000, 121]
+        # msgEncoder = UInt16MultiArray(data=ticks)
         while not rospy.is_shutdown():
-            self.pub.publish(msgEncoder)
+            self.pub.publish(self.msg)
         
 if __name__ == '__main__':
     rospy.init_node('roscan', anonymous=True)

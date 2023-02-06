@@ -7,9 +7,11 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
+RUN apt-get update
+
 RUN apt install -y python3.9
 
-RUN apt install -y python3-pip
+RUN apt install -y python3-pip --fix-missing
 
 RUN apt update && apt install -y curl
 
