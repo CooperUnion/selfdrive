@@ -5,7 +5,7 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import UInt16MultiArray
 
 # CAN Messages
-EncoderCAN = 'DBW_EncoderData'
+EncoderCAN = 'CTRL_EncoderData'
 VelocityCAN = 'DBW_VelocityCmd'
 
 # ROS Topics
@@ -31,13 +31,9 @@ class CANtouROS:
         self.pub = rospy.Publisher(EncoderTicks, UInt16MultiArray, queue_size=2)
         self.rate = rospy.Rate(1)
     def publish(self):
-        data = self.bus.get_data(EncoderCAN)
-        self.msg.data = [data['encoderLeft'], data['encoderRight']]
-        # ticks = [data['encoderLeft'], data['encoderRight']]
-        # Not sure why this not working ^
-        # ticks = [15000, 121]
-        # msgEncoder = UInt16MultiArray(data=ticks)
         while not rospy.is_shutdown():
+            data = self.bus.get_data(EncoderCAN)
+            self.msg.data = [data['CTRL_encoderLeft'], data['CTRL_encoderRight']]
             self.pub.publish(self.msg)
         
 if __name__ == '__main__':
