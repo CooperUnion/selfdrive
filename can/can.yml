@@ -100,7 +100,7 @@ nodes:
           - alarmsRaised:
               description: Alarms raised
               width: 1
-          - alarmSpeed:
+          - speedAlarm:
               description: Speed violation
               width: 1
 

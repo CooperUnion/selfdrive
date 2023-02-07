@@ -32,7 +32,7 @@ static void IRAM_ATTR encoder1_chan_b(void *arg);
 // ######     PRIVATE DATA      ###### //
 
 static volatile uint16_t pulse_cnt[2];
-static bool alarm_speed;
+static bool speed_alarm;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -86,10 +86,10 @@ static void ctrl_100Hz()
         (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
         (ABS(right_delta) >= ENCODER_MAX_TICKS)
     ) {
-        alarm_speed = true;
+        speed_alarm = true;
         base_set_state_estop(0 /* placeholder */);
     } else {
-        alarm_speed = false;
+        speed_alarm = false;
     }
 }
 
@@ -181,8 +181,8 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 
 void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
 {
-    m->CTRL_alarmsRaised = alarm_speed;
-    m->CTRL_alarmSpeed   = alarm_speed;
+    m->CTRL_alarmsRaised = speed_alarm;
+    m->CTRL_speedAlarm   = speed_alarm;
 }
 
 void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
