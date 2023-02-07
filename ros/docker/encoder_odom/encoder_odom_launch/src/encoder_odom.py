@@ -7,21 +7,19 @@ import math
 from math import sin, cos, pi
 
 from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist, TransformStamped 
-from std_msgs.msg import Float32
+from std_msgs.msg import UInt16MultiArray
 from nav_msgs.msg import Odometry
 
 class Subscribe:
     def __init__(self):
-        self.vel = 0
-        self.angle = 0
-        rospy.Subscriber('/enc_vel', Float32, self.callback_vel)
-        rospy.Subscriber('/enc_angle', Float32, self.callback_angle)
-    def callback_vel(msg):
+        self.left_ticks = 0
+        self.right_ticks = 0
+        rospy.Subscriber('/encoder_ticks', UInt16MultiArray, self.callback)
+    def callback(msg):
         while True:
-            self.vel = msg.data
-    def callback_angle(msg):
-        while True:
-            self.angle = msg.data
+            self.left_ticks = msg.data[0]
+            self.right_ticks = msg.data[1]
+            
 
 # The Odometry message type contains the following messages:
 # header (Coordinate frame for the pose)
@@ -57,38 +55,17 @@ class Encoder_Odom:
         self.delta_x = 0.0
         self.delta_y = 0.0
         self.delta_th = 0.0
-    # def send_transform(self,current_time):
-    #     t = TransformStamped()
-    
-    #     # double check this 
-    #     t.header.stamp = current_time
-    #     t.header.frame_id = "odom"
-    #     t.child_frame_id = "base_link"
-    #     t.transform.translation.x = self.x
-    #     t.transform.translation.y = self.y
-    #     t.transform.translation.z = 0.0
-    #     q = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
-    #     t.transform.rotation.x = q[0]
-    #     t.transform.rotation.y = q[1]
-    #     t.transform.rotation.z = q[2]
-    #     t.transform.rotation.w = q[3]
 
-    #     self.broadcaster.sendTransform(t)
-    
-    def calc_odom(self,current_time,last_time):
-        
-        self.vx = self.sub.vel
-        self.vth = self.sub.angle
+        self.delta_left = 0.0
+        self.delta_right = 0.0
+        self.v_left = 0.0
+        self.v_right = 0.0
 
-        self.dt = (current_time - last_time).to_sec()
-        self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
-        self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
-        self.delta_th = self.vth * self.dt
-        
-        self.x += self.delta_x
-        self.y += self.delta_y
-        self.th += self.delta_th
+        #starting the node at 0 ticks might cause a problem with absolute encoders???
+        self.prev_left_ticks = 0.0
+        self.prev_right_ticks = 0.0
 
+    def send_transform(self,current_time):
         t = TransformStamped()
     
         # double check this 
@@ -105,17 +82,39 @@ class Encoder_Odom:
         t.transform.rotation.w = self.q[3]
         
         self.broadcaster.sendTransform(t)
+    def calc_odom(self,current_time,last_time):
+        
+        # Car Variables
+        wheel_radius = 1.0
+        circumfrence = 3.1415926 * 2 * wheel_radius
+        enc_res = 65536
+        tick_distance = circumfrence/enc_res
+        wheel_spacing = 1.0
 
-        # self.send_transform(self,current_time)
+        self.delta_left = self.sub.left_ticks - self.prev_left_ticks
+        self.delta_right = self.sub.right_ticks - self.prev_right_ticks
 
-        # self.odom_quat = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
-        # self.broadcaster.sendTransform(
-        #     (self.x, self.y, 0.),
-        #     self.odom_quat,
-        #     current_time,
-        #     "base_link",
-        #     "odom"
-        # )
+        self.v_left = (self.delta_left * tick_distance) / (current_time - last_time).to_sec()
+        self.v_right = (self.delta_right * tick_distance) / (current_time - last_time).to_sec()
+
+        # 10 is a scaling factor used to characterize system
+        self.vx = ((self.v_right + self.v_left) / 2) * 10
+        self.vth = ((self.v_right - self.v_left) / wheel_spacing) * 10
+
+        self.dt = (current_time - last_time).to_sec()
+        self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
+        self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
+        self.delta_th = self.vth * self.dt
+        
+        self.x += self.delta_x
+        self.y += self.delta_y
+        self.th += self.delta_th
+
+        self.send_transform(current_time)
+
+        self.prev_left_ticks = self.sub.left_ticks
+        self.prev_right_ticks = self.sub.right_ticks
+        
 
 # Initialize node
 rospy.init_node('encoder_odom', anonymous=True)
