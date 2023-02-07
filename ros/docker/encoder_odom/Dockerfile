@@ -8,11 +8,13 @@ RUN apt update && apt install -y curl
 
 RUN apt-get -y update
 
-# RUN apt install -y python3-pip 
+# RUN apt install -y python3-pip --fix-missing
 
-# RUN pip3 install tf
+# RUN pip install transformations
 
 RUN apt-get install -y python3-tf2-ros
+
+RUN apt-get install -y python3-tf-conversions
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 

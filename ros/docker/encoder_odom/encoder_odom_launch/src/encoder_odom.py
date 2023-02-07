@@ -2,21 +2,26 @@
 
 import rospy
 import tf2_ros
+import tf_conversions
 import math
 from math import sin, cos, pi
 
-from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist
+from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist, TransformStamped 
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 
 class Subscribe:
     def __init__(self):
-        self.vel = rospy.Subscriber('/enc_vel', Float32, self.callback)
-        self.angle = rospy.Subscriber('/enc_angle', Float32, self.callback)
-        # self.steer = rospy.Subscriber('/enc_steer', Float32, self.callback)
-    def callback(msg):
+        self.vel = 0
+        self.angle = 0
+        rospy.Subscriber('/enc_vel', Float32, self.callback_vel)
+        rospy.Subscriber('/enc_angle', Float32, self.callback_angle)
+    def callback_vel(msg):
         while True:
-            rospy.loginfo("I heard %s", msg.data)
+            self.vel = msg.data
+    def callback_angle(msg):
+        while True:
+            self.angle = msg.data
 
 # The Odometry message type contains the following messages:
 # header (Coordinate frame for the pose)
@@ -52,7 +57,24 @@ class Encoder_Odom:
         self.delta_x = 0.0
         self.delta_y = 0.0
         self.delta_th = 0.0
-        
+    # def send_transform(self,current_time):
+    #     t = TransformStamped()
+    
+    #     # double check this 
+    #     t.header.stamp = current_time
+    #     t.header.frame_id = "odom"
+    #     t.child_frame_id = "base_link"
+    #     t.transform.translation.x = self.x
+    #     t.transform.translation.y = self.y
+    #     t.transform.translation.z = 0.0
+    #     q = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
+    #     t.transform.rotation.x = q[0]
+    #     t.transform.rotation.y = q[1]
+    #     t.transform.rotation.z = q[2]
+    #     t.transform.rotation.w = q[3]
+
+    #     self.broadcaster.sendTransform(t)
+    
     def calc_odom(self,current_time,last_time):
         
         self.vx = self.sub.vel
@@ -60,21 +82,40 @@ class Encoder_Odom:
 
         self.dt = (current_time - last_time).to_sec()
         self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
-        self.delta_y = (vvx * sin(self.th) + self.vy * cos(self.th)) * self.dt
+        self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
         self.delta_th = self.vth * self.dt
         
         self.x += self.delta_x
         self.y += self.delta_y
         self.th += self.delta_th
 
-        self.odom_quat = tf2_ros.transformations.quaternion_from_euler(0, 0, self.th)
-        self.broadcaster.sendTransform(
-            (self.x, self.y, 0.),
-            self.odom_quat,
-            current_time,
-            "base_link",
-            "odom"
-        )
+        t = TransformStamped()
+    
+        # double check this 
+        t.header.stamp = current_time
+        t.header.frame_id = "odom"
+        t.child_frame_id = "base_link"
+        t.transform.translation.x = self.x
+        t.transform.translation.y = self.y
+        t.transform.translation.z = 0.0
+        self.q = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
+        t.transform.rotation.x = self.q[0]
+        t.transform.rotation.y = self.q[1]
+        t.transform.rotation.z = self.q[2]
+        t.transform.rotation.w = self.q[3]
+        
+        self.broadcaster.sendTransform(t)
+
+        # self.send_transform(self,current_time)
+
+        # self.odom_quat = tf_conversions.transformations.quaternion_from_euler(0, 0, self.th)
+        # self.broadcaster.sendTransform(
+        #     (self.x, self.y, 0.),
+        #     self.odom_quat,
+        #     current_time,
+        #     "base_link",
+        #     "odom"
+        # )
 
 # Initialize node
 rospy.init_node('encoder_odom', anonymous=True)
@@ -92,7 +133,7 @@ if __name__ == '__main__':
     odom_msg.header.frame_id = "odom"
     
     # set the position
-    odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.odom_quat))
+    odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.q))
 
     # set the velocity
     odom_msg.child_frame_id = "base_link"
