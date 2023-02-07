@@ -3,7 +3,6 @@
 #include <driver/gpio.h>
 
 #include "common.h"
-#include "cuber_alarms.h"
 #include "cuber_base.h"
 #include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
@@ -33,7 +32,7 @@ static void IRAM_ATTR encoder1_chan_b(void *arg);
 // ######     PRIVATE DATA      ###### //
 
 static volatile uint16_t pulse_cnt[2];
-static uint_fast8_t alarms;
+static bool alarm_speed;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -87,10 +86,10 @@ static void ctrl_100Hz()
         (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
         (ABS(right_delta) >= ENCODER_MAX_TICKS)
     ) {
-        alarms |= CTRL_SPEED_ALARM;
+        alarm_speed = true;
         base_set_state_estop(0 /* placeholder */);
     } else {
-        alarms &= ~CTRL_SPEED_ALARM;
+        alarm_speed = false;
     }
 }
 
@@ -182,7 +181,8 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 
 void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
 {
-    m->CTRL_alarms = alarms;
+    m->CTRL_alarmsRaised = alarm_speed;
+    m->CTRL_alarmSpeed   = alarm_speed;
 }
 
 void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)

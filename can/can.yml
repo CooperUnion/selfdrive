@@ -97,8 +97,11 @@ nodes:
         cycletime: 10
 
         signals:
-          - alarms:
-              description: CTLR alarms.
+          - alarmsRaised:
+              description: Alarms raised
+              width: 1
+          - alarmSpeed:
+              description: Speed violation
               width: 1
 
     - NodeInfo:
