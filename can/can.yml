@@ -25,6 +25,11 @@ message_templates:
             - UNHEALTHY
             - ACTIVE
             - ESTOP
+      - temperature:
+          #temperature range from -10 to 80 degrees Celsius
+          description: Core temperature in Celsius
+          width: 7
+          #TODO: determine offset for negative number
       - counter:
           description: Counter for fun.
           width: 8
