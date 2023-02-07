@@ -16,8 +16,7 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS  85     // slightly over 5MPH
-#define ENCODER_TIMEOUT_US 20000
+#define ENCODER_MAX_TICKS 600  // slightly over 5MPH
 
 // ######      PROTOTYPES       ###### //
 
@@ -28,7 +27,8 @@ static void IRAM_ATTR encoder1_chan_b(void *arg);
 
 // ######     PRIVATE DATA      ###### //
 
-static volatile int64_t pulse_cnt[2];
+static volatile uint16_t pulse_cnt[2];
+static bool speed_alarm;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -67,13 +67,25 @@ static void ctrl_init()
 
 static void ctrl_100Hz()
 {
-    // check if we're over speed and trigger estop if so
-    const int32_t left_ticks = pulse_cnt[0];
-    const int32_t right_ticks = pulse_cnt[1];
+    static uint16_t prv_pulse_cnt[2];
 
-    if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
-        (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
+    const uint16_t cur_pulse_cnt[2] = {pulse_cnt[0], pulse_cnt[1]};
+
+    const int16_t left_delta  = cur_pulse_cnt[0] - prv_pulse_cnt[0];
+    const int16_t right_delta = cur_pulse_cnt[1] - prv_pulse_cnt[1];
+
+    prv_pulse_cnt[0] = cur_pulse_cnt[0];
+    prv_pulse_cnt[1] = cur_pulse_cnt[1];
+
+    // check if we're over the speed limit and trigger estop if so
+    if (
+        (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
+        (ABS(right_delta) >= ENCODER_MAX_TICKS)
+    ) {
+        speed_alarm = true;
         base_set_state_estop(0 /* placeholder */);
+    } else {
+        speed_alarm = false;
     }
 }
 
@@ -162,6 +174,12 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 // ######   PUBLIC FUNCTIONS    ###### //
 
 // ######        CAN TX         ###### //
+
+void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
+{
+    m->CTRL_alarmsRaised = speed_alarm;
+    m->CTRL_speedAlarm   = speed_alarm;
+}
 
 void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
 {
