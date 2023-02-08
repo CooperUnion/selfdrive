@@ -4,7 +4,6 @@
 #include <rom/rtc.h>
 
 #include "common.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
 #include "opencan_rx.h"

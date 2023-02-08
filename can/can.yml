@@ -92,6 +92,18 @@ nodes:
     - DBW_Active
     - DBW_ESTOP
     messages:
+    - Alarms:
+        id: 0x22
+        cycletime: 10
+
+        signals:
+          - alarmsRaised:
+              description: Alarms raised
+              width: 1
+          - speedAlarm:
+              description: Speed violation
+              width: 1
+
     - NodeInfo:
         from_template: DBWNodeInfo
         id: 0xD4
