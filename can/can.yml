@@ -91,6 +91,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
+    - SUP_SupervisorAuthorized
     messages:
     - Alarms:
         id: 0x22
@@ -329,7 +330,7 @@ nodes:
               width: 1
 
 - WHL:
-    messages:
+    mesCsages:
     - AbsoluteEncoder:
         id: 0x1E5
         cycletime: 10
@@ -353,14 +354,30 @@ nodes:
               description: Bar.
               width: 40
 
-- SUPERVISOR:
-    rx: "*"
+- SUP:
+    rx:
+      - DBW_Active
+      - DBW_ESTOP
+      - CTRL_Alarms
     messages:
-    - SupervisorStatus:
-        from_template: DBWNodeStatus
+    - SupervisorAuthorized:
         id: 0x1A
+        cycletime: 10
         
         signals:
-          - supStatus:
-              description: Status of supervisor.
+          - brakeAuthorized:
+              description: Brake authorization.
               width: 1
+          - throttleAuthorized:
+              description: Throttle authorization.
+              width: 1
+          - steeringAuthorized:
+              description: Steering authorization.
+              width: 1
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0x1B
+
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0x1C
