@@ -18,7 +18,7 @@
     <arg name="rgbd_topic"              default="$(arg zed_namespace)/rgbd_image" />
 
     <!-- Odometry topic name -->
-    <arg name="odom_topic"              default="/encoder_odom" />
+    <arg name="odom_topic"              default="/odom_fucking_ekf" />
 
     <!-- Localization-only mode -->
     <arg name="localization"            default="false"/>
