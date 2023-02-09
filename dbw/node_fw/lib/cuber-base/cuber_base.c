@@ -73,20 +73,14 @@ static void base_10Hz()
 
 static void base_100Hz()
 {
-    if (system_state == SYS_STATE_DBW_ACTIVE && !CANRX_is_node_DBW_ok())
+    if (system_state == SYS_STATE_DBW_ACTIVE && !CANRX_get_DBW_active())
     {
-        system_state = SYS_STATE_ESTOP;
+        system_state = SYS_STATE_IDLE;
     }
-    else if (CANRX_get_DBW_active())
+
+    if (system_state == SYS_STATE_IDLE && CANRX_get_DBW_active())
     {
-        if (system_state == SYS_STATE_IDLE)
-        {
-            system_state = SYS_STATE_DBW_ACTIVE;
-        }
-        else
-        {
-            // keep current system state
-        }
+        system_state = SYS_STATE_DBW_ACTIVE;
     }
 }
 
