@@ -41,8 +41,6 @@ init
 tmux send-keys 'roslaunch scooter_launch move_base.launch'
 tmux send-keys Enter
 
-#tmux select-window -t 'master'
-
 tmux split-window -v 'fish'
 
 tmux rename-window 'zed'
@@ -61,10 +59,18 @@ tmux send-keys Enter
 
 tmux split-window -h 'fish'
 
-tmux rename-window 'gps'
-tmux send-keys 'docker exec -it gps bash'
+tmux rename-window 'techbus'
+tmux send-keys 'docker exec -it techbus bash'
 init
-tmux send-keys 'echo hello'
+tmux send-keys 'rosrun src techbus.py'
+tmux send-keys Enter
+
+tmux split-window -h 'fish'
+
+tmux rename-window 'encoder'
+tmux send-keys 'docker exec -it encoder_odom bash'
+init
+tmux send-keys 'rosrun src encoder_odom.py'
 tmux send-keys Enter
 
 
