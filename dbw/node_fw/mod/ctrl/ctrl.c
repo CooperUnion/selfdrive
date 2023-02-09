@@ -10,8 +10,8 @@
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A 27
-#define ENCODER0_CHAN_B 26
+#define ENCODER0_CHAN_A 26
+#define ENCODER0_CHAN_B 27
 #define ENCODER1_CHAN_A 17
 #define ENCODER1_CHAN_B 0
 
