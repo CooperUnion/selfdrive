@@ -54,7 +54,6 @@ nodes:
     - CTRL_VelocityCommand
     - DBW_Active
     - DBW_ESTOP
-    - DBW_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
