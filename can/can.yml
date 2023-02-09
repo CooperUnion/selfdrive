@@ -325,3 +325,30 @@ nodes:
           - bar:
               description: Bar.
               width: 40
+
+
+- BTRY_MON:
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xDA
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xEA
+
+    -BatteryMonitorData:
+        id: 0x25
+        cycletime: 100
+
+        signals:
+          - btry_mon_percentage:
+              description: Battery percentage ranging from 0 to 100
+              width: 7
+
+          - btry_mon_voltage:
+              description: Battery voltage from 52V-42V
+              scale: 0.01
+              width: 10
+
+

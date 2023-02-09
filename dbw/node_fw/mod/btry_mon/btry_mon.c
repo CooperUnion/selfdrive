@@ -6,9 +6,6 @@
 #include "ember_taskglue.h"
 #include "opencan_tx.h"
 
-/* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BTRY_MON;
-
 // ######        DEFINES        ###### //
 
 // ######      PROTOTYPES       ###### //
