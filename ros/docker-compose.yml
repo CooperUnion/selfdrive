@@ -138,6 +138,18 @@ services:
         depends_on:
             - master
 
+    encoder_odom:
+        build: docker/encoder_odom
+        container_name: encoder_odom
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/encoder_odom/encoder_odom_launch:/app/ros_ws/src/encoder_odom_launch'
+        depends_on:
+            - master
+
     techbus:
         build: docker/techbus/.
         container_name: techbus
