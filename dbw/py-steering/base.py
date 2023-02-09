@@ -81,14 +81,15 @@ class Base(threading.Thread):
             time.sleep(self.MESSAGE_RATE_S)
 
     def set_state_estop(self, reason: str, err_msg: str = None):
-        self._sys_state = 'ESTOP'
-        self._bus.send(
-            'DBW_ESTOP',
-            {'DBW_src': 'NODE', 'DBW_reason': reason},
-        )
-        self._logger.warn(f'ESTOP reason: {reason}')
-        if err_msg: self._logger.error(err_msg)
-        self._logger.critical('state: ESTOP')
+        pass
+#        self._sys_state = 'ESTOP'
+#        self._bus.send(
+#            'DBW_ESTOP',
+#            {'DBW_src': 'NODE', 'DBW_reason': reason},
+#        )
+#        self._logger.warn(f'ESTOP reason: {reason}')
+#        if err_msg: self._logger.error(err_msg)
+#        self._logger.critical('state: ESTOP')
 
     def dbw_currently_active(self) -> bool:
         return self._sys_state == 'ACTIVE'
