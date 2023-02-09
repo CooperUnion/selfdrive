@@ -85,14 +85,22 @@ class Encoder_Odom:
     def calc_odom(self,current_time,last_time):
         
         # Car Variables
-        wheel_radius = 1.0
+        wheel_radius = 0.3302   #13 inch ~= 0.3302 meter
         circumfrence = 3.1415926 * 2 * wheel_radius
         enc_res = 65536
         tick_distance = circumfrence/enc_res
-        wheel_spacing = 1.0
+        wheel_spacing = 1.27    #Approximately 50 inch ~= 1.27 meter
 
-        self.delta_left = self.sub.left_ticks - self.prev_left_ticks
-        self.delta_right = self.sub.right_ticks - self.prev_right_ticks
+        # Overflow condition for unsigned integer addition
+        if(self.sub.left_ticks - self.prev_left_ticks > self.sub.left_ticks)
+            self.delta_left = self.sub.left_ticks - self.prev_left_ticks
+        else
+            self.delta_left = self.sub.prev_left_ticks - self.left_ticks 
+
+        if(self.sub.right_ticks - self.prev_right_ticks > self.sub.right_ticks)
+            self.delta_right = self.sub.right_ticks - self.prev_right_ticks
+        else
+            self.delta_right = self.sub.prev_right_ticks - self.right_ticks        
 
         self.v_left = (self.delta_left * tick_distance) / (current_time - last_time).to_sec()
         self.v_right = (self.delta_right * tick_distance) / (current_time - last_time).to_sec()
