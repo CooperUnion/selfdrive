@@ -5,12 +5,13 @@
 #include "common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
+#include "opencan_rx.h"
 #include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A 27
-#define ENCODER0_CHAN_B 26
+#define ENCODER0_CHAN_A 26
+#define ENCODER0_CHAN_B 27
 #define ENCODER1_CHAN_A 17
 #define ENCODER1_CHAN_B 0
 
@@ -29,6 +30,8 @@ static void IRAM_ATTR encoder1_chan_b(void *arg);
 
 static volatile uint16_t pulse_cnt[2];
 static bool speed_alarm;
+static uint8_t brake_percent;
+static uint8_t throttle_percent;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -86,6 +89,14 @@ static void ctrl_100Hz()
         base_set_state_estop(0 /* placeholder */);
     } else {
         speed_alarm = false;
+    }
+
+    if (CANRX_is_node_DBW_ok() && base_dbw_active()) {
+        brake_percent    = CANRX_get_DBW_brakePercent();
+        throttle_percent = CANRX_get_DBW_throttlePercent();
+    } else {
+        brake_percent    = 0;
+        throttle_percent = 0;
     }
 }
 
@@ -183,9 +194,8 @@ void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
 
 void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
 {
-    // TODO: populate with calculated values
-    m->CTRL_brakePercent    = 0;
-    m->CTRL_throttlePercent = 0;
+    m->CTRL_brakePercent    = brake_percent;
+    m->CTRL_throttlePercent = throttle_percent;
 }
 
 void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
