@@ -91,6 +91,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
+    - DBW_RawVelocityCommand
     messages:
     - Alarms:
         id: 0x22
@@ -172,6 +173,22 @@ nodes:
           - enable:
               description: Enable DBW active.
               width: 1
+
+    - RawVelocityCommand:
+        id: 0x667
+        cycletime: 100
+
+        signals:
+          - brakePercent:
+              description: Brake percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
 
     - VelocityCommand:
         id: 0x666
