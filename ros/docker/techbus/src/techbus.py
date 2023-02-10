@@ -43,6 +43,8 @@ class CANtouROS:
     def publish(self):
         while not rospy.is_shutdown():
             data = self.bus.get_data(EncoderCAN)
+            if data is None:
+                continue
             self.msg.data = [data['CTRL_encoderLeft'], data['CTRL_encoderRight']]
             self.pub.publish(self.msg)
         

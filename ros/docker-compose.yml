@@ -147,7 +147,7 @@ services:
             - 'ROS_HOSTNAME=navigation'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/encoder_odom/encoder_odom_launch:/app/ros_ws/src/encoder_odom_launch'
+            - './docker/encoder_odom/src:/app/ros_ws/src/src'
         depends_on:
             - master
 

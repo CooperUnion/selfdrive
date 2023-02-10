@@ -7,13 +7,13 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
-RUN apt-get update
-
-RUN apt install -y python3.9
-
-RUN apt install -y python3-pip --fix-missing
+RUN apt-get update && apt install -y python3.9 python3.9-venv python3-pip --fix-missing
 
 RUN apt update && apt install -y curl
+
+RUN python3.9 -m venv .venv && \
+    source .venv/bin/activate && \
+    pip install opencan-cand numpy msgpack cantools yaml
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 
