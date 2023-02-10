@@ -1,6 +1,6 @@
 # tools
 PIP    ?= pip
-PYTHON ?= python3.9
+PYTHON ?= python3
 
 # build vars
 CAN                  = can
