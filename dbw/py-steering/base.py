@@ -7,7 +7,7 @@ import cand
 
 class Base(threading.Thread):
     MESSAGE_RATE_S        = 0.01
-    DBW_ACTIVE_TIMEOUT_NS = 200_000_000
+    DBW_ACTIVE_TIMEOUT_NS = 200_000_000_000
 
     COUNTER_MAX = 256
 
