@@ -50,7 +50,7 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
+    if (base_dbw_active() && (!CANRX_is_node_CTRL_ok() || CANRX_get_CTRL_speedAlarm())) {
         base_set_state_estop(0 /* placeholder */);
     }
 

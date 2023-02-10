@@ -310,9 +310,10 @@ nodes:
 
 - THROTTLE:
     rx:
+    - CTRL_Alarms
+    - CTRL_VelocityCommand
     - DBW_Active
     - DBW_ESTOP
-    - CTRL_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
