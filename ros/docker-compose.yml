@@ -75,6 +75,7 @@ services:
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
         volumes:
+            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
         # depends_on:
