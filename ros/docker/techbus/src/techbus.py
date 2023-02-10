@@ -1,5 +1,6 @@
 import rospy
 import cand
+import numpy as np
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import UInt16MultiArray
@@ -19,12 +20,18 @@ class ROStouCAN:
         rospy.Subscriber(PPTwist, Twist, self.callback)
     def callback(self, msg):
         while True:
+            angle = 0
+            if msg.linear.x != 0 and msg.angular.z != 0:
+                angle = -np.arctan(msg.angular.z * 1.8 / msg.linear.x)
+            else:
+                rospy.loginfo(f"Warning: invalid steering angle combo:lin.x:{msg.linear.x}, ang.z:{msg.angular.z}")
+                angle = 0
             rospy.loginfo("I heard %s", msg.linear.x)
             self.bus.send(VelocityCAN, {
-                'linearVelCmd': msg.linear.x
+                'DBW_linearVelCmd': msg.linear.x
             })
             self.bus.send(SteerCAN, {
-                'angleCmd': msg.angular.z
+                'STEER_angleCmd': angle
             })
 
 class CANtouROS:

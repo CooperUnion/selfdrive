@@ -158,7 +158,7 @@ class Steer(threading.Thread):
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
-                    self._des_angle = math.degrees(data['STEER_angle'])
+                    self._des_angle = math.degrees(data['STEER_angleCmd'])
 
                     self._odrive_en(True)
                     self._axis.controller.input_vel = self._pid.step(
