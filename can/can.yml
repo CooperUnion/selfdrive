@@ -289,6 +289,7 @@ nodes:
         id: 0x21
         cycletime: 100
 
+        # GO INTO DBC search for angleCmd and change @1+ to @1- for signed values
         signals:
           - angleCmd:
               description: Absolute steering angle in radians.

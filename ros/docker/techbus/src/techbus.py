@@ -7,6 +7,7 @@ from std_msgs.msg import UInt16MultiArray
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'
 VelocityCAN = 'DBW_VelocityCmd'
+SteerCAN = 'STEER_SteeringCmd'
 
 # ROS Topics
 PPTwist = '/cmd_vel'
@@ -20,8 +21,10 @@ class ROStouCAN:
         while True:
             rospy.loginfo("I heard %s", msg.linear.x)
             self.bus.send(VelocityCAN, {
-                'linearVelCmd': msg.linear.x,
-                'angularVelCmd': msg.angular.z
+                'linearVelCmd': msg.linear.x
+            })
+            self.bus.send(SteerCAN, {
+                'angleCmd': msg.angular.z
             })
 
 class CANtouROS:

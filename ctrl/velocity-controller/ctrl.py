@@ -28,8 +28,8 @@ class VelocityControl(threading.Thread):
             self._bus.send(
                 'DBW_RawVelocityCommand',
                 {
-                    'brakePercent':    self.brake_percent,
-                    'throttlePercent': self.throttle_percent,
+                    'DBW_brakePercent':    self.brake_percent,
+                    'DBW_throttlePercent': self.throttle_percent,
                 },
             )
             time.sleep(self.SEND_RATE_S)

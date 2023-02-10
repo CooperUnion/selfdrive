@@ -2,7 +2,6 @@
 PIP    ?= pip
 PYTHON ?= python3.9
 
-
 # build vars
 CAN                  = can
 DBW_NODE_FW          = dbw/node_fw
