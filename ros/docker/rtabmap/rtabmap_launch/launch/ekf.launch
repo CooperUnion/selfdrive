@@ -1,5 +1,5 @@
 <launch>
-    <arg name="odom_topic"              default="/odom_fucking_ekf" />
+    <!-- <arg name="odom_topic"              default="/odom_fucking_ekf" />
 
     <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
         <param name="output_frame" value="odom"/>
@@ -15,7 +15,7 @@
         <remap from="imu_data" to="/gps/imu"/>
 
         <remap from="odom" to="$(arg odom_topic)"/>
-    </node>
+    </node> -->
 
     <param name="cuber_description" textfile="$(find rtabmap_launch)/urdf/cuber.urdf" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
