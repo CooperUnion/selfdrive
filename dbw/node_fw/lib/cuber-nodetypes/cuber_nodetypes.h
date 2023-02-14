@@ -12,6 +12,7 @@ enum cuber_node_types {
     NODE_ENCODER = 4,
     NODE_REAR_ENCODER = 5,
     NODE_PB_MON = 6,
+    NODE_BTRY_MON = 7,
 };
 
 extern const enum cuber_node_types CUBER_NODE_IDENTITY;

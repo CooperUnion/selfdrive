@@ -1,0 +1,8 @@
+{
+  "name": "cuber-bat",
+  "version": "rolling",
+  "description": "Battery monitoring DBW node",
+  "build": {
+    "libLDFMode": "deep"
+  }
+}

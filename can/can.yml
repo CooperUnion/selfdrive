@@ -328,6 +328,9 @@ nodes:
 
 
 - BTRY_MON:
+    rx:
+    - DBW_Active
+    - DBW_ESTOP
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

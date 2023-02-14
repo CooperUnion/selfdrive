@@ -7,7 +7,7 @@
 #include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
-
+const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BTRY_MON;
 // ######      PROTOTYPES       ###### //
 
 // ######     PRIVATE DATA      ###### //
