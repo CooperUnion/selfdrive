@@ -14,6 +14,10 @@ SteerCAN = 'STEER_SteeringCmd'
 PPTwist = '/cmd_vel'
 EncoderTicks = '/encoder_ticks'
 
+# Creates subscriber object that listens for the /cmd_vel topic
+# Whenever the subscriber receives data, the callback function runs
+# The callback function extracts a usable linear velocity and steering angle from the data
+# It sends these commands over the DBW_VelocityCmd and STEER_SteeringCmd CAN messages
 class ROStouCAN:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
@@ -33,6 +37,9 @@ class ROStouCAN:
             'STEER_angleCmd': angle
         })
 
+# Establishes publisher for the /encoder_ticks topic
+# Receives data from the CAN message CTRL_EncoderData
+# Publishes that data as a ROS topic
 class CANtouROS:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
@@ -47,6 +54,9 @@ class CANtouROS:
         self.pub.publish(self.msg)
         self.rate.sleep()
 
+# Initialize the node
+# Establish instances of the subscriber and publisher objects
+# Continuously publish until the program shuts down
 if __name__ == '__main__':
     rospy.init_node('roscan', anonymous=True)
     can_publisher = ROStouCAN()
