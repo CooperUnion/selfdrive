@@ -9,9 +9,7 @@ from math import sin, cos, pi
 from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist, TransformStamped 
 from std_msgs.msg import UInt16MultiArray
 from nav_msgs.msg import Odometry
-
-# Create subscriber object to receive encoder ticks from CAN
-# Callback function returns the data each time the message is received 
+ 
 class Subscribe:
     def __init__(self):
         self.left_ticks = 0
@@ -20,21 +18,6 @@ class Subscribe:
     def callback(msg):
         self.left_ticks = msg.data[0]
         self.right_ticks = msg.data[1]
-            
-# The Odometry message type contains the following messages:
-# header (Coordinate frame for the pose)
-# child_frame_id (Coordinate frame for the twist)
-# pose (with covariance if provided by ekf)
-# twist (with covariance if provided by ekf)
-
-# Create publisher object to publish the /encoder_odom topic continuously 
-class Publish:
-    def __init__(self):
-        self.odom = rospy.Publisher('/encoder_odom', Odometry, queue_size=50)
-        # increase rate for RTABmap
-        self.rate = rospy.Rate(1.0)
-    def publish_odom(self,data):
-        self.odom.publish(data)
 
 # vx and vth come from encoders
 # Not sure whether to use EPAS encoder for th or use encoders for vth to calculate th
@@ -127,8 +110,12 @@ class Encoder_Odom:
 if __name__ == '__main__':
 
     rospy.init_node('encoder_odom', anonymous=True)
-    pub = Publish()
+
+    odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=50)
+    rate = rospy.Rate(1.0)
+
     encoder_odom = Encoder_Odom() 
+
     current_time = rospy.Time.now()
     last_time = rospy.Time.now()
        
@@ -147,7 +134,8 @@ if __name__ == '__main__':
         odom_msg.child_frame_id = "base_link"
         odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
         
-        pub.publish_odom(odom_msg)
+        odom_pub.publish(odom_msg)
 
         last_time = current_time
+        rate.sleep()
     
