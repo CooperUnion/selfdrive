@@ -3,10 +3,10 @@
 import rospy
 import cand
 import math
-from math import atan
+from math import atan2
 
 from geometry_msgs.msg import Twist
-from std_msgs.msg import UInt16MultiArray
+from std_msgs.msg import UInt16MultiArray, String
 
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'
@@ -28,11 +28,10 @@ class ROStouCAN:
     def callback(self, msg):
         angle = 0
         if msg.linear.x != 0 and msg.angular.z != 0:
-            angle = -atan(msg.angular.z * 1.8 / msg.linear.x)
+            angle = -atan2(msg.angular.z * 1.8, msg.linear.x)
         else:
             rospy.loginfo(f"Warning: invalid steering angle combo:lin.x:{msg.linear.x}, ang.z:{msg.angular.z}")
             angle = 0
-        rospy.loginfo("I heard %s", msg.linear.x)
         self.bus.send(VelocityCAN, {
             'DBW_linearVelocity': msg.linear.x
         })
@@ -62,9 +61,11 @@ class CANtouROS:
 # Continuously publish until the program shuts down
 if __name__ == '__main__':
     rospy.init_node('roscan', anonymous=True)
+    # pub = rospy.Publisher('/encoder_string', String, queue_size=2)
     can_publisher = ROStouCAN()
     ros_publisher = CANtouROS()
     while not rospy.is_shutdown():
+        # pub.publish("hello")
         ros_publisher.publish()
         
 # sudo apt install python3.9
