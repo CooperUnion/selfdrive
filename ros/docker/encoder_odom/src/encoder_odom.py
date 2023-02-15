@@ -3,6 +3,7 @@
 import rospy
 import tf2_ros
 import tf_conversions
+import ctypes
 import math
 from math import sin, cos, pi
 
@@ -12,8 +13,8 @@ from nav_msgs.msg import Odometry
  
 class Subscribe:
     def __init__(self):
-        self.left_ticks = 0
-        self.right_ticks = 0
+        self.left_ticks: ctypes.c_uint16 = 0
+        self.right_ticks: ctypes.c_uint16 = 0
         rospy.Subscriber('/encoder_ticks', UInt16MultiArray, self.callback)
     def callback(self,msg):
         self.left_ticks = msg.data[0]
@@ -26,8 +27,8 @@ class Encoder_Odom:
     def __init__(self):
         self.sub = Subscribe()
         self.broadcaster = tf2_ros.TransformBroadcaster()
-        self.rate = rospy.Rate(1)
-        self.odom_pub = rospy.Publisher('/encoder_odometry', Odometry, queue_size=2)
+        self.rate = rospy.Rate(50)        
+        self.odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
         self.odom_msg = Odometry()
 
         self.x = 0.0
@@ -43,14 +44,14 @@ class Encoder_Odom:
         self.delta_y = 0.0
         self.delta_th = 0.0
 
-        self.delta_left = 0.0
-        self.delta_right = 0.0
+        self.delta_left = 0
+        self.delta_right = 0
         self.v_left = 0.0
         self.v_right = 0.0
 
         #starting the node at 0 ticks might cause a problem with absolute encoders???
-        self.prev_left_ticks = 0.0
-        self.prev_right_ticks = 0.0
+        self.prev_left_ticks: ctypes.c_uint16 = 0
+        self.prev_right_ticks: ctypes.c_uint16 = 0
 
     def send_transform(self,current_time):
         t = TransformStamped()
@@ -79,22 +80,26 @@ class Encoder_Odom:
         wheel_spacing = 1.27    #Approximately 50 inch ~= 1.27 meter
  
         # Overflow condition for unsigned integer subtraction
-        if(self.sub.left_ticks > self.prev_left_ticks):
-            self.delta_left = self.sub.left_ticks - self.prev_left_ticks
-        else:
-            self.delta_left = self.prev_left_ticks - self.sub.left_ticks 
+        # if(self.sub.left_ticks > self.prev_left_ticks):
+        #     self.delta_left = self.sub.left_ticks - self.prev_left_ticks
+        # else:
+        #     self.delta_left = self.prev_left_ticks - self.sub.left_ticks 
 
-        if(self.sub.right_ticks > self.prev_right_ticks):
-            self.delta_right = self.sub.right_ticks - self.prev_right_ticks
-        else:
-            self.delta_right = self.prev_right_ticks - self.sub.right_ticks      
+        # if(self.sub.right_ticks > self.prev_right_ticks):
+        #     self.delta_right = self.sub.right_ticks - self.prev_right_ticks
+        # else:
+        #     self.delta_right = self.prev_right_ticks - self.sub.right_ticks
 
-        self.v_left = (self.delta_left * tick_distance) / (current_time - last_time).to_sec()
-        self.v_right = (self.delta_right * tick_distance) / (current_time - last_time).to_sec()
+        self.delta_left:  ctypes.c_int16 = ctypes.c_int16(self.sub.left_ticks  - self.prev_left_ticks) 
+        self.delta_right: ctypes.c_int16 = ctypes.c_int16(self.sub.right_ticks - self.prev_right_ticks) 
+
+        self.v_left = -(float(self.delta_left.value) * tick_distance) / (current_time - last_time).to_sec()
+        self.v_right = (float(self.delta_right.value) * tick_distance) / (current_time - last_time).to_sec()
+        print(f"L: {self.sub.left_ticks}, R: {self.sub.right_ticks}")
 
         # 10 is a scaling factor used to characterize system
-        self.vx = ((self.v_right + self.v_left) / 2) * 10
-        self.vth = ((self.v_right - self.v_left) / wheel_spacing) * 10
+        self.vx = ((self.v_right + self.v_left) / 2)
+        self.vth = ((self.v_right - self.v_left) / wheel_spacing)
 
         self.dt = (current_time - last_time).to_sec()
         self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt

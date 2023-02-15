@@ -47,7 +47,7 @@ class CANtouROS:
         self.bus = cand.client.Bus(redis_host='redis')
         self.msg = UInt16MultiArray()
         self.pub = rospy.Publisher(EncoderTicks, UInt16MultiArray, queue_size=2)
-        self.rate = rospy.Rate(2)
+        self.rate = rospy.Rate(50)
     def publish(self):
         data = self.bus.get_data(EncoderCAN)
         if data is None:
