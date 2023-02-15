@@ -9,31 +9,15 @@ from math import sin, cos, pi
 from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist, TransformStamped 
 from std_msgs.msg import UInt16MultiArray
 from nav_msgs.msg import Odometry
-
+ 
 class Subscribe:
     def __init__(self):
         self.left_ticks = 0
         self.right_ticks = 0
         rospy.Subscriber('/encoder_ticks', UInt16MultiArray, self.callback)
     def callback(msg):
-        while True:
-            self.left_ticks = msg.data[0]
-            self.right_ticks = msg.data[1]
-            
-
-# The Odometry message type contains the following messages:
-# header (Coordinate frame for the pose)
-# child_frame_id (Coordinate frame for the twist)
-# pose (with covariance if provided by ekf)
-# twist (with covariance if provided by ekf)
-class Publish:
-    def __init__(self):
-        self.odom = rospy.Publisher('/encoder_odom', Odometry, queue_size=50)
-        # increase rate for RTABmap
-        self.rate = rospy.Rate(1.0)
-    def publish(self,data):
-        while not rospy.is_shutdown():
-            self.odom.publish(data)
+        self.left_ticks = msg.data[0]
+        self.right_ticks = msg.data[1]
 
 # vx and vth come from encoders
 # Not sure whether to use EPAS encoder for th or use encoders for vth to calculate th
@@ -90,14 +74,14 @@ class Encoder_Odom:
         enc_res = 65536
         tick_distance = circumfrence/enc_res
         wheel_spacing = 1.27    #Approximately 50 inch ~= 1.27 meter
-
-        # Overflow condition for unsigned integer addition
-        if(self.sub.left_ticks - self.prev_left_ticks > self.sub.left_ticks):
+ 
+        # Overflow condition for unsigned integer subtraction
+        if(self.sub.left_ticks > self.prev_left_ticks):
             self.delta_left = self.sub.left_ticks - self.prev_left_ticks
         else:
             self.delta_left = self.sub.prev_left_ticks - self.left_ticks 
 
-        if(self.sub.right_ticks - self.prev_right_ticks > self.sub.right_ticks):
+        if(self.sub.right_ticks > self.prev_right_ticks):
             self.delta_right = self.sub.right_ticks - self.prev_right_ticks
         else:
             self.delta_right = self.sub.prev_right_ticks - self.right_ticks        
@@ -122,30 +106,35 @@ class Encoder_Odom:
 
         self.prev_left_ticks = self.sub.left_ticks
         self.prev_right_ticks = self.sub.right_ticks
-        
-
-# Initialize node
-rospy.init_node('encoder_odom', anonymous=True)
-current_time = rospy.Time.now()
-last_time = rospy.Time.now()
-encoder_odom = Encoder_Odom()
 
 if __name__ == '__main__':
 
+    rospy.init_node('encoder_odom', anonymous=True)
+
+    odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=50)
+    rate = rospy.Rate(1.0)
+
+    encoder_odom = Encoder_Odom() 
+
     current_time = rospy.Time.now()
-    encoder_odom.calc_odom(current_time,last_time)
+    last_time = rospy.Time.now()
+       
+    while not rospy.is_shutdown():
+        current_time = rospy.Time.now()
+        encoder_odom.calc_odom(current_time,last_time)
 
-    odom_msg = Odometry()
-    odom_msg.header.stamp = current_time
-    odom_msg.header.frame_id = "odom"
-    
-    # set the position
-    odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.q))
+        odom_msg = Odometry()
+        odom_msg.header.stamp = current_time
+        odom_msg.header.frame_id = "odom"
+        
+        # set the position
+        odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.q))
 
-    # set the velocity
-    odom_msg.child_frame_id = "base_link"
-    odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
-    
-    last_time = current_time
-    
-    rospy.spin()
+        # set the velocity
+        odom_msg.child_frame_id = "base_link"
+        odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
+        
+        odom_pub.publish(odom_msg)
+
+        last_time = current_time
+        rate.sleep()
