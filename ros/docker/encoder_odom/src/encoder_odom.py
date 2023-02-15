@@ -26,8 +26,8 @@ class Encoder_Odom:
     def __init__(self):
         self.sub = Subscribe()
         self.broadcaster = tf2_ros.TransformBroadcaster()
-        
-        self.odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
+        self.rate = rospy.Rate(1)
+        self.odom_pub = rospy.Publisher('/encoder_odometry', Odometry, queue_size=2)
         self.odom_msg = Odometry()
 
         self.x = 0.0
@@ -122,16 +122,18 @@ class Encoder_Odom:
         self.odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
 
         self.odom_pub.publish(self.odom_msg)
+        self.rate.sleep()
         
-        rospy.loginfo("I heard %s", self.odom_msg)
+        # rospy.loginfo("I heard %s", self.odom_msg)
+
+    # def publish(self):
+    #     self.odom_pub.publish(odom_ms)
 
 if __name__ == '__main__':
 
     
-    rospy.init_node('encoder_odom', anonymous=True)
-    pub = rospy.Publisher('/encoder_string', String, queue_size=2)
-    rate = rospy.Rate(1)
-
+    rospy.init_node('encoder_odom', anonymous=True, log_level=rospy.DEBUG)
+    pub = rospy.Publisher('/encoder_string', String)
     encoder_odom = Encoder_Odom() 
 
     current_time = rospy.Time.now()
@@ -145,4 +147,4 @@ if __name__ == '__main__':
         encoder_odom.calc_odom(current_time,last_time)
 
         last_time = current_time
-        rate.sleep()
+        

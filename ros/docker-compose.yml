@@ -144,7 +144,7 @@ services:
         container_name: encoder_odom
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=encoder_odom'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
             - './docker/encoder_odom/src:/app/ros_ws/src/src'
