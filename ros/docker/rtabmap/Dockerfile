@@ -14,6 +14,8 @@ WORKDIR /app
 
 RUN apt update && apt install -y git 
 
+RUN apt-get update && apt install -y ros-noetic-robot-state-publisher
+
 RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/stereolabs/zed-ros-interfaces.git ros_ws/src/zed-ros-interfaces 
     
