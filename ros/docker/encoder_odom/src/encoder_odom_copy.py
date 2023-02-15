@@ -27,9 +27,6 @@ class Encoder_Odom:
         self.sub = Subscribe()
         self.broadcaster = tf2_ros.TransformBroadcaster()
         
-        self.odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
-        self.odom_msg = Odometry()
-
         self.x = 0.0
         self.y = 0.0
         self.th = 0.0
@@ -110,27 +107,12 @@ class Encoder_Odom:
         self.prev_left_ticks = self.sub.left_ticks
         self.prev_right_ticks = self.sub.right_ticks 
 
-        # format Odom message
-        self.odom_msg.header.stamp = current_time
-        self.odom_msg.header.frame_id = "odom"
-        
-        # set the position
-        self.odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.q))
-
-        # set the velocity
-        self.odom_msg.child_frame_id = "base_link"
-        self.odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
-
-        self.odom_pub.publish(self.odom_msg)
-        
-        rospy.loginfo("I heard %s", self.odom_msg)
-
 if __name__ == '__main__':
 
-    
+    odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
     rospy.init_node('encoder_odom', anonymous=True)
-    pub = rospy.Publisher('/encoder_string', String, queue_size=2)
-    rate = rospy.Rate(1)
+    # odom_pub = rospy.Publisher('/encoder_odom', Twist, queue_size=10)
+    rate = rospy.Rate(10)
 
     encoder_odom = Encoder_Odom() 
 
@@ -140,9 +122,22 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
 
         current_time = rospy.Time.now()
-        
-        pub.publish("hello")
         encoder_odom.calc_odom(current_time,last_time)
 
-        last_time = current_time
+        odom_msg = Odometry()
+        odom_msg.header.stamp = current_time
+        odom_msg.header.frame_id = "odom"
+        
+        # set the position
+        odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.q))
+
+        # set the velocity
+        odom_msg.child_frame_id = "base_link"
+        odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
+
+        odom_pub.publish(odom_msg)
+        # odom_pub.publish(odom_msg.twist.twist)
         rate.sleep()
+        
+        rospy.loginfo("I heard %s", odom_msg)
+        last_time = current_time
