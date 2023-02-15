@@ -1,13 +1,16 @@
+#!/usr/bin/env python3
+
 import rospy
 import cand
-import numpy as np
+import math
+from math import atan
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import UInt16MultiArray
 
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'
-VelocityCAN = 'DBW_VelocityCmd'
+VelocityCAN = 'DBW_VelocityCommand'
 SteerCAN = 'STEER_SteeringCmd'
 
 # ROS Topics
@@ -25,13 +28,13 @@ class ROStouCAN:
     def callback(self, msg):
         angle = 0
         if msg.linear.x != 0 and msg.angular.z != 0:
-            angle = -np.arctan(msg.angular.z * 1.8 / msg.linear.x)
+            angle = -atan(msg.angular.z * 1.8 / msg.linear.x)
         else:
             rospy.loginfo(f"Warning: invalid steering angle combo:lin.x:{msg.linear.x}, ang.z:{msg.angular.z}")
             angle = 0
         rospy.loginfo("I heard %s", msg.linear.x)
         self.bus.send(VelocityCAN, {
-            'DBW_linearVelCmd': msg.linear.x
+            'DBW_linearVelocity': msg.linear.x
         })
         self.bus.send(SteerCAN, {
             'STEER_angleCmd': angle
