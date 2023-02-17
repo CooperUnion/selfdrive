@@ -289,7 +289,6 @@ nodes:
         id: 0x21
         cycletime: 100
 
-        # GO INTO DBC search for angleCmd and change @1+ to @1- for signed values
         signals:
           - angleCmd:
               description: Absolute steering angle in radians.
@@ -298,20 +297,6 @@ nodes:
               scale: 0.000000001
               # is_signed: true
               width: 32
-
-- TECH:
-    messages:
-    - FakeCmdVel:
-        id: 0x4E0
-        cycletime: 100
-
-        signals:
-          - DesiredVel:
-              description: supposed linear.x output.
-              width: 32 #???? girl tf is a width
-          - Angle:
-              description: supposed angle *giggle*
-              width: 32 #probably idfk
 
 - TEST:
     rx: "*"
