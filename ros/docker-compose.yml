@@ -167,10 +167,10 @@ services:
         build: docker/demo/.
         container_name: demo
         tty: true
-        enviornment:
+        environment:
             - 'ROS_HOSTNAME=demo'
             - 'ROS_MASTER_URI=http://master:11311'
-        volumes: 
-            - './docker/techbus:/app/ros_ws/src/demo'
+        volumes:
+            - './docker/demo:/app/ros_ws/src/demo'
         depends_on:
             - master
