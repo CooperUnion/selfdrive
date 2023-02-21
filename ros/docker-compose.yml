@@ -162,3 +162,15 @@ services:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
             - master
+
+    demo:
+        build: docker/demo/.
+        container_name: demo
+        tty: true
+        enviornment:
+            - 'ROS_HOSTNAME=demo'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes: 
+            - './docker/techbus:/app/ros_ws/src/demo'
+        depends_on:
+            - master
