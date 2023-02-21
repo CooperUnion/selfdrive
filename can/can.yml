@@ -327,7 +327,7 @@ nodes:
               width: 40
 
 
-- BTRY_MON:
+- BATTERY:
     rx:
     - DBW_Active
     - DBW_ESTOP
@@ -345,11 +345,11 @@ nodes:
         cycletime: 100
 
         signals:
-          - btry_mon_percentage:
+          - batteryPercentage:
               description: Battery percentage ranging from 0 to 100
               width: 7
 
-          - btry_mon_voltage:
+          - batteryVoltage:
               description: Battery voltage from 52V-42V
               scale: 0.01
               width: 10

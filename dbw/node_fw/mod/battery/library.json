@@ -1,5 +1,5 @@
 {
-  "name": "cuber-bat",
+  "name": "cuber-battery",
   "version": "rolling",
   "description": "Battery monitoring DBW node",
   "build": {
