@@ -14,5 +14,5 @@ if __name__ == 'main':
     while not rospy.is_shutdown():
 
         pubInt.publish(5)
-        pubStr = rospy.Publisher('Hello World')
+        pubStr.publish('Hello World')
         rate.sleep()
