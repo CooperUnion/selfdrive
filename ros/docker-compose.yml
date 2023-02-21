@@ -43,10 +43,10 @@ services:
         container_name: pure_pursuit
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=pure_pursuit'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/pure_pursuit/pure_pursuit_launch:/app/ros_ws/src/pure_pursuit_launch'
+            - './docker/pure_pursuit:/app/ros_ws/src/pure_pursuit'
         depends_on:
             - master
 
