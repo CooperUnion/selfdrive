@@ -50,7 +50,6 @@ services:
         depends_on:
             - master
 
-
     navigation:
         build: docker/navigation/.
         container_name: navigation

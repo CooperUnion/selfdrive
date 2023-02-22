@@ -1,4 +1,4 @@
-#!/usr/bin/env pyhton3
+#!/usr/bin/env python3
 
 import rospy
 from geometry_msgs.msg import Twist
@@ -6,29 +6,41 @@ from nav_msgs.msg import Odometry, Path
 
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+import turtle
 
-ld=5 #define lookahead distance
-dt=0.01 #time tick
-WB= .98 #m
+ld = 1.18 #define lookahead distancess
+
+# Where does this come from ???
+dt = 0.01 #time tick
+WB = .98 #m
 #rw= 0.5 #measure this
 
+# Why even bother with waypoints if we can just use x and y???
 waypoints = np.zeros((7,2))
-N=1000 # Why is this not the same as n ???
-n=len(waypoints)
+x = waypoints[:, 0]
+y = waypoints[:, 1]
+
+#how to initialize 2 column array of zeros
+N = 1000
+n = len(waypoints)
 
 # Subscriber Class that updates odometry data and waypoints as the local path changes
 class Subscriber:
     def __init__(self):    
         self.odom = rospy.Subscriber('/encoder_odom', Odometry, self.callback)
         self.path = rospy.Subscriber('/teb_local_planner/local_plan', Path, self.set_waypoints)
+        self.car = Car()
+
     def callback(msg):
-        return
+        car.update(msg.twist.linear.x, msg.twist.angular.z)
+    
     def set_waypoints(msg):
         for i in range(1,n):
             waypoints((i,0)) = msg.data[0].x    # Sets x coordinate of waypoint 
             waypoints((i,1)) = msg.data[0].y    # Sets y coordinate of waypoint
-
+            x = waypoints[:, 0]
+            y = waypoints[:, 1]
+            
 # Publisher class that will publish Twist messages as the output of the controller
 class Publisher:
     def __init__(self):
@@ -42,7 +54,7 @@ class NoIntersectionException(Exception):
 
 class Car():
 
-    def __init__(self, xcar=np.zeros(N), ycar=np.zeros(N), yaw=np.zeros(N), vel=np.zeros(N)):
+    def __init__(self, xcar=0, ycar=0, yaw=0, vel=0, steering_angle=0):
         """
         Define a vehicle class
         :param x: float, x position
@@ -50,134 +62,122 @@ class Car():
         :param yaw: float, vehicle heading
         :param vel: float, velocity
         """
-        #need to initialize self.index or else it will delete right after this
         self.xcar = xcar
         self.ycar = ycar
         self.yaw = yaw
         self.vel = vel
-        self.index = 0
+        self.steering_angle = steering_angle
 
-    # Can this come straight from Odometry data ???
-    def update(self, acc=0, delta=0):
-        #acc and delta are not arrays
+    def update(self, vel, steering_angle):
         """
         Vehicle motion model, here we are using simple bycicle model
         :param acc: float, acceleration
         :param delta: float, heading control
         """
-        self.index+=1
-        self.xcar[self.index] = self.xcar[self.index-1]+ (self.vel[self.index-1] * np.cos(self.yaw[self.index-1]) * dt)
-        self.ycar[self.index] = self.ycar[self.index-1]+ (self.vel[self.index-1] * np.sin(self.yaw[self.index-1]) * dt)
-        self.yaw[self.index] = self.vel[self.index-1] * (np.tan(delta) / WB) * dt + self.yaw[self.index-1]
-        self.vel[self.index] = self.vel[self.index-1]+acc*dt
+        self.vel = vel
+        self.steering_angle = steering_angle
+        #yaw is heading angle, relative to x-axis, orientation from tech?
+        self.xcar = self.xcar + (self.vel * math.cos(self.yaw) * dt)
+        self.ycar = self.ycar + (self.vel * math.sin(self.yaw) * dt)
+        self.yaw = self.vel * (math.tan(self.steering_angle) / WB) * dt + self.yaw
+        return self.xcar, self.ycar, self.yaw
+        #ycar prints 0. Does this make sense? 
 
 #--------------------------------------------(Steering Angle)--------------------------------------#
-def distance(waypoints): #may come into use in curvature function
-        dist=np.zeros(N)
-        x=waypoints[:, 0]
-        y=waypoints[:, 1]
-        min_index=0
-        for i in range (1,n):
-        #running sum of the distances between points
-            dist[i]= dist[i-1]+ math.sqrt((x[i]-x[i-1])**2+(y[i]-y[i-1])**2)
-            if(dist[i]<dist[min_index]):
-                min_index=i 
-                return dist[i]
 
+# waypoints doesnt have to be an argument here
+def nearest_point(waypoints, curr_x, curr_y): #might be useful for not wanting to travel through the back of the path.
+    dist=np.zeros(N)
+    #distance between robot and points along the path
+    dist = np.sqrt(((x - curr_x)**2) + ((y - curr_y)**2))
+    #index of current position < index of nearest waypoint/position to follow
+    #return index of which waypoint/nearest point is closest
+    return np.argmin(dist)
 
-def nearest_point(waypoints, rp): #might be useful for not wanting to travel through the back of the path.
-        x=waypoints[:, 0] 
-        y=waypoints[:, 1]
-        dist=np.zeros(N)
-           #distance between robot and points along the path
-        dist = np.sqrt(((x - rp[0])**2) + ((y - rp[1])**2))
-            #index of current position < index of nearest waypoint/position to follow
-            #return index of which waypoint/nearest point is closest
-        return np.argmin(dist)
-
-def lookahead(position):
-    a=b=c=f=d=point=pointx=pointy=discriminant=np.zeros(n) 
-    #position= np.array(self.xcar[self.index] , self.ycar[self.index])
-    position= np.array([position[0], position[1]]).T  
-
+def lookahead(curr_x, curr_y):
+    position = np.array([curr_x, curr_y]).T  #come back to it
+    wp = nearest_point(waypoints, curr_x, curr_y)
+    #-------------------(wp works)---------------------# 
     try:
-        for i in range (1,7):
-            f= np.subtract(waypoints[i-1] , position)
-            d= np.subtract(waypoints[i] , waypoints[i-1])
-            a= np.dot(d,d); b=2*np.dot(f, d); c= np.dot(f,f) - ld*ld
-            discriminant= b*b-4*a*c
-            if (discriminant<0):
-                raise NoIntersectionException
+        #for i in range (1,100): , don't need for now because will be running 100 times in main
+        f = np.subtract(waypoints[wp] , position)
+        if (wp<6):
+            d = np.subtract(waypoints[wp+1] , waypoints[wp]) #think this is wrong. Might be wp and wp + 1 
+        else:
+            d = np.subtract(waypoints[wp] , waypoints[wp]) # isnt this just 0 ???
+        a = np.dot(d,d); 
+        b = 2*np.dot(f,d); 
+        c = np.dot(f,f) - ld*ld
+        discriminant = (b*b) - (4*a*c) #not way this is wrong computers don't fuck up math lol 
+        
+        if (discriminant<0):
+            raise NoIntersectionException
+        else:
+            discriminant= np.sqrt(discriminant)
+            t1 = (-b- discriminant)/(2*a)
+            t2 = (-b + discriminant)/(2*a)
+            if (t1>=0 and t1<=1.0):
+                point = waypoints[wp] + t1*d
+                pointx = point[0]
+                pointy = point[1]
+                return pointx, pointy
+                 #x and y value of ld
+            elif (t2 >= 0 and t2 <=1.0):
+                point = waypoints[wp] + t2*d
+                pointx = point[0]
+                pointy = point[1]
+                return pointx, pointy
             else:
-                discriminant= np.sqrt(discriminant)
-                t1= (-b- discriminant)/(2*a)
-                t2= (-b + discriminant)/(2*a)
-                if (t1>=0 and t1<=1.0):
-                    point= waypoints[i-1] + t1*d
-                    #pointx=point[:, 0]
-                    pointx= point[0]
-                    #pointy=point[:, 1]
-                    pointy=point[1]
-                    return pointx , pointy #x and y value of ld
-                elif (t2 >= 0 and t2 <=1.0):
-                    point= waypoints[i-1] + t2*d
-                    #pointx=point[:, 0]
-                    pointx= point[0]
-                    #pointy=point[:, 1]
-                    pointy=point[1]
-                    return pointx , pointy
-        raise Exception
+                return 0,0
+
     except NoIntersectionException as e:
         print("Path lookahead no intersection")
         return -999, -999
 
-def Curvature(pointx, pointy):
 
-        #following the arc to the lookahead point
-        x=waypoints[:, 0] 
-        y=waypoints[:, 1]
-        ldx=a=c=signed=signed_curvature=mag=orientation=curvature=np.zeros(n) 
-        for i in range (1,n):
+def Curvature(pointx, pointy, position):
+    #pointx,pointy are lkx and lky
 
-            mag= np.sqrt(-np.tan(orientation)*(-np.tan(orientation))+1)
+    #following the arc to the lookahead point
+    #15 should be car's orientation
+    robot_angle = position[2]
+    robo_x = position[0]
+    robo_y = position[1]
+    robo_angle = np.tan(robot_angle)
+    a= -1 * robo_angle
+    c = robo_angle * robo_x - robo_y
+    dist_x = abs(a*pointx + pointy + c)/math.sqrt(((a)**2)+1)   #b is 1 for some reason
+    curvature = (2*dist_x)/(ld*ld) #dist_x lookaheag ponint??? 
 
-            ldx= np.abs(-np.tan(orientation)*pointx+pointy+np.tan(orientation)*x-y)/(mag)
+    signed = np.sign(math.sin(robo_angle) * (pointx-robo_x) - math.cos(robo_angle) * (pointy-robo_y))
 
-            curvature[i]=(2*ldx[i])/(ld*ld) #this is just magnitude
-
-            #but this is unsigned, need to know which sign it is on, so cross product
- 
-            signed=np.sin(orientation)*(pointx-np.cos(orientation))-np.cos(orientation)*(pointy-np.sin(orientation))
-            signed_curvature[i]= curvature[i]*signed[i]
-
-            return signed_curvature
+    signed_curvature = -1*curvature*signed
+    return signed_curvature
 
 def steering_angle(signed_curvature):
-    steering_angle=np.arctan(signed_curvature*ld)
+    steering_angle = np.arctan(signed_curvature*WB)
     return steering_angle
 
-#---------------------------------------(Velcoity)---------------------------------# 
+#---------------------------------------(Velocity)---------------------------------# 
 def distance(x0, x1, y0, y1):
   X = x1 - x0
   Y = y1 - y0
   return math.sqrt(pow(X, 2) + pow(Y, 2))
   #used to calculate the distance between endpoint and car's current distance
 def newvel(d, a):
-
   v_1 = ((10 - a) + a * math.sqrt(1 + (4 * d))) / 2
   v_2 = ((10 - a) - a * math.sqrt(1 + (4 * d))) / 2
-  #now need to check if the computed velcoiy values are valid
-  #we want to have a velcoity less than 5.
+  #now need to check if the computed velocity values are valid
+  #we want to have a velocity less than 5.
   if 0 < v_1 < 5:
     return v_1
 
-  #return these velcoity values
+  #return these velocity values
   elif 0 < v_2 < 5:
-    #return these velcoity values
+    #return these velocity values
     return v_2
 
-
-  #velcoity that goes to low level
+  #velocity that goes to low level
 def decel(thresh_d, curr_d, v_max, a_max):
   if thresh_d > curr_d:
     return newvel(curr_d, a_max)
@@ -185,49 +185,36 @@ def decel(thresh_d, curr_d, v_max, a_max):
     return v_max
 
 def main():
-    car= Car()
+    car = Car()
+    # v_m = car.vel
+    v_m = 2  #constant 2m/s that won't change (for now)
+    endpoint = [36, 6]   #get from tech team from globalcost map
+    decel_dist = 7 
+    a_max = -2   #passed into new vel
+    #change curr_point to update function
+    #distance btwn currpoint and endpoint 
+    #calculate the velocity 
+    rp = [0,0,0]
 
-#--------------------------------(First_Block)--------------------------------------------------
-    '''
-    for i in range (500):
-        car.update(2, 5)
-        rp = [car.xcar[car.index], car.ycar[car.index], car.yaw[car.index]]
+    for i in range (800):
+        
+        lkx, lky = lookahead(rp[0], rp[1])
+        
+        curv = Curvature(lkx, lky, rp)
 
-    nearest_point(waypoints, rp)  
-    print([car.xcar, car.ycar, car.yaw])
-    print(nearest_point)
-    plt.figure(1)
-    plt.plot(car.xcar,car.ycar,'b.')
-    plt.show()
-    '''
-#------------------------(Second_Block)------------------------------------------------------
-    v_m = 5  #constant 5mph that won't change (for now)
-    endpoint = [7, 7]
-    curr_point = [2, 5]  #list but function takes in ints
-    decel_dist = 7
-    a_max = -2  #passed into new vel #m
-
-    rospy.init_node('pure_pursuit', anonymous = True) 
-    sub = Subscriber()
-    pub = Publisher()
-    
-    while not rospy.is_shutdown(): 
-        dist = distance(curr_point[0], endpoint[0], curr_point[1], endpoint[1])
+        steer = steering_angle(curv)
+        dist = distance(rp[0], endpoint[0], rp[1], endpoint[1])
         v_next = decel(decel_dist, dist, v_m, a_max)
+        rp = car.update(v_next,steer)
 
-        for i in range (50):
-            car.update(2,0)
-            rp = [car.xcar[car.index], car.ycar[car.index], car.yaw[car.index]]
-            lkx, lky = lookahead(rp)
-            print(f"rp: {rp} | lookahead: {lkx, lky}")
-            curv = Curvature(lkx, lky)
-            
-            # This is an output
-            steer = steering_angle(curv)
-            print(f"steering angle: {steer} | curvature: {curv}" )
-
-    # Is this an output ???
-    # print(v_next)
+        print(f"steering angle: {steer} | curvature: {curv} rbx: {rp[0]}| rby: {abs(rp[1])} | vel: {v_next} | robo_angle: {rp[2]} | lkx, lky: {lkx, lky}")
 
 if __name__ == "__main__":
     main()
+
+#step1: make tan(robo_angle) = to lky -roboy / lkx - robox 
+
+#step2: check over the signed thing 
+
+#can check by using lk point and robot point along with radius 
+#to reverse engineer the circle and see if it looks right 

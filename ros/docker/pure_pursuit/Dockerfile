@@ -10,7 +10,7 @@ RUN apt-get update && apt install -y python3.9 python3.9-venv python3-pip --fix-
 
 RUN python3.9 -m venv .venv && \
     source .venv/bin/activate && \
-    python3.9 -m pip install numpy matplotlib
+    python3.9 -m pip install numpy matplotlib turtle
 
 RUN mkdir -p ros_ws/src
 
