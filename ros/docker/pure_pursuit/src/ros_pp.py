@@ -1,114 +1,58 @@
 #!/usr/bin/env python3
 
 import rospy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Float32MultiArray, PoseStamped
 from nav_msgs.msg import Odometry, Path
 
 import math
 import numpy as np
 import turtle
 
-ld = 1.18 #define lookahead distancess
+ld = 1.18 #define lookahead distance
+wheel_base = 1.65 # double check
 
-# Where does this come from ???
-dt = 0.01 #time tick
-WB = .98 #m
-#rw= 0.5 #measure this
+n_points = 7
 
-# Why even bother with waypoints if we can just use x and y???
-waypoints = np.zeros((7,2))
-x = waypoints[:, 0]
-y = waypoints[:, 1]
-
-#how to initialize 2 column array of zeros
-N = 1000
-n = len(waypoints)
-
-# Subscriber Class that updates odometry data and waypoints as the local path changes
-class Subscriber:
-    def __init__(self):    
-        self.odom = rospy.Subscriber('/encoder_odom', Odometry, self.callback)
-        self.path = rospy.Subscriber('/teb_local_planner/local_plan', Path, self.set_waypoints)
-        self.car = Car()
-
-    def callback(msg):
-        car.update(msg.twist.linear.x, msg.twist.angular.z)
-    
-    def set_waypoints(msg):
-        for i in range(1,n):
-            waypoints((i,0)) = msg.data[0].x    # Sets x coordinate of waypoint 
-            waypoints((i,1)) = msg.data[0].y    # Sets y coordinate of waypoint
-            x = waypoints[:, 0]
-            y = waypoints[:, 1]
-            
-# Publisher class that will publish Twist messages as the output of the controller
-class Publisher:
-    def __init__(self):
-        self.cmd = rospy.Publisher('/pure_pursuit/cmd_vel', Twist)
-    def publish(self,msg):
-        self.cmd.publish(msg)
+waypoints = np.zeros([n_points,2])
+x_path = waypoints[:, 0]
+y_path = waypoints[:, 1]
 
 class NoIntersectionException(Exception):
     def __init__(self):
         self.message = 'no intersection'
 
+# Car class uses Odometry data to update the current position, yaw, and velocity of the car
 class Car():
-
-    def __init__(self, xcar=0, ycar=0, yaw=0, vel=0, steering_angle=0):
-        """
-        Define a vehicle class
-        :param x: float, x position
-        :param y: float, y position
-        :param yaw: float, vehicle heading
-        :param vel: float, velocity
-        """
-        self.xcar = xcar
-        self.ycar = ycar
+    def __init__(self, xpos=0, ypos=0, yaw=0, vel=0):
+        self.xpos = xpos
+        self.ypos = ypos
         self.yaw = yaw
         self.vel = vel
-        self.steering_angle = steering_angle
-
-    def update(self, vel, steering_angle):
-        """
-        Vehicle motion model, here we are using simple bycicle model
-        :param acc: float, acceleration
-        :param delta: float, heading control
-        """
-        self.vel = vel
-        self.steering_angle = steering_angle
-        #yaw is heading angle, relative to x-axis, orientation from tech?
-        self.xcar = self.xcar + (self.vel * math.cos(self.yaw) * dt)
-        self.ycar = self.ycar + (self.vel * math.sin(self.yaw) * dt)
-        self.yaw = self.vel * (math.tan(self.steering_angle) / WB) * dt + self.yaw
-        return self.xcar, self.ycar, self.yaw
-        #ycar prints 0. Does this make sense? 
 
 #--------------------------------------------(Steering Angle)--------------------------------------#
 
-# waypoints doesnt have to be an argument here
-def nearest_point(waypoints, curr_x, curr_y): #might be useful for not wanting to travel through the back of the path.
-    dist=np.zeros(N)
-    #distance between robot and points along the path
-    dist = np.sqrt(((x - curr_x)**2) + ((y - curr_y)**2))
-    #index of current position < index of nearest waypoint/position to follow
-    #return index of which waypoint/nearest point is closest
+# Calculates distance between the current position and a point along the path
+# Returns the index of the nearest waypoint
+def nearest_point(curr_x, curr_y):
+    dist = np.zeros(n_points)
+    dist = np.sqrt(((x_path - curr_x)**2) + ((y_path - curr_y)**2))
     return np.argmin(dist)
 
+# Calculates the lookahead point based on the current position and the nearest waypoint 
 def lookahead(curr_x, curr_y):
-    position = np.array([curr_x, curr_y]).T  #come back to it
-    wp = nearest_point(waypoints, curr_x, curr_y)
-    #-------------------(wp works)---------------------# 
+    position = np.array([curr_x, curr_y]).T 
+    wp = nearest_point(curr_x, curr_y)
     try:
-        #for i in range (1,100): , don't need for now because will be running 100 times in main
         f = np.subtract(waypoints[wp] , position)
-        if (wp<6):
-            d = np.subtract(waypoints[wp+1] , waypoints[wp]) #think this is wrong. Might be wp and wp + 1 
+        if (wp < n_points):
+            d = np.subtract(waypoints[wp+1] , waypoints[wp])
         else:
-            d = np.subtract(waypoints[wp] , waypoints[wp]) # isnt this just 0 ???
+            d = 0
+
         a = np.dot(d,d); 
         b = 2*np.dot(f,d); 
         c = np.dot(f,f) - ld*ld
-        discriminant = (b*b) - (4*a*c) #not way this is wrong computers don't fuck up math lol 
+        discriminant = (b*b) - (4*a*c) 
         
         if (discriminant<0):
             raise NoIntersectionException
@@ -134,87 +78,109 @@ def lookahead(curr_x, curr_y):
         print("Path lookahead no intersection")
         return -999, -999
 
+# Calculates the steering angle needed to follow the arc connecting the current position and the lookahead point
+def steering_angle(lookahead_x, lookahead_y, xpos, ypos, yaw):
+    
+    angle = np.tan(yaw)
+    a = -1 * angle
+    c = angle * xpos - ypos
+    dist_x = abs(a*lookahead_x + lookahead_y + c)/math.sqrt(((a)**2)+1) 
+    curvature = (2*dist_x)/(ld*ld) 
 
-def Curvature(pointx, pointy, position):
-    #pointx,pointy are lkx and lky
-
-    #following the arc to the lookahead point
-    #15 should be car's orientation
-    robot_angle = position[2]
-    robo_x = position[0]
-    robo_y = position[1]
-    robo_angle = np.tan(robot_angle)
-    a= -1 * robo_angle
-    c = robo_angle * robo_x - robo_y
-    dist_x = abs(a*pointx + pointy + c)/math.sqrt(((a)**2)+1)   #b is 1 for some reason
-    curvature = (2*dist_x)/(ld*ld) #dist_x lookaheag ponint??? 
-
-    signed = np.sign(math.sin(robo_angle) * (pointx-robo_x) - math.cos(robo_angle) * (pointy-robo_y))
+    signed = np.sign(math.sin(angle) * (lookahead_x-xpos) - math.cos(angle) * (lookahead_y-ypos))
 
     signed_curvature = -1*curvature*signed
-    return signed_curvature
-
-def steering_angle(signed_curvature):
-    steering_angle = np.arctan(signed_curvature*WB)
+    steering_angle = np.arctan(signed_curvature*wheel_base)
     return steering_angle
 
 #---------------------------------------(Velocity)---------------------------------# 
+
+# Calculates the distance between two points
+# Used to calculate the distance between the car's current position and the endpoint 
 def distance(x0, x1, y0, y1):
   X = x1 - x0
   Y = y1 - y0
   return math.sqrt(pow(X, 2) + pow(Y, 2))
-  #used to calculate the distance between endpoint and car's current distance
+
+# Checks if the desired velocity commands are within a valid range 
+# Velocity must be less than 5 (unit ?????)
 def newvel(d, a):
   v_1 = ((10 - a) + a * math.sqrt(1 + (4 * d))) / 2
   v_2 = ((10 - a) - a * math.sqrt(1 + (4 * d))) / 2
-  #now need to check if the computed velocity values are valid
-  #we want to have a velocity less than 5.
   if 0 < v_1 < 5:
     return v_1
-
-  #return these velocity values
   elif 0 < v_2 < 5:
-    #return these velocity values
-    return v_2
+    return v_2  # What would you return if these conditions aren't met ???
 
-  #velocity that goes to low level
+# Decelerate if approaching the endpoint
 def decel(thresh_d, curr_d, v_max, a_max):
   if thresh_d > curr_d:
     return newvel(curr_d, a_max)
   else:
     return v_max
 
-def main():
-    car = Car()
-    # v_m = car.vel
-    v_m = 2  #constant 2m/s that won't change (for now)
-    endpoint = [36, 6]   #get from tech team from globalcost map
-    decel_dist = 7 
-    a_max = -2   #passed into new vel
-    #change curr_point to update function
-    #distance btwn currpoint and endpoint 
-    #calculate the velocity 
-    rp = [0,0,0]
-
-    for i in range (800):
+# Subscriber Class that updates odometry data and waypoints as the local path changes
+class Subscriber:
+    def __init__(self):    
+        self.odom = rospy.Subscriber('/encoder_odom', Odometry, self.car_update)
+        self.path = rospy.Subscriber('/teb_local_planner/local_plan', Path, self.set_waypoints)
+        self.path = rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.set_goal)
+        self.car = Car()
+        self.goal = [0,0]
+    
+    def car_update(msg):
+        car.xpos = msg.pose.pose.position.x
+        car.ypos = msg.pose.pose.position.y
+        car.yaw = msg.pose.pose.orientation.z
+        car.vel = msg.twist.twist.linear.x
         
-        lkx, lky = lookahead(rp[0], rp[1])
-        
-        curv = Curvature(lkx, lky, rp)
+    def set_waypoints(msg):
+        for i in range(0,n_points-1):
+            waypoints([i,0]) = msg.PoseStamped[i].pose.position.x    # Sets x coordinate of waypoint 
+            waypoints([i,1]) = msg.PoseStamped[i].pose.position.y    # Sets y coordinate of waypoint
+        x_path = waypoints[:, 0]
+        y_path = waypoints[:, 1]     
 
-        steer = steering_angle(curv)
-        dist = distance(rp[0], endpoint[0], rp[1], endpoint[1])
-        v_next = decel(decel_dist, dist, v_m, a_max)
-        rp = car.update(v_next,steer)
+    def set_goal(self,msg):
+        self.goal[0] = msg.pose.position.x
+        self.goal[1] = msg.pose.position.y
 
-        print(f"steering angle: {steer} | curvature: {curv} rbx: {rp[0]}| rby: {abs(rp[1])} | vel: {v_next} | robo_angle: {rp[2]} | lkx, lky: {lkx, lky}")
+# Publisher class that will publish Twist messages as the output of the controller
+class Publisher:
+    def __init__(self):
+        self.cmd = rospy.Publisher('/pure_pursuit/ppc_cmd', Float32MultiArray, queue_size=2)
+        self.rate = rospy.Rate(100)
+    
+    def publish(self,msg):
+        self.cmd.publish(msg)
+        self.rate.sleep()
 
 if __name__ == "__main__":
-    main()
+    
+    rospy.init_node('pure_pursuit', anonymous=True)
+    subscriber = Subscriber()
+    publisher = Publisher()
+    ppc_cmd = Float32MultiArray()
 
-#step1: make tan(robo_angle) = to lky -roboy / lkx - robox 
+    # Max distance from goal before controller stops
+    dmax = 10
 
-#step2: check over the signed thing 
+    # decel params
+    v_m = 2  # Constant 2m/s that won't change (for now)
+    decel_dist = 7 
+    a_max = -2 
 
-#can check by using lk point and robot point along with radius 
-#to reverse engineer the circle and see if it looks right 
+    while not rospy.is_shutdown():
+
+        # Loop through until the goal is within the decel distance
+        while distance(subscriber.car.x, subscriber.goal[0], subscriber.car.y, subscriber.goal[1]) < dmax
+            
+            lookahead_x, lookahead_y = lookahead(subscriber.car.x, subscriber.car.y)
+            
+            steer_next = steering_angle(lookahead_x, lookahead_y, subscriber.car.x, subscriber.car.y, subscriber.car.yaw)
+
+            dist = distance(subscriber.car.x, subscriber.goal[0], subscriber.car.y, subscriber.goal[1])
+            v_next = decel(decel_dist, dist, v_m, a_max)
+
+            ppc_cmd.data = [v_next, steer_next]
+            publisher.publish(ppc_cmd)
