@@ -1,7 +1,7 @@
 #include "cuber_base.h"
 
 #include <driver/gpio.h>
-#include <driver/temperature_sensor.h>
+#include <driver/temp_sensor.h>
 #include <rom/rtc.h>
 
 #include "common.h"
@@ -70,10 +70,11 @@ static void base_init()
 
 
     //initialize temp sensor here
-    temperature_sensor_handle_t temp_sensor = NULL;
-    temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10,80);
-    temperature_sensor_install(&temp_sensor_config, &temp_sensor);
-    temperature_sensor_enable(temp_sensor);
+    temp_sensor_config_t temp_sensor = TSENS_CONFIG_DEFAULT();
+    temp_sensor_get_config(&temp_sensor);
+    temp_sensor.dac_offset = TSENS_DAC_DEFAULT;
+    temp_sensor_set_config(temp_sensor);
+    temp_sensor_start();
 
 
 
@@ -229,11 +230,10 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
             break;
     }
 
-    static typeof(m->temperature) temperature;
-    if(temperature_sensor_get_celsius(temp_sensor, &tsens_value) != ESP_OK) {
-        tsens_value = 0.0;
-    }
+    if (!temp_sensor_read_celsius(&tsens_value)) tsens_value = 0.0;
     m->temperature = tsens_value;
+    printf("%f\n", tsens_value);
+
 
     static typeof(m->counter) counter;
     m->counter = counter++;
