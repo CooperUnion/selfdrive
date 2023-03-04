@@ -6,16 +6,49 @@ from nav_msgs.msg import Odometry, Path
 
 import math
 import numpy as np
-import turtle
 
 ld = 1.18 #define lookahead distance
-wheel_base = 1.65 # double check
+wheel_base = 1.75 # double check
 
 n_points = 7
 
 waypoints = np.zeros([n_points,2])
-x_path = waypoints[:, 0]
-y_path = waypoints[:, 1]
+
+# Subscriber Class that updates odometry data and waypoints as the local path changes
+class Subscriber:
+    def __init__(self):    
+        self.odom = rospy.Subscriber('/encoder_odom', Odometry, self.car_update)
+        self.path = rospy.Subscriber('/teb_local_planner/local_plan', Path, self.set_waypoints)
+        self.path = rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.set_goal)
+        self.car = Car()
+        self.xgoal = 0
+        self.ygoal = 0
+    
+    def car_update(self,msg):
+        self.car.prev_xpos = self.car.xpos
+        self.car.xpos = msg.pose.pose.position.x
+        self.car.ypos = msg.pose.pose.position.y
+        self.car.yaw = msg.pose.pose.orientation.z
+        self.car.vel = msg.twist.twist.linear.x
+        
+    def set_waypoints(msg):
+        for i in range(0,n_points-1):
+            waypoints[i,0] = msg.PoseStamped[i].pose.position.x    # Sets x coordinate of waypoint 
+            waypoints[i,1] = msg.PoseStamped[i].pose.position.y    # Sets y coordinate of waypoint  
+
+    def set_goal(self,msg):
+        self.xgoal = msg.pose.position.x
+        self.ygoal = msg.pose.position.y
+
+# Publisher class that will publish Twist messages as the output of the controller
+class Publisher:
+    def __init__(self):
+        self.cmd = rospy.Publisher('/pure_pursuit/ppc_cmd', Float32MultiArray, queue_size=2)
+        self.rate = rospy.Rate(100)
+    
+    def publish(self,msg):
+        self.cmd.publish(msg)
+        self.rate.sleep()
 
 class NoIntersectionException(Exception):
     def __init__(self):
@@ -23,8 +56,9 @@ class NoIntersectionException(Exception):
 
 # Car class uses Odometry data to update the current position, yaw, and velocity of the car
 class Car():
-    def __init__(self, xpos=0, ypos=0, yaw=0, vel=0):
+    def __init__(self, xpos=0, prev_xpos=0, ypos=0, yaw=0, vel=0):
         self.xpos = xpos
+        self.prev_xpos = prev_xpos
         self.ypos = ypos
         self.yaw = yaw
         self.vel = vel
@@ -35,7 +69,7 @@ class Car():
 # Returns the index of the nearest waypoint
 def nearest_point(curr_x, curr_y):
     dist = np.zeros(n_points)
-    dist = np.sqrt(((x_path - curr_x)**2) + ((y_path - curr_y)**2))
+    dist = np.sqrt(((waypoints[:, 0] - curr_x)**2) + ((waypoints[:, 1] - curr_y)**2))
     return np.argmin(dist)
 
 # Calculates the lookahead point based on the current position and the nearest waypoint 
@@ -44,10 +78,7 @@ def lookahead(curr_x, curr_y):
     wp = nearest_point(curr_x, curr_y)
     try:
         f = np.subtract(waypoints[wp] , position)
-        if (wp < n_points):
-            d = np.subtract(waypoints[wp+1] , waypoints[wp])
-        else:
-            d = 0
+        d = np.subtract(waypoints[wp+1] , waypoints[wp])
 
         a = np.dot(d,d); 
         b = 2*np.dot(f,d); 
@@ -57,8 +88,8 @@ def lookahead(curr_x, curr_y):
         if (discriminant<0):
             raise NoIntersectionException
         else:
-            discriminant= np.sqrt(discriminant)
-            t1 = (-b- discriminant)/(2*a)
+            discriminant = np.sqrt(discriminant)
+            t1 = (-b - discriminant)/(2*a)
             t2 = (-b + discriminant)/(2*a)
             if (t1>=0 and t1<=1.0):
                 point = waypoints[wp] + t1*d
@@ -104,56 +135,24 @@ def distance(x0, x1, y0, y1):
 
 # Checks if the desired velocity commands are within a valid range 
 # Velocity must be less than 5 (unit ?????)
-def newvel(d, a):
-  v_1 = ((10 - a) + a * math.sqrt(1 + (4 * d))) / 2
-  v_2 = ((10 - a) - a * math.sqrt(1 + (4 * d))) / 2
-  if 0 < v_1 < 5:
-    return v_1
-  elif 0 < v_2 < 5:
-    return v_2  # What would you return if these conditions aren't met ???
+def newvel(car_xpos, car_prev_xpos, a):
+  #first case: thresh - car location = first element 
+  #second case and beyond: prev car location - car curr location = next element 
+
+  dx = car_xpos - car_prev_xpos
+  v = math.sqrt(2 * a * dx)
+
+  if 0 <= v < 5:
+    return v
+  else:
+    return 0
 
 # Decelerate if approaching the endpoint
-def decel(thresh_d, curr_d, v_max, a_max):
+def decel(thresh_d, curr_d, car_prev_xpos, v_max, a_max, car_xpos):
   if thresh_d > curr_d:
-    return newvel(curr_d, a_max)
+    return newvel(car_xpos, car_prev_xpos, a_max)
   else:
     return v_max
-
-# Subscriber Class that updates odometry data and waypoints as the local path changes
-class Subscriber:
-    def __init__(self):    
-        self.odom = rospy.Subscriber('/encoder_odom', Odometry, self.car_update)
-        self.path = rospy.Subscriber('/teb_local_planner/local_plan', Path, self.set_waypoints)
-        self.path = rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.set_goal)
-        self.car = Car()
-        self.goal = [0,0]
-    
-    def car_update(msg):
-        car.xpos = msg.pose.pose.position.x
-        car.ypos = msg.pose.pose.position.y
-        car.yaw = msg.pose.pose.orientation.z
-        car.vel = msg.twist.twist.linear.x
-        
-    def set_waypoints(msg):
-        for i in range(0,n_points-1):
-            waypoints([i,0]) = msg.PoseStamped[i].pose.position.x    # Sets x coordinate of waypoint 
-            waypoints([i,1]) = msg.PoseStamped[i].pose.position.y    # Sets y coordinate of waypoint
-        x_path = waypoints[:, 0]
-        y_path = waypoints[:, 1]     
-
-    def set_goal(self,msg):
-        self.goal[0] = msg.pose.position.x
-        self.goal[1] = msg.pose.position.y
-
-# Publisher class that will publish Twist messages as the output of the controller
-class Publisher:
-    def __init__(self):
-        self.cmd = rospy.Publisher('/pure_pursuit/ppc_cmd', Float32MultiArray, queue_size=2)
-        self.rate = rospy.Rate(100)
-    
-    def publish(self,msg):
-        self.cmd.publish(msg)
-        self.rate.sleep()
 
 if __name__ == "__main__":
     
@@ -163,24 +162,34 @@ if __name__ == "__main__":
     ppc_cmd = Float32MultiArray()
 
     # Max distance from goal before controller stops
+    dist = 0
     dmax = 10
 
     # decel params
     v_m = 2  # Constant 2m/s that won't change (for now)
-    decel_dist = 7 
-    a_max = -2 
+    decel_dist = 0.06 
+    
 
     while not rospy.is_shutdown():
 
-        # Loop through until the goal is within the decel distance
-        while distance(subscriber.car.x, subscriber.goal[0], subscriber.car.y, subscriber.goal[1]) < dmax
-            
-            lookahead_x, lookahead_y = lookahead(subscriber.car.x, subscriber.car.y)
-            
-            steer_next = steering_angle(lookahead_x, lookahead_y, subscriber.car.x, subscriber.car.y, subscriber.car.yaw)
+        # Loop through until the goal is within the stopping distance
+        while dist < dmax:
+            a_max = 0.9 
+            dist = distance(subscriber.car.xpos, subscriber.xgoal, subscriber.car.ypos, subscriber.ygoal)
 
-            dist = distance(subscriber.car.x, subscriber.goal[0], subscriber.car.y, subscriber.goal[1])
-            v_next = decel(decel_dist, dist, v_m, a_max)
+            if dist > decel_dist:
+                lookahead_x, lookahead_y = lookahead(subscriber.car.xpos, subscriber.car.ypos)
+                steer_next = steering_angle(lookahead_x, lookahead_y, subscriber.car.xpos, subscriber.car.ypos, subscriber.car.yaw)
+            if dist < decel_dist:
+                steer_next = steering_angle(subscriber.xgoal, subscriber.ygoal, subscriber.car.xpos, subscriber.car.ypos, subscriber.car.yaw)    
+            v_next = decel(decel_dist, dist, subscriber.car.prev_xpos, v_m, a_max, subscriber.car.xpos)
 
             ppc_cmd.data = [v_next, steer_next]
             publisher.publish(ppc_cmd)
+        
+        # Once we get within a predefined distance of the endpoint, we want to stop accelerating
+        a_max = 0
+        v_next = decel(decel_dist, dist, v_m, a_max, subscriber.car.xpos)
+
+        ppc_cmd.data = [v_next, steer_next]
+        publisher.publish(ppc_cmd)

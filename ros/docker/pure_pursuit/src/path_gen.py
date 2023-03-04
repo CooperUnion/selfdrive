@@ -16,7 +16,7 @@ if __name__ == "__main__":
     path = Path()
     n_points = 1000
     
-    for i in range (0,n_points-1) 
+    for i in range (0,n_points-1): 
         path.PoseStamped[i].pose.position.x = i/100
         path.PoseStamped[i].pose.position.y = 10*np.sin(0.1*i/100) # Replace with whatever function you want
         # path.PoseStamped[i].pose.position.y = np.sqrt(1+10*i)
@@ -24,5 +24,5 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
 
-        pub.publish(path)
+        pub_path.publish(path)
         rate.sleep()
