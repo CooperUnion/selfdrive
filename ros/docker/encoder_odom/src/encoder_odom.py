@@ -27,7 +27,7 @@ class Encoder_Odom:
     def __init__(self):
         self.sub = Subscribe()
         self.broadcaster = tf2_ros.TransformBroadcaster()
-        self.rate = rospy.Rate(50)        
+        self.rate = rospy.Rate(100)        
         self.odom_pub = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
         self.odom_msg = Odometry()
 
