@@ -168,3 +168,15 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+
+    imu:
+        build: docker/imu/.
+        container_name: imu
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=imu'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/imu:/app/ros_ws/src/imu'
+        depends_on:
+            - master
