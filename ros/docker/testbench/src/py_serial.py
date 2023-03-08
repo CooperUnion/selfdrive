@@ -25,8 +25,8 @@ def send(msg):
 class Subscriber:
    
     def __init__(self):
-        rospy.Subscriber('/vector',twist,self.callback)
-
+        rospy.Subscriber('/twist',twist,self.callback)
+    
     def callback(self,msg):
         v = msg.linear.x
         w = msg.angular.z
@@ -38,6 +38,6 @@ class Subscriber:
 
 
 if __name__ == '__main__':
-    rospy.init_node
+    rospy.init_node('subscriber', anonymous=True)
     sub = Subscriber()
     rospy.spin()
