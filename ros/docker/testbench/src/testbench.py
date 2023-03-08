@@ -1,9 +1,8 @@
 import serial
 import math
 import rospy
-from std_msgs.msg import twist
-
-arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=1)
+from geometry_msgs.msg import Twist
+arduino = serial.Serial(port='/dev/ttyUSB0',baudrate=9600,timeout=1)
 RPS = 200 #Number of Pulses per Rev, Modify on Motor Driver, Then Here
 WIDTH = 5 # Meters
 WHEEL_RADIUS = 0.5 #Units: Meters, Modify Based on Wheel
@@ -25,7 +24,7 @@ def send(msg):
 class Subscriber:
    
     def __init__(self):
-        rospy.Subscriber('/twist',twist,self.callback)
+        rospy.Subscriber('/twist',Twist,self.callback)
     
     def callback(self,msg):
         v = msg.linear.x

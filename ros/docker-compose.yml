@@ -162,3 +162,17 @@ services:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
             - master
+
+    testbench:
+        build: docker/testbench/.
+        container_name: testbench
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME = testbench'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/techbus:/app/ros_ws/src/testbench'
+        devices:
+            - /dev/ttyUSB0:/dev/ttyUSB0
+        depends_on:
+            - master

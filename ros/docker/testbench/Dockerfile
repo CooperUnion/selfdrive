@@ -10,7 +10,7 @@ RUN apt update && apt install -y curl
 
 RUN apt-get -y update
 
-RUN mkdir -p ros_ws/source
+RUN mkdir -p ros_ws/src
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
@@ -24,6 +24,5 @@ COPY ./alias.sh /
 RUN echo "source /alias.sh" >> ~/.bashrc
 
 #Trying Something Here For Serial Communication over USB
-RUN -t -i --device=/dev/ttyUSB0 ubuntu bash
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["bash"]
