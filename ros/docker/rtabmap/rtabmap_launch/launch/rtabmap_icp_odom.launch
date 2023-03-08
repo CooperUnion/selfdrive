@@ -1,0 +1,157 @@
+<launch>
+    <!-- ZED related arguments -->
+    <arg name="zed_namespace"        default="zed" />
+    <arg name="zed_node_name"        default="zed_node" />
+
+    <!-- Lidar related arguments -->
+    <arg name="subscribe_scan"      default="false" />
+    <arg name="approx_sync"      default="false" />
+
+    <arg name="rviz"                    default="true" />
+    <arg name="rviz_cfg"                default="$(find rtabmap_launch)/rviz/gem.rviz " />
+
+    <!-- RGB-D related topics -->
+    <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" />
+    <arg name="depth_topic"             default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered" />
+    <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" /> -->
+    <!-- <arg name="depth_camera_info_topic" default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/camera_info" /> -->
+    <arg name="rgbd_topic"              default="/$(arg zed_namespace)/rgbd_image" />
+
+    <!-- Stereo camera topics -->
+    <arg name="left_image_rect"         default="/$(arg zed_namespace)/$(arg zed_node_name)/left/image_rect_color"  />
+    <arg name="right_image_rect"        default="/$(arg zed_namespace)/$(arg zed_node_name)/right/image_rect_color" />
+    <arg name="left_camera_info"        default="/$(arg zed_namespace)/$(arg zed_node_name)/left/camera_info"  />
+    <arg name="right_camera_info"       default="/$(arg zed_namespace)/$(arg zed_node_name)/right/camera_info" />
+
+    <!-- Localization-only mode -->
+    <arg name="localization"            default="false"/>
+    <arg name="deletedb"                default="false"/>
+    <arg     if="$(arg deletedb)"   name="rtabmap_args"    default="--delete_db_on_start"/>
+    <arg unless="$(arg deletedb)"   name="rtabmap_args"    default=""/>
+
+    <!-- Odom stuff -->
+    <arg name="odom_args" default=""/>
+    <arg name="wait_for_transform"      default="3.0"/>
+    <arg name="odom_topic"              default="/odom_rgbd" />
+
+
+    <group ns="rtabmap">
+    
+        <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync">
+            <remap from="rgb/image"       to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color"/>
+            <remap from="depth/image"     to="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered"/>
+            <remap from="rgb/camera_info" to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info"/>
+            <param name="approx_sync"     value="true"/>
+        </node>
+        
+        <node name="stereo_odometry" pkg="rtabmap_ros" type="stereo_odometry" args="$(arg odom_args)">
+            <param name="frame_id"                    type="string" value="base_link"/>
+            <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
+            <param name="publish_tf"                  type="bool"   value="true"/>
+            <param name="subscribe_rgbd"       type="bool" value="true"/>
+            <param name="subscribe_scan_cloud" type="bool" value="true"/>
+            <param name="approx_sync"          type="bool" value="true"/>
+
+            <remap from="scan_cloud" to="/velodyne_points"/>
+            <remap from="rgbd_image" to="rgbd_image"/>
+
+            <remap from="left/image_rect"    to="$(arg left_image_rect)"/>
+            <remap from="right/image_rect"   to="$(arg right_image_rect)"/>
+            <remap from="left/camera_info"   to="$(arg left_camera_info)"/>
+            <remap from="right/camera_info"  to="$(arg right_camera_info)"/>
+
+            <remap from="odom"            to="$(arg odom_topic)"/>
+        
+            <!-- RTAB-Map's parameters -->
+            <param name="RGBD/NeighborLinkRefining"      type="string" value="false"/> <!-- set true to refine odometry with lidar -->
+            <param name="RGBD/ProximityPathMaxNeighbors" type="string" value="1"/>
+            
+            <param name="Reg/Strategy"                   type="string" value="1"/> <!-- ICP registration -->
+            <param name="Grid/CellSize"                  type="string" value="0.1"/>
+            <param name="Grid/RangeMax"                  type="string" value="20"/>
+            <param name="Grid/ClusterRadius"             type="string" value="1"/>
+            <param name="Grid/GroundIsObstacle"          type="string" value="true"/>
+
+            <!-- ICP parameters -->
+            <param name="Icp/VoxelSize"                  type="string" value="0.3"/>
+            <param name="Icp/PointToPlaneK"              type="string" value="20"/>
+            <param name="Icp/PointToPlaneRadius"         type="string" value="0"/>
+            <param name="Icp/PointToPlane"               type="string" value="true"/>
+            <param name="Icp/Iterations"                 type="string" value="10"/>
+            <param name="Icp/Epsilon"                    type="string" value="0.001"/>
+            <param name="Icp/MaxTranslation"             type="string" value="3"/>
+            <param name="Icp/MaxCorrespondenceDistance"  type="string" value="1"/>
+            <param name="Icp/PM"                         type="string" value="true"/> 
+            <param name="Icp/PMOutlierRatio"             type="string" value="0.7"/>
+            <param name="Icp/CorrespondenceRatio"        type="string" value="0.2"/>
+
+        </node>
+
+        <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+            <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />
+
+            <!-- determine if we subscribe to lidar -->
+            <param     if="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="true"/>
+            <param unless="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="false"/>
+
+            <!-- scan relevant -->
+            <!-- <param     if="$(arg subscribe_scan)"   name="gen_scan"         value="false"/>  -->
+            <!-- <param unless="$(arg subscribe_scan)"   name="gen_scan"         value="true"/> -->
+            <!-- <param unless="$(arg subscribe_scan)"   name="Grid/FromDepth"   value="false"/> -->
+
+            <!-- input topics -->
+            <remap from="scan"              to="/scan" />
+            <remap from="scan_cloud"        to="/velodyne_points"/>
+            <!-- <remap from="rgb/image"         to="$(arg rgb_topic)" />
+            <remap from="depth/image"       to="$(arg depth_topic)" /> -->
+            <!-- <remap from="rgbd_image"        to=$() -->
+            <!-- <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" /> -->
+            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
+            <remap from="odom"              to="$(arg odom_topic)" />
+            <remap from="gps/fix"               to="/gps/fix"/>
+
+            <!-- map -->
+            <remap from="grid_map"          to="map" />
+
+            <!-- when sending goals on /rtabmap/goal topic, use actionlib to communicate with move_base -->
+            <param name="use_action_for_goal"   type="bool"     value="true" />
+            <remap from="move_base"             to="/move_base" />
+
+            <!-- localization mode -->
+            <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+            <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+            <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+            <param name="odom_frame_id" type="string" value=""/>
+
+            <!-- <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> -->
+        </node>
+
+        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+            <param name="subscribe_stereo"          type="bool"     value="false"/>
+            <param name="subscribe_odom_info"       type="bool"     value="false"/>
+            <param name="subscribe_depth"           type="bool"     value="false"/>
+            <param name="subscribe_rgbd"           type="bool"     value="true"/>
+
+            <!-- <remap from="rgb/image"         to="$(arg rgb_topic)"/>
+            <remap from="depth/image"       to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/> -->
+            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
+
+            <remap from="grid_map"          to="map" />
+            <remap from="odom"              to="$(arg odom_topic)"/>
+            <remap from="scan_cloud"        to="/velodyne_points"/>
+        </node>
+
+        <!-- visualization with RVIZ -->
+        <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+        <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="standalone rtabmap_ros/point_cloud_xyzrgb" output="screen">
+            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
+            <remap from="cloud"             to="/rtabmap/local_grid/obstacle" />
+
+            <param name="decimation"  type="double" value="4"/>
+            <param name="voxel_size"  type="double" value="0.0"/>
+            <param name="approx_sync" type="bool"   value="$(arg approx_sync)"/>
+        </node>
+
+    </group>
+</launch>
