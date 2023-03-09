@@ -59,9 +59,9 @@ $(ROS): $(INSTALL_DEPENDENCIES)
 	@$(MAKE) -C $(ROS)
 
 
-$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
+$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT) Makefile
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
-	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev f90d5c42
+	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev 48944e0a
 	@touch $(INSTALL_DEPENDENCIES)
