@@ -164,7 +164,7 @@ services:
             - master
 
     techbus:
-        build: docker/techbus/.
+        build: docker/techbus/
         container_name: techbus
         tty: true
         environment:
