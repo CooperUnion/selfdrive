@@ -59,7 +59,7 @@ $(ROS): $(INSTALL_DEPENDENCIES)
 	@$(MAKE) -C $(ROS)
 
 
-$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
+$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT) Makefile
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
