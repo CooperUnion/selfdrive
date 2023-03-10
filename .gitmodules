@@ -4,3 +4,6 @@
 [submodule "ros/docker/gazebo/igvc_self_drive_sim"]
 	path = ros/docker/gazebo/igvc_self_drive_sim
 	url = https://github.com/robustify/igvc_self_drive_sim.git
+[submodule "ros/docker/imu/ros_kvh1750/kvh1750_ws"]
+	path = ros/docker/imu/ros_kvh1750/kvh1750_ws
+	url = https://github.com/mgiglia92/kvh1750_ws.git
