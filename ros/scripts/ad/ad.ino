@@ -17,7 +17,6 @@ void setup() {
 void loop() {
 if(Serial.available() > 0){
   String inp = Serial.readStringUntil('\n');
-
   inp.trim();               
   int n = inp.indexOf(" ");
   m1sig = inp.substring(0,n).toInt();
@@ -35,10 +34,10 @@ if(Serial.available() > 0){
   }
   
   if(m2sig < 0){
-    digitalWrite(10, LOW);
+    digitalWrite(10, HIGH);
     m2sig = -m2sig;
   } else {
-    digitalWrite(10, HIGH);
+    digitalWrite(10, LOW);
   }
 }    
 
