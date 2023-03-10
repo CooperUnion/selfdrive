@@ -17,8 +17,8 @@ class VelocityControl(threading.Thread):
     def __init__(self, *, bus: cand.client.Bus = None):
         self._bus      = bus
 
-        self.throttle_percent = 0
-        self.brake_percent    = 0
+        self.throttle_percent = 0.0
+        self.brake_percent    = 0.0
         self.steering_angle   = 0.0
 
         super().__init__(daemon=True)
