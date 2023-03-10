@@ -26,3 +26,4 @@ if __name__ == "__main__":
 
         pub_path.publish(path)
         rate.sleep()
+        
