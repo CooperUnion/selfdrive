@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import rospy
-from geometry_msgs.msg import Float32MultiArray, PoseStamped
+from std_msgs.msg import Float32MultiArray
+from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry, Path
 
 import math
