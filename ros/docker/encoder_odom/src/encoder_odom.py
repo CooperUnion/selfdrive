@@ -74,9 +74,9 @@ class Encoder_Odom:
         
         # Car Variables
         wheel_radius = 0.3302   #13 inch ~= 0.3302 meter
-        circumfrence = 1.899156
+        circumference = 1.899156
         enc_res = 65536
-        tick_distance = circumfrence/enc_res
+        tick_distance = circumference/enc_res
         wheel_spacing = 1.27    #Approximately 50 inch ~= 1.27 meter
  
         # Overflow condition for unsigned integer subtraction
