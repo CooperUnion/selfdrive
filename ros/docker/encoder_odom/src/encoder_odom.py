@@ -129,11 +129,6 @@ class Encoder_Odom:
         self.odom_pub.publish(self.odom_msg)
         self.rate.sleep()
         
-        # rospy.loginfo("I heard %s", self.odom_msg)
-
-    # def publish(self):
-    #     self.odom_pub.publish(odom_ms)
-
 if __name__ == '__main__':
 
     
@@ -148,7 +143,6 @@ if __name__ == '__main__':
 
         current_time = rospy.Time.now()
         
-        pub.publish("hello")
         encoder_odom.calc_odom(current_time,last_time)
 
         last_time = current_time
