@@ -56,8 +56,9 @@ static void base_init()
 {
     system_state = SYS_STATE_IDLE;
 
-    gpio_pad_select_gpio(LED1_PIN);
-    gpio_pad_select_gpio(LED2_PIN);
+    // todo: use gpio_config_t
+    esp_rom_gpio_pad_select_gpio(LED1_PIN);
+    esp_rom_gpio_pad_select_gpio(LED2_PIN);
 
     gpio_set_direction(LED1_PIN, GPIO_MODE_OUTPUT);
     gpio_set_direction(LED2_PIN, GPIO_MODE_OUTPUT);

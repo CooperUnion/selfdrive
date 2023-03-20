@@ -45,7 +45,8 @@ ember_rate_funcs_S module_rf = {
  */
 static void throttle_init()
 {
-    gpio_pad_select_gpio(MODE_CTRL_PIN);
+    // todo: use gpio_config_t
+    esp_rom_gpio_pad_select_gpio(MODE_CTRL_PIN);
     gpio_set_direction(MODE_CTRL_PIN, GPIO_MODE_OUTPUT);
     control_relay(0);
 
