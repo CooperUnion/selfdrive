@@ -1,4 +1,3 @@
-#include "common.h"
 #include "ember_bltools.h"
 #include "ember_tasking.h"
 #include "module_list.inc"

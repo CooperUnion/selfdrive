@@ -3,7 +3,7 @@
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
