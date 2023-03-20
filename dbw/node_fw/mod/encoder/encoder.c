@@ -1,5 +1,6 @@
 #include "encoder.h"
 
+#include <esp_attr.h>
 #include <driver/gpio.h>
 
 #include "ember_common.h"
@@ -25,10 +26,10 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
 
 // ######      PROTOTYPES       ###### //
 
-static void IRAM_ATTR encoder0_chan_a(void *arg);
-static void IRAM_ATTR encoder0_chan_b(void *arg);
-static void IRAM_ATTR encoder1_chan_a(void *arg);
-static void IRAM_ATTR encoder1_chan_b(void *arg);
+static void encoder0_chan_a(void *arg);
+static void encoder0_chan_b(void *arg);
+static void encoder1_chan_a(void *arg);
+static void encoder1_chan_b(void *arg);
 
 // ######     PRIVATE DATA      ###### //
 
