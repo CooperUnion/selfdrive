@@ -3,5 +3,5 @@ matplotlib==3.7.1
 opencan-cand==0.1.0
 pip-chill==1.0.1
 platformio==6.1.6
-scons==4.5.1
+scons==4.5.2
 strictyaml==1.6.2
