@@ -17,7 +17,7 @@ fi
 
 # docker compose down --remove-orphans
 
-echo "redis-cli shutdown\n"
+echo "redis-cli shutdown"
 
 docker compose up -d master zed rtabmap velodyne navigation encoder_odom techbus redis pure_pursuit
 
@@ -35,20 +35,18 @@ init
 # tmux send-keys 'rosrun src techbus.py'
 # tmux send-keys Enter
 
-
 tmux split-window -h 'fish'
 tmux send-keys 'cand --dbc build/can/igvc_can.dbc --dev vcan0'
 tmux send-keys Enter
 
+tmux select-pane -t 0
 tmux split-window -v 'fish'
-
-tmux split-window -h 'fish'
-tmux send-keys 'sudo ip link set can0 up type can bitrate 500000'
-tmux send-keys Enter
-tmux send-keys 'cand --dev can0 --dbc ../../build/can/igvc_can.dbc'
-tmux send-keys Enter
-tmux send-keys 'candump can0 | cantools decode build/can/igvc_can.dbc -s | grep Cmd'
-tmux send-keys Enter
+# tmux send-keys 'sudo ip link set can0 up type can bitrate 500000'
+# tmux send-keys Enter
+# tmux send-keys 'cand --dev can0 --dbc ../../build/can/igvc_can.dbc'
+# tmux send-keys Enter
+# tmux send-keys 'candump can0 | cantools decode build/can/igvc_can.dbc -s | grep Cmd'
+# tmux send-keys Enter
 
 tmux new-window -n 'Perception'
 tmux select-window -t 'Perception'
@@ -63,6 +61,7 @@ init
 # tmux send-keys 'roslaunch velodyne_pointcloud VLP16_points.launch'
 # tmux send-keys Enter 
 
+tmux select-pane -t 0
 tmux split-window -v 'fish'
 tmux send-keys 'docker exec -it encoder_odom bash'
 init
@@ -88,6 +87,7 @@ init
 # tmux send-keys 'roslaunch scooter_launch move_base.launch'
 # tmux send-keys Enter
 
+tmux select-pane -t 0
 tmux split-window -v 'fish'
 tmux send-keys 'docker exec -it pure_pursuit bash'
 init
