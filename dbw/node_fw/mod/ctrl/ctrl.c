@@ -91,7 +91,7 @@ static void ctrl_100Hz()
         speed_alarm = false;
     }
 
-    if (CANRX_is_node_DBW_ok() && base_dbw_active()) {
+    if (CANRX_is_node_DBW_ok() && false) {
         brake_percent    = CANRX_get_DBW_brakePercent();
         throttle_percent = CANRX_get_DBW_throttlePercent();
     } else {

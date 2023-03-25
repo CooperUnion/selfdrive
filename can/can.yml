@@ -52,7 +52,6 @@ nodes:
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
-    - DBW_Active
     - DBW_ESTOP
     - DBW_VelocityCommand
     messages:
@@ -89,7 +88,6 @@ nodes:
 
 - CTRL:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - SUP_SupervisorAuthorized
@@ -137,17 +135,9 @@ nodes:
 - DBW:
     messages:
     - ESTOP:
-        id: 0x41F
+        id: 0x420
 
         signals:
-          - src:
-              description: ESTOP source.
-              width: 8
-              enumerated_values:
-                - NODE
-                - NODESD
-                - SAFED
-
           - reason:
               description: ESTOP reason.
               width: 8
@@ -157,23 +147,19 @@ nodes:
                 - INVALID_STATE
                 - LIMIT_EXCEEDED
 
-    - Active:
-        id: 0x420
+    - VelocityCommand:
+        id: 0x666
         cycletime: 100
 
         signals:
-          - active:
-              description: DBW is active.
-              width: 1
-
-    - Enable:
-        id: 0x421
-        cycletime: 100
-
-        signals:
-          - enable:
-              description: Enable DBW active.
-              width: 1
+          - linearVelocity:
+              description: Velocity in m/s
+              # maximum: 100.0
+              scale: 0.1
+              width: 10
+          # TODO: determine realistic bounds
+#         - angularVelocity:
+#             description: Velocity in rad/s
 
     - RawVelocityCommand:
         id: 0x667
@@ -191,23 +177,8 @@ nodes:
               unit: percent
               width: 7
 
-    - VelocityCommand:
-        id: 0x666
-        cycletime: 100
-
-        signals:
-          - linearVelocity:
-              description: Velocity in m/s
-              # maximum: 100.0
-              scale: 0.1
-              width: 10
-          # TODO: determine realistic bounds
-#         - angularVelocity:
-#             description: Velocity in rad/s
-
 - ENCF:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -224,7 +195,6 @@ nodes:
 
 - PB:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -254,7 +224,6 @@ nodes:
 
 - STEER:
     rx:
-      - DBW_Active
       - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -312,7 +281,6 @@ nodes:
 
 - THROTTLE:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     - CTRL_VelocityCommand
     messages:
@@ -373,7 +341,6 @@ nodes:
 
 - SUP:
     rx:
-      - DBW_Active
       - DBW_ESTOP
       - CTRL_Alarms
     messages:

@@ -50,12 +50,12 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
+    if (false && !CANRX_is_node_CTRL_ok()) {
         base_set_state_estop(0 /* placeholder */);
     }
 
     /* set the relay based on whether DBW is active */
-    control_relay(base_dbw_active());
+    control_relay(false);
 
     /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
     float32_t cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;

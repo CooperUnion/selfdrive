@@ -75,7 +75,7 @@ static void brake_100Hz()
 {
     static float32_t prev_cmd;
 
-    bool dbw_active = base_dbw_active();
+    bool dbw_active = false;
 
     if (dbw_active && !CANRX_is_node_CTRL_ok()) {
         base_set_state_estop(0 /* dummy value, API will change */);
