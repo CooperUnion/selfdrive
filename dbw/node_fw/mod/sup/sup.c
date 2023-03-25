@@ -57,8 +57,8 @@ static void sup_100Hz()
 
 // ######        CAN TX         ###### //
 
-void CANTX_populate_SUP_SupervisorAuthorized(
-        struct CAN_Message_SUP_SupervisorAuthorized * const m)
+void CANTX_populate_SUP_Authorized(
+        struct CAN_Message_SUP_Authorized * const m)
 {
     m->SUP_brakeAuthorized    = brake_authorized;
     m->SUP_throttleAuthorized = throttle_authorized;

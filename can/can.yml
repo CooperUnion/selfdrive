@@ -54,7 +54,7 @@ nodes:
     - CTRL_VelocityCommand
     - DBW_ESTOP
     - DBW_VelocityCommand
-    - SUP_SupervisorAuthorized
+    - SUP_Authorized
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -92,7 +92,7 @@ nodes:
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
-    - SUP_SupervisorAuthorized
+    - SUP_Authorized
     messages:
     - Alarms:
         id: 0x22
@@ -285,7 +285,7 @@ nodes:
     rx:
     - CTRL_VelocityCommand
     - DBW_ESTOP
-    - SUP_SupervisorAuthorized
+    - SUP_Authorized
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -353,7 +353,7 @@ nodes:
       - STEER_NodeStatus
       - THROTTLE_NodeStatus
     messages:
-    - SupervisorAuthorized:
+    - Authorized:
         id: 0x1A
         cycletime: 10
 
