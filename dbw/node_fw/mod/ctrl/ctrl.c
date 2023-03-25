@@ -80,24 +80,53 @@ static void ctrl_100Hz()
     prv_pulse_cnt[0] = cur_pulse_cnt[0];
     prv_pulse_cnt[1] = cur_pulse_cnt[1];
 
-    // check if we're over the speed limit and trigger estop if so
+    // check if we're over the speed limit and
+    // go into the ESTOP state if that's the case
     if (
         (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
         (ABS(right_delta) >= ENCODER_MAX_TICKS))
     {
-        speed_alarm = true;
-        base_set_state_estop();
-    } else {
-        speed_alarm = false;
-    }
-
-    if (CANRX_is_node_DBW_ok() && false) {
-        brake_percent    = CANRX_get_DBW_brakePercent();
-        throttle_percent = CANRX_get_DBW_throttlePercent();
-    } else {
         brake_percent    = 0;
         throttle_percent = 0;
+
+        speed_alarm = true;
+        base_set_state_estop();
+
+        return;
     }
+
+    speed_alarm = false;
+
+    /*
+     * We want to set brake and throttle percentages based on either a
+     * raw or normal velocity command.  Ideally, a raw velocity command
+     * would not be sent when a regular velocity command is being sent
+     * and vice-versa.  To avoid this situation, we give the raw
+     * velocity command priority when setting percentages.
+     */
+
+    if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+        brake_percent    = CANRX_get_DBW_brakePercent();
+        throttle_percent = CANRX_get_DBW_throttlePercent();
+        base_set_state_dbw_active();
+
+        return;
+    }
+
+    if (CANRX_is_message_DBW_VelocityCommand_ok()) {
+        // TODO: set brake and throttle percentages
+        // using a PID controller
+
+        brake_percent    = 0;
+        throttle_percent = 0;
+        base_set_state_dbw_active();
+
+        return;
+    }
+
+    brake_percent    = 0;
+    throttle_percent = 0;
+    base_set_state_idle();
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
