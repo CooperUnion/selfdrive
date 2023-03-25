@@ -14,7 +14,7 @@
 
 static bool brake_authorized;
 static bool throttle_authorized;
-static bool steering_authorized;
+static bool steer_authorized;
 
 // ######          CAN          ###### //
 
@@ -44,7 +44,7 @@ static void sup_100Hz()
     // STEER
     authorized  = true;
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
-    steering_authorized = authorized;
+    steer_authorized = authorized;
 }
 
 // ######        CAN TX         ###### //
@@ -55,5 +55,5 @@ void CANTX_populate_SUP_SupervisorAuthorized(
 {
     m->SUP_brakeAuthorized    = brake_authorized;
     m->SUP_throttleAuthorized = throttle_authorized;
-    m->SUP_steeringAuthorized = steering_authorized;
+    m->SUP_steerAuthorized    = steer_authorized;
 }

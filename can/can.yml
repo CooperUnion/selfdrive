@@ -357,8 +357,8 @@ nodes:
           - throttleAuthorized:
               description: Throttle authorization.
               width: 1
-          - steeringAuthorized:
-              description: Steering authorization.
+          - steerAuthorized:
+              description: Steer authorization.
               width: 1
 
     - NodeStatus:
