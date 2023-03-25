@@ -160,8 +160,8 @@ nodes:
               scale: 0.1
               width: 10
           # TODO: determine realistic bounds
-#         - angularVelocity:
-#             description: Velocity in rad/s
+          # - angularVelocity:
+          #     description: Velocity in rad/s
 
     - RawVelocityCommand:
         id: 0x667
@@ -270,6 +270,40 @@ nodes:
               # is_signed: true
               width: 32
 
+- SUP:
+    rx:
+      - BRAKE_NodeStatus
+      - CTRL_Alarms
+      - CTRL_NodeStatus
+      - CTRL_VelocityCommand
+      - DBW_ESTOP
+      - DBW_VelocityCommand
+      - STEER_NodeStatus
+      - THROTTLE_NodeStatus
+    messages:
+    - Authorized:
+        id: 0x1A
+        cycletime: 10
+
+        signals:
+          - brakeAuthorized:
+              description: Brake authorization.
+              width: 1
+          - throttleAuthorized:
+              description: Throttle authorization.
+              width: 1
+          - steerAuthorized:
+              description: Steer authorization.
+              width: 1
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0x1B
+
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0x1C
+
 - TEST:
     rx: "*"
     messages:
@@ -341,37 +375,3 @@ nodes:
           - bar:
               description: Bar.
               width: 40
-
-- SUP:
-    rx:
-      - BRAKE_NodeStatus
-      - CTRL_Alarms
-      - CTRL_NodeStatus
-      - CTRL_VelocityCommand
-      - DBW_ESTOP
-      - DBW_VelocityCommand
-      - STEER_NodeStatus
-      - THROTTLE_NodeStatus
-    messages:
-    - Authorized:
-        id: 0x1A
-        cycletime: 10
-
-        signals:
-          - brakeAuthorized:
-              description: Brake authorization.
-              width: 1
-          - throttleAuthorized:
-              description: Throttle authorization.
-              width: 1
-          - steerAuthorized:
-              description: Steer authorization.
-              width: 1
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0x1B
-
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0x1C
