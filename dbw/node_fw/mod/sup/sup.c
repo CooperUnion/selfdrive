@@ -35,6 +35,11 @@ static void sup_100Hz()
     authorized &= CANRX_is_node_CTRL_ok();
     authorized &= !CANRX_get_CTRL_speedAlarm();
     brake_authorized = authorized;
+
+    // THROTTLE
+    // NOTE: at the moment, BRAKE & THROTTLE
+    // consist of the same safety checks
+    throttle_authorized = brake_authorized;
 }
 
 // ######        CAN TX         ###### //
