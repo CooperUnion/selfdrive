@@ -27,6 +27,14 @@ ember_rate_funcs_S module_rf = {
 
 static void sup_100Hz()
 {
+    bool authorized;
+
+    // BRAKE
+    authorized  = true;
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_is_node_CTRL_ok();
+    authorized &= !CANRX_get_CTRL_speedAlarm();
+    brake_authorized = authorized;
 }
 
 // ######        CAN TX         ###### //

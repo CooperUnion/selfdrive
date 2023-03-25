@@ -341,8 +341,10 @@ nodes:
 
 - SUP:
     rx:
-      - DBW_ESTOP
       - CTRL_Alarms
+      - CTRL_VelocityCommand
+      - DBW_ESTOP
+      - DBW_VelocityCommand
     messages:
     - SupervisorAuthorized:
         id: 0x1A
@@ -358,6 +360,7 @@ nodes:
           - steeringAuthorized:
               description: Steering authorization.
               width: 1
+
     - NodeStatus:
         from_template: DBWNodeStatus
         id: 0x1B
