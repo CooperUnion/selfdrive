@@ -130,17 +130,15 @@ static void set_status_LEDs() {
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
-void base_set_dbw_active(void)
+void base_set_state_idle(void)
+{
+    system_state = SYS_STATE_IDLE;
+}
+
+void base_set_state_dbw_active(void)
 {
     system_state = SYS_STATE_DBW_ACTIVE;
 }
-
-
-void ember_can_callback_notify_lost_can(void)
-{
-    system_state = SYS_STATE_LOST_CAN;
-}
-
 
 void base_set_state_estop(uint8_t choice)
 {
@@ -154,10 +152,14 @@ void base_set_state_estop(uint8_t choice)
     // can_send_iface(&can_DBW_ESTOP_cfg, &CAN_DBW_ESTOP);
 }
 
-
 void base_set_wdt_trigger(void)
 {
     wdt_trigger = true;
+}
+
+void ember_can_callback_notify_lost_can(void)
+{
+    system_state = SYS_STATE_LOST_CAN;
 }
 
 // ######         CAN RX         ###### //
