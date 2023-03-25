@@ -6,7 +6,6 @@
 #include "opencan_templates.h"
 #include "opencan_tx.h"
 
-
 // ######        DEFINES        ###### //
 
 // ######      PROTOTYPES       ###### //
@@ -17,9 +16,8 @@ static bool brake_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
 
-// ######          CAN          ###### //
-
 // ######    RATE FUNCTIONS     ###### //
+
 static void sup_100Hz();
 
 ember_rate_funcs_S module_rf = {
@@ -58,7 +56,6 @@ static void sup_100Hz()
 }
 
 // ######        CAN TX         ###### //
-
 
 void CANTX_populate_SUP_SupervisorAuthorized(
         struct CAN_Message_SUP_SupervisorAuthorized * const m)
