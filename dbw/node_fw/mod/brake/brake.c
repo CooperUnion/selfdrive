@@ -68,22 +68,24 @@ static void brake_init()
  * Get the target brake percent from the CAN data
  *
  * Set the brake output to the target percentage
- *
- * Update and send CAN message
  */
 static void brake_100Hz()
 {
     static float32_t prev_cmd;
 
-    bool dbw_active = false;
+    bool brake_authorized =
+        CANRX_get_SUP_brakeAuthorized() &&
+        CANRX_is_message_CTRL_VelocityCommand_ok();
 
-    if (dbw_active && !CANRX_is_node_CTRL_ok()) {
-        base_set_state_estop(0 /* dummy value, API will change */);
+    float cmd;
+
+    if (brake_authorized) {
+        cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
+        base_set_state_dbw_active();
+    } else {
+        cmd = 0.0;
+        base_set_state_idle();
     }
-
-    float32_t cmd = (dbw_active)
-        ? ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0
-        : 0.0;
 
     cmd = clip_brake_cmd(pwm_channel, cmd);
 
