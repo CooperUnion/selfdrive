@@ -282,8 +282,9 @@ nodes:
 
 - THROTTLE:
     rx:
-    - DBW_ESTOP
     - CTRL_VelocityCommand
+    - DBW_ESTOP
+    - SUP_SupervisorAuthorized
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

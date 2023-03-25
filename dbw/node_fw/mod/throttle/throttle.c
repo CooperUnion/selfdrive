@@ -50,16 +50,22 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (false && !CANRX_is_node_CTRL_ok())
-        base_set_state_estop();
+    bool throttle_authorized =
+        CANRX_get_SUP_throttleAuthorized() &&
+        CANRX_is_message_CTRL_VelocityCommand_ok();
 
-    /* set the relay based on whether DBW is active */
-    control_relay(false);
+    float32_t cmd;
 
-    /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
-    float32_t cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
+    if (throttle_authorized) {
+        cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
+        base_set_state_dbw_active();
+    } else {
+        cmd = 0.0;
+        base_set_state_idle();
+    }
 
-    set_pedal_output(cmd); // sets CAN feedback data too
+    control_relay(throttle_authorized);
+    set_pedal_output(cmd);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
