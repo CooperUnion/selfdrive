@@ -40,6 +40,11 @@ static void sup_100Hz()
     // NOTE: at the moment, BRAKE & THROTTLE
     // consist of the same safety checks
     throttle_authorized = brake_authorized;
+
+    // STEER
+    authorized  = true;
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    steering_authorized = authorized;
 }
 
 // ######        CAN TX         ###### //
