@@ -342,10 +342,14 @@ nodes:
 
 - SUP:
     rx:
+      - BRAKE_NodeStatus
       - CTRL_Alarms
+      - CTRL_NodeStatus
       - CTRL_VelocityCommand
       - DBW_ESTOP
       - DBW_VelocityCommand
+      - STEER_NodeStatus
+      - THROTTLE_NodeStatus
     messages:
     - SupervisorAuthorized:
         id: 0x1A

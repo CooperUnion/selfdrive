@@ -3,6 +3,7 @@
 #include "common.h"
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
+#include "opencan_templates.h"
 #include "opencan_tx.h"
 
 
@@ -33,18 +34,27 @@ static void sup_100Hz()
     authorized  = true;
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
     authorized &= CANRX_is_node_CTRL_ok();
+    authorized &= CANRX_is_node_BRAKE_ok();
+    authorized &= CANRX_get_CTRL_sysStatus()  != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    authorized &= CANRX_get_BRAKE_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= !CANRX_get_CTRL_speedAlarm();
     brake_authorized = authorized;
-
-    // THROTTLE
-    // NOTE: at the moment, BRAKE & THROTTLE
-    // consist of the same safety checks
-    throttle_authorized = brake_authorized;
 
     // STEER
     authorized  = true;
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_get_STEER_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     steer_authorized = authorized;
+
+    // THROTTLE
+    authorized  = true;
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_is_node_CTRL_ok();
+    authorized &= CANRX_is_node_THROTTLE_ok();
+    authorized &= CANRX_get_CTRL_sysStatus()     != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    authorized &= CANRX_get_THROTTLE_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    authorized &= !CANRX_get_CTRL_speedAlarm();
+    throttle_authorized = authorized;
 }
 
 // ######        CAN TX         ###### //
