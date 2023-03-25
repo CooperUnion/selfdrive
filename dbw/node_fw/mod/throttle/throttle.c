@@ -50,9 +50,8 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (false && !CANRX_is_node_CTRL_ok()) {
-        base_set_state_estop(0 /* placeholder */);
-    }
+    if (false && !CANRX_is_node_CTRL_ok())
+        base_set_state_estop();
 
     /* set the relay based on whether DBW is active */
     control_relay(false);

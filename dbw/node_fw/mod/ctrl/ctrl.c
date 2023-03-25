@@ -83,10 +83,10 @@ static void ctrl_100Hz()
     // check if we're over the speed limit and trigger estop if so
     if (
         (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
-        (ABS(right_delta) >= ENCODER_MAX_TICKS)
-    ) {
+        (ABS(right_delta) >= ENCODER_MAX_TICKS))
+    {
         speed_alarm = true;
-        base_set_state_estop(0 /* placeholder */);
+        base_set_state_estop();
     } else {
         speed_alarm = false;
     }
