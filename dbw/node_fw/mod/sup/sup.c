@@ -30,7 +30,7 @@ static void sup_100Hz()
 
     // BRAKE
     authorized  = true;
-    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok() || CANRX_is_message_DBW_RawVelocityCommand_ok();
     authorized &= CANRX_is_node_CTRL_ok();
     authorized &= CANRX_is_node_BRAKE_ok();
     authorized &= CANRX_get_CTRL_sysStatus()  != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
@@ -46,7 +46,7 @@ static void sup_100Hz()
 
     // THROTTLE
     authorized  = true;
-    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok() || CANRX_is_message_DBW_RawVelocityCommand_ok();
     authorized &= CANRX_is_node_CTRL_ok();
     authorized &= CANRX_is_node_THROTTLE_ok();
     authorized &= CANRX_get_CTRL_sysStatus()     != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;

@@ -277,6 +277,7 @@ nodes:
       - CTRL_NodeStatus
       - CTRL_VelocityCommand
       - DBW_ESTOP
+      - DBW_RawVelocityCommand
       - DBW_VelocityCommand
       - STEER_NodeStatus
       - THROTTLE_NodeStatus
