@@ -3,11 +3,7 @@
 #include <driver/gpio.h>
 
 #include "ember_common.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
-
-/* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BLINK;
 
 // ######        DEFINES        ###### //
 

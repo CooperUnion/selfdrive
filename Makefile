@@ -64,5 +64,5 @@ $(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
-	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev 6875c435
+	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev fad50a7
 	@touch $(INSTALL_DEPENDENCIES)

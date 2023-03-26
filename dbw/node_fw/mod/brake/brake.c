@@ -4,14 +4,10 @@
 
 #include "ember_common.h"
 #include "cuber_base.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 
 #include "opencan_rx.h"
 #include "opencan_tx.h"
-
-/* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_BRAKE;
 
 // ######        DEFINES        ###### //
 
@@ -81,13 +77,12 @@ static void brake_100Hz()
 
     bool dbw_active = base_dbw_active();
 
-    // check now even though base also checks
-    if (dbw_active && !CANRX_is_node_DBW_ok()) {
+    if (dbw_active && !CANRX_is_node_CTRL_ok()) {
         base_set_state_estop(0 /* dummy value, API will change */);
     }
 
     float32_t cmd = (dbw_active)
-        ? ((float32_t) CANRX_get_DBW_brakePercent()) / 100.0
+        ? ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0
         : 0.0;
 
     cmd = clip_brake_cmd(pwm_channel, cmd);

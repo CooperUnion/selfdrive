@@ -4,7 +4,6 @@
 #include <rom/rtc.h>
 
 #include "ember_common.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
 #include "node_pins.h"
