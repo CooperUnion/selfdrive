@@ -3,7 +3,7 @@
 #include <driver/gpio.h>
 #include <rom/rtc.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
@@ -56,11 +56,10 @@ static void base_init()
 {
     system_state = SYS_STATE_IDLE;
 
-    gpio_pad_select_gpio(LED1_PIN);
-    gpio_pad_select_gpio(LED2_PIN);
-
-    gpio_set_direction(LED1_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LED2_PIN, GPIO_MODE_OUTPUT);
+    gpio_config(&(gpio_config_t){
+        .pin_bit_mask = BIT64(LED1_PIN) | BIT64(LED2_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+    });
 
     gpio_set_level(LED1_PIN, 0);
     gpio_set_level(LED2_PIN, 0);

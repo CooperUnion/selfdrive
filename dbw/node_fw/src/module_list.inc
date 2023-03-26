@@ -3,7 +3,7 @@
  * else and does not have include guards.
  */
 
-#include "common.h"
+#include "ember_common.h"
 #include "ember_taskglue.h"
 
 /*
