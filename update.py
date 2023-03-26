@@ -79,7 +79,7 @@ def main():
     )
     log.info('Created isotp stack')
 
-    firmware = open('dbw/node_fw/.pio/build/blink2/firmware.bin', 'rb').read()
+    firmware = open('dbw/node_fw/.pio/build/blink2.0A/firmware.bin', 'rb').read()
     total_size = len(firmware)
     log.info(f'Read firmware binary ({total_size} bytes).')
 
