@@ -108,7 +108,7 @@ static void bl_init(void) {
 }
 
 #define ESP_CHECKED(call)                                               \
-do {                                                                    \
+{                                                                       \
     const esp_err_t err = (call);                                       \
     if (err != ESP_OK) {                                                \
         log(                                                            \
@@ -116,20 +116,9 @@ do {                                                                    \
         next_state = BL_STATE_FAULT;                                    \
         break;                                                          \
     }                                                                   \
-} while (0)                                                             \
+}                                                                       \
 
 static void bl_1kHz(void) {
-    /* Take care of ISOTP */
-    isotp_poll(&isotp_link);
-
-    uint16_t this_chunk_size;
-    const int isotp_ret = isotp_receive(&isotp_link, isotp_chunk_data, sizeof(isotp_chunk_data), &this_chunk_size);
-
-    static uint16_t current_chunk;
-    if (isotp_ret == ISOTP_RET_OK) {
-        log("Got new ISOTP full message with size %"PRIu16": %"PRIu16"\n", this_chunk_size, current_chunk);
-    }
-    /**********************/
 
     static esp_ota_handle_t ota_handle = 0;
     static uint32_t update_size = 0;
@@ -149,7 +138,7 @@ static void bl_1kHz(void) {
                 update_size = CANRX_get_UPD_updateSizeBytes();
 
                 // Begin OTA update
-                ESP_CHECKED(esp_ota_begin(app_partition, OTA_WITH_SEQUENTIAL_WRITES, &ota_handle));
+                ESP_CHECKED(esp_ota_begin(app_partition, OTA_SIZE_UNKNOWN, &ota_handle));
 
                 next_state = BL_STATE_RECV_CHUNK;
             } else if (time_in_state() > 1500U) {
@@ -159,6 +148,19 @@ static void bl_1kHz(void) {
             break;
 
         case BL_STATE_RECV_CHUNK:
+            /* Take care of ISOTP */
+            isotp_poll(&isotp_link);
+
+            static uint16_t this_chunk_size;
+            const int isotp_ret = isotp_receive(&isotp_link, isotp_chunk_data, sizeof(isotp_chunk_data), &this_chunk_size);
+
+            static uint16_t current_chunk;
+            if (isotp_ret == ISOTP_RET_OK) {
+                log("Got new ISOTP full message with size %"PRIu16": %"PRIu16"\n", this_chunk_size, current_chunk);
+                log("starting data: %lx\n", *(uint32_t *)isotp_chunk_data);
+            }
+            /**********************/
+
             if (isotp_ret == ISOTP_RET_OK) {  // we got a chunk
                 // Does our chunk count match the UPD chunk count?
                 uint16_t upd_chunk = CANRX_get_UPD_currentIsoTpChunk();
@@ -178,7 +180,7 @@ static void bl_1kHz(void) {
 
         case BL_STATE_COMMIT_CHUNK:
             // Let's write it in.
-            log("Committing chunk %d...\n", current_chunk);
+            log("Committing chunk %d with size %"PRIu16"...\n", current_chunk, this_chunk_size);
             ESP_CHECKED(esp_ota_write(ota_handle, isotp_chunk_data, this_chunk_size));
 
             if (bytes_so_far < update_size) {
@@ -197,7 +199,6 @@ static void bl_1kHz(void) {
             // Finalize the update
             log("Finalizing update...\n");
             ESP_CHECKED(esp_ota_end(ota_handle));
-
             next_state = BL_STATE_REBOOT_FW;
             break;
 
