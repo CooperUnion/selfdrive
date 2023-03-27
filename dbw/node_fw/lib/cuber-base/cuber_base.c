@@ -237,7 +237,11 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
         case POWERON_RESET:
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
             break;
+#ifdef CONFIG_IDF_TARGET_ESP32S3    // these are different between ESP32 and ESP32-S3
         case RTC_SW_CPU_RESET:
+#else
+        case SW_CPU_RESET:
+#endif
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_SW_RESET;
             break;
         case RTCWDT_RTC_RESET:
