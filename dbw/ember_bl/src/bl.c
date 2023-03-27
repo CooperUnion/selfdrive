@@ -38,6 +38,7 @@ enum bl_state {
 
 static void set_state(enum bl_state next_state);
 static uint32_t time_in_state(void);
+static bool app_desc_ok(const uint8_t * chunk_data);
 
 // ######     PRIVATE DATA      ###### //
 
