@@ -208,29 +208,12 @@ static void bl_1kHz(void) {
             break;
 
         case BL_STATE_CHECK_DESC:;
-            // get the app description out of the first chunk
-            void *new_app_desc_addr =
-                // see ember_app_desc.h
-                isotp_chunk_data +
-                sizeof(esp_image_header_t) +
-                sizeof(esp_image_segment_header_t) +
-                sizeof(esp_app_desc_t);
-
-            ember_app_desc_v1_t new_app_desc;
-            memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
-
-            const bool identities_match = !strncmp(
-                ember_app_description.node_identity,
-                new_app_desc.node_identity,
-                sizeof(ember_app_description.node_identity));
-
-            if (identities_match) {
-                log("--> Identity of new app matches bootloader. Proceeding.\n");
+            if (app_desc_ok(isotp_chunk_data)) {
+                next_state = BL_STATE_COMMIT_CHUNK;
             } else {
-                log("--> Identity of new app (\"%.16s\") does not match bootloader!\n", new_app_desc.node_identity);
+                log("!!! ember_app_desc check failed. Aborting.\n");
+                next_state = BL_STATE_FAULT;
             }
-
-            next_state = BL_STATE_COMMIT_CHUNK;
 
             break;
 
@@ -314,6 +297,56 @@ static void set_state(const enum bl_state next_state) {
 
 static uint32_t time_in_state(void) {
     return (esp_timer_get_time() / (int64_t)1000) - state_start_time;
+}
+
+static bool app_desc_ok(const uint8_t * const chunk_data) {
+    // get the app description out of the first chunk
+    const void * const new_app_desc_addr =
+        // see ember_app_desc.h
+        chunk_data +
+        sizeof(esp_image_header_t) +
+        sizeof(esp_image_segment_header_t) +
+        sizeof(esp_app_desc_t);
+
+    ember_app_desc_v1_t new_app_desc;
+    memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
+
+    // check ember_magic
+    const bool ember_magic_matches = !strncmp(
+        EMBER_MAGIC,
+        new_app_desc.ember_magic,
+        sizeof(EMBER_MAGIC)
+    );
+
+    if (!ember_magic_matches) {
+        _Static_assert(sizeof(EMBER_MAGIC) == 8, "Need EMBER_MAGIC to be 8 chars for log below");
+        log("!!! Invalid ember_magic for new app's ember_app_desc: \"%.8s\".\n", new_app_desc.ember_magic);
+        return false;
+    }
+
+    // check app_desc_version
+    if (new_app_desc.app_desc_version != EMBER_APP_DESC_VERSION) {
+        log("!!! Unexpected version %"PRIu16" (expected %"PRIu16") for new app's app_desc_version.\n",
+            new_app_desc.app_desc_version,
+            EMBER_APP_DESC_VERSION
+        );
+        return false;
+    }
+
+    // check that node_identity matches ours
+    const bool identities_match = !strncmp(
+        ember_app_description.node_identity,
+        new_app_desc.node_identity,
+        sizeof(ember_app_description.node_identity));
+
+    if (identities_match) {
+        log("--> Identity of new app matches bootloader. Proceeding.\n");
+    } else {
+        log("--> Identity of new app (\"%.16s\") does not match bootloader!\n", new_app_desc.node_identity);
+        return false;
+    }
+
+    return true;
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
