@@ -61,24 +61,24 @@ void CANRX_onRxCallback_UPD_IsoTpTx(
     isotp_on_can_message(&isotp_link, data, len);
 }
 
-void CANTX_populate_TESTBL_Status(struct CAN_Message_TESTBL_Status * const m)
+void CANTX_populateTemplate_Status(struct CAN_TMessage_BootloaderStatus * const m)
 {
-    typeof(m->TESTBL_state) s;
+    typeof(m->state) s;
 
     switch (bl_state) {
-        case BL_STATE_INIT:             s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
-        case BL_STATE_AWAIT_TRIGGER:    s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
-        case BL_STATE_RECV_CHUNK:       s = CAN_TESTBL_STATE_RECV_CHUNK;        break;
-        case BL_STATE_CHECK_DESC:       s = CAN_TESTBL_STATE_CHECK_DESC;        break;
-        case BL_STATE_COMMIT_CHUNK:     s = CAN_TESTBL_STATE_COMMIT_CHUNK;      break;
-        case BL_STATE_FINALIZE:         s = CAN_TESTBL_STATE_FINALIZE;          break;
-        case BL_STATE_REBOOT_FW:        s = CAN_TESTBL_STATE_REBOOT_FW;         break;
-        case BL_STATE_FAULT:            s = CAN_TESTBL_STATE_FAULT;             break;
-        case BL_STATE_RESET:            s = CAN_TESTBL_STATE_RESET;             break;
-        default:                        s = CAN_TESTBL_STATE_RESET;             break;
+        case BL_STATE_INIT:             s = CAN_T_BOOTLOADERSTATUS_STATE_AWAIT_TRIGGER;     break;
+        case BL_STATE_AWAIT_TRIGGER:    s = CAN_T_BOOTLOADERSTATUS_STATE_AWAIT_TRIGGER;     break;
+        case BL_STATE_RECV_CHUNK:       s = CAN_T_BOOTLOADERSTATUS_STATE_RECV_CHUNK;        break;
+        case BL_STATE_CHECK_DESC:       s = CAN_T_BOOTLOADERSTATUS_STATE_CHECK_DESC;        break;
+        case BL_STATE_COMMIT_CHUNK:     s = CAN_T_BOOTLOADERSTATUS_STATE_COMMIT_CHUNK;      break;
+        case BL_STATE_FINALIZE:         s = CAN_T_BOOTLOADERSTATUS_STATE_FINALIZE;          break;
+        case BL_STATE_REBOOT_FW:        s = CAN_T_BOOTLOADERSTATUS_STATE_REBOOT_FW;         break;
+        case BL_STATE_FAULT:            s = CAN_T_BOOTLOADERSTATUS_STATE_FAULT;             break;
+        case BL_STATE_RESET:            s = CAN_T_BOOTLOADERSTATUS_STATE_RESET;             break;
+        default:                        s = CAN_T_BOOTLOADERSTATUS_STATE_RESET;             break;
     }
 
-    m->TESTBL_state = s;
+    m->state = s;
 }
 
 // ######    RATE FUNCTIONS     ###### //

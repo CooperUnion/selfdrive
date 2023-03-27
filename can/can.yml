@@ -1,8 +1,24 @@
 ---
 
 message_templates:
+- BootloaderStatus:
+    cycletime: 20
+
+    signals:
+        - state:
+            enumerated_values:
+            - AWAIT_TRIGGER
+            - RECV_CHUNK
+            - CHECK_DESC
+            - COMMIT_CHUNK
+            - FINALIZE
+            - REBOOT_FW
+            - FAULT
+            - RESET
+
 - DBWNodeInfo:
     cycletime: 1000
+
     signals:
         - gitHash:
             description: Githash of the currently-running firmware.
@@ -41,6 +57,7 @@ message_templates:
 
 - EncoderData:
     cycletime: 10
+
     signals:
         - encoderLeft:
             description: Left encoder pulses (continuous, bidirectional, and overflowing).
@@ -49,6 +66,17 @@ message_templates:
             description: Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
+- UpdateControl:
+    cycletime: 20
+
+    signals:
+        - updateSizeBytes:
+            description: Total update binary size in bytes.
+            width: 24
+        - currentIsoTpChunk:
+            description: Current isotp 4095-byte chunk.
+            width: 12
+
 nodes:
 - BRAKE:
     rx:
@@ -56,6 +84,7 @@ nodes:
     - DBW_Active
     - DBW_ESTOP
     - DBW_VelocityCommand
+    - UPD_UpdateControlBRAKE
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -93,6 +122,7 @@ nodes:
     - DBW_Active
     - DBW_ESTOP
     - DBW_RawVelocityCommand
+    - UPD_UpdateControlCTRL
     messages:
     - Alarms:
         id: 0x22
@@ -209,6 +239,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
+    - UPD_UpdateControlENCF
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -226,6 +257,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
+    - UPD_UpdateControlPB
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -256,6 +288,7 @@ nodes:
     rx:
       - DBW_Active
       - DBW_ESTOP
+      - UPD_UpdateControlSTEER
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -303,7 +336,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
-    - UPD_UpdateControl
+    - UPD_UpdateControlTEST
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -316,25 +349,13 @@ nodes:
 - TESTBL:
     rx:
     - UPD_IsoTpTx
-    - UPD_UpdateControl
+    - UPD_UpdateControlTEST
     messages:
     - IsoTpTx:
         id: 0x301
     - Status:
         id: 0x302
-        cycletime: 20
-
-        signals:
-          - state:
-              enumerated_values:
-                - AWAIT_TRIGGER
-                - RECV_CHUNK
-                - CHECK_DESC
-                - COMMIT_CHUNK
-                - FINALIZE
-                - REBOOT_FW
-                - FAULT
-                - RESET
+        from_template: BootloaderStatus
 
 - UPD:
     rx:
@@ -342,23 +363,34 @@ nodes:
     messages:
     - IsoTpTx:
         id: 0x330
-    - UpdateControl:
+    - UpdateControlBRAKE:
         id: 0x2A0
-        cycletime: 20
-
-        signals:
-          - updateSizeBytes:
-              description: Total update binary size in bytes.
-              width: 24
-          - currentIsoTpChunk:
-              description: Current isotp 4095-byte chunk.
-              width: 12
+        from_template: UpdateControl
+    - UpdateControlCTRL:
+        id: 0x2A1
+        from_template: UpdateControl
+    - UpdateControlENCF:
+        id: 0x2A2
+        from_template: UpdateControl
+    - UpdateControlPB:
+        id: 0x2A3
+        from_template: UpdateControl
+    - UpdateControlSTEER:
+        id: 0x2A4
+        from_template: UpdateControl
+    - UpdateControlTEST:
+        id: 0x2A5
+        from_template: UpdateControl
+    - UpdateControlTHROTTLE:
+        id: 0x2A6
+        from_template: UpdateControl
 
 - THROTTLE:
     rx:
     - DBW_Active
     - DBW_ESTOP
     - CTRL_VelocityCommand
+    - UPD_UpdateControlTHROTTLE
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
