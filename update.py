@@ -3,6 +3,7 @@ import can
 import coloredlogs
 import isotp
 import logging
+import struct
 
 from cand.client import Bus
 from threading import Thread
@@ -23,6 +24,7 @@ class TargetNode():
         self.log = logging.getLogger(f"target_node_{node}")
 
         self.node = node
+        self.bl_node = node + 'BL'
         self.total_size = total_size
 
         self.stop_set = False
@@ -44,20 +46,20 @@ class TargetNode():
                 'UPD_currentIsoTpChunk': chunk
             }
 
-            self.bus.send('UPD_UpdateControl', signals)
+            self.bus.send('UPD_UpdateControl' + self.node, signals)
             sleep(0.02)
 
     def state(self) -> str:
-        message = f'{self.node}_Status'
+        message = f'{self.bl_node}_Status'
         data = self.bus.get_data(message)
         if data is None:
             self.log.error(f"Missing {message} from cand... is the node present?")
             exit(-1)
 
-        return data[f'{self.node}_state']
+        return data[f'{self.bl_node}_state']
 
     def is_alive(self) -> bool:
-        message = f'{self.node}_Status'
+        message = f'{self.bl_node}_Status'
         dt = self.bus.get_time_delta(message)
 
         if dt is None:
@@ -66,6 +68,30 @@ class TargetNode():
         ALIVE_DELTA_NS = 500 * 1000 * 1000 # 0.5 seconds
         return dt <= ALIVE_DELTA_NS
 
+
+class EmberAppDescription():
+    def __init__(self, firmware):
+        self.log = logging.getLogger("EmberAppDescription")
+
+        DESC_OFFSET_IN_BINARY = 288
+
+        [ember_magic, app_desc_version] = struct.unpack_from("<8sH", buffer=firmware, offset=DESC_OFFSET_IN_BINARY)
+
+        EMBER_MAGIC = b"COOPERU\x00"
+        if ember_magic != EMBER_MAGIC:
+            self.log.error(f'Description does not have valid magic header (got {ember_magic}), expected {EMBER_MAGIC}')
+            exit(-1)
+
+        if app_desc_version != 1:
+            self.log.error(f'Unexpected app_desc_version (got {app_desc_version}), expected 1')
+
+        [node_identity] = struct.unpack_from("<16s", buffer=firmware, offset=DESC_OFFSET_IN_BINARY + 10)
+
+        self.magic = ember_magic
+        self.app_desc_version = app_desc_version
+        self.node_identity = node_identity.decode('ascii').rstrip('\0')
+
+        self.log.info(f"Found ember_app_description: firmware has identity {self.node_identity}")
 
 def main():
     global chunk
@@ -83,10 +109,12 @@ def main():
     total_size = len(firmware)
     log.info(f'Read firmware binary ({total_size} bytes).')
 
-    node = TargetNode('TESTBL', total_size)
-    log.info(f'Tracking target node {node.node}')
+    desc = EmberAppDescription(firmware)
 
-    log.info(f'Waiting for {node.node} to come up...')
+    node = TargetNode(desc.node_identity, total_size)
+    log.info(f'Tracking target node {node.bl_node}')
+
+    log.info(f'Waiting for {node.bl_node} to come up...')
     while not node.is_alive():
         sleep(SLEEP_WAIT)
 

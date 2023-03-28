@@ -300,17 +300,20 @@ static uint32_t time_in_state(void) {
     return (esp_timer_get_time() / (int64_t)1000) - state_start_time;
 }
 
+// todo: rationality check: the chunk should be a full ISOTP_CHUNK_SIZE,
+// as it's unlikely a valid firmware image will be smaller than 4K.
+// This function assumes it's big enough to hold the app description.
 static bool app_desc_ok(const uint8_t * const chunk_data) {
-    // get the app description out of the first chunk
-    const void * const new_app_desc_addr =
-        // see ember_app_desc.h
-        chunk_data +
-        sizeof(esp_image_header_t) +
-        sizeof(esp_image_segment_header_t) +
-        sizeof(esp_app_desc_t);
+    const unsigned new_app_desc_offset =
+        sizeof(esp_image_header_t)
+        + sizeof(esp_image_segment_header_t)
+        + sizeof(esp_app_desc_t);
 
+    _Static_assert(new_app_desc_offset == 288, "If this changes, the Python script needs to know the new offset.");
+
+    // get the app description out of the first chunk
     ember_app_desc_v1_t new_app_desc;
-    memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
+    memcpy(&new_app_desc, chunk_data + new_app_desc_offset, sizeof(new_app_desc));
 
     // check ember_magic
     const bool ember_magic_matches = !strncmp(
