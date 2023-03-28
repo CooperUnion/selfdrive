@@ -99,9 +99,14 @@ def main():
     coloredlogs.install(level='info')
     log = logging.getLogger('main')
 
+    def isotp_error_handler(error):
+        log.error(f"isotp error, stopping: {error}")
+        exit(-1)
+
     isotp_stack = isotp.CanStack(
         can.interface.Bus(iface, bustype = 'socketcan'),
         address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=0x301, txid=0x330),
+        error_handler = isotp_error_handler
     )
     log.info('Created isotp stack')
 
@@ -146,7 +151,7 @@ def main():
             bl_state = node.state()
 
             if bl_state == 'RECV_CHUNK':
-                sleep(0.005) # give the node some time, but this shouldn't be needed
+                sleep(0.005) # give the node some time to commit
                 break
             elif bl_state == 'FAULT':
                 log.error('Node is in FAULT; aborting.')
@@ -160,7 +165,7 @@ def main():
 
     # stop the updatecontrol transmission right now so we don't trigger another update
     # once we're back in the firmware
-    node.stop
+    node.stop()
 
     log.info('Update done; waiting for node to exit bootloader.')
     while node.is_alive():
