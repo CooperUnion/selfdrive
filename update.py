@@ -130,7 +130,7 @@ def main():
     sleep(SLEEP_WAIT)
 
     log.info('Begin sending firmware image.')
-    for i, _ in enumerate(trange(0, len(firmware), CHUNK_SIZE)):
+    for i, _ in enumerate(trange(0, len(firmware), CHUNK_SIZE, unit=' chunks')):
         chunk = i
 
         start = i * CHUNK_SIZE
