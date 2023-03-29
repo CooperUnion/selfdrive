@@ -57,9 +57,10 @@ message_templates:
 nodes:
 - BRAKE:
     rx:
+    - CTRL_VelocityCommand
     - DBW_Active
     - DBW_ESTOP
-    - DBW_VelCmd
+    - DBW_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -92,24 +93,54 @@ nodes:
                 description: Pressure Sensed.
                 width: 8
 
-- DBW:
+- CTRL:
+    rx:
+    - DBW_Active
+    - DBW_ESTOP
+    - DBW_RawVelocityCommand
     messages:
-    - VelCmd:
+    - Alarms:
+        id: 0x22
+        cycletime: 10
+
+        signals:
+          - alarmsRaised:
+              description: Alarms raised
+              width: 1
+          - speedAlarm:
+              description: Speed violation
+              width: 1
+
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD4
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE4
+
+    - EncoderData:
+        from_template: EncoderData
+        id: 0x14
+
+    - VelocityCommand:
         id: 0x20
         cycletime: 100
 
         signals:
-          - throttlePercent:
-              description: Throttle percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
           - brakePercent:
               description: Brake percentage.
               # maximum: 100
               unit: percent
               width: 7
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
 
+- DBW:
+    messages:
     - ESTOP:
         id: 0x41F
 
@@ -149,6 +180,36 @@ nodes:
               description: Enable DBW active.
               width: 1
 
+    - RawVelocityCommand:
+        id: 0x667
+        cycletime: 100
+
+        signals:
+          - brakePercent:
+              description: Brake percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+          - throttlePercent:
+              description: Throttle percentage.
+              # maximum: 100
+              unit: percent
+              width: 7
+
+    - VelocityCommand:
+        id: 0x666
+        cycletime: 100
+
+        signals:
+          - linearVelocity:
+              description: Velocity in m/s
+              # maximum: 100.0
+              scale: 0.1
+              width: 10
+          # TODO: determine realistic bounds
+#         - angularVelocity:
+#             description: Velocity in rad/s
+
 - ENCF:
     rx:
     - DBW_Active
@@ -165,23 +226,6 @@ nodes:
     - EncoderData:
         from_template: EncoderData
         id: 0x13
-
-- ENCR:
-    rx:
-    - DBW_Active
-    - DBW_ESTOP
-    messages:
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0xD4
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0xE4
-
-    - EncoderData:
-        from_template: EncoderData
-        id: 0x14
 
 - PB:
     rx:
@@ -275,7 +319,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
-    - DBW_VelCmd
+    - CTRL_VelocityCommand
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

@@ -1,50 +1,50 @@
-#include "encoder.h"
+#include "ctrl.h"
 
+#include <esp_attr.h>
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
+#include "opencan_rx.h"
 #include "opencan_tx.h"
-
-/* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_REAR_ENCODER;
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A 27
-#define ENCODER0_CHAN_B 26
+#define ENCODER0_CHAN_A 26
+#define ENCODER0_CHAN_B 27
 #define ENCODER1_CHAN_A 17
 #define ENCODER1_CHAN_B 0
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS  85     // slightly over 5MPH
-#define ENCODER_TIMEOUT_US 20000
+#define ENCODER_MAX_TICKS 600  // slightly over 5MPH
 
 // ######      PROTOTYPES       ###### //
 
-static void IRAM_ATTR encoder0_chan_a(void *arg);
-static void IRAM_ATTR encoder0_chan_b(void *arg);
-static void IRAM_ATTR encoder1_chan_a(void *arg);
-static void IRAM_ATTR encoder1_chan_b(void *arg);
+static void encoder0_chan_a(void *arg);
+static void encoder0_chan_b(void *arg);
+static void encoder1_chan_a(void *arg);
+static void encoder1_chan_b(void *arg);
 
 // ######     PRIVATE DATA      ###### //
 
-static volatile int64_t pulse_cnt[2];
+static volatile uint16_t pulse_cnt[2];
+static bool speed_alarm;
+static uint8_t brake_percent;
+static uint8_t throttle_percent;
 
 // ######    RATE FUNCTIONS     ###### //
 
-static void encoder_init();
-static void encoder_100Hz();
+static void ctrl_init();
+static void ctrl_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init  = encoder_init,
-    .call_100Hz = encoder_100Hz,
+    .call_init  = ctrl_init,
+    .call_100Hz = ctrl_100Hz,
 };
 
-static void encoder_init()
+static void ctrl_init()
 {
     gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
     gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
@@ -69,15 +69,35 @@ static void encoder_init()
     gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
 }
 
-static void encoder_100Hz()
+static void ctrl_100Hz()
 {
-    // check if we're over speed and trigger estop if so
-    const int32_t left_ticks = pulse_cnt[0];
-    const int32_t right_ticks = pulse_cnt[1];
+    static uint16_t prv_pulse_cnt[2];
 
-    if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
-        (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
+    const uint16_t cur_pulse_cnt[2] = {pulse_cnt[0], pulse_cnt[1]};
+
+    const int16_t left_delta  = cur_pulse_cnt[0] - prv_pulse_cnt[0];
+    const int16_t right_delta = cur_pulse_cnt[1] - prv_pulse_cnt[1];
+
+    prv_pulse_cnt[0] = cur_pulse_cnt[0];
+    prv_pulse_cnt[1] = cur_pulse_cnt[1];
+
+    // check if we're over the speed limit and trigger estop if so
+    if (
+        (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
+        (ABS(right_delta) >= ENCODER_MAX_TICKS)
+    ) {
+        speed_alarm = true;
         base_set_state_estop(0 /* placeholder */);
+    } else {
+        speed_alarm = false;
+    }
+
+    if (CANRX_is_node_DBW_ok() && base_dbw_active()) {
+        brake_percent    = CANRX_get_DBW_brakePercent();
+        throttle_percent = CANRX_get_DBW_throttlePercent();
+    } else {
+        brake_percent    = 0;
+        throttle_percent = 0;
     }
 }
 
@@ -167,7 +187,20 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 
 // ######        CAN TX         ###### //
 
-void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m) {
-    m->encoderLeft = pulse_cnt[0];
+void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
+{
+    m->CTRL_alarmsRaised = speed_alarm;
+    m->CTRL_speedAlarm   = speed_alarm;
+}
+
+void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
+{
+    m->CTRL_brakePercent    = brake_percent;
+    m->CTRL_throttlePercent = throttle_percent;
+}
+
+void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
+{
+    m->encoderLeft  = pulse_cnt[0];
     m->encoderRight = pulse_cnt[1];
 }

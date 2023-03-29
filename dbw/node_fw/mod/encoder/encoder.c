@@ -1,15 +1,12 @@
 #include "encoder.h"
 
+#include <esp_attr.h>
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
-#include "cuber_nodetypes.h"
 #include "ember_taskglue.h"
 #include "opencan_tx.h"
-
-/* Define firmware module identity for the entire build. */
-const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
 
 // ######        DEFINES        ###### //
 
@@ -25,10 +22,10 @@ const enum cuber_node_types CUBER_NODE_IDENTITY = NODE_ENCODER;
 
 // ######      PROTOTYPES       ###### //
 
-static void IRAM_ATTR encoder0_chan_a(void *arg);
-static void IRAM_ATTR encoder0_chan_b(void *arg);
-static void IRAM_ATTR encoder1_chan_a(void *arg);
-static void IRAM_ATTR encoder1_chan_b(void *arg);
+static void encoder0_chan_a(void *arg);
+static void encoder0_chan_b(void *arg);
+static void encoder1_chan_a(void *arg);
+static void encoder1_chan_b(void *arg);
 
 // ######     PRIVATE DATA      ###### //
 

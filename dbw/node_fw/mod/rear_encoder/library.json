@@ -1,8 +1,0 @@
-{
-  "name": "cuber-rearencoder",
-  "version": "rolling",
-  "description": "Rear encoder DBW node",
-  "build": {
-    "libLDFMode": "deep"
-  }
-}
