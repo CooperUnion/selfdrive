@@ -26,11 +26,11 @@ message_templates:
             - ACTIVE
             - ESTOP
       - temperature:
-          #min: -10
-          #max: 80
+          #min: -30
+          #max: 50
           description: Core temperature in Celsius
           width: 7
-          offset: 10
+          offset: 30
       - counter:
           description: Counter for fun.
           width: 8

@@ -78,7 +78,7 @@ static void base_init()
 
 
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
-    temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(10,50);
+    temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-30,50);
     temperature_sensor_install(&temp_sensor_config, &temp_sensor);
     temperature_sensor_enable(temp_sensor);
 #endif
@@ -237,6 +237,7 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
     if (temperature_sensor_get_celsius(temp_sensor, &tsens_value) != ESP_OK) tsens_value = 0.0;
     m->temperature = tsens_value;
+    printf("%f\n", tsens_value);
 #else
     m->temperature = 100.0;
 #endif
