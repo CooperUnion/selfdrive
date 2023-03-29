@@ -7,7 +7,13 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
-RUN apt-get update && apt install -y python3.9 python3.9-venv python3-pip --fix-missing
+RUN apt-get update && apt install -y \
+    python3.9 \
+    python3.9-venv \
+    python3-pip --fix-missing 
+
+run apt-get install -y ros-noetic-imu-tools 
+# (cloned package locally instead)
 
 RUN apt update && apt install -y curl
 
@@ -16,8 +22,12 @@ RUN mkdir -p ros_ws/src
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
-    rosdep install --from-paths src --ignore-src -r -y  &&\
+    rosdep install --from-paths src --ignore-src -r -y &&\
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
+
+# RUN cd /src/imu/kvh1750_ws/ &&\
+#     catkin_make &&\
+#     source devel/setup.bash
 
 COPY ./entrypoint.sh /
 

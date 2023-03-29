@@ -173,7 +173,10 @@ services:
         build: docker/imu/.
         container_name: imu
         tty: true
+        privileged: true
         environment:
+            - '/dev/ttyUSB0:/dev/ttyUSB0'
+            - '/dev/ttyUSB1:/dev/ttyUSB1'
             - 'ROS_HOSTNAME=imu'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
