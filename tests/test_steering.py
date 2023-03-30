@@ -13,8 +13,8 @@ class Test:
     def run(self, percent, duration):
         self._bus.send('DBW_Active', {'DBW_active': 1})
         self._bus.send(
-            'STEER_SteeringCmd',
-            {'STEER_angleCmd': 0.0},
+            'DBW_SteeringCommand',
+            {'DBW_steeringAngleCmd': 0.0},
         )
 
         time_start = time.time()

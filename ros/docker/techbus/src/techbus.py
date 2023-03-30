@@ -11,7 +11,7 @@ from std_msgs.msg import UInt16MultiArray, String
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'
 VelocityCAN = 'DBW_VelocityCommand'
-SteerCAN = 'STEER_SteeringCmd'
+SteerCAN = 'DBW_SteeringCommand'
 
 # ROS Topics
 PPTwist = '/cmd_vel'
@@ -20,7 +20,7 @@ EncoderTicks = '/encoder_ticks'
 # Creates subscriber object that listens for the /cmd_vel topic
 # Whenever the subscriber receives data, the callback function runs
 # The callback function extracts a usable linear velocity and steering angle from the data
-# It sends these commands over the DBW_VelocityCmd and STEER_SteeringCmd CAN messages
+# It sends these commands over the DBW_VelocityCmd and DBW_SteeringCommand CAN messages
 class ROStouCAN:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
@@ -36,7 +36,7 @@ class ROStouCAN:
             'DBW_linearVelocity': msg.linear.x
         })
         self.bus.send(SteerCAN, {
-            'STEER_angleCmd': angle
+            'DBW_steeringAngleCmd': angle
         })
 
 # Establishes publisher for the /encoder_ticks topic
