@@ -190,6 +190,19 @@ nodes:
               unit: percent
               width: 7
 
+    - SteeringCmd:
+        id: 0x21
+        cycletime: 100
+
+        signals:
+          - steeringAngleCmd:
+              description: Absolute steering angle in radians.
+              # minimum: -0.471238898
+              # maximum: 0.471238898
+              scale: 0.000000001
+              # is_signed: true
+              width: 32
+
     - VelocityCommand:
         id: 0x666
         cycletime: 100
@@ -284,19 +297,6 @@ nodes:
           - oDriveConnected:
               description: Is the ODrive connected?
               width: 1
-
-    - SteeringCmd:
-        id: 0x21
-        cycletime: 100
-
-        signals:
-          - angleCmd:
-              description: Absolute steering angle in radians.
-              # minimum: -0.471238898
-              # maximum: 0.471238898
-              scale: 0.000000001
-              # is_signed: true
-              width: 32
 
 - TEST:
     rx: "*"

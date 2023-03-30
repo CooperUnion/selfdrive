@@ -148,17 +148,17 @@ class Steer(threading.Thread):
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
-                rec = self._bus.get('STEER_SteeringCmd')
+                rec = self._bus.get('DBW_SteeringCmd')
 
                 if rec:
                     unix_time_ns, data = rec
 
                     if time.time_ns() - unix_time_ns >= self.CMD_TIMEOUT_NS:
-                        self._base.set_state_estop('TIEMOUT', 'command timeout')
+                        self._base.set_state_estop('TIMEOUT', 'command timeout')
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
-                    self._des_angle = math.degrees(data['STEER_angle'])
+                    self._des_angle = math.degrees(data['DBW_steeringAngleCmd'])
 
                     self._odrive_en(True)
                     self._axis.controller.input_vel = self._pid.step(
