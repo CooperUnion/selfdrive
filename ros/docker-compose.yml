@@ -167,11 +167,13 @@ services:
         build: docker/testbench/.
         container_name: testbench
         tty: true
+        privileged: true
         environment:
             - 'ROS_HOSTNAME = testbench'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
             - './docker/testbench:/app/ros_ws/src/testbench'
             - '/dev/ttyUSB0:/dev/ttyUSB0'
+            - '/dev/ttyACM0:/dev/ttyACM0'            
         depends_on:
             - master

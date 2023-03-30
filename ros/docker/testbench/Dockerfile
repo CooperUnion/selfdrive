@@ -8,7 +8,11 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y curl
 
-RUN apt-get -y update
+RUN apt-get update && apt install -y python3.9 python3.9-venv python3-pip --fix-missing
+
+RUN  python3.9 -m venv .venv && \
+    source .venv/bin/activate && \
+    python3.9 -m pip install pyserial
 
 RUN mkdir -p ros_ws/src
 
@@ -23,6 +27,6 @@ COPY ./alias.sh /
 
 RUN echo "source /alias.sh" >> ~/.bashrc
 
-#Trying Something Here For Serial Communication over USB
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["bash"]

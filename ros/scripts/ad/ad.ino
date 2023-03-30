@@ -24,7 +24,10 @@ if(Serial.available() > 0){
   int n = inp.indexOf("#");
   m1sig = inp.substring(0,n).toInt();
   m2sig = inp.substring(n).toInt();
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   if(m1sig < 0) {
     digitalWrite(11, LOW);
     m1sig = -m1sig;
@@ -44,15 +47,24 @@ if(Serial.available() > 0){
   if(m1sig != 0 && (unsigned long) (currentMicros - previousMicros1) >= (unsigned long) m1sig){
     digitalWrite(13,!digitalRead(13));
     previousMicros1=currentMicros;
+<<<<<<< Updated upstream
     L_ticks++;
     Serial.println(L_ticks,"#",R_ticks);
+=======
+    Serial.println("M1 Tick");
+>>>>>>> Stashed changes
   }
   
   if(m2sig !=  0 && (unsigned long) (currentMicros - previousMicros2) >= (unsigned long) m2sig){
     digitalWrite(12,!digitalRead(12));
+<<<<<<< Updated upstream
     previousMicros2=currentMicros; 
     R_ticks++; 
     Serial.println(L_ticks,"#",R_ticks);
 
+=======
+    previousMicros2=currentMicros;  
+    Serial.println("M2 Tick");
+>>>>>>> Stashed changes
   }
 }
