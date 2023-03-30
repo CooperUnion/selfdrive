@@ -171,8 +171,7 @@ services:
             - 'ROS_HOSTNAME = testbench'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/techbus:/app/ros_ws/src/testbench'
-        devices:
-            - /dev/ttyUSB0:/dev/ttyUSB0
+            - './docker/testbench:/app/ros_ws/src/testbench'
+            - '/dev/ttyUSB0:/dev/ttyUSB0'
         depends_on:
             - master
