@@ -1,7 +1,11 @@
 #include "cuber_base.h"
 
 #include <driver/gpio.h>
+#if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
+#include <driver/temperature_sensor.h>
+#endif
 #include <rom/rtc.h>
+#include <sdkconfig.h>
 
 #include "ember_common.h"
 #include "ember_taskglue.h"
@@ -39,6 +43,13 @@ static bool wdt_trigger;
 
 static RESET_REASON reset_reason;
 
+
+#if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
+static float tsens_value;
+temperature_sensor_handle_t temp_sensor = NULL;
+#endif
+
+
 // ######    RATE FUNCTIONS     ###### //
 
 static void base_init();
@@ -50,6 +61,8 @@ ember_rate_funcs_S base_rf = {
     .call_10Hz  = base_10Hz,
     .call_100Hz = base_100Hz,
 };
+
+
 
 static void base_init()
 {
@@ -63,8 +76,16 @@ static void base_init()
     gpio_set_level(LED1_PIN, 0);
     gpio_set_level(LED2_PIN, 0);
 
+
+#if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
+    temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-30,50);
+    temperature_sensor_install(&temp_sensor_config, &temp_sensor);
+    temperature_sensor_enable(temp_sensor);
+#endif
+
     reset_reason = rtc_get_reset_reason(0);
 }
+
 
 static void base_10Hz()
 {
@@ -212,6 +233,14 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
             m->sysStatus = CAN_T_DBWNODESTATUS_SYSSTATUS_UNHEALTHY;
             break;
     }
+
+#if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
+    if (temperature_sensor_get_celsius(temp_sensor, &tsens_value) != ESP_OK) tsens_value = 0.0;
+    m->temperature = tsens_value;
+    printf("%f\n", tsens_value);
+#else
+    m->temperature = 100.0;
+#endif
 
     static typeof(m->counter) counter;
     m->counter = counter++;
