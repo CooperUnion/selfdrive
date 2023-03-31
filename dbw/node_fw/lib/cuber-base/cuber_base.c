@@ -239,7 +239,7 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
     m->temperature = tsens_value;
     printf("%f\n", tsens_value);
 #else
-    m->temperature = 100.0;
+    m->temperature = -31.0;
 #endif
 
     static typeof(m->counter) counter;
