@@ -11,14 +11,17 @@
     <arg name="rviz_cfg"                default="$(find rtabmap_launch)/rviz/gem.rviz " />
 
     <!-- RGB-D related topics -->
-    <!-- <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" /> -->
+    <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" />
     <arg name="depth_topic"             default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered" />
-    <!-- <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" /> -->
+    <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" /> -->
     <!-- <arg name="depth_camera_info_topic" default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/camera_info" /> -->
-    <arg name="rgbd_topic"              default="$(arg zed_namespace)/rgbd_image" />
+    <arg name="rgbd_topic"              default="/$(arg zed_namespace)/rgbd_image" />
 
-    <!-- Odometry topic name -->
-    <arg name="odom_topic"              default="/encoder_odom" />
+    <!-- Stereo camera topics -->
+    <arg name="left_image_rect"         default="/$(arg zed_namespace)/$(arg zed_node_name)/left/image_rect_color"  />
+    <arg name="right_image_rect"        default="/$(arg zed_namespace)/$(arg zed_node_name)/right/image_rect_color" />
+    <arg name="left_camera_info"        default="/$(arg zed_namespace)/$(arg zed_node_name)/left/camera_info"  />
+    <arg name="right_camera_info"       default="/$(arg zed_namespace)/$(arg zed_node_name)/right/camera_info" />
 
     <!-- Localization-only mode -->
     <arg name="localization"            default="false"/>
@@ -26,28 +29,34 @@
     <arg     if="$(arg deletedb)"   name="rtabmap_args"    default="--delete_db_on_start"/>
     <arg unless="$(arg deletedb)"   name="rtabmap_args"    default=""/>
 
-    <!-- <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
-        <param name="output_frame" value="odom"/>
-        <param name="base_footprint_frame" value="base_link"/>
-        <param name="freq" value="30.0"/>
-        <param name="sensor_timeout" value="1.0"/>
-        <param name="odom_used" value="true"/>
-        <param name="imu_used" value="true"/>
-        <param name="vo_used" value="false"/>
-        <param name="debug" value="false"/>
-        <param name="self_diagnose" value="false"/>
+    <!-- Odom stuff -->
+    <arg name="odom_args" default=""/>
+    <arg name="wait_for_transform"      default="3.0"/>
+    <arg name="odom_topic"              default="/odom_rgbd" />
 
-        <remap from="odom" to="$(arg odom_topic)"/>
-        <remap from="imu_data" to="/gps/imu"/>
-    </node> -->
 
     <group ns="rtabmap">
         <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync">
             <remap from="rgb/image"       to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color"/>
             <remap from="depth/image"     to="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered"/>
             <remap from="rgb/camera_info" to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info"/>
-            <param name="approx_sync"     value="false"/>
+            <param name="approx_sync"     value="true"/>
         </node>
+        
+        <node name="stereo_odometry" pkg="rtabmap_ros" type="stereo_odometry" args="$(arg odom_args)">
+            <param name="frame_id"                    type="string" value="base_link"/>
+            <param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
+            <param name="publish_tf"                  type="bool"   value="true"/>
+            <param name="subscribe_rgbd"              type="bool"   value="false"/>
+
+            <remap from="left/image_rect"    to="$(arg left_image_rect)"/>
+            <remap from="right/image_rect"   to="$(arg right_image_rect)"/>
+            <remap from="left/camera_info"   to="$(arg left_camera_info)"/>
+            <remap from="right/camera_info"  to="$(arg right_camera_info)"/>
+
+            <remap from="odom"            to="$(arg odom_topic)"/>
+        </node>
+
 
         <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
             <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />

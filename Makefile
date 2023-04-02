@@ -1,7 +1,6 @@
 # tools
 PIP    ?= pip
-PYTHON ?= python3.9
-
+PYTHON ?= python3
 
 # build vars
 CAN                  = can
@@ -60,9 +59,9 @@ $(ROS): $(INSTALL_DEPENDENCIES)
 	@$(MAKE) -C $(ROS)
 
 
-$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT)
+$(INSTALL_DEPENDENCIES): $(REQUIREMENTS_TXT) Makefile
 	$(PYTHON) -m $(PIP) install --upgrade pip wheel
 	$(PYTHON) -m $(PIP) install --upgrade $(LOCAL_PYTHON_LIBS)
 	$(PYTHON) -m $(PIP) install --requirement $(REQUIREMENTS_TXT)
-	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev fad50a7
+	cargo install --root build/cargo --locked --git https://github.com/opencan/opencan --rev b014266
 	@touch $(INSTALL_DEPENDENCIES)

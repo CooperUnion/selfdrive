@@ -15,7 +15,7 @@ if [ "$1" == "clean" ]; then
 	tmux kill-session -t stackcli
 fi
 
-docker-compose up -d zed rtabmap master velodyne navigation encoder_odom techbus
+docker-compose up -d zed rtabmap master velodyne redis encoder_odom techbus
 
 tmux new-session -d -s stackcli 'fish'
 
@@ -31,14 +31,6 @@ tmux rename-window 'rtabmap'
 tmux send-keys 'docker exec -it rtabmap bash'
 init
 tmux send-keys "roslaunch rtabmap_launch rtabmap.launch $2"
-tmux send-keys Enter
-
-tmux split-window -v 'fish'
-
-tmux rename-window 'navigation'
-tmux send-keys 'docker exec -it navigation bash'
-init
-tmux send-keys 'roslaunch scooter_launch move_base.launch'
 tmux send-keys Enter
 
 tmux split-window -v 'fish'
@@ -64,6 +56,10 @@ tmux send-keys 'docker exec -it techbus bash'
 init
 tmux send-keys 'rosrun src techbus.py'
 tmux send-keys Enter
+tmux send-keys 'sudo apt install python3.9'
+tmux send-keys Enter
+tmux send-keys 'python3.9 -m pip install opencan-cand'
+tmux send-keys Enter
 
 tmux split-window -h 'fish'
 
@@ -73,5 +69,13 @@ init
 tmux send-keys 'rosrun src encoder_odom.py'
 tmux send-keys Enter
 
+tmux split-window -v 'redis'
 
+tmux rename-window 'CAN'
+tmux send-keys 'sudo ip link set can0 up type can bitrate 500000'
+tmux send-keys Enter
+tmux send-keys 'cand --dev can0 --dbc ../../build/can/igvc_can.dbc'
+tmux send-keys Enter
+tmux send-keys 'candump can0 | cantools decode build/can/igvc_can.dbc -s | grep Cmd'
+tmux send-keys Enter
 
