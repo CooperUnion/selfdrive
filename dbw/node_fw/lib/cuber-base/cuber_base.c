@@ -237,7 +237,6 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
     if (temperature_sensor_get_celsius(temp_sensor, &tsens_value) != ESP_OK) tsens_value = 0.0;
     m->temperature = tsens_value;
-    printf("%f\n", tsens_value);
 #else
     m->temperature = -31.0;
 #endif
