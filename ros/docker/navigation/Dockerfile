@@ -7,6 +7,10 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
+RUN apt-get -y update
+
+RUN apt-get install -y ros-noetic-map-server
+
 # clone ros repo
 RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/ros-planning/navigation.git ros_ws/src/navigation &&\
