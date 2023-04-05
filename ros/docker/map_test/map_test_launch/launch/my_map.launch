@@ -1,0 +1,4 @@
+<launch>
+    <arg name="map_file" default="$(find map_test_launch)/maps/my_map.yaml" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+</launch>

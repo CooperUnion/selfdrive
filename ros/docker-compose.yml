@@ -174,3 +174,16 @@ services:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
             - master
+
+    map:
+        build: docker/map_test/
+        container_name: map
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=map'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/map_test:/app/ros_ws/src/'
+        depends_on:
+            - master
+            
