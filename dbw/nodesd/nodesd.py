@@ -47,11 +47,11 @@ def main():
 
     mod_ident = [
         'BRAKE',
-        'ENCF',
-        'ENCR',
-        'PB',
+        #'ENCF',
+        'CTRL',
+        #'PB',
         'STEER',
-        'TEST',
+        #'TEST',
         'THROTTLE'
     ]
 

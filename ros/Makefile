@@ -37,7 +37,7 @@ build-clean: pydeps
 
 
 .PHONY: pydeps
-pydeps:
+pydeps: Makefile
 	@rm -rf $(CAND_DST) $(CANTOOLS_DST) $(IGVCUTILS_DST)
 	@echo $(CAND_DST)      | xargs -n 1 cp -r $(CAND_SRC)
 	@echo $(CANTOOLS_DST)  | xargs -n 1 cp -r $(CANTOOLS_SRC)
