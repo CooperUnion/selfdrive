@@ -3,7 +3,7 @@
 
 #include <driver/dac.h>
 
-#include "common.h"
+#include "ember_common.h"
 
 // ######        DEFINES        ###### //
 

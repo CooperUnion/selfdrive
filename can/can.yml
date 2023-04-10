@@ -25,6 +25,10 @@ message_templates:
             - UNHEALTHY
             - ACTIVE
             - ESTOP
+      - temperature:
+          description: Core temperature in Celsius
+          width: 7
+          offset: 31
       - counter:
           description: Counter for fun.
           width: 8

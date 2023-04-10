@@ -3,7 +3,7 @@
 
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
 
@@ -41,8 +41,11 @@ ember_rate_funcs_S module_rf = {
  */
 static void throttle_init()
 {
-    gpio_pad_select_gpio(MODE_CTRL_PIN);
-    gpio_set_direction(MODE_CTRL_PIN, GPIO_MODE_OUTPUT);
+    gpio_config(&(gpio_config_t){
+        .pin_bit_mask = BIT64(MODE_CTRL_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+    });
+
     control_relay(0);
 
     enable_pedal_output();

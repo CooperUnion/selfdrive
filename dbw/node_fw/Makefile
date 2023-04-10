@@ -3,7 +3,7 @@ PIO ?= platformio
 
 
 # build vars
-PIO_DIR       = .pio
+PIO_DIR       = ../../build/dbw/node_fw
 PIO_RUNFLAGS ?=
 
 
