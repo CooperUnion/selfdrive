@@ -33,11 +33,26 @@ jobs:
           path: dbw/node_fw/.pio
           key: pio_cache
 
-      - name: Run setup
-        run: ./setup.sh
+#      - name: Run setup
+#        run: ./setup.sh
+
+      - name: Run make dependencies
+        run: make dependencies
+
+      - name: Configure Rust
+        run: |
+          #          ls -lR $HOME/.cargo
+          #          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo $CARGO_HOME
+          echo $PATH
+          #rustup default stable
 
       - name: Build CAN network
-        run: . .venv/bin/activate && scons dbc
+        run: |
+          echo $PATH
+          echo $CARGO_HOME
+          rustup default stable
+          . .venv/bin/activate && scons dbc
 
       - name: Build firmware
         run: . .venv/bin/activate && make dbw/node_fw
