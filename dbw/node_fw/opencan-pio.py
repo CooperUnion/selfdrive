@@ -9,10 +9,14 @@ gen_dir     = build_dir.Dir(f"../opencan_generated/{node}")
 # These Execute calls call opencan-cli every time.
 # They could be replaced with a proper Command, but it was tricky getting
 # PlatformIO to reliably execute them. You could ask them on GitHub or similar.
+if 0 != env.Execute(f'scons -D opencan_cli'):
+    print("Error making sure opencan-cli is installed; stopping build.")
+    exit(-1)
+
 env.Execute(Mkdir(gen_dir.path))
 
 if 0 != env.Execute(f'{opencan} codegen {yml} {gen_dir} {node}'):
-    print("OpenCAN error, stopping build.")
+    print("OpenCAN error; stopping build.")
     exit(-1)
 
 # Add gen_dir to the CPPPATH
