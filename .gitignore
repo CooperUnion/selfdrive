@@ -5,6 +5,7 @@
 .sconsign.dblite
 .venv
 build
+deps
 
 # Local developer files
 .vscode

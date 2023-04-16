@@ -25,4 +25,7 @@ if term is not None:
 Default(None)
 Export('env')
 
+# Dependencies first
+env.SConscript('dependencies.SConscript')
+
 env.SConscript('can/SConscript', variant_dir='build/can', duplicate=0)

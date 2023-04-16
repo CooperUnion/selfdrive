@@ -1,17 +1,6 @@
 Import('env')
 
-OPENCAN_VERSION     = 'b014266'
-OPENCAN_CLI         = env.File('$REPO_ROOT/build/cargo/bin/opencan-cli')
-
-# Install opencan ----------------------------------------
-[opencan_cli_builder] = env.Command(
-    OPENCAN_CLI,
-    [],
-    f'cargo install --root $REPO_ROOT/build/cargo --locked --git https://github.com/opencan/opencan --rev {OPENCAN_VERSION}'
-)
-# --------------------------------------------------------
-
-# Make DBC -----------------------------------------------
+# Make DBC ------------------------------------------------
 GENERATED_DBC   = env.File('igvc_can.dbc')
 CAN_YML         = env.File('can.yml')
 DBC_EMITTER     = env.File('create-dbc.py')
@@ -20,7 +9,7 @@ DBC_EMITTER     = env.File('create-dbc.py')
 env.Command(
     DBC_EMITTER,
     [OPENCAN_CLI, CAN_YML],
-    f'{OPENCAN_CLI} compose {CAN_YML} --dump-python > $TARGET'
+    f'$OPENCAN_CLI compose {CAN_YML} --dump-python > $TARGET'
 )
 
 # Make DBC by running emitter script
@@ -30,7 +19,6 @@ env.Command(
     [f'python3 {DBC_EMITTER.path}',
      Move("$TARGET", "opencan.dbc")]
 )
-# --------------------------------------------------------
 
 env.Alias('dbc', dbc_builder)
-env.Alias('opencan_cli', opencan_cli_builder)
+# ---------------------------------------------------------
