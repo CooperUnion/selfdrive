@@ -1,0 +1,11 @@
+Import('env')
+
+[pio_builder] = env.Command(
+    env.Dir('.'),
+    [],
+    'pio run -d dbw/node_fw'
+)
+env.AlwaysBuild(pio_builder)
+
+env.Alias('node_fw', pio_builder)
+env['AddHelp']('node_fw', 'Build dbw/node_fw')
