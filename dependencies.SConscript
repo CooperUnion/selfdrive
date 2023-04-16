@@ -48,6 +48,9 @@ env['CARGO']        = RUST_TOOLS_PATH.File('cargo')
 env['ENV']['CARGO_HOME']  = RUST_HOME
 env['ENV']['RUSTUP_HOME'] = RUST_HOME
 
+# https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html
+env['ENV']['CARGO_REGISTRIES_CRATES_IO_PROTOCOL'] = 'sparse'
+
 [rust_install_builder] = env.Command(
   env['CARGO'], # picking cargo as the target file
   [],
