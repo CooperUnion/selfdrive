@@ -2,7 +2,7 @@ Import("env")
 
 node        = env.GetProjectOption("board_can_node")
 yml         = env.File("../../can/can.yml")
-opencan     = env.File("../../deps/opencan-cli") # see dependencies.SConscript
+opencan     = env.File("../../deps/rust/current/bin/opencan-cli") # see dependencies.SConscript
 build_dir   = Dir(env['BUILD_DIR'])
 gen_dir     = build_dir.Dir(f"../opencan_generated/{node}")
 
