@@ -31,6 +31,9 @@ jobs:
           path: dbw/node_fw/.pio
           key: pio_cache
 
+      - name: Install scons
+        run: pip3 install scons
+
       - name: Build CAN network
         run: scons dbc
 
