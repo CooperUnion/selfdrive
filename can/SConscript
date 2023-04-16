@@ -8,7 +8,7 @@ DBC_EMITTER     = env.File('create-dbc.py')
 # Make emitter script
 env.Command(
     DBC_EMITTER,
-    [OPENCAN_CLI, CAN_YML],
+    [env['OPENCAN_CLI'], CAN_YML],
     f'$OPENCAN_CLI compose {CAN_YML} --dump-python > $TARGET'
 )
 
@@ -19,6 +19,7 @@ env.Command(
     [f'python3 {DBC_EMITTER.path}',
      Move("$TARGET", "opencan.dbc")]
 )
+env.Depends(dbc_builder, env['PIP_PACKAGES'])
 
 env.Alias('dbc', dbc_builder)
 # ---------------------------------------------------------
