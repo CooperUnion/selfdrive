@@ -23,3 +23,19 @@ Export('env')
 env.SConscript('dependencies.SConscript', variant_dir='deps', duplicate=0)
 
 env.SConscript('can/SConscript', variant_dir='build/can', duplicate=0)
+
+# Add cleaning targets
+[rm_build] = env.Command(
+    'phony-rm-build',
+    [],
+    'rm -rf build/'
+)
+
+[rm_deps] = env.Command(
+    'phony-rm-deps',
+    [],
+    'rm -rf deps/'
+)
+
+env.Alias('clean', rm_build)
+env.Alias('cleanall', [rm_build, rm_deps])
