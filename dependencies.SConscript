@@ -3,7 +3,12 @@
 
 Import("env")
 
-# venv ----------------------------------------------------
+# VERSIONS ------------------------------------------------
+env['RUST_VERSION']    = '1.68.2'
+env['OPENCAN_VERSION'] = 'b014266'
+# ---------------------------------------------------------
+
+# venv & pip ----------------------------------------------
 # Check that direnv is installed.
 if env.Execute('which direnv') != 0:
   print("Error: Couldn't find direnv. Please install it.")
@@ -41,7 +46,6 @@ env['PIP_PACKAGES'] = pip_deps_builder
 
 
 # Rust ----------------------------------------------------
-env['RUST_VERSION'] = '1.68.2'
 RUST_HOME           = env.Dir('$REPO_ROOT/deps/rust/$RUST_VERSION')
 RUST_TOOLS_PATH     = RUST_HOME.Dir('bin')
 env['CARGO']        = RUST_TOOLS_PATH.File('cargo')
@@ -61,13 +65,12 @@ env.Alias('deps-rust', rust_install_builder)
 
 
 # OpenCAN -------------------------------------------------
-OPENCAN_VERSION     = 'b014266'
 env['OPENCAN_CLI']  = env.File('$REPO_ROOT/build/cargo/bin/opencan-cli')
 
 [opencan_cli_builder] = env.Command(
     env['OPENCAN_CLI'],
     env['CARGO'],
-    f'$CARGO install --root $REPO_ROOT/build/cargo --locked --git https://github.com/opencan/opencan --rev {OPENCAN_VERSION}'
+    '$CARGO install --root $REPO_ROOT/build/cargo --locked --git https://github.com/opencan/opencan --rev $OPENCAN_VERSION'
 )
 
 env.Alias('opencan_cli', opencan_cli_builder)
