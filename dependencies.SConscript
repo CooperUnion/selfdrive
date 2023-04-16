@@ -69,6 +69,7 @@ rust_install_builder = env.Command(
 
 # make symlink
 if os.path.realpath(RUST_CURRENT_PATH.abspath) != RUST_HOME.abspath:
+    env.Execute(f'mkdir -p {RUST_CURRENT_PATH.up().abspath}')
     env.Execute(f'ln -sfn {RUST_HOME.abspath} {RUST_CURRENT_PATH.abspath}')
 
 env.PrependENVPath('PATH', RUST_TOOLS_PATH.abspath)
