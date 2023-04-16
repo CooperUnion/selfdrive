@@ -73,5 +73,5 @@ env['OPENCAN_CLI']  = env.File('$REPO_ROOT/build/cargo/bin/opencan-cli')
     '$CARGO install --root $REPO_ROOT/build/cargo --locked --git https://github.com/opencan/opencan --rev $OPENCAN_VERSION'
 )
 
-env.Alias('opencan_cli', opencan_cli_builder)
+env.Alias('deps-opencan', opencan_cli_builder)
 # ---------------------------------------------------------
