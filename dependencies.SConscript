@@ -56,7 +56,8 @@ env['ENV']['RUSTUP_HOME'] = RUST_HOME
 [rust_install_builder] = env.Command(
   env['CARGO'], # picking cargo as the target file
   [],
-  'curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path --default-toolchain $RUST_VERSION'
+  'curl https://sh.rustup.rs -sSf | ' \
+  'sh -s -- -y --no-modify-path --default-toolchain $RUST_VERSION'
 )
 
 env.PrependENVPath('PATH', RUST_TOOLS_PATH)
@@ -65,12 +66,14 @@ env.Alias('deps-rust', rust_install_builder)
 
 
 # OpenCAN -------------------------------------------------
-env['OPENCAN_CLI']  = env.File('$REPO_ROOT/build/cargo/bin/opencan-cli')
+env['OPENCAN_CLI'] = env['ENV']['CARGO_HOME'].File('bin/opencan-cli')
 
+# Note that we have $CARGO_HOME set above. Cargo will install packages there.
 [opencan_cli_builder] = env.Command(
     env['OPENCAN_CLI'],
     env['CARGO'],
-    '$CARGO install --root $REPO_ROOT/build/cargo --locked --git https://github.com/opencan/opencan --rev $OPENCAN_VERSION'
+    '$CARGO install --locked ' \
+    '--git https://github.com/opencan/opencan --rev $OPENCAN_VERSION'
 )
 
 env.Alias('deps-opencan', opencan_cli_builder)
