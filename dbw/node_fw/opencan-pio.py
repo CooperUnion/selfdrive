@@ -1,15 +1,8 @@
-# get opencan path from dependencies.SConscript by importing it here with a throwaway env
-env = Environment()
-Export("env")
-env.SConscript('../../dependencies.SConscript', variant_dir = env.Dir('../../deps'))
-
-opencan = env['OPENCAN_CLI']
-
-# Import actual env from PlatformIO and get to work
 Import("env")
 
 node        = env.GetProjectOption("board_can_node")
 yml         = env.File("../../can/can.yml")
+opencan     = env.File("../../deps/opencan-cli") # see dependencies.SConscript
 build_dir   = Dir(env['BUILD_DIR'])
 gen_dir     = build_dir.Dir(f"../opencan_generated/{node}")
 

@@ -74,5 +74,19 @@ env['OPENCAN_CLI'] = env['ENV']['CARGO_HOME'].File('bin/opencan-cli')
     '--git https://github.com/opencan/opencan --rev $OPENCAN_VERSION'
 )
 
-env.Alias('deps-opencan', opencan_cli_builder)
+# Symlink to current version for platformio
+# Since the path of the actual executable like deps/rust/1.68.2/bin,
+# it's not easily predictable from opencan-pio.py, and we want pio
+# to still work even when not invoked through scons and/or direnv.
+#
+# We make this symlink so opencan-pio.py has a reliable thing to use
+# as the opencan-cli executable.
+OPENCAN_SYMLINK = env.File('opencan-cli')
+[opencan_symlink_builder] = env.Command(
+    OPENCAN_SYMLINK,
+    env['OPENCAN_CLI'],
+    f'ln -sf $OPENCAN_CLI.abspath {OPENCAN_SYMLINK.abspath}'
+)
+
+env.Alias('deps-opencan', [opencan_cli_builder, opencan_symlink_builder])
 # ---------------------------------------------------------

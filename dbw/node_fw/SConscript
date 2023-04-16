@@ -6,6 +6,7 @@ Import('env')
     'pio run -d dbw/node_fw'
 )
 env.AlwaysBuild(pio_builder)
+env.Depends(pio_builder, env['PIP_PACKAGES'])
 
 env.Alias('node_fw', pio_builder)
 env['AddHelp']('node_fw', 'Build dbw/node_fw')
