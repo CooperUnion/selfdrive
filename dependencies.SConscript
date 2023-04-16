@@ -9,11 +9,6 @@ env['OPENCAN_VERSION'] = 'b014266'
 # ---------------------------------------------------------
 
 # venv & pip ----------------------------------------------
-# Check that direnv is installed.
-if env.Execute('which direnv') != 0:
-  print("Error: Couldn't find direnv. Please install it.")
-  exit(-1)
-
 env['VENV_DIR'] = env.Dir('venv')
 
 # Make the venv
