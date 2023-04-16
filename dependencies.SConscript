@@ -19,9 +19,9 @@ env.Command(
 )
 
 # Add the venv/bin folder to PATH
-env.PrependENVPath('PATH', env['VENV_DIR'].Dir('bin'))
+env.PrependENVPath('PATH', env['VENV_DIR'].Dir('bin').abspath)
 # Set VIRTUAL_ENV
-env['ENV']['VIRTUAL_ENV'] = env['VENV_DIR']
+env['ENV']['VIRTUAL_ENV'] = env['VENV_DIR'].abspath
 
 # pip packages
 REQUIREMENTS = env.File('$REPO_ROOT/requirements.txt')
@@ -55,7 +55,7 @@ env['ENV']['RUSTUP_HOME'] = RUST_HOME
   'sh -s -- -y --no-modify-path --default-toolchain $RUST_VERSION'
 )
 
-env.PrependENVPath('PATH', RUST_TOOLS_PATH)
+env.PrependENVPath('PATH', RUST_TOOLS_PATH.abspath)
 env.Alias('deps-rust', rust_install_builder)
 # ---------------------------------------------------------
 
