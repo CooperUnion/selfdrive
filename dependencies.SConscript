@@ -14,7 +14,7 @@ if env.Execute('which direnv') != 0:
   print("Error: Couldn't find direnv. Please install it.")
   exit(-1)
 
-env['VENV_DIR'] = env.Dir('$REPO_ROOT/deps/venv')
+env['VENV_DIR'] = env.Dir('venv')
 
 # Make the venv
 env.Command(
@@ -46,7 +46,7 @@ env['PIP_PACKAGES'] = pip_deps_builder
 
 
 # Rust ----------------------------------------------------
-RUST_HOME           = env.Dir('$REPO_ROOT/deps/rust/$RUST_VERSION')
+RUST_HOME           = env.Dir('rust/$RUST_VERSION')
 RUST_TOOLS_PATH     = RUST_HOME.Dir('bin')
 env['CARGO']        = RUST_TOOLS_PATH.File('cargo')
 
