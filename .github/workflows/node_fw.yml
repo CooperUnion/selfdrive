@@ -3,19 +3,19 @@ name: Build node_fw
 on: [pull_request, push, workflow_dispatch]
 
 jobs:
-  # pre_job:
-  #   runs-on: ubuntu-latest
+  pre_job:
+    runs-on: ubuntu-latest
 
-  #   outputs:
-  #     should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
 
-  #   steps:
-  #     - id: skip_check
-  #       uses: fkirc/skip-duplicate-actions@v5.3.0
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5.3.0
 
   build:
-    # needs: pre_job
-    # if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
 
     runs-on: ubuntu-22.04
 
@@ -24,12 +24,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Cache .pio
-        id: cache-pio-build-dir
+      - name: Cache build/
+        id: cache-build-dir
         uses: actions/cache@v3
         with:
-          path: dbw/node_fw/.pio
-          key: pio_cache
+          path: build
+          key: build_cache
+
+      - name: Cache deps/
+        id: cache-deps-dir
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: deps_cache
 
       - name: Set up Python
         run: |
@@ -40,10 +47,10 @@ jobs:
         run: pip install scons
 
       - name: Build CAN network
-        run: . .venv/bin/activate && scons dbc
+        run: scons dbc
 
-      # - name: Build firmware
-      #   run: . .venv/bin/activate && make dbw/node_fw
+      - name: Build firmware
+        run: scons node_fw
 
       - name: Upload CAN network
         uses: actions/upload-artifact@v3
@@ -51,14 +58,14 @@ jobs:
           name: can-dbc
           path: build/can/igvc_can.dbc
 
-      # - name: Upload OpenCAN Codegen Artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: opencan-codegen-files
-      #     path: dbw/node_fw/.pio/build/opencan_generated/*
+      - name: Upload OpenCAN Codegen Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: opencan-codegen-files
+          path: build/dbw/node_fw/opencan_generated/*
 
-      # - name: Upload firmware binaries
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: node_fw-bin
-      #     path: dbw/node_fw/.pio/build/*/firmware.bin
+      - name: Upload firmware binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: node_fw-bin
+          path: build/dbw/node_fw/*/firmware.bin
