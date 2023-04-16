@@ -22,4 +22,5 @@ env.Command(
 env.Depends(dbc_builder, env['PIP_PACKAGES'])
 
 env.Alias('dbc', dbc_builder)
+env['AddHelp']('dbc', 'Build igvc_can.dbc')
 # ---------------------------------------------------------

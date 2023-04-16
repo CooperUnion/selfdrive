@@ -4,7 +4,8 @@
 
 import os
 
-# We should get more disciplined about our envs later.
+# Basic setup ---------------------------------------------
+# We should get more disciplined about our PATH later.
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
 # Save the repo root in the env
@@ -15,16 +16,21 @@ Decider('content-timestamp')
 term = os.environ.get('TERM') # for color
 if term is not None:
     env['ENV']['TERM'] = term
+# ---------------------------------------------------------
 
-Default(None)
-Export('env')
 
-# Dependencies first
-env.SConscript('dependencies.SConscript', variant_dir='deps', duplicate=0)
+# Global help adder function ------------------------------
+help_list = []
 
-env.SConscript('can/SConscript', variant_dir='build/can', duplicate=0)
+def AddHelp(cmd, text):
+    global help_list
+    help_list.append((cmd, text))
 
-# Add cleaning targets
+env['AddHelp'] = AddHelp
+# ---------------------------------------------------------
+
+
+# Cleaning targets ----------------------------------------
 [rm_build] = env.Command(
     'phony-rm-build',
     [],
@@ -37,5 +43,35 @@ env.SConscript('can/SConscript', variant_dir='build/can', duplicate=0)
     'rm -rf deps/'
 )
 
-env.Alias('clean', rm_build)
+env.Alias('clean',    rm_build)
 env.Alias('cleanall', [rm_build, rm_deps])
+AddHelp('clean',    'Clean (remove) build/ directory')
+AddHelp('cleanall', 'Clean (remove) build/ and deps/ (aka everything)')
+# ---------------------------------------------------------
+
+
+# Call SConscripts ----------------------------------------
+Default(None)
+Export('env')
+
+# Dependencies first
+env.SConscript('dependencies.SConscript', variant_dir='deps',      duplicate=0)
+env.SConscript('can/SConscript',          variant_dir='build/can', duplicate=0)
+# ---------------------------------------------------------
+
+
+# Populate Help -------------------------------------------
+# scons provides Help for you to call to provide the text given by `scons -h`.
+# you can call Help more than once and it will append.
+Help('''
+     So you want to build a car?
+
+     You can specify targets after `scons`, like:
+
+''')
+
+help_list.sort()
+
+for (cmd, text) in help_list:
+    Help(f"     `scons {cmd + '`' : <15} {text : <60}\n")
+# ---------------------------------------------------------
