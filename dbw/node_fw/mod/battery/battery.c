@@ -17,6 +17,14 @@
 
 #define BATTERY_CLK_FRQ 100 //100 Hz
 
+#define COUTHI1   0x09
+#define COUTHI2   0x0a
+#define COUTHI3   0x0b
+#define COUTHI4   0x0c
+#define COUTLO1   0x0d
+#define COUTLO2   0x0e
+#define COUTLO3   0x0f
+#define COUTLO4   0x10
 
 #define PROD_ID     0x00
 #define MAX22530_ID 0x81
@@ -51,19 +59,12 @@ esp_err_t readBytes(spi_device_handle_t handle, uint8_t regAddr, size_t length, 
 
 // ######        CAN TX         ###### //
 
-uint16_t read_register(uint8_t regAddress);
-uint16_t write_register(uint8_t regAddress, uint16_t regValue);
-uint8_t sensor_init(void);
-void MAX22530_Reset(void);
-float Convert_to_Voltage(uint8_t regAddress);
-
 // ######     PRIVATE DATA      ###### //
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void battery_init();
 static void battery_100Hz(); 
-
 
 ember_rate_funcs_S module_rf = {
     .call_init  = battery_init,
@@ -79,6 +80,11 @@ typedef struct battery_context_s {
   spi_device_handle_t handle; 
 } battery_context_t; 
 
+
+uint16_t read_register(uint8_t regAddress, battery_context_t *ctx);
+uint16_t write_register(uint8_t regAddress, uint16_t regValue);
+void sensor_init(battery_context_t *ctx);
+float Convert_to_Voltage(uint8_t regAddress); //not implemented yet
 
 
 static void battery_init() {
@@ -142,7 +148,7 @@ static void battery_init() {
   }
 
   //sensor initialization
-  sensor_init(); 
+  sensor_init(ctx); 
 
 
   cleanup:
@@ -151,19 +157,21 @@ static void battery_init() {
 
 
 
-void sensor_init() {
+void sensor_init(battery_context_t *ctx) {
 
   uint8_t status = 0x1;
+  
+  
 
   //checking if device is present
-  if ((MAX22530_read_register(PROD_ID) != MAX22530_ID)) {
+  if ((read_register(PROD_ID, ctx) != MAX22530_ID)) {
     status = 0x0;
   }
 
   printf("MAX2253x status = ");
-  printf(answer); /* Answer: 1 when the device is initialized and the ID is read and recognized */
+  printf("%d", (int)status); /* Answer: 1 when the device is initialized and the ID is read and recognized */
   
-  if (answer == 1) {
+  if (status == 1) {
       
     printf("Device Recognized. Device Configuration ongoing");
     // Configuring the Digital Comparators
@@ -196,16 +204,15 @@ static void battery_100Hz() {
 
 // ######   PRIVATE FUNCTIONS   ###### //
 
-uint16_t read_register(uint8_t regAddress) {
+uint16_t read_register(uint8_t regAddress, battery_context_t *ctx) {
   
   uint32_t frame = (uint32_t)(regAddress << 2); 
-  uint8_t buffer; 
-  uint16_t result; 
+  uint8_t buffer, result;  
   
-  esp_err_t err = readByte(handle, frame, &buffer); 
+  esp_err_t err = readByte(ctx->handle, frame, &buffer); 
   if (err) return -1; 
   
-  err = readBytes(handle, 0, &result); 
+  err = readBytes(ctx->handle, 0, 2, &result); 
   if (err) return -1; 
 
   return result; 
@@ -218,8 +225,10 @@ uint16_t write_register(uint8_t regAddress, uint16_t regValue) {
 
   data_frame1 = (uint32_t)((regAddress << 2) + (1 << 1)); 
   
-  SPI.transfer8(data_frame1);
-  SPI.transfer16(regValue);
+  //write_byte(data_frame1);
+  //SPI.transfer16(regValue);
+
+  return 1; 
 }
 
 
