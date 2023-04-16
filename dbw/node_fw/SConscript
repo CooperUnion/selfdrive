@@ -1,9 +1,26 @@
 Import('env')
 
+flags_opt = AddOption('--pioflags',
+    dest='pioflags',
+    type='string',
+    action='store',
+    metavar='-e blink1.1',
+    help='PlatformIO environment'
+)
+env['AddHelp']("node_fw --pioflags=FLAGS",
+               'Build dbw/node_fw with FLAGS passed to `pio run`')
+
+pioflags = GetOption('pioflags')
+command = None
+if pioflags is None:
+    command = 'pio run -d dbw/node_fw'
+else:
+    command = f'pio run -d dbw/node_fw {pioflags}'
+
 [pio_builder] = env.Command(
     env.Dir('.'),
     [],
-    'pio run -d dbw/node_fw'
+    command
 )
 env.AlwaysBuild(pio_builder)
 env.Depends(pio_builder, env['PIP_PACKAGES'])

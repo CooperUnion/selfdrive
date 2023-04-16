@@ -74,7 +74,7 @@ Help('''
 help_list.sort()
 
 for (cmd, text) in help_list:
-    Help(f"     `scons {cmd + '`' : <15} {text : <60}\n")
+    Help(f"     `scons {cmd + '`' : <30} {text : <60}\n")
 # ---------------------------------------------------------
 
 if not COMMAND_LINE_TARGETS:
