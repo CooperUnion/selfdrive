@@ -1,0 +1,8 @@
+{
+  "name": "cuber-bat",
+  "version": "rolling",
+  "description": "Battery DBW node",
+  "build": {
+    "libLDFMode": "deep"
+  }
+}
