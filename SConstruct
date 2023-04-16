@@ -76,3 +76,8 @@ help_list.sort()
 for (cmd, text) in help_list:
     Help(f"     `scons {cmd + '`' : <15} {text : <60}\n")
 # ---------------------------------------------------------
+
+if not COMMAND_LINE_TARGETS:
+    from SCons.Script import help_text
+    print(help_text)
+    exit(0)
