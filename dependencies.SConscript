@@ -54,8 +54,8 @@ RUST_TOOLS_PATH     = RUST_HOME.Dir('bin')
 RUST_CURRENT_PATH   = env.Dir('rust/current')
 env['CARGO']        = RUST_TOOLS_PATH.File('cargo')
 
-env['ENV']['CARGO_HOME']  = RUST_HOME
-env['ENV']['RUSTUP_HOME'] = RUST_HOME
+env['ENV']['CARGO_HOME']  = RUST_HOME.abspath
+env['ENV']['RUSTUP_HOME'] = RUST_HOME.abspath
 
 # https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html
 env['ENV']['CARGO_REGISTRIES_CRATES_IO_PROTOCOL'] = 'sparse'
