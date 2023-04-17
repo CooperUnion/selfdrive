@@ -4,6 +4,7 @@
 .install-dependencies
 .sconsign.dblite
 .venv
+.direnv
 build
 deps
 

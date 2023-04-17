@@ -60,7 +60,6 @@ env.SConscript('can/SConscript',          variant_dir='build/can',         dupli
 env.SConscript('dbw/node_fw/SConscript',  variant_dir='build/dbw/node_fw', duplicate=0)
 # ---------------------------------------------------------
 
-
 # Populate Help -------------------------------------------
 # scons provides Help for you to call to provide the text given by `scons -h`.
 # you can call Help more than once and it will append.
@@ -75,6 +74,17 @@ help_list.sort()
 
 for (cmd, text) in help_list:
     Help(f"     `scons {cmd + '`' : <30} {text : <60}\n")
+
+Help(f'''
+
+     Note: try these helpful aliases (if you have `direnv`):
+
+     `fwpio`    Equivalent to `pio`, but specifically for dbw/node_fw, can
+                be used anywhere in the repo, and uses scons. This is the
+                recommended way to use PlatformIO. For example:
+
+                    $ fwpio run -e blink1.1
+''')
 # ---------------------------------------------------------
 
 if not COMMAND_LINE_TARGETS:
