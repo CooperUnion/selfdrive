@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="tf" type="static_transform_publisher" name="imu_broadcaster" args="0.0 0.0 0.01 0 0 0 1 map imu_link 5" />
+    <node pkg="yostlab_imu" name="yostlab_driver_node" type="yostlab_driver_node" output="screen"/>
+</launch>
