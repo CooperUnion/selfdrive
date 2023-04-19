@@ -8,7 +8,7 @@ flags_opt = AddOption('--pioflags',
     help='PlatformIO environment'
 )
 env['AddHelp']("node_fw --pioflags=FLAGS",
-               'Run pio for node_fw with FLAGS, e.g. `scons node_fw --pioflags="run -t blink1.1"`')
+               'Run pio for node_fw with FLAGS, e.g. `scons node_fw --pioflags="run -e blink1.1"`')
 
 pioflags = GetOption('pioflags')
 command = None
