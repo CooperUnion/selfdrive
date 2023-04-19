@@ -3,6 +3,7 @@
 #include <driver/gpio.h>
 #include <driver/i2c.h>
 #include <esp_err.h>
+#include "node_pins.h"
 #include <stdint.h>
 
 // ######        DEFINES        ###### //
@@ -10,9 +11,9 @@
 #define EEPROM_PAGESIZ  64
 #define EEPROM_ADDR_I2C (0xa0 | (0x00 << 1))
 #define EEPROM_ADDR_MAX 0x7fff
-#define EEPROM_SCL_GPIO 23
-#define EEPROM_SDA_GPIO 22
-#define EEPROM_WP_GPIO  21
+#define EEPROM_SCL_GPIO NODE_BOARD_PIN_EEPROM_SCL
+#define EEPROM_SDA_GPIO NODE_BOARD_PIN_EEPROM_SDA
+#define EEPROM_WP_GPIO  NODE_BOARD_PIN_EEPROM_WP
 #define EEPROM_WP(ENABLE) gpio_set_level(EEPROM_WP_GPIO, ENABLE)
 
 #define I2C_ESP_INTR_FLAGS 0
