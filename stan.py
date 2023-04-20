@@ -15,12 +15,12 @@ waypoints=np.array([   #create random sample waypoints that tech may give me bas
         # [.5,.5],
         # [.6,.6]
         [0,0,0],
-        [1,1,10],
-        [2,2,20],
-        [3,4,30], 
-        [4,5,40],
-        [5,7,50], 
-        [5,8,90]
+        [.5,.5,10],
+        [1,1,20],
+        [1.25,1.25,30], 
+        [2,2,40],
+        [2.5,2.5,50], 
+        [4,4,90]
     ])
 
 x=waypoints[:, 0]
@@ -52,7 +52,7 @@ class Car():
 
 #--------------------(Steering_Angle)--------------------#
 
-def nearest_point(waypoints, curr_x, curr_y): #might be useful for not wanting to travel through the back of the path.
+def nearest_point(curr_x, curr_y): #might be useful for not wanting to travel through the back of the path.
     dist=np.zeros(N)
            #distance between robot and points along the path
     dist = np.sqrt(((x - curr_x)**2) + ((y - curr_y)**2))
@@ -60,15 +60,18 @@ def nearest_point(waypoints, curr_x, curr_y): #might be useful for not wanting t
             #return index of which waypoint/nearest point is closest
     return np.argmin(dist)
 
-def t_index(waypoints,curr_x,curr_y):
-    wp = nearest_point(waypoints, curr_x, curr_y)
-    dist_wp = np.sqrt(((y[wp + 1] - y[wp])**2) + (((x[wp + 1] - x[wp])**2)))
+def t_index(curr_x,curr_y):
+    wp = nearest_point(curr_x, curr_y)
     #distance between waypoinys
+    dist_wp = np.sqrt(((y[wp + 1] - y[wp])**2) + (((x[wp + 1] - x[wp])**2)))
     
-    dist_actual = np.sqrt(((curr_y - y[wp])**2) + (((curr_x - x[wp])**2)))
-    #distance between former waypoint and current position 
+    #use an orthogonal projection if car is off from path to get numerator
+    dist_vector = np.subtract([curr_x, curr_y],[x[wp], y[wp]])
+    # we would want small waypoints for this to work 
+    proj = (np.dot(dist_vector, dist_wp)/np.dot(dist_wp, dist_wp))*dist_wp
+    dist_proj = np.sqrt(((proj[1] - y[wp])**2) + (((proj[0] - x[wp])**2)))
 
-    t_index =  dist_actual/dist_wp # "theoretically this should work" - Azra
+    t_index =  dist_proj/dist_wp 
 
     return t_index 
  
@@ -76,12 +79,10 @@ def compute_heading_angle(wp_orientation,curr_x,curr_y):
     t1 = 2 
     t0 = 1 
     #t1 - t0 set to 1 for now, but will calculate the actual values later
-    #position = np.array([curr_x, curr_y]).T
-    wp = nearest_point(waypoints, curr_x, curr_y)
+    wp = nearest_point(curr_x, curr_y)
     m  = (wp_orientation[wp+1] - wp_orientation[wp])/ (t1 -t0)
-  
-    heading_angle = wp_orientation[wp] + m * (t1 - t0)
-
+    t = t_index(curr_x, curr_y)
+    heading_angle = wp_orientation[wp] + m * t
     return heading_angle
 
 def compute_heading_error(vehicle_yaw,desired_heading_angle):
@@ -89,11 +90,11 @@ def compute_heading_error(vehicle_yaw,desired_heading_angle):
     heading_error = desired_heading_angle - vehicle_yaw
     return heading_error
 
-def compute_CTE(waypoints,curr_x,curr_y): 
+def compute_CTE(curr_x,curr_y): 
   #use the two waypoints to make a line 
   #get the a,b,and,c of the line 
   #use formula plugging in current location of the car 
-  wp = nearest_point(waypoints, curr_x, curr_y)
+  wp = nearest_point(curr_x, curr_y)
   [x0, y0, theta0] = waypoints[wp]
   [x1, y1, theta1] = waypoints[wp + 1]
 
@@ -135,7 +136,7 @@ def decel(thresh_d, curr_d, v_max, a_max,carx):
     return v_max
     
 
-D = 600
+D = 100
 def main(): 
   
   car = Car()
@@ -165,7 +166,7 @@ def main():
 
     #--------------------(Stanley_Controller)--------------------#
     heading_angle = compute_heading_angle(desired_orientation,curr_car_x,curr_car_y)
-    CTE = compute_CTE(waypoints,curr_car_x,curr_car_y)
+    CTE = compute_CTE(curr_car_x,curr_car_y)
     heading_error = compute_heading_error(curr_car_yaw,heading_angle)
     Steering_Angle = compute_Steering_Angle(CTE,K,heading_error,v_next)
 
@@ -180,12 +181,12 @@ def main():
     k = robotx[i] 
     j = roboty[i]
     plt.plot(k,j, 'b', marker="o", markersize=5)
-
+    print(f"heading angle: {heading_angle}, steering angle: {Steering_Angle}")
 
   
-  plt.title("Purse Pursuit Controller") 
-  plt.xlabel("x axis") 
-  plt.ylabel("y axis") 
+  plt.title("Stanley Controller") 
+  plt.xlabel("x location") 
+  plt.ylabel("y location") 
   
   for i  in range(7):
        plt.plot(x[i], y[i], marker="o", markersize=5)
