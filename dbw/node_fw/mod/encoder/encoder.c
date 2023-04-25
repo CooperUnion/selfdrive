@@ -9,10 +9,10 @@
 #include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
-
-#define ENCODER0_CHAN_A 25
-#define ENCODER0_CHAN_B 27
-#define ENCODER1_CHAN_A 34
+// Encoder 0 : Left, Encoder 1 : Right
+#define ENCODER0_CHAN_A 4
+#define ENCODER0_CHAN_B 3
+#define ENCODER1_CHAN_A 36
 #define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
