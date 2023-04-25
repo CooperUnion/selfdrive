@@ -64,8 +64,8 @@ class Pid:
             self._int = self._saturate(self.ki * self._int) / self.ki
 
         # differentiate error
-        self.err_dot  = self._beta * self._err_dot
-        self.err_dot += (((1 - self._beta) / self._ts) * (err - self._err0))
+        self._err_dot  = self._beta * self._err_dot
+        self._err_dot += (((1 - self._beta) / self._ts) * (err - self._err0))
 
         # PID
         u_unsat = (self.kp * err) + (self.ki * self._int) + (self.kd * self._err_dot)
