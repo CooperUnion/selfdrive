@@ -4,7 +4,6 @@ typedef struct {
   float ki;
   float kd;
   float ts;
-  float velocity; // Temporary addition
   struct {
     float upper;
     float lower;
@@ -81,9 +80,9 @@ float step(pid_S *pid, float des, float cur) {
         saturate(pid, (pid->ki * pid->private.integrate)) / pid->ki;
   }
 
-  // differentiate error *** ADDED pid->velocity *** temporarily
-  pid->velocity = pid->private.beta * pid->private.error.velocity;
-  pid->velocity += (((1 - pid->private.beta) / pid->private.ts) *
+  // differentiate error
+  pid->private.error.velocity = pid->private.beta * pid->private.error.velocity;
+  pid->private.error.velocity += (((1 - pid->private.beta) / pid->private.ts) *
                     (err - pid->private.error.position));
 
   // PID
