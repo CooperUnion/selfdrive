@@ -48,7 +48,7 @@ static float vel_hist[4];
 static uint8_t vel_index;
 static float vel_filtered;
 
-static pid_S *pid;
+static pid_S pid = { 0 };
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -86,6 +86,15 @@ static void ctrl_init()
 
     vel_index = 0;
     memset(vel_hist, 0, sizeof(vel_hist));
+
+    float kp = 0;
+    float ki = 0;
+    float kd = 0;
+    float ts = 0;
+    float upper_lim = 0;
+    float lower_lim = 0;
+    float sigma = 0;
+    pid_init(&pid, kp, ki, kd, ts, upper_lim, lower_lim, sigma);
 }
 
 static void ctrl_100Hz()
@@ -121,26 +130,18 @@ static void ctrl_100Hz()
         linear_velocity = 0;
     }
 
-    float kp = 0;
-    float ki = 0;
-    float kd = 0;
-    float ts = 0;
-    float upper_lim = 0;
-    float lower_lim = 0;
-    float sigma = 0;
 
     //vel_filtered = actua_vel;
     vel_hist[vel_index] = TICKS_PER_M * (pulse_cnt[0] + pulse_cnt[1]) / 0.01;
     vel_filtered = (vel_hist[0] + vel_hist[1] + vel_hist[2] + vel_hist[3]) / 4.0;
 
     // double check what's happening with pointers here
-    pid_init(pid, kp, ki, kd, ts, upper_lim, lower_lim, sigma);
-    // accel_des pid.step(target_vel, actual_vel)
+    // accel_desired pid.step(target_vel, actual_vel)
     // target_vel = linear_velocity
     float actual_vel = vel_filtered; // Fred needs to make
-    float accel_des = step(pid, linear_velocity, actual_vel);
+    float accel_desired = step(&pid, linear_velocity, actual_vel);
 
-    // call :pedal_ctrl (actual_vel, target_vel, accel_des)
+    // call :pedal_ctrl (actual_vel, target_vel, accel_desired)
     //vel_des = target_vel = linear_velocity
     //vel_act = actual_vel
     if (linear_velocity == 0.0) {
@@ -149,12 +150,12 @@ static void ctrl_100Hz()
     }
     else if (actual_vel < 0) {
         if (actual_vel > -0.5) {
-            if ( (accel_des > 0) && (linear_velocity > 0)) {
-                throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_des;
+            if ( (accel_desired > 0) && (linear_velocity > 0)) {
+                throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_desired;
                 brake_percent = 0;
             } else {
                 throttle_percent = 0;
-                brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_des) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
+                brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_desired) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
             }
         }
         else {
@@ -163,13 +164,13 @@ static void ctrl_100Hz()
         }
     }
     else if (actual_vel >= 0) {
-        if (accel_des > 0) {
-            throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_des;
+        if (accel_desired > 0) {
+            throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_desired;
             brake_percent = 0;
         }
-        else if (accel_des <= 0) {
+        else if (accel_desired <= 0) {
             throttle_percent = 0;
-            brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_des) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
+            brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_desired) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
         }
     }
     else {
