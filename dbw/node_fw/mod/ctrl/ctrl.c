@@ -1,5 +1,6 @@
 #include "ctrl.h"
 
+#include <stdio.h>
 #include <esp_attr.h>
 #include <driver/gpio.h>
 
@@ -87,13 +88,13 @@ static void ctrl_init()
     vel_index = 0;
     memset(vel_hist, 0, sizeof(vel_hist));
 
-    float kp = 0;
-    float ki = 0;
-    float kd = 0;
-    float ts = 0;
-    float upper_lim = 0;
-    float lower_lim = 0;
-    float sigma = 0;
+    float kp = 21.9141;
+    float ki = .28007;
+    float kd = 26.8444;
+    float ts = 1.0;
+    float upper_lim = 100.0;
+    float lower_lim = -100.0;
+    float sigma = 1.0;
     pid_init(&pid, kp, ki, kd, ts, upper_lim, lower_lim, sigma);
 }
 
@@ -121,8 +122,8 @@ static void ctrl_100Hz()
     }
 
     if (CANRX_is_node_DBW_ok() && base_dbw_active()) {
-        brake_percent    = CANRX_get_DBW_brakePercent();
-        throttle_percent = CANRX_get_DBW_throttlePercent();
+        //brake_percent    = CANRX_get_DBW_brakePercent();
+        //throttle_percent = CANRX_get_DBW_throttlePercent();
         linear_velocity = CANRX_get_DBW_linearVelocity();
     } else {
         brake_percent    = 0;
@@ -136,12 +137,12 @@ static void ctrl_100Hz()
     vel_filtered = (vel_hist[0] + vel_hist[1] + vel_hist[2] + vel_hist[3]) / 4.0;
 
     // double check what's happening with pointers here
-    // accel_desired pid.step(target_vel, actual_vel)
+    // accel_des pid.step(target_vel, actual_vel)
     // target_vel = linear_velocity
     float actual_vel = vel_filtered; // Fred needs to make
-    float accel_desired = step(&pid, linear_velocity, actual_vel);
+    float accel_des = step(&pid, linear_velocity, actual_vel);
 
-    // call :pedal_ctrl (actual_vel, target_vel, accel_desired)
+    // call :pedal_ctrl (actual_vel, target_vel, accel_des)
     //vel_des = target_vel = linear_velocity
     //vel_act = actual_vel
     if (linear_velocity == 0.0) {
@@ -150,12 +151,12 @@ static void ctrl_100Hz()
     }
     else if (actual_vel < 0) {
         if (actual_vel > -0.5) {
-            if ( (accel_desired > 0) && (linear_velocity > 0)) {
-                throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_desired;
+            if ( (accel_des > 0) && (linear_velocity > 0)) {
+                throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_des;
                 brake_percent = 0;
             } else {
                 throttle_percent = 0;
-                brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_desired) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
+                brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_des) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
             }
         }
         else {
@@ -164,13 +165,13 @@ static void ctrl_100Hz()
         }
     }
     else if (actual_vel >= 0) {
-        if (accel_desired > 0) {
-            throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_desired;
+        if (accel_des > 0) {
+            throttle_percent = ACCEL_TO_PEDAL_SLOPE_MAPPING * accel_des;
             brake_percent = 0;
         }
-        else if (accel_desired <= 0) {
+        else if (accel_des <= 0) {
             throttle_percent = 0;
-            brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_desired) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
+            brake_percent = (BRAKE_TO_PEDAL_SLOPE_MAPPING * accel_des) + BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET;
         }
     }
     else {
@@ -178,6 +179,7 @@ static void ctrl_100Hz()
         brake_percent = 50;
     }
 
+    printf("throttle_percent: %d\nbrake_percent: %d\n", throttle_percent, brake_percent);
 
     vel_index = (vel_index + 1) % 4;
 }
