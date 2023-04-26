@@ -11,29 +11,29 @@ class Test:
         self._bus = bus
 
     def run(self, percent, duration):
-        self._bus.send('DBW_Enable', {'DBW_enable': 1})
-        self._bus.send(
-            'DBW_VelCmd',
-            {'DBW_throttlePercent': min(abs(percent), 100), 'DBW_brakePercent': 0},
-        )
 
         time_start = time.time()
 
         i = 0
         while True:
+            self._bus.send('DBW_Active', {'DBW_active': 1})
+            self._bus.send(
+                'DBW_VelocityCommand',
+                {'DBW_linearVelocity': percent},
+            )
             if (time.time() - time_start) > abs(duration): break
 
-            print(f"{i} {self._bus.get_data('ENCF_EncoderData')}")
+            print(f"{i} {self._bus.get_data('CTRL_EncoderData')}")
 
             i += 1
             time.sleep(0.01)
 
     def end(self):
+        self._bus.send('DBW_Active', {'DBW_active': 0})
         self._bus.send(
-            'DBW_VelCmd',
-            {'DBW_throttlePercent': 0, 'DBW_brakePercent': 0},
+            'DBW_VelocityCommand',
+            {'DBW_linearVelocity': 0},
         )
-        self._bus.send('DBW_Enable', {'DBW_enable': 0})
 
 
 def main():
