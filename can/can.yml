@@ -95,7 +95,7 @@ nodes:
     rx:
     - DBW_Active
     - DBW_ESTOP
-    - DBW_RawVelocityCommand
+      #- DBW_RawVelocityCommand
     - DBW_VelocityCommand
     messages:
     - Alarms:
