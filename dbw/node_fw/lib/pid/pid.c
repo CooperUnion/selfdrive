@@ -1,28 +1,4 @@
-typedef struct {
-    // Public Members
-    float kp;
-    float ki;
-    float kd;
-    float ts;
-    struct {
-        float upper;
-        float lower;
-    } limit;
-    float sigma;
-
-    // Private Members
-    struct {
-        float ts;
-        float sigma;
-        float beta;
-        float y0;
-        struct {
-            float position;
-            float velocity;
-        } error;
-        float integrate;
-    } private;
-} pid_S;
+#include "pid.h"
 
 void pid_init(pid_S *pid, float kp, float ki, float kd, float ts,
         float upper_lim, float lower_lim, float sigma) {

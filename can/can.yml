@@ -96,6 +96,7 @@ nodes:
     - DBW_Active
     - DBW_ESTOP
     - DBW_RawVelocityCommand
+    - DBW_VelocityCommand
     messages:
     - Alarms:
         id: 0x22

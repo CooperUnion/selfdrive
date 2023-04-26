@@ -37,10 +37,10 @@ class Ctrl:
         self._bus_thread.start()
 
     def _accel2pedal(self, accel: float) -> float:
-        return self.ACCEL_TO_PEDAL_MAPPING * accel
+        return self.ACCEL_TO_PEDAL_SLOPE_MAPPING * accel
 
     def _brake2pedal(self, accel: float) -> float:
-        return (self.BRAKE_TO_PEDAL_MAPPING * accel) + self.BRAKE_TO_PEDAL_MAPPING_OFFSET
+        return (self.BRAKE_TO_PEDAL_SLOPE_MAPPING * accel) + self.BRAKE_TO_PEDAL_SLOPE_MAPPING_OFFSET
 
     def _pedal_ctrl(self, vel_act: float, vel_des: float, accel_des: float) -> tuple[float, float]:
         # TODO: make this clean
@@ -82,7 +82,7 @@ class Ctrl:
                 (reading[1]['CTRL_encoderLeft'] + reading[1]['CTRL_encoderRight']) / 2,
                 0.01
             )
-            
+
             self._vel_index = (self._vel_index + 1) % self._samples
 
             self._vel_filtered = np.mean(self._vel_hist)
