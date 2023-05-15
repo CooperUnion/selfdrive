@@ -99,6 +99,18 @@ services:
                         - capabilities: [gpu]
         restart: unless-stopped
 
+    imu:
+        build: docker/yost_imu/.
+        container_name: imu
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=imu'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+
     rviz:
         build: docker/rviz/.
         container_name: rviz
