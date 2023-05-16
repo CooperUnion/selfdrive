@@ -11,17 +11,19 @@ fi
 
 echo "redis-cli shutdown"
 
-docker compose up -d master zed rtabmap velodyne navigation encoder_odom techbus redis pure_pursuit
+# sudo docker compose up -d master zed rtabmap velodyne navigation encoder_odom techbus redis
+sudo docker compose up -d master zed rtabmap velodyne encoder_odom techbus redis
+# Remove sudo for tech computer
 
 tmux new-session -d -s stackcli 'fish'
 
 tmux select-window -t stackcli:0
 tmux rename-window 'Master'
-tmux send-keys 'docker exec -it master bash'
+tmux send-keys 'sudo docker exec -it master bash'
 
 tmux new-window -n 'CAN'
 tmux select-window -t 'CAN'
-tmux send-keys 'docker exec -it techbus bash'
+tmux send-keys 'sudo docker exec -it techbus bash'
 # tmux send-keys 'rosrun src techbus.py'
 # tmux send-keys Enter
 
@@ -40,40 +42,40 @@ tmux split-window -v 'fish'
 
 tmux new-window -n 'Perception'
 tmux select-window -t 'Perception'
-tmux send-keys 'docker exec -it zed bash'
+tmux send-keys 'sudo docker exec -it zed bash'
 # tmux send-keys 'roslaunch zed_launch zed_no_tf.launch'
 # tmux send-keys Enter
 
 tmux split-window -h 'fish'
-tmux send-keys 'docker exec -it velodyne bash'
+tmux send-keys 'sudo docker exec -it velodyne bash'
 # tmux send-keys 'roslaunch velodyne_pointcloud VLP16_points.launch'
 # tmux send-keys Enter 
 
 tmux select-pane -t 0
 tmux split-window -v 'fish'
-tmux send-keys 'docker exec -it encoder_odom bash'
+tmux send-keys 'sudo docker exec -it encoder_odom bash'
 # tmux send-keys 'rosrun src encoder_odom.py'
 # tmux send-keys Enter
 
 tmux split-window -h 'fish'
-tmux send-keys 'docker exec -it rviz bash'
+tmux send-keys 'sudo docker exec -it rviz bash'
 # tmux send-keys 'rviz'
 # tmux send-keys Enter 
 
 tmux new-window -n 'Navigation'
 tmux select-window -t 'Navigation'
-tmux send-keys 'docker exec -it rtabmap bash'
+tmux send-keys 'sudo docker exec -it rtabmap bash'
 # tmux send-keys "roslaunch rtabmap_launch rtabmap.launch $2"
 # tmux send-keys Enter
 
-tmux split-window -h 'fish'
-tmux send-keys 'docker exec -it navigation bash'
+# tmux split-window -h 'fish'
+# tmux send-keys 'sudo docker exec -it navigation bash'
 # tmux send-keys 'roslaunch scooter_launch move_base.launch'
 # tmux send-keys Enter
 
-tmux select-pane -t 0
-tmux split-window -v 'fish'
-tmux send-keys 'docker exec -it pure_pursuit bash'
+# tmux select-pane -t 0
+# tmux split-window -v 'fish'
+# tmux send-keys 'sudo docker exec -it pure_pursuit bash'
 # tmux send-keys 'roslaunch pure_pursuit pure_pursuit.launch'
 # tmux send-keys Enter
 
