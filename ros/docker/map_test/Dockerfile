@@ -7,7 +7,9 @@ WORKDIR /app
 # install dep and such
 RUN apt update && apt install -y git
 
-RUN apt-get -y update
+RUN apt-get -y update && apt install -y python3.8 python3-pip --fix-missing
+
+RUN pip3 install opencv-python
 
 RUN apt-get install -y ros-noetic-map-server
 
