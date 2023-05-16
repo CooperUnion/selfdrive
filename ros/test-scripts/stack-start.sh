@@ -24,6 +24,7 @@ tmux send-keys 'sudo docker exec -it master bash'
 tmux new-window -n 'CAN'
 tmux select-window -t 'CAN'
 tmux send-keys 'sudo docker exec -it techbus bash'
+tmux send-keys Enter
 # tmux send-keys 'rosrun src techbus.py'
 # tmux send-keys Enter
 
@@ -43,33 +44,39 @@ tmux split-window -v 'fish'
 tmux new-window -n 'Perception'
 tmux select-window -t 'Perception'
 tmux send-keys 'sudo docker exec -it zed bash'
+tmux send-keys Enter
 # tmux send-keys 'roslaunch zed_launch zed_no_tf.launch'
 # tmux send-keys Enter
 
 tmux split-window -h 'fish'
 tmux send-keys 'sudo docker exec -it velodyne bash'
+tmux send-keys Enter
 # tmux send-keys 'roslaunch velodyne_pointcloud VLP16_points.launch'
 # tmux send-keys Enter 
 
 tmux select-pane -t 0
 tmux split-window -v 'fish'
 tmux send-keys 'sudo docker exec -it encoder_odom bash'
+tmux send-keys Enter
 # tmux send-keys 'rosrun src encoder_odom.py'
 # tmux send-keys Enter
 
 tmux split-window -h 'fish'
 tmux send-keys 'sudo docker exec -it rviz bash'
+tmux send-keys Enter
 # tmux send-keys 'rviz'
 # tmux send-keys Enter 
 
 tmux new-window -n 'Navigation'
 tmux select-window -t 'Navigation'
 tmux send-keys 'sudo docker exec -it rtabmap bash'
+tmux send-keys Enter
 # tmux send-keys "roslaunch rtabmap_launch rtabmap.launch $2"
 # tmux send-keys Enter
 
-# tmux split-window -h 'fish'
-# tmux send-keys 'sudo docker exec -it navigation bash'
+tmux split-window -h 'fish'
+tmux send-keys 'sudo docker exec -it navigation bash'
+tmux send-keys Enter
 # tmux send-keys 'roslaunch scooter_launch move_base.launch'
 # tmux send-keys Enter
 
