@@ -130,6 +130,7 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             #- ~/.ros:/root
+            - '/home/eeadmin/comp-data:/comp-data'
             - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
