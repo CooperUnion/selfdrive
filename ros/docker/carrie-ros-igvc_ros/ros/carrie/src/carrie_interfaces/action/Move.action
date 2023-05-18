@@ -1,0 +1,16 @@
+float32 x
+float32 y
+float32 yaw
+float32 velocity
+---
+float32 error
+float32 elapsed_time
+---
+float32 x
+float32 y
+float32 yaw
+float32 distance
+float32 curvature
+float32 velocity
+float32 cross_track_error
+float32 dist_to_path
