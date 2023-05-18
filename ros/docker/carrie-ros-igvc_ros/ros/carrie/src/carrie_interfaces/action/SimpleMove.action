@@ -1,0 +1,9 @@
+float32 distance
+float32 curvature
+float32 velocity
+---
+float32 elapsed_time
+---
+float32 distance
+float32 curvature
+float32 velocity

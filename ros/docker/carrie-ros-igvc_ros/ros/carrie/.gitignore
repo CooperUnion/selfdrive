@@ -1,0 +1,8 @@
+build/
+install/
+log/
+
+# not sure what these are about...
+create_client
+create_service
+core
