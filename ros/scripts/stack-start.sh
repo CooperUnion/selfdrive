@@ -8,8 +8,6 @@ if [ "$1" == "clean" ]; then
 	tmux kill-session -t stackcli
 fi
 
-# docker compose down --remove-orphans
-
 echo "redis-cli shutdown"
 
 # sudo docker compose up -d master zed rtabmap velodyne navigation encoder_odom techbus redis
@@ -84,7 +82,17 @@ tmux send-keys Enter
 # tmux send-keys 'roslaunch scooter_launch move_base.launch'
 # tmux send-keys Enter
 
-# tmux select-pane -t 0
+tmux select-pane -t 0
+tmux split-window -v 'fish'
+tmux send-keys 'sudo docker exec -it rtabmap bash'
+tmux send-keys Enter
+# tmux send-keys "roslaunch rtabmap_launch ekf.launch"
+# tmux send-keys Enter
+
+#
+# Replace with Stanley controller 
+#
+# tmux select-pane -t 2
 # tmux split-window -v 'fish'
 # tmux send-keys 'sudo docker exec -it pure_pursuit bash'
 # tmux send-keys 'roslaunch pure_pursuit pure_pursuit.launch'
