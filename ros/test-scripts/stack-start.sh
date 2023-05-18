@@ -4,6 +4,7 @@ sudo setenforce 0
 xhost +si:localuser:root
 
 if [ "$1" == "clean" ]; then
+	sudo docker compose down --remove-orphans
 	tmux kill-session -t stackcli
 fi
 
@@ -12,7 +13,7 @@ fi
 echo "redis-cli shutdown"
 
 # sudo docker compose up -d master zed rtabmap velodyne navigation encoder_odom techbus redis
-sudo docker compose up -d master zed rtabmap velodyne encoder_odom techbus redis
+sudo docker compose up -d master zed rtabmap velodyne rviz navigation encoder_odom techbus redis
 # Remove sudo for tech computer
 
 tmux new-session -d -s stackcli 'fish'
@@ -20,6 +21,7 @@ tmux new-session -d -s stackcli 'fish'
 tmux select-window -t stackcli:0
 tmux rename-window 'Master'
 tmux send-keys 'sudo docker exec -it master bash'
+tmux send-keys Enter
 
 tmux new-window -n 'CAN'
 tmux select-window -t 'CAN'
@@ -34,6 +36,7 @@ tmux send-keys Enter
 
 tmux select-pane -t 0
 tmux split-window -v 'fish'
+tmux send-keys 'echo Start CAN here'
 # tmux send-keys 'sudo ip link set can0 up type can bitrate 500000'
 # tmux send-keys Enter
 # tmux send-keys 'cand --dev can0 --dbc ../../build/can/igvc_can.dbc'
@@ -61,7 +64,8 @@ tmux send-keys Enter
 # tmux send-keys 'rosrun src encoder_odom.py'
 # tmux send-keys Enter
 
-tmux split-window -h 'fish'
+tmux select-pane -t 2
+tmux split-window -v 'fish'
 tmux send-keys 'sudo docker exec -it rviz bash'
 tmux send-keys Enter
 # tmux send-keys 'rviz'
