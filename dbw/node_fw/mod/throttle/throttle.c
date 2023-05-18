@@ -54,10 +54,9 @@ static void throttle_init()
 static void throttle_100Hz()
 {
     if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
-        base_set_state_estop(0 /* placeholder */);
+        base_set_state_estop(0 /*placeholder*/ );
     }
 
-    /* set the relay based on whether DBW is active */
     control_relay(base_dbw_active());
 
     /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
@@ -67,6 +66,11 @@ static void throttle_100Hz()
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
+
+/*
+ * J1 is pedal, J2 is accel (Ridwan notes)
+ */
+
 
 /*
  * Open or close the relay.
