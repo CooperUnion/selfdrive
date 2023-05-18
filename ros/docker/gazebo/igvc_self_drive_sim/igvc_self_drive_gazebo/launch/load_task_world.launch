@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<launch>
+
+  <param name="/use_sim_time" value="true" />
+
+  <node name="gazebo" pkg="gazebo_ros" type="gzserver" output="screen" args="-e ode $(find igvc_self_drive_gazebo)/worlds/self_drive_tasks.world" />
+
+  <arg name="auto_camera" default="true" />
+  <arg if=    "$(arg auto_camera)" name="gzclient_args" value="-g libigvc_self_drive_gazebo_plugins_cam.so" />
+  <arg unless="$(arg auto_camera)" name="gzclient_args" value="" />
+  <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" args="$(arg gzclient_args)" output="screen"/>
+
+</launch>
