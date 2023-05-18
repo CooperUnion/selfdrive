@@ -61,7 +61,7 @@ static float32_t current_percent;
 
 // ######      PROTOTYPES       ###### //
 static void init_pwm(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel);
-static uint32_t voltage_to_pwm(float32_t v);
+static uint32_t voltage_to_duty_cycle(float32_t v);
 static uint32_t convert_throttle_command(struct throttle_output t, float32_t p);
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -73,7 +73,7 @@ static void init_pwm(ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_ch
 }
 
 /*
- * Convert voltage out of 3.3V maximum to a PWM command (0-2^^PWM_RESOLUTION)
+ * Convert voltage out of 3.3V maximum to a duty cycle (0-2^^PWM_RESOLUTION)
  */
 static uint32_t voltage_to_duty_cycle(float32_t v)
 {
@@ -81,7 +81,7 @@ static uint32_t voltage_to_duty_cycle(float32_t v)
 }
 
 /*
- * Convert throttle percentage command to PWM command (0-2^^PWM_RESOLUTION)
+ * Convert throttle percentage command to a voltage and then a duty cycle
  */
 static uint32_t convert_throttle_command(struct throttle_output t, float32_t p)
 {
@@ -114,18 +114,23 @@ void set_pedal_output(float32_t cmd)
         cmd = 0.50;
     }
 
-    const uint32_t thr_F_cmd = convert_throttle_command(thr_F, cmd);
-    const uint32_t thr_A_cmd = convert_throttle_command(thr_A, cmd);
+    const uint32_t thr_F_dutyCycle = convert_throttle_command(thr_F, cmd);
+    const uint32_t thr_A_dutyCycle = convert_throttle_command(thr_A, cmd);
 
     current_percent = cmd;
 
     // set pwm1 gpio 36
-    ledc_set_duty(pwm1_timer.speed_mode, pwm1_channel.channel, thr_A_cmd);
+    ledc_set_duty(pwm1_timer.speed_mode, pwm1_channel.channel, thr_A_dutyCycle);
     ledc_update_duty(pwm1_timer.speed_mode, pwm1_channel.channel);
 
     // set pwm2 gpio 35
-    ledc_set_duty(pwm2_timer.speed_mode, pwm2_channel.channel, thr_F_cmd);
+    ledc_set_duty(pwm2_timer.speed_mode, pwm2_channel.channel, thr_F_dutyCycle);
     ledc_update_duty(pwm2_timer.speed_mode, pwm2_channel.channel);
+
+    // 0-> PWM2 = 45%, PWM1 = unkown
+    // 0.5 -> PWM2 = 91%, PWM1 = 45%
+    // PWM2 x2 greater than PWM1
+
 }
 
 float32_t current_pedal_percent(void) {
