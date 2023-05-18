@@ -51,7 +51,7 @@ RUN rosdep init && \
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-base=1.5.0-1* 
+    ros-noetic-ros-base=1.5.0-1*
 
 ###############
 
@@ -62,7 +62,10 @@ RUN apt update && apt upgrade -y && apt install -y git
 
 RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git ros_ws/src/gazebo-packages &&\
-    git clone https://github.com/ros-teleop/teleop_twist_keyboard.git ros_ws/src/teleop_twist
+    git clone https://github.com/ros-teleop/teleop_twist_keyboard.git ros_ws/src/teleop_twist &&\
+    git clone https://github.com/tu-darmstadt-ros-pkg/hector_models ros_ws/src/hector_models &&\
+    git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo ros_ws/src/hector_gazebo &&\
+    git clone https://github.com/CooperUnion/velodyne_gazebo ros_ws/src/velodyne_gazebo
 
 # install silly packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -89,6 +92,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
+    apt update &&\
+    rosdep update && \
     rosdep install --from-paths src --ignore-src -r -y && \
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
 
