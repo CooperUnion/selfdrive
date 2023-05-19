@@ -12,7 +12,7 @@
 
 // ######        DEFINES        ###### //
 
-#define MODE_CTRL_PIN 40
+#define MODE_CTRL_PIN GPIO_NUM_40
 
 // ######     PRIVATE DATA      ###### //
 
@@ -53,24 +53,19 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    //if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
-        //base_set_state_estop(0 /*placeholder*/ );
-    //}
+    if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
+        base_set_state_estop(0 /*placeholder*/ );
+    }
 
-    control_relay(1); //base_dbw_active());
+    control_relay(base_dbw_active());
 
     /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
-    float32_t cmd = 0.02;//((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
+    float32_t cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
 
     set_pedal_output(cmd); // sets CAN feedback data too
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
-
-/*
- * J1 is pedal, J2 is accel (Ridwan notes)
- */
-
 
 /*
  * Open or close the relay.
@@ -88,6 +83,6 @@ static void control_relay(bool cmd)
 void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
     m->THROTTLE_throttleACmd = 0; // just leaving these off for now
     m->THROTTLE_throttleFCmd = 0; // just leaving these off for now
-    m->THROTTLE_percent = current_pedal_percent();
+    m->THROTTLE_percent = current_pedal_percent() * 100;
     m->THROTTLE_relayState = relay_state;
 }
