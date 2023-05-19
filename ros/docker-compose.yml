@@ -186,4 +186,24 @@ services:
             - './docker/map_test:/app/ros_ws/src/'
         depends_on:
             - master
-            
+   
+    vcost:
+        build: docker/virtual_costmap_layer/
+        container_name: vcost
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=vcost'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix' 
+            # - '/dev/dri:/dev/dri' 
+            - './docker/virtual_costmap_layer:/app/ros_ws/src/'
+        depends_on:
+            - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
