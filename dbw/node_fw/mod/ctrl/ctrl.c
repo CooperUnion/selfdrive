@@ -114,7 +114,7 @@ static void ctrl_100Hz()
         return;
     }
 
-    if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+    if (CANRX_is_message_DBW_VelocityCommand_ok()) {
         // TODO: set brake and throttle percentages
         // using a PID controller
 
