@@ -42,6 +42,25 @@ message_templates:
           description: ESP32 reset reason code (enum RESET_REASON)
           width: 5
 
+- DBWVelocityCommand:
+    cycletime: 100
+
+    signals:
+      - brakePercent:
+          description: Brake percentage.
+          # mimumum: 0.0
+          # maximum: 100.0
+          unit: percent
+          width: 10
+          scale: 0.1
+      - throttlePercent:
+          description: Throttle percentage.
+          # minimum: 0.0
+          # maximum: 100.0
+          unit: percent
+          width: 10
+          scale: 0.1
+
 - EncoderData:
     cycletime: 10
     signals:
@@ -124,20 +143,8 @@ nodes:
         id: 0x14
 
     - VelocityCommand:
+        from_template: DBWVelocityCommand
         id: 0x20
-        cycletime: 100
-
-        signals:
-          - brakePercent:
-              description: Brake percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
-          - throttlePercent:
-              description: Throttle percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
 
 - DBW:
     messages:
@@ -181,20 +188,8 @@ nodes:
               width: 1
 
     - RawVelocityCommand:
+        from_template: DBWVelocityCommand
         id: 0x667
-        cycletime: 100
-
-        signals:
-          - brakePercent:
-              description: Brake percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
-          - throttlePercent:
-              description: Throttle percentage.
-              # maximum: 100
-              unit: percent
-              width: 7
 
     - SteeringCommand:
         id: 0x21

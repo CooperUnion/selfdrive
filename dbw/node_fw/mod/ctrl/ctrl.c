@@ -222,10 +222,10 @@ void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
     m->CTRL_speedAlarm   = speed_alarm;
 }
 
-void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
+void CANTX_populateTemplate_VelocityCommand(struct CAN_TMessage_DBWVelocityCommand * const m)
 {
-    m->CTRL_brakePercent    = brake_percent;
-    m->CTRL_throttlePercent = throttle_percent;
+    m->brakePercent    = brake_percent;
+    m->throttlePercent = throttle_percent;
 }
 
 void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
