@@ -11,7 +11,11 @@ RUN apt update && apt install -y git
 RUN apt install -y ros-noetic-novatel-oem7-driver
 
 # copy alias bash and add to bashrc
+COPY ./entrypoint.sh /
 COPY ./alias.sh /
-RUN echo "source /alias.sh" >> ~/.bashrc
 
+RUN echo "source /alias.sh" >> ~/.bashrc
+RUN echo "source /entrypoint.sh" >> ~/.bashrc
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]

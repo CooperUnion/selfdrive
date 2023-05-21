@@ -15,7 +15,7 @@ import base
 class Steer(threading.Thread):
     MESSAGE_RATE_S        = 0.01
     ABS_ENC_TIMEOUT_NS    = 20_000_000
-    CMD_TIMEOUT_NS        = 200_000_000
+    CMD_TIMEOUT_NS        = 200_000_000_000
     ODRIVE_INIT_TIMEOUT_S = 5.0
 
     ENCODER_TO_ANGLE_SLOPE        = 0.0029
@@ -131,7 +131,7 @@ class Steer(threading.Thread):
             self._bus.send(
                 'STEER_SteeringData',
                 {
-                    'STEER_angle':             math.radians(self._cur_angle),
+                    'STEER_angle':             0.0, # signed math.radians(self._cur_angle),
                     'STEER_encoderTimeoutSet': self._encoder_timeout,
                     'STEER_oDriveConnected':   self._odrive_connection,
                 },
@@ -148,17 +148,17 @@ class Steer(threading.Thread):
                     time.sleep(self.MESSAGE_RATE_S)
                     continue
 
-                rec = self._bus.get('STEER_SteeringCmd')
+                rec = self._bus.get('DBW_SteeringCommand')
 
                 if rec:
                     unix_time_ns, data = rec
 
                     if time.time_ns() - unix_time_ns >= self.CMD_TIMEOUT_NS:
-                        self._base.set_state_estop('TIEMOUT', 'command timeout')
+                        self._base.set_state_estop('TIMEOUT', 'command timeout')
                         time.sleep(self.MESSAGE_RATE_S)
                         continue
 
-                    self._des_angle = math.degrees(data['STEER_angle'])
+                    self._des_angle = math.degrees(data['DBW_steeringAngleCmd'])
 
                     self._odrive_en(True)
                     self._axis.controller.input_vel = self._pid.step(

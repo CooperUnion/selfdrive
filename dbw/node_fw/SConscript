@@ -1,0 +1,44 @@
+Import('env')
+
+flags_opt = AddOption('--pioflags',
+    dest='pioflags',
+    type='string',
+    action='store',
+    metavar='-e blink1.1',
+    help='PlatformIO environment'
+)
+env['AddHelp']("node_fw --pioflags=FLAGS",
+               'Run pio for node_fw with FLAGS, e.g. `scons node_fw --pioflags="run -e blink1.1"`')
+
+pioflags = GetOption('pioflags')
+command = None
+if pioflags is None:
+    command = 'pio run -d dbw/node_fw'
+else:
+    command = f'pio {pioflags} -d dbw/node_fw'
+
+[pio_builder] = env.Command(
+    env.Dir('.'),
+    [],
+    command
+)
+env.AlwaysBuild(pio_builder)
+env.Depends(pio_builder, env['PIP_PACKAGES'])
+
+# The opencan-pio.py hook script will call the repo scons
+# to make sure the opencan dependency is available. Unfortunately,
+# when recursively called (i.e., a build step running within scons
+# invokes the same scons environment/SConstruct itself), the .sconsign.dblite
+# is not updated by the nested invocation.
+#
+# We put this dependency here even though opencan-pio.py will call scons anyway.
+# If we didn't, then OpenCAN and/or Rust may be installed over and over again
+# because the .sconsign.dblite is never updated.
+#
+# Also, scons does not commit changes to .sconsign.dblite until the end of the
+# build. This means that it's possible that OpenCAN and/or Rust may be installed
+# twice during a clean build or a build that involves an OpenCAN or Rust version change.
+env.Depends(pio_builder, env['OPENCAN_CLI'])
+
+env.Alias('node_fw', pio_builder)
+env['AddHelp']('node_fw', 'Build dbw/node_fw')

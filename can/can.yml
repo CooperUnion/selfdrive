@@ -25,6 +25,10 @@ message_templates:
             - UNHEALTHY
             - ACTIVE
             - ESTOP
+      - temperature:
+          description: Core temperature in Celsius
+          width: 7
+          offset: 31
       - counter:
           description: Counter for fun.
           width: 8
@@ -52,6 +56,7 @@ nodes:
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
+    - DBW_Active
     - DBW_ESTOP
     - DBW_VelocityCommand
     - SUP_Authorization
@@ -89,10 +94,10 @@ nodes:
 
 - CTRL:
     rx:
+    - DBW_Active
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
-    - SUP_Authorization
     messages:
     - Alarms:
         id: 0x22
@@ -137,9 +142,17 @@ nodes:
 - DBW:
     messages:
     - ESTOP:
-        id: 0x420
+        id: 0x41F
 
         signals:
+          - src:
+              description: ESTOP source.
+              width: 8
+              enumerated_values:
+                - NODE
+                - NODESD
+                - SAFED
+
           - reason:
               description: ESTOP reason.
               width: 8
@@ -149,19 +162,23 @@ nodes:
                 - INVALID_STATE
                 - LIMIT_EXCEEDED
 
-    - VelocityCommand:
-        id: 0x666
+    - Active:
+        id: 0x420
         cycletime: 100
 
         signals:
-          - linearVelocity:
-              description: Velocity in m/s
-              # maximum: 100.0
-              scale: 0.1
-              width: 10
-          # TODO: determine realistic bounds
-          # - angularVelocity:
-          #     description: Velocity in rad/s
+          - active:
+              description: DBW is active.
+              width: 1
+
+    - Enable:
+        id: 0x421
+        cycletime: 100
+
+        signals:
+          - enable:
+              description: Enable DBW active.
+              width: 1
 
     - RawVelocityCommand:
         id: 0x667
@@ -179,8 +196,36 @@ nodes:
               unit: percent
               width: 7
 
+    - SteeringCommand:
+        id: 0x21
+        cycletime: 100
+
+        signals:
+          - steeringAngleCmd:
+              description: Absolute steering angle in radians.
+              # minimum: -0.471238898
+              # maximum: 0.471238898
+              scale: 0.000000001
+              # is_signed: true
+              width: 32
+
+    - VelocityCommand:
+        id: 0x666
+        cycletime: 100
+
+        signals:
+          - linearVelocity:
+              description: Velocity in m/s
+              # maximum: 100.0
+              scale: 0.1
+              width: 10
+          # TODO: determine realistic bounds
+#         - angularVelocity:
+#             description: Velocity in rad/s
+
 - ENCF:
     rx:
+    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -197,6 +242,7 @@ nodes:
 
 - PB:
     rx:
+    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -226,6 +272,7 @@ nodes:
 
 - STEER:
     rx:
+      - DBW_Active
       - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -246,7 +293,7 @@ nodes:
               # minimum: -0.610865238
               # maximum: 0.610865238
               scale: 0.000000001
-              # is_signed: true
+              twos_complement: true
               width: 32
 
           - encoderTimeoutSet:
@@ -256,19 +303,6 @@ nodes:
           - oDriveConnected:
               description: Is the ODrive connected?
               width: 1
-
-    - SteeringCmd:
-        id: 0x21
-        cycletime: 100
-
-        signals:
-          - angleCmd:
-              description: Absolute steering angle in radians.
-              # minimum: -0.471238898
-              # maximum: 0.471238898
-              scale: 0.000000001
-              # is_signed: true
-              width: 32
 
 - SUP:
     rx:
@@ -318,8 +352,9 @@ nodes:
 
 - THROTTLE:
     rx:
-    - CTRL_VelocityCommand
+    - DBW_Active
     - DBW_ESTOP
+    - CTRL_VelocityCommand
     - SUP_Authorization
     messages:
     - NodeInfo:
@@ -335,18 +370,21 @@ nodes:
         cycletime: 100
 
         signals:
-          - throttleACmd:
-              description: Throttle A command.
-              width: 8
+          - throttleADutyCycle:
+              description: Throttle A duty cycle.
+              width: 10
 
-          - throttleFCmd:
-              description: Throttle B command.
-              width: 8
+          - throttleFDutyCycle:
+              description: Throttle F duty cycle.
+              width: 10
 
           - percent:
               description: Percentage commanded.
-              width: 8
+              # minimum: 0.0
+              # maximum: 100.0
+              width: 7
               unit: percent
+              scale: 0.1
 
           - relayState:
               description: Current relay state.

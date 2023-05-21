@@ -3,7 +3,7 @@
 
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
 
@@ -12,7 +12,7 @@
 
 // ######        DEFINES        ###### //
 
-#define MODE_CTRL_PIN 16
+#define MODE_CTRL_PIN GPIO_NUM_40
 
 // ######     PRIVATE DATA      ###### //
 
@@ -29,7 +29,7 @@ static void throttle_100Hz();
 
 ember_rate_funcs_S module_rf = {
     .call_init  = throttle_init,
-    .call_100Hz = throttle_100Hz,
+    .call_10Hz = throttle_100Hz,
 };
 
 /*
@@ -41,8 +41,11 @@ ember_rate_funcs_S module_rf = {
  */
 static void throttle_init()
 {
-    gpio_pad_select_gpio(MODE_CTRL_PIN);
-    gpio_set_direction(MODE_CTRL_PIN, GPIO_MODE_OUTPUT);
+    gpio_config(&(gpio_config_t){
+        .pin_bit_mask = BIT64(MODE_CTRL_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+    });
+
     control_relay(0);
 
     enable_pedal_output();
@@ -84,8 +87,8 @@ static void control_relay(bool cmd)
 // ######        CAN TX         ###### //
 
 void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
-    m->THROTTLE_throttleACmd = 0; // just leaving these off for now
-    m->THROTTLE_throttleFCmd = 0; // just leaving these off for now
-    m->THROTTLE_percent = current_pedal_percent();
-    m->THROTTLE_relayState = relay_state;
+    m->THROTTLE_throttleADutyCycle = 0;
+    m->THROTTLE_throttleFDutyCycle = 0;
+    m->THROTTLE_percent            = current_pedal_percent() * 100;
+    m->THROTTLE_relayState         = relay_state;
 }

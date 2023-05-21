@@ -6,7 +6,7 @@ import cand
 
 
 class DbwEnable(threading.Thread):
-    DBW_ACTIVE_CYCLETIME_S = 0.01
+    DBW_ACTIVE_CYCLETIME_S = 0.005
 
     def __init__(self, *, bus: cand.client.Bus = None):
         self._bus = bus

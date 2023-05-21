@@ -2,7 +2,7 @@
 
 #include <driver/ledc.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
 

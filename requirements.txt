@@ -1,7 +1,8 @@
-igvcutils==0.0.4
+common/igvcutils
+common/cantools
+
 matplotlib==3.7.1
-opencan-cand==0.1.0
+opencan-cand==0.0.6
 pip-chill==1.0.1
 platformio==6.1.6
-scons==4.5.1
-strictyaml==1.6.2
+strictyaml==1.7.3
