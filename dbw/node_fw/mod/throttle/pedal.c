@@ -63,6 +63,8 @@ static const struct throttle_output thr_A = {0.5f, 2.5f};
 static const struct throttle_output thr_F = {1.5f, 4.5f};
 
 static float32_t current_percent;
+static uint32_t thr_A_dutyCycle;
+static uint32_t thr_F_dutyCycle;
 
 // ######      PROTOTYPES       ###### //
 
@@ -117,8 +119,8 @@ void set_pedal_output(float32_t cmd)
 {
     if (cmd > CMD_MAX) cmd = CMD_MAX;
 
-    const uint32_t thr_F_dutyCycle = convert_throttle_command(thr_F, cmd);
-    const uint32_t thr_A_dutyCycle = convert_throttle_command(thr_A, cmd);
+    thr_F_dutyCycle = convert_throttle_command(thr_F, cmd);
+    thr_A_dutyCycle = convert_throttle_command(thr_A, cmd);
 
     current_percent = cmd;
 
