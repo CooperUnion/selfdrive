@@ -332,18 +332,21 @@ nodes:
         cycletime: 100
 
         signals:
-          - throttleACmd:
-              description: Throttle A command.
-              width: 8
+          - throttleADutyCycle:
+              description: Throttle A duty cycle.
+              width: 10
 
-          - throttleFCmd:
-              description: Throttle B command.
-              width: 8
+          - throttleFDutyCycle:
+              description: Throttle F duty cycle.
+              width: 10
 
           - percent:
               description: Percentage commanded.
-              width: 8
+              # minimum: 0.0
+              # maximum: 100.0
+              width: 7
               unit: percent
+              scale: 0.1
 
           - relayState:
               description: Current relay state.
