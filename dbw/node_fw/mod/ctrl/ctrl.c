@@ -109,12 +109,11 @@ static void ctrl_100Hz()
      * velocity command priority when setting percentages.
      */
     if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
-        //disable
         taskDISABLE_INTERRUPTS();
         brake_percent    = CANRX_get_DBW_brakePercent();
         throttle_percent = CANRX_get_DBW_throttlePercent();
         taskENABLE_INTERRUPTS();
-        //enable
+
         base_set_state_dbw_active();
         return;
     }
