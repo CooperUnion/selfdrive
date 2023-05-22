@@ -32,6 +32,17 @@ static void steer_init()
 
 // ######        CAN TX         ###### //
 
+void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveControllerMode * const m)
+{
+    m->STEER_odriveControlMode = CAN_STEER_ODRIVECONTROLMODE_VELOCITY_CONTROL;
+}
+
+void CANTX_populate_STEER_ODriveVelocity(struct CAN_Message_STEER_ODriveVelocity * const m)
+{
+    m->STEER_odriveVelocity          = 0;
+    m->STEER_odriveTorqueFeedForward = 0;
+}
+
 void CANTX_populate_STEER_SteeringData(struct CAN_Message_STEER_SteeringData * const m)
 {
     m->STEER_angle             = 0;
