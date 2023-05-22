@@ -16,9 +16,4 @@ enum cuber_sys_states {
 
 void base_request_state(enum cuber_sys_states state);
 
-void base_set_state_idle(void);
-void base_set_state_dbw_active(void);
-void base_set_state_estop(void);
-void base_set_wdt_trigger(void);
-
 #endif
