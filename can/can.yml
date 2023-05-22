@@ -343,18 +343,18 @@ nodes:
                 - ENCODER_HALL_POLARITY_CALIBRATION: 0x0C
                 - ENCODER_HALL_PHASE_CALIBRATION:    0x0D
 
-          - motorError:
-              description: Motor error.
+          - motorErrorAlarm:
+              description: Motor error alarm.
               start_bit: 40
               width: 1
 
-          - encoderError:
-              description: Encoder error.
+          - encoderErrorAlarm:
+              description: Encoder error alarm.
               start_bit: 48
               width: 1
 
-          - controllerError:
-              description: Controller error.
+          - controllerErrorAlarm:
+              description: Controller error alarm.
               start_bit: 56
               width: 1
 

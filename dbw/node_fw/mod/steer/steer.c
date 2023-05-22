@@ -1,16 +1,19 @@
 #include "steer.h"
 
-#include <esp_attr.h>
 #include <driver/gpio.h>
+#include <esp_attr.h>
 
 #include "cuber_base.h"
 #include "ember_common.h"
 #include "ember_taskglue.h"
+#include "opencan_rx.h"
 #include "opencan_tx.h"
 
 // ######        DEFINES        ###### //
 
 // ######      PROTOTYPES       ###### //
+
+static bool odrive_calibration_needed(void);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -21,16 +24,37 @@ static struct {
 // ######    RATE FUNCTIONS     ###### //
 
 static void steer_init();
+static void steer_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init = steer_init,
+    .call_init  = steer_init,
+    .call_100Hz = steer_100Hz,
 };
 
 static void steer_init()
 {
 }
 
+static void steer_100Hz()
+{
+    bool calibration_needed = odrive_calibration_needed();
+
+    alarm.odrive_calibration = calibration_needed;
+}
+
 // ######   PRIVATE FUNCTIONS   ###### //
+
+static bool odrive_calibration_needed(void)
+{
+    bool calibration_needed = false;
+
+    calibration_needed |= CANRX_get_ODRIVE_axisError() != CAN_ODRIVE_AXISERROR_NONE;
+    calibration_needed |= CANRX_get_ODRIVE_motorErrorAlarm();
+    calibration_needed |= CANRX_get_ODRIVE_encoderErrorAlarm();
+    calibration_needed |= CANRX_get_ODRIVE_controllerErrorAlarm();
+
+    return calibration_needed;
+}
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
