@@ -102,7 +102,7 @@ nodes:
 
     - BrakeData:
           id: 0x11
-          cycletime: 100
+          cycletime: 10
 
           signals:
             - frequency:
