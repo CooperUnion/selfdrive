@@ -1,5 +1,8 @@
 #include "sup.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "common.h"
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
@@ -30,28 +33,34 @@ static void sup_100Hz()
 
     // BRAKE
     authorized  = true;
+    taskDISABLE_INTERRUPTS();
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok() || CANRX_is_message_DBW_RawVelocityCommand_ok();
     authorized &= CANRX_is_node_CTRL_ok();
     authorized &= CANRX_is_node_BRAKE_ok();
     authorized &= CANRX_get_CTRL_sysStatus()  != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= CANRX_get_BRAKE_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= !CANRX_get_CTRL_speedAlarm();
+    taskENABLE_INTERRUPTS();
     brake_authorized = authorized;
 
     // STEER
     authorized  = true;
+    taskDISABLE_INTERRUPTS();
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
     authorized &= CANRX_get_STEER_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    taskENABLE_INTERRUPTS();
     steer_authorized = authorized;
 
     // THROTTLE
     authorized  = true;
+    taskDISABLE_INTERRUPTS();
     authorized &= CANRX_is_message_DBW_VelocityCommand_ok() || CANRX_is_message_DBW_RawVelocityCommand_ok();
     authorized &= CANRX_is_node_CTRL_ok();
     authorized &= CANRX_is_node_THROTTLE_ok();
     authorized &= CANRX_get_CTRL_sysStatus()     != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= CANRX_get_THROTTLE_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= !CANRX_get_CTRL_speedAlarm();
+    taskENABLE_INTERRUPTS();
     throttle_authorized = authorized;
 }
 
