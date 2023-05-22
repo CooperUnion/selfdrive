@@ -75,7 +75,6 @@ nodes:
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
-    - DBW_Active
     - DBW_ESTOP
     - DBW_VelocityCommand
     - SUP_Authorization
@@ -113,7 +112,6 @@ nodes:
 
 - CTRL:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
@@ -149,43 +147,17 @@ nodes:
 - DBW:
     messages:
     - ESTOP:
-        id: 0x41F
+        id: 0x0
 
         signals:
-          - src:
-              description: ESTOP source.
-              width: 8
-              enumerated_values:
-                - NODE
-                - NODESD
-                - SAFED
-
-          - reason:
+          - estopReason:
               description: ESTOP reason.
-              width: 8
+              width: 2
               enumerated_values:
-                - FAIL
+                - MANUAL
                 - TIMEOUT
                 - INVALID_STATE
                 - LIMIT_EXCEEDED
-
-    - Active:
-        id: 0x420
-        cycletime: 100
-
-        signals:
-          - active:
-              description: DBW is active.
-              width: 1
-
-    - Enable:
-        id: 0x421
-        cycletime: 100
-
-        signals:
-          - enable:
-              description: Enable DBW active.
-              width: 1
 
     - RawVelocityCommand:
         from_template: DBWVelocityCommand
@@ -220,7 +192,6 @@ nodes:
 
 - ENCF:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -237,7 +208,6 @@ nodes:
 
 - PB:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -267,7 +237,6 @@ nodes:
 
 - STEER:
     rx:
-      - DBW_Active
       - DBW_ESTOP
     messages:
     - NodeInfo:
@@ -347,7 +316,6 @@ nodes:
 
 - THROTTLE:
     rx:
-    - DBW_Active
     - DBW_ESTOP
     - CTRL_VelocityCommand
     - SUP_Authorization

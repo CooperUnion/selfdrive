@@ -183,6 +183,7 @@ void CANRX_onRxCallback_DBW_ESTOP(
     const struct CAN_Message_DBW_ESTOP * const dec)
 {
     (void) raw;
+    (void) dec;
 
     system_state = SYS_STATE_ESTOP;
 }
