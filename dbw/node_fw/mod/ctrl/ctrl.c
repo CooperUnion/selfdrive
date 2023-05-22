@@ -3,6 +3,9 @@
 #include <esp_attr.h>
 #include <driver/gpio.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
@@ -105,12 +108,14 @@ static void ctrl_100Hz()
      * and vice-versa.  To avoid this situation, we give the raw
      * velocity command priority when setting percentages.
      */
-
     if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+        //disable
+        taskDISABLE_INTERRUPTS();
         brake_percent    = CANRX_get_DBW_brakePercent();
         throttle_percent = CANRX_get_DBW_throttlePercent();
+        taskENABLE_INTERRUPTS();
+        //enable
         base_set_state_dbw_active();
-
         return;
     }
 
