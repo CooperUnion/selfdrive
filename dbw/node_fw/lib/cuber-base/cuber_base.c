@@ -25,8 +25,7 @@ static void set_status_LEDs();
 
 // ######     PRIVATE DATA      ###### //
 
-static enum cuber_sys_states sys_state = CUBER_SYS_STATE_UNDEF;
-
+static enum cuber_sys_states sys_state       = CUBER_SYS_STATE_UNDEF;
 static enum cuber_sys_states requested_state = CUBER_SYS_STATE_UNDEF;
 
 static bool wdt_trigger;
