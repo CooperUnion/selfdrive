@@ -20,7 +20,11 @@ RUN cd ros_ws &&\
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release
 
 # copy alias bash and add to bashrc
+COPY ./entrypoint.sh /
 COPY ./alias.sh /
-RUN echo "source /alias.sh" >> ~/.bashrc
 
+RUN echo "source /alias.sh" >> ~/.bashrc
+RUN echo "source /entrypoint.sh" >> ~/.bashrc
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
