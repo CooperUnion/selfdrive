@@ -73,8 +73,9 @@ static void encoder_100Hz()
     const int32_t right_ticks = pulse_cnt[1];
 
     if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
-        (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
-        base_set_state_estop(0 /* placeholder */);
+        (ABS(right_ticks) >= ENCODER_MAX_TICKS))
+    {
+        base_request_state(CUBER_SYS_STATE_ESTOP);
     }
 }
 
