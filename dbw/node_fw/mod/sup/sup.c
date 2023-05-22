@@ -4,6 +4,7 @@
 #include <freertos/task.h>
 
 #include "common.h"
+#include "cuber_base.h"
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
 #include "opencan_templates.h"
@@ -62,6 +63,12 @@ static void sup_100Hz()
     authorized &= !CANRX_get_CTRL_speedAlarm();
     taskENABLE_INTERRUPTS();
     throttle_authorized = authorized;
+
+    if (brake_authorized || steer_authorized || throttle_authorized) {
+       base_set_state_dbw_active();
+    } else {
+        base_set_state_idle();
+    }
 }
 
 // ######        CAN TX         ###### //
