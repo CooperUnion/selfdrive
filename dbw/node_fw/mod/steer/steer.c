@@ -14,6 +14,10 @@
 
 // ######     PRIVATE DATA      ###### //
 
+static struct {
+    bool odrive_calibration : 1;
+} alarm;
+
 // ######    RATE FUNCTIONS     ###### //
 
 static void steer_init();
@@ -31,6 +35,12 @@ static void steer_init()
 // ######   PUBLIC FUNCTIONS    ###### //
 
 // ######        CAN TX         ###### //
+
+void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
+{
+    m->STEER_alarmsRaised           = alarm.odrive_calibration;
+    m->STEER_odriveCalibrationAlarm = alarm.odrive_calibration;
+}
 
 void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveControllerMode * const m)
 {

@@ -398,6 +398,19 @@ nodes:
       - DBW_ESTOP
       - ODRIVE_Status
     messages:
+    - Alarms:
+        id: 0x17
+        cycletime: 10
+
+        signals:
+          - alarmsRaised:
+              description: Alarms raised.
+              width: 1
+
+          - odriveCalibrationAlarm:
+              description: ODrive calibration necessary.
+              width: 1
+
     - NodeInfo:
         from_template: DBWNodeInfo
         id: 0xD6
