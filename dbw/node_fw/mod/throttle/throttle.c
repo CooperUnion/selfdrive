@@ -54,6 +54,7 @@ static void throttle_init()
 static void throttle_100Hz()
 {
     bool throttle_authorized =
+        CANRX_is_message_SUP_Authorization_ok() &&
         CANRX_get_SUP_throttleAuthorized() &&
         CANRX_is_message_CTRL_VelocityCommand_ok();
 

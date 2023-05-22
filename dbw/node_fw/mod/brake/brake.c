@@ -74,6 +74,7 @@ static void brake_100Hz()
     static float32_t prev_cmd;
 
     bool brake_authorized =
+        CANRX_is_message_SUP_Authorization_ok() &&
         CANRX_get_SUP_brakeAuthorized() &&
         CANRX_is_message_CTRL_VelocityCommand_ok();
 
