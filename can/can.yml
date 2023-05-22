@@ -56,7 +56,7 @@ message_templates:
           width: 5
 
 - DBWVelocityCommand:
-    cycletime: 10
+    cycletime: 100
 
     signals:
       - brakePercent:
@@ -102,7 +102,7 @@ nodes:
 
     - BrakeData:
           id: 0x11
-          cycletime: 10
+          cycletime: 100
 
           signals:
             - frequency:
