@@ -21,9 +21,22 @@ message_templates:
       - sysStatus:
           description: Status of the node.
           enumerated_values:
+            - UNDEF
+            - INIT
             - IDLE
-            - UNHEALTHY
             - ACTIVE
+            - LOST_CAN
+            - BAD
+            - ESTOP
+      - requestedSysStatus:
+          description: Requested node status.
+          enumerated_values:
+            - UNDEF
+            - INIT
+            - IDLE
+            - ACTIVE
+            - LOST_CAN
+            - BAD
             - ESTOP
       - temperature:
           description: Core temperature in Celsius

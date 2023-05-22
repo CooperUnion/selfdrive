@@ -65,9 +65,9 @@ static void sup_100Hz()
     throttle_authorized = authorized;
 
     if (brake_authorized || steer_authorized || throttle_authorized) {
-       base_set_state_dbw_active();
+       base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
     } else {
-        base_set_state_idle();
+        base_request_state(CUBER_SYS_STATE_IDLE);
     }
 }
 

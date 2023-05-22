@@ -61,10 +61,10 @@ static void throttle_100Hz()
 
     if (throttle_authorized) {
         cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
-        base_set_state_dbw_active();
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
     } else {
         cmd = 0.0;
-        base_set_state_idle();
+        base_request_state(CUBER_SYS_STATE_IDLE);
     }
 
     control_relay(throttle_authorized);

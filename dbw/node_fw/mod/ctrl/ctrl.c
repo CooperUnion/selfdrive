@@ -94,7 +94,7 @@ static void ctrl_100Hz()
         throttle_percent = 0;
 
         speed_alarm = true;
-        base_set_state_estop();
+        base_request_state(CUBER_SYS_STATE_ESTOP);
 
         return;
     }
@@ -114,7 +114,7 @@ static void ctrl_100Hz()
         throttle_percent = CANRX_get_DBW_throttlePercent();
         taskENABLE_INTERRUPTS();
 
-        base_set_state_dbw_active();
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
         return;
     }
 
@@ -124,14 +124,14 @@ static void ctrl_100Hz()
 
         brake_percent    = 0;
         throttle_percent = 0;
-        base_set_state_dbw_active();
 
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
         return;
     }
 
     brake_percent    = 0;
     throttle_percent = 0;
-    base_set_state_idle();
+    base_request_state(CUBER_SYS_STATE_IDLE);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //

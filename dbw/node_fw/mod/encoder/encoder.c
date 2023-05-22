@@ -75,7 +75,7 @@ static void encoder_100Hz()
     if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
         (ABS(right_ticks) >= ENCODER_MAX_TICKS))
     {
-        base_set_state_estop();
+        base_request_state(CUBER_SYS_STATE_ESTOP);
     }
 }
 
