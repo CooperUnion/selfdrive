@@ -88,8 +88,8 @@ static void control_relay(bool cmd)
 // ######        CAN TX         ###### //
 
 void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
-    m->THROTTLE_throttleADutyCycle = current_thr_a_dutyCycle();
-    m->THROTTLE_throttleFDutyCycle = current_thr_f_dutyCycle();
+    m->THROTTLE_throttleADutyCycle = current_thr_A_dutyCycle();
+    m->THROTTLE_throttleFDutyCycle = current_thr_F_dutyCycle();
     m->THROTTLE_percent            = current_pedal_percent() * 100;
     m->THROTTLE_relayState         = relay_state;
 }
