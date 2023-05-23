@@ -396,7 +396,9 @@ nodes:
 - STEER:
     rx:
       - DBW_ESTOP
+      - DBW_SteeringCommand
       - ODRIVE_Status
+      - SUP_Authorization
     messages:
     - Alarms:
         id: 0x17
@@ -445,6 +447,7 @@ nodes:
 
     - ODriveRequestState:
         id: 0x307
+        cycletime: 10
 
         signals:
           - odriveRequestState:

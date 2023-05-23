@@ -58,6 +58,21 @@ static void steer_100Hz()
     else if (steer_state != CALIBRATING)
         steer_state = NEEDS_CALIBRATION;
 
+    bool steer_authorized =
+        CANRX_is_message_SUP_Authorization_ok() &&
+        CANRX_is_message_DBW_SteeringCommand_ok() &&
+        CANRX_get_SUP_steerAuthorized();
+
+    if (!steer_authorized) {
+        base_request_state(CUBER_SYS_STATE_IDLE);
+        odrive_state = IDLE;
+
+        return;
+    }
+
+    base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
+    // we only want to calibrate when DBW is active
     if (steer_state == NEEDS_CALIBRATION) {
         odrive_state = FULL_CALIBRATION_SEQUENCE;
         steer_state  = CALIBRATING;
@@ -65,6 +80,11 @@ static void steer_100Hz()
         CANTX_doTx_STEER_ODriveClearErrors();
         CANTX_doTx_STEER_ODriveRequestState();
     }
+
+    // we need to wait for calibration to complete
+    if (steer_state != READY) return;
+
+    odrive_state = CLOSED_LOOP_CONTROL;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
