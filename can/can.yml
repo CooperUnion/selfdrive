@@ -443,6 +443,29 @@ nodes:
     - ODriveReboot:
         id: 0x316
 
+    - ODriveRequestState:
+        id: 0x307
+
+        signals:
+          - odriveRequestState:
+              description: ODrive state request.
+              width: 32
+
+              enumerated_values:
+                - UNDEFINED:                         0x00
+                - IDLE:                              0x01
+                - STARTUP_SEQUENCE:                  0x02
+                - FULL_CALIBRATION_SEQUENCE:         0x03
+                - MOTOR_CALIBRATION:                 0x04
+                - ENCODER_INDEX_SEARCH:              0x06
+                - ENCODER_OFFSET_CALIBRATION:        0x07
+                - CLOSED_LOOP_CONTROL:               0x08
+                - LOCKIN_SPIN:                       0x09
+                - ENCODER_DIR_FIND:                  0x0A
+                - HOMING:                            0x0B
+                - ENCODER_HALL_POLARITY_CALIBRATION: 0x0C
+                - ENCODER_HALL_PHASE_CALIBRATION:    0x0D
+
     - ODriveVelocity:
         id: 0x30D
         cycletime: 100

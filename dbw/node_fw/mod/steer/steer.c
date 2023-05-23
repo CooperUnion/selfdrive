@@ -21,6 +21,12 @@ static struct {
     bool odrive_calibration : 1;
 } alarm;
 
+enum {
+    READY,
+    CALIBRATING,
+    NEEDS_CALIBRATION,
+} steer_state = READY;
+
 // ######    RATE FUNCTIONS     ###### //
 
 static void steer_init();
@@ -69,6 +75,27 @@ void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveControllerMode * const m)
 {
     m->STEER_odriveControlMode = CAN_STEER_ODRIVECONTROLMODE_VELOCITY_CONTROL;
+}
+
+void CANTX_populate_STEER_ODriveRequestState(struct CAN_Message_STEER_ODriveRequestState * const m)
+{
+    switch (odrive_state) {
+        case IDLE:
+            m->STEER_odriveRequestState = CAN_STEER_ODRIVEREQUESTSTATE_IDLE;
+            break;
+
+        case FULL_CALIBRATION_SEQUENCE:
+            m->STEER_odriveRequestState = CAN_STEER_ODRIVEREQUESTSTATE_FULL_CALIBRATION_SEQUENCE;
+            break;
+
+        case CLOSED_LOOP_CONTROL:
+            m->STEER_odriveRequestState = CAN_STEER_ODRIVEREQUESTSTATE_CLOSED_LOOP_CONTROL;
+            break;
+
+        default:
+            m->STEER_odriveRequestState = CAN_STEER_ODRIVEREQUESTSTATE_UNDEFINED;
+            break;
+    }
 }
 
 void CANTX_populate_STEER_ODriveVelocity(struct CAN_Message_STEER_ODriveVelocity * const m)
