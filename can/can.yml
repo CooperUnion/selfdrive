@@ -468,7 +468,7 @@ nodes:
 
     - ODriveVelocity:
         id: 0x30D
-        cycletime: 100
+        cycletime: 10
 
         signals:
           - odriveVelocity:
@@ -483,7 +483,7 @@ nodes:
 
     - SteeringData:
         id: 0x16
-        cycletime: 100
+        cycletime: 10
 
         signals:
           - angle:
