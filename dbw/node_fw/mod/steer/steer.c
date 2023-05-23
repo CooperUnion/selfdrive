@@ -22,6 +22,12 @@ static struct {
 } alarm;
 
 enum {
+    IDLE,
+    FULL_CALIBRATION_SEQUENCE,
+    CLOSED_LOOP_CONTROL,
+} odrive_state = IDLE;
+
+enum {
     READY,
     CALIBRATING,
     NEEDS_CALIBRATION,
@@ -46,6 +52,19 @@ static void steer_100Hz()
     bool calibration_needed = odrive_calibration_needed();
 
     alarm.odrive_calibration = calibration_needed;
+
+    if (!calibration_needed)
+        steer_state = READY;
+    else if (steer_state != CALIBRATING)
+        steer_state = NEEDS_CALIBRATION;
+
+    if (steer_state == NEEDS_CALIBRATION) {
+        odrive_state = FULL_CALIBRATION_SEQUENCE;
+        steer_state  = CALIBRATING;
+
+        CANTX_doTx_STEER_ODriveClearErrors();
+        CANTX_doTx_STEER_ODriveRequestState();
+    }
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -70,6 +89,12 @@ void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 {
     m->STEER_alarmsRaised           = alarm.odrive_calibration;
     m->STEER_odriveCalibrationAlarm = alarm.odrive_calibration;
+}
+
+void CANTX_populate_STEER_ODriveClearErrors(uint8_t * const data, uint8_t * const len)
+{
+    (void) data;
+    (void) len;
 }
 
 void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveControllerMode * const m)
@@ -109,4 +134,18 @@ void CANTX_populate_STEER_SteeringData(struct CAN_Message_STEER_SteeringData * c
     m->STEER_angle             = 0;
     m->STEER_encoderTimeoutSet = 0;
     m->STEER_oDriveConnected   = 0;
+
+    switch (steer_state) {
+        case READY:
+            m->STEER_state = CAN_STEER_STATE_READY;
+            break;
+
+        case CALIBRATING:
+            m->STEER_state = CAN_STEER_STATE_CALIBRATING;
+            break;
+
+        case NEEDS_CALIBRATION:
+            m->STEER_state = CAN_STEER_STATE_NEEDS_CALIBRATION;
+            break;
+    }
 }

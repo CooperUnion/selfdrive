@@ -502,6 +502,14 @@ nodes:
               description: Is the ODrive connected?
               width: 1
 
+          - state:
+              description: Steering state.
+
+              enumerated_values:
+                - READY
+                - CALIBRATING
+                - NEEDS_CALIBRATION
+
 - SUP:
     rx:
       - BRAKE_NodeStatus
