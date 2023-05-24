@@ -2,17 +2,24 @@
 
 #include <driver/gpio.h>
 #include <esp_attr.h>
+#include <math.h>
 
 #include "cuber_base.h"
 #include "ember_common.h"
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "pid.h"
 
 // ######        DEFINES        ###### //
 
+#define KP 1.750
+#define TS 0.001
+
 #define ENCODER2DEG_SLOPE        0.0029
 #define ENCODER2DEG_SLOPE_OFFSET 0.0446
+
+#define RAD2DEG(ang) (ang * (180 / M_PI))
 
 // ######      PROTOTYPES       ###### //
 
@@ -32,11 +39,15 @@ enum {
     CLOSED_LOOP_CONTROL,
 } odrive_state = IDLE;
 
+pid_S pid;
+
 enum {
     READY,
     CALIBRATING,
     NEEDS_CALIBRATION,
 } steer_state = READY;
+
+float velocity;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -50,6 +61,7 @@ ember_rate_funcs_S module_rf = {
 
 static void steer_init()
 {
+    pid_init(&pid, KP, 0, 0, TS, 0, 0, 0);
 }
 
 static void steer_100Hz()
@@ -71,6 +83,11 @@ static void steer_100Hz()
     if (!steer_authorized) {
         base_request_state(CUBER_SYS_STATE_IDLE);
         odrive_state = IDLE;
+        velocity     = 0;
+
+        // reset our PID controller
+        // for the next time we use it
+        pid_setpoint_reset(&pid, 0, 0);
 
         return;
     }
@@ -90,6 +107,11 @@ static void steer_100Hz()
     if (steer_state != READY) return;
 
     odrive_state = CLOSED_LOOP_CONTROL;
+
+    velocity = pid_step(
+        &pid,
+        RAD2DEG(CANRX_get_DBW_steeringAngleCmd()),
+        encoder2deg());
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -183,7 +205,7 @@ void CANTX_populate_STEER_ODriveRequestState(struct CAN_Message_STEER_ODriveRequ
 
 void CANTX_populate_STEER_ODriveVelocity(struct CAN_Message_STEER_ODriveVelocity * const m)
 {
-    m->STEER_odriveVelocity          = 0;
+    m->STEER_odriveVelocity          = gen_odrive_velocity(velocity);
     m->STEER_odriveTorqueFeedForward = 0;
 }
 
