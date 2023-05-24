@@ -17,6 +17,7 @@
 // ######      PROTOTYPES       ###### //
 
 static float encoder2deg(void);
+static uint32_t gen_odrive_velocity(float vel);
 static bool odrive_calibration_needed(void);
 
 // ######     PRIVATE DATA      ###### //
@@ -104,6 +105,26 @@ static float encoder2deg(void)
     float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
     return deg;
+}
+
+static uint32_t gen_odrive_velocity(float vel)
+{
+    union {
+        float    vel;
+        uint32_t raw;
+    } crime;
+
+    crime.vel = vel;
+
+    // unfortunately, OpenCAN doesn't support
+    // IEEE754 signals at the moment...
+    uint32_t out
+        = ((crime.raw & 0x000000ff) <<  0)
+        | ((crime.raw & 0x0000ff00) <<  8)
+        | ((crime.raw & 0x00ff0000) << 16)
+        | ((crime.raw & 0xff000000) << 24);
+
+    return out;
 }
 
 static bool odrive_calibration_needed(void)
