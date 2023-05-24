@@ -11,8 +11,12 @@
 
 // ######        DEFINES        ###### //
 
+#define ENCODER2DEG_SLOPE        0.0029
+#define ENCODER2DEG_SLOPE_OFFSET 0.0446
+
 // ######      PROTOTYPES       ###### //
 
+static float encoder2deg(void);
 static bool odrive_calibration_needed(void);
 
 // ######     PRIVATE DATA      ###### //
@@ -88,6 +92,19 @@ static void steer_100Hz()
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
+
+static float encoder2deg(void)
+{
+    uint16_t raw_ticks = CANRX_get_WHL_encoder();
+
+    // unfortunately, OpenCAN doesn't support
+    // big-endian messages at the moment...
+    uint16_t ticks = ((raw_ticks & 0xff00) << 8) | (raw_ticks & 0xff);
+
+    float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
+
+    return deg;
+}
 
 static bool odrive_calibration_needed(void)
 {

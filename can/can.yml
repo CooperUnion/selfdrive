@@ -399,6 +399,7 @@ nodes:
       - DBW_SteeringCommand
       - ODRIVE_Status
       - SUP_Authorization
+      - WHL_AbsoluteEncoder
     messages:
     - Alarms:
         id: 0x17
