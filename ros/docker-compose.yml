@@ -25,15 +25,15 @@ services:
         ports:
             - '6379:6379'
 
-    pure_pursuit:
-        build: docker/pure_pursuit/.
-        container_name: pure_pursuit
+    stanley:
+        build: docker/stanley/.
+        container_name: stanley
         tty: true
         environment:
-            - 'ROS_HOSTNAME=pure_pursuit'
+            - 'ROS_HOSTNAME=stanley'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/pure_pursuit:/app/ros_ws/src/pure_pursuit'
+            - './docker/stanley:/app/ros_ws/src/stanley'
         depends_on:
             - master
 
