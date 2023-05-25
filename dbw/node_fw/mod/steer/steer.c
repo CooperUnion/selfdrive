@@ -110,7 +110,7 @@ static void steer_100Hz()
 
     velocity = pid_step(
         &pid,
-        RAD2DEG(CANRX_get_DBW_steeringAngleCmd()),
+        RAD2DEG(CANRX_get_DBW_steeringAngle()),
         encoder2deg());
 }
 

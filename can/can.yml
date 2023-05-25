@@ -181,7 +181,7 @@ nodes:
         cycletime: 100
 
         signals:
-          - steeringAngleCmd:
+          - steeringAngle:
               description: Absolute steering angle in radians.
               # minimum: -0.471238898
               # maximum: 0.471238898
@@ -541,6 +541,7 @@ nodes:
       - CTRL_VelocityCommand
       - DBW_ESTOP
       - DBW_RawVelocityCommand
+      - DBW_SteeringCommand
       - DBW_VelocityCommand
       - STEER_NodeStatus
       - THROTTLE_NodeStatus
