@@ -191,7 +191,7 @@ nodes:
 
     - VelocityCommand:
         id: 0x666
-        cycletime: 100
+        cycletime: 10
 
         signals:
           - linearVelocity:
