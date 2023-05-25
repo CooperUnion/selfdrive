@@ -1,8 +1,9 @@
 #include "encoder.h"
 
+#include <esp_attr.h>
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
 #include "opencan_tx.h"
@@ -21,10 +22,10 @@
 
 // ######      PROTOTYPES       ###### //
 
-static void IRAM_ATTR encoder0_chan_a(void *arg);
-static void IRAM_ATTR encoder0_chan_b(void *arg);
-static void IRAM_ATTR encoder1_chan_a(void *arg);
-static void IRAM_ATTR encoder1_chan_b(void *arg);
+static void encoder0_chan_a(void *arg);
+static void encoder0_chan_b(void *arg);
+static void encoder1_chan_a(void *arg);
+static void encoder1_chan_b(void *arg);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -72,8 +73,9 @@ static void encoder_100Hz()
     const int32_t right_ticks = pulse_cnt[1];
 
     if ((ABS(left_ticks) >= ENCODER_MAX_TICKS) ||
-        (ABS(right_ticks) >= ENCODER_MAX_TICKS)) {
-        base_set_state_estop(0 /* placeholder */);
+        (ABS(right_ticks) >= ENCODER_MAX_TICKS))
+    {
+        base_request_state(CUBER_SYS_STATE_ESTOP);
     }
 }
 

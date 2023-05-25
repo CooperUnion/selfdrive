@@ -4,9 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-bool base_dbw_active();
-void base_set_state_lost_can();
-void base_set_state_estop(uint8_t choice);
-void base_set_wdt_trigger();
+enum cuber_sys_states {
+    CUBER_SYS_STATE_UNDEF = 0,
+    CUBER_SYS_STATE_INIT,
+    CUBER_SYS_STATE_IDLE,
+    CUBER_SYS_STATE_DBW_ACTIVE,
+    CUBER_SYS_STATE_LOST_CAN,
+    CUBER_SYS_STATE_BAD,
+    CUBER_SYS_STATE_ESTOP,
+};
+
+void base_request_state(enum cuber_sys_states state);
 
 #endif

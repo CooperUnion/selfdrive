@@ -51,7 +51,7 @@ services:
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
     velodyne:
-        build: docker/3dlidar/.
+        build: docker/velodyne/.
         container_name: velodyne
         tty: true
         environment:
@@ -61,7 +61,7 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/3dlidar/3dlidar_launch:/app/ros_ws/src/3dlidar_launch'
+            - './docker/velodyne/velodyne_launch:/app/ros_ws/src/velodyne_launch'
         depends_on:
             - master
         ports:
@@ -91,6 +91,18 @@ services:
                     devices:
                         - capabilities: [gpu]
         restart: unless-stopped
+
+    imu:
+        build: docker/yost_imu/.
+        container_name: imu
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=imu'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
 
     rviz:
         build: docker/rviz/.

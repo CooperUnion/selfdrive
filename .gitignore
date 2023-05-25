@@ -4,7 +4,9 @@
 .install-dependencies
 .sconsign.dblite
 .venv
+.direnv
 build
+deps
 
 # Local developer files
 .vscode
