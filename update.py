@@ -132,7 +132,7 @@ def main():
 
     # stop the updatecontrol transmission right now so we don't trigger another update
     # once we're back in the firmware
-    node.stop
+    node.stop()
 
     log.info('Update done; waiting for node to exit bootloader.')
     while node.is_alive():

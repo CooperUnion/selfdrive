@@ -81,21 +81,26 @@ static void base_init()
 static void base_10Hz()
 {
     set_status_LEDs();
-    if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
-        if (system_state == SYS_STATE_IDLE) {
-            /* It's update time. Disable interrupts. */
-            portDISABLE_INTERRUPTS();
 
-            /**
-             * Set the RTC watchdog timeout to 1 second to give us some time
-             * since the task_wdt_servicer() is not running anymore.
-             */
-            set_up_rtc_watchdog_1sec();
+    /* Critical section */
+    portDISABLE_INTERRUPTS();
+    {
+        if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
+            if (sys_state == CUBER_SYS_STATE_IDLE) {
+                /* It's update time. No going back; we will reboot. */
 
-            /* Reboot */
-            esp_restart();
+                /**
+                 * Set the RTC watchdog timeout to 1 second to give us some time
+                 * since the task_wdt_servicer() is not running anymore.
+                 */
+                set_up_rtc_watchdog_1sec();
+
+                /* Reboot */
+                esp_restart();
+            }
         }
     }
+    portENABLE_INTERRUPTS();
 }
 
 static void base_100Hz()
