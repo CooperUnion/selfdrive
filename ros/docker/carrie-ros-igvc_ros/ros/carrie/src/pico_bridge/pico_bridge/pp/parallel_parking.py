@@ -1,11 +1,21 @@
 import math
 import numpy as np
 from collections import namedtuple
+import matplotlib.pyplot as plt 
 
-from pico_bridge.pp import clothoid_path_planner
-
-
+import clothoid_path_planner 
 Point = namedtuple("Point", ["x", "y"])
+start_point = Point(0, 0)
+start_orientation = 0
+goal_point = Point(10, 10)
+# goal_orientation_list = np.linspace(-pi, pi, 75)
+goal_orientation = 0
+num_path_points = 100
+WB = .22
+
+
+
+
 
 class ParkingSpot:
 	def __init__(self, x_0, y_0, yaw_0, barrel1_x, barrel1_y, barrel2_x, barrel2_y):
@@ -74,18 +84,23 @@ def calculate_yaw(cx, cy, start_yaw):
 	return yaw
 
 #note: these are values for center of mass
-#cx, cy = clothoid_path
-#cyaw = calculate_yaw(cx,cy)
+clothoid_path = clothoid_path_planner.generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
+cxt, cyt = clothoid_path 
+cyawt = calculate_yaw(cxt,cyt,start_orientation)
+# c --> points on the path 
 
-# print(clothoid_path)
 
-# def plot_path(path):
-#	 x_values, y_values = path
-#	 plt.plot(x_values, y_values)
-#	 plt.title('Clothoid path')
-#	 plt.show()
+#print(clothoid_path)
 
-# plot_path(clothoid_path)
+def plot_path(path):
+	x_values, y_values = path
+	plt.plot(x_values, y_values)
+	# plt.plot(0.4,-0.1,'o',color = 'red')
+	plt.title('Clothoid path')
+	plt.show()
+
+plot_path(clothoid_path)
+
 
 def lead_axle(x, y, yaw, dist):
 	rx = x + dist*np.cos(yaw)
@@ -159,7 +174,7 @@ class StanleyController:
 		path_yaw = self.cyaw[target_idx]
 		cross_track_error = dx*np.sin(path_yaw) - dy*np.cos(path_yaw)
 		dist_to_path = np.hypot(dx, dy)
-
+  
 		# see if we missed the end of the path?
 		if dist_to_path > (abs(cross_track_error) + self.tolerance):
 			print(f'dist_to_path={dist_to_path} cross_track_error={cross_track_error}')
@@ -190,6 +205,15 @@ class StanleyController:
 			print(f'target_idx={target_idx} theta_e={theta_e} cross_track_error={cross_track_error} delta={delta} curv={curv} path_yaw={path_yaw}')
 			pass
 
-		return curv, cross_track_error, dist_to_path, rx, ry, delta, v
-	
-	
+		return delta, v
+stan = StanleyController(cxt,cyt,cyawt)
+[steering_angle, velcoity] = stan.curvature(0.4,-0.1,0,2)
+def main():
+		nw = NearestWaypoint(cxt,cyt,halfwheelbase=.11)
+		stan = StanleyController(cxt,cyt,cyawt)
+		
+		[steering_angle, velcoity] = stan.curvature(0.4,-0.1,0,2)
+		print(f'steering_angle={steering_angle} velocity={velcoity}')
+
+if __name__ == "__main__":
+		main()
