@@ -1,5 +1,7 @@
 ---
 
+bitrate: 500000
+
 message_templates:
 - DBWNodeInfo:
     cycletime: 1000
