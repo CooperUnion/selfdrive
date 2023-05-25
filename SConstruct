@@ -4,25 +4,90 @@
 
 import os
 
-# We should get more disciplined about our envs later.
+# Basic setup ---------------------------------------------
+# We should get more disciplined about our PATH later.
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
 # Save the repo root in the env
 env['REPO_ROOT'] = env.Dir('.')
-
-venv = Virtualenv()
-if venv is None:
-    print("!!! WARNING: Not running in a virtualenv!")
-
-env.PrependENVPath('PATH', f"{venv}/bin")
 
 Decider('content-timestamp')
 
 term = os.environ.get('TERM') # for color
 if term is not None:
     env['ENV']['TERM'] = term
+# ---------------------------------------------------------
 
+
+# Global help adder function ------------------------------
+help_list = []
+
+def AddHelp(cmd, text):
+    global help_list
+    help_list.append((cmd, text))
+
+env['AddHelp'] = AddHelp
+# ---------------------------------------------------------
+
+
+# Cleaning targets ----------------------------------------
+[rm_build] = env.Command(
+    'phony-rm-build',
+    [],
+    'rm -rf build/'
+)
+
+[rm_deps] = env.Command(
+    'phony-rm-deps',
+    [],
+    'rm -rf deps/'
+)
+
+env.Alias('clean',    rm_build)
+env.Alias('cleanall', [rm_build, rm_deps])
+AddHelp('clean',    'Clean (remove) build/ directory')
+AddHelp('cleanall', 'Clean (remove) build/ and deps/ (aka everything)')
+# ---------------------------------------------------------
+
+
+# Call SConscripts ----------------------------------------
 Default(None)
 Export('env')
 
-env.SConscript('can/SConscript', variant_dir='build/can', duplicate=0)
+# Dependencies first
+env.SConscript('dependencies.SConscript', variant_dir='deps',              duplicate=0)
+env.SConscript('can/SConscript',          variant_dir='build/can',         duplicate=0)
+env.SConscript('dbw/node_fw/SConscript',  variant_dir='build/dbw/node_fw', duplicate=0)
+# ---------------------------------------------------------
+
+# Populate Help -------------------------------------------
+# scons provides Help for you to call to provide the text given by `scons -h`.
+# you can call Help more than once and it will append.
+Help('''
+     So you want to build a car?
+
+     You can specify targets after `scons`, like:
+
+''')
+
+help_list.sort()
+
+for (cmd, text) in help_list:
+    Help(f"     `scons {cmd + '`' : <30} {text : <60}\n")
+
+Help(f'''
+
+     Note: try these helpful aliases (if you have `direnv`):
+
+     `fwpio`    Equivalent to `pio`, but specifically for dbw/node_fw, can
+                be used anywhere in the repo, and uses scons. This is the
+                recommended way to use PlatformIO. For example:
+
+                    $ fwpio run -e blink1.1
+''')
+# ---------------------------------------------------------
+
+if not COMMAND_LINE_TARGETS:
+    from SCons.Script import help_text
+    print(help_text)
+    exit(0)

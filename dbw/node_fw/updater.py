@@ -14,7 +14,7 @@ def main():
     parser.add_argument('module_name', type=str, help="Module name (lowercase)")
     args = parser.parse_args()
 
-    img = open(f".pio/build/{args.module_name}/firmware.bin", "rb")
+    img = open(f"../../build/dbw/node_fw/{args.module_name}/firmware.bin", "rb")
     img_raw = img.read()
 
     db = cantools.database.load_file("../../can/igvc_can.dbc")

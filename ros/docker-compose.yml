@@ -25,16 +25,15 @@ services:
         ports:
             - '6379:6379'
 
-    twist:
-        build: docker/cmd_to_ctrl/.
-        container_name: twist
+    pure_pursuit:
+        build: docker/pure_pursuit/.
+        container_name: pure_pursuit
         tty: true
         environment:
-            - 'ROS_HOSTNAME=navigation'
+            - 'ROS_HOSTNAME=pure_pursuit'
             - 'ROS_MASTER_URI=http://master:11311'
         volumes:
-            - './docker/cmd_to_ctrl/send_launch:/app/ros_ws/src/send_launch'
-            - '../common/cand:/app/cand'
+            - './docker/pure_pursuit:/app/ros_ws/src/pure_pursuit'
         depends_on:
             - master
 
@@ -45,21 +44,14 @@ services:
         environment:
             - 'ROS_HOSTNAME=navigation'
             - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
         volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix' 
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
-    py-steering:
-        build: docker/py-steering/.
-        container_name: py-steering
-        tty: true
-        privileged: true
-        volumes:
-            - '../dbw/py-steering:/app/py-steering'
-        depends_on:
-            - redis
-
     velodyne:
-        build: docker/3dlidar/.
+        build: docker/velodyne/.
         container_name: velodyne
         tty: true
         environment:
@@ -69,30 +61,12 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/velodyne/velodyne_launch:/app/ros_ws/src/velodyne_launch'
         depends_on:
             - master
-        volumes:
-            - './docker/3dlidar/3dlidar_launch:/app/ros_ws/src/3dlidar_launch'
         ports:
             - 2368:2368/udp
             - 8308:8308/udp
-
-    rplidar:
-        build: docker/rplidar/.
-        container_name: rplidar
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=rplidar'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        devices:
-            - '/dev/ttyUSB0:/dev/ttyUSB0'
-        command: roslaunch rplidar_ros view_rplidar.launch
-        depends_on:
-            - master
 
     zed:
         build: docker/zed/.
@@ -106,6 +80,7 @@ services:
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
         volumes:
+            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
         # depends_on:
@@ -116,6 +91,18 @@ services:
                     devices:
                         - capabilities: [gpu]
         restart: unless-stopped
+
+    imu:
+        build: docker/yost_imu/.
+        container_name: imu
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=imu'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
 
     rviz:
         build: docker/rviz/.
@@ -128,7 +115,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-        #command: rviz
         depends_on:
             - master
 
@@ -168,3 +154,27 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         depends_on:
             - master
+
+    encoder_odom:
+        build: docker/encoder_odom
+        container_name: encoder_odom
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=encoder_odom'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/encoder_odom/src:/app/ros_ws/src/encoder_odom'
+        depends_on:
+            - master
+
+    techbus:
+        build: docker/techbus/
+        container_name: techbus
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=techbus'
+            - 'ROS_MASTER_URI=http://master:11311'
+        volumes:
+            - './docker/techbus:/app/ros_ws/src/techbus'
+        depends_on:
+            - master                        

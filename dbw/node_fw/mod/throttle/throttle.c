@@ -3,7 +3,7 @@
 
 #include <driver/gpio.h>
 
-#include "common.h"
+#include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
 
@@ -12,7 +12,7 @@
 
 // ######        DEFINES        ###### //
 
-#define MODE_CTRL_PIN 16
+#define MODE_CTRL_PIN GPIO_NUM_40
 
 // ######     PRIVATE DATA      ###### //
 
@@ -41,8 +41,11 @@ ember_rate_funcs_S module_rf = {
  */
 static void throttle_init()
 {
-    gpio_pad_select_gpio(MODE_CTRL_PIN);
-    gpio_set_direction(MODE_CTRL_PIN, GPIO_MODE_OUTPUT);
+    gpio_config(&(gpio_config_t){
+        .pin_bit_mask = BIT64(MODE_CTRL_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+    });
+
     control_relay(0);
 
     enable_pedal_output();
@@ -50,17 +53,23 @@ static void throttle_init()
 
 static void throttle_100Hz()
 {
-    if (base_dbw_active() && !CANRX_is_node_CTRL_ok()) {
-        base_set_state_estop(0 /* placeholder */);
+    bool throttle_authorized =
+        CANRX_is_message_SUP_Authorization_ok() &&
+        CANRX_get_SUP_throttleAuthorized() &&
+        CANRX_is_message_CTRL_VelocityCommand_ok();
+
+    float32_t cmd;
+
+    if (throttle_authorized) {
+        cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+    } else {
+        cmd = 0.0;
+        base_request_state(CUBER_SYS_STATE_IDLE);
     }
 
-    /* set the relay based on whether DBW is active */
-    control_relay(base_dbw_active());
-
-    /* todo: set the cmd to 0 if DBW is not active, just in case the relay fails */
-    float32_t cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
-
-    set_pedal_output(cmd); // sets CAN feedback data too
+    control_relay(throttle_authorized);
+    set_pedal_output(cmd);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -79,8 +88,8 @@ static void control_relay(bool cmd)
 // ######        CAN TX         ###### //
 
 void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
-    m->THROTTLE_throttleACmd = 0; // just leaving these off for now
-    m->THROTTLE_throttleFCmd = 0; // just leaving these off for now
-    m->THROTTLE_percent = current_pedal_percent();
-    m->THROTTLE_relayState = relay_state;
+    m->THROTTLE_throttleADutyCycle = current_thr_A_dutyCycle();
+    m->THROTTLE_throttleFDutyCycle = current_thr_F_dutyCycle();
+    m->THROTTLE_percent            = current_pedal_percent() * 100;
+    m->THROTTLE_relayState         = relay_state;
 }
