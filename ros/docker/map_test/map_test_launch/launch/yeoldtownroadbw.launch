@@ -1,5 +1,0 @@
-<launch>
-    <remap from="/map" to="/ye_map"/>
-    <arg name="map_file" default="$(find map_test_launch)/maps/yeoldtownroadinv.yaml" />
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
-</launch>
