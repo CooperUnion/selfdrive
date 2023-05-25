@@ -29,7 +29,7 @@ static void throttle_100Hz();
 
 ember_rate_funcs_S module_rf = {
     .call_init  = throttle_init,
-    .call_10Hz = throttle_100Hz,
+    .call_100Hz = throttle_100Hz,
 };
 
 /*
