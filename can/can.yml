@@ -314,15 +314,19 @@ nodes:
               width: 32
 
               enumerated_values:
-                - NONE:                   0x00000
-                - INVALID:                0x00001
-                - WATCHDOG_TIMER_EXPIRED: 0x00800
-                - MIN_ENDSTOP_PRESSED:    0x01000
-                - MAX_ENDSTOP_PRESSED:    0x02000
-                - ESTOP_REQUESTED:        0x04000
-                - HOMING_WITHOUT_ENDSTOP: 0x20000
-                - OVER_TEMP:              0x40000
-                - UNKNOWN_POSITION:       0x80000
+                - NONE:                        0x00000
+                - INVALID_STATE:               0x00001
+                - MOTOR_FAILED:                0x00040
+                - SENSORLESS_ESTIMATOR_FAILED: 0x00080
+                - ENCODER_FAILED:              0x00100
+                - CONTROLLER_FAILED:           0x00200
+                - WATCHDOG_TIMER_EXPIRED:      0x00800
+                - MIN_ENDSTOP_PRESSED:         0x01000
+                - MAX_ENDSTOP_PRESSED:         0x02000
+                - ESTOP_REQUESTED:             0x04000
+                - HOMING_WITHOUT_ENDSTOP:      0x20000
+                - OVER_TEMP:                   0x40000
+                - UNKNOWN_POSITION:            0x80000
 
           - axisState:
               description: Axis state.
@@ -439,6 +443,21 @@ nodes:
                 - TORQUE_CONTROL:   1
                 - VELOCITY_CONTROL: 2
                 - POSITION_CONTROL: 3
+
+          - odriveInputMode:
+              description: ODrive input mode.
+              width: 32
+
+              enumerated_values:
+                - INACTIVE:     0x00
+                - PASSTHROUGH:  0x01
+                - VEL_RAMP:     0x02
+                - POS_FILTER:   0x03
+                - MIX_CHANNELS: 0x04
+                - TRAP_TRAJ:    0x05
+                - TORQUE_RAMP:  0x06
+                - MIRROR:       0x07
+                - TUNING:       0x08
 
     - ODriveESTOP:
         id: 0x302
