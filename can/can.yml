@@ -352,7 +352,7 @@ nodes:
               description: Percentage commanded.
               # minimum: 0.0
               # maximum: 100.0
-              width: 7
+              width: 10
               unit: percent
               scale: 0.1
 
