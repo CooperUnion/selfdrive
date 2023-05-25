@@ -50,16 +50,6 @@ services:
             - '/tmp/.X11-unix:/tmp/.X11-unix' 
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
-    py-steering:
-        build: docker/py-steering/.
-        container_name: py-steering
-        tty: true
-        privileged: true
-        volumes:
-            - '../dbw/py-steering:/app/py-steering'
-        depends_on:
-            - redis
-
     velodyne:
         build: docker/3dlidar/.
         container_name: velodyne
@@ -113,7 +103,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-        #command: rviz
         depends_on:
             - master
 
@@ -178,18 +167,6 @@ services:
         depends_on:
             - master
 
-    map:
-        build: docker/map_test/
-        container_name: map
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=map'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/map_test:/app/ros_ws/src/'
-        depends_on:
-            - master
-   
     vcost:
         build: docker/virtual_costmap_layer/
         container_name: vcost
@@ -201,7 +178,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix' 
-            # - '/dev/dri:/dev/dri' 
             - './docker/virtual_costmap_layer:/app/ros_ws/src/'
         depends_on:
             - master
@@ -210,3 +186,4 @@ services:
                 reservations:
                     devices:
                         - capabilities: [gpu]
+                        
