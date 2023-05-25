@@ -15,14 +15,14 @@ if [ -x "$(command -v apt-get)" ]; then
     $(which sudo) apt-get update -qq
     $(which sudo) apt-get install -y -qq \
         build-essential \
-        python3.9 \
-        python3.9-venv \
+        python3 \
+        python3-venv \
         can-utils \
         fish \
         redis
 elif [ -x "$(command -v dnf)" ]; then
     $(which sudo) dnf install -y -q \
-        python3.9 \
+        python3 \
         can-utils \
         fish \
         redis
@@ -50,7 +50,7 @@ echo -e "\n-> Removing any old .venv...\n"
 rm -rf .venv
 
 echo -e "\n-> Creating new venv...\n"
-python3.9 -m venv .venv
+python3 -m venv .venv
 
 echo -e "\n-> Sourcing new venv...\n"
 source .venv/bin/activate
