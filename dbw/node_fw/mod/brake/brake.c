@@ -97,8 +97,6 @@ static void brake_100Hz()
 
 void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m)
 {
-    m->BRAKE_frequency  = pwm_timer.freq_hz;
-    m->BRAKE_resolution = pwm_timer.duty_resolution;
-    m->BRAKE_percent    = ((float32_t) pwm_channel.duty / (float32_t) (1 << PWM_RESOLUTION)) * 100;
-    m->BRAKE_dutyCycle  = pwm_channel.duty;
+    m->BRAKE_dutyCycle = pwm_channel.duty;
+    m->BRAKE_percent   = (float32_t) pwm_channel.duty / (float32_t) (1 << PWM_RESOLUTION) * 100;
 }
