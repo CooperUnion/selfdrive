@@ -178,3 +178,18 @@ services:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
             - master                        
+
+    behavior_tree:
+        build: docker/behavior_tree/.
+        container_name: behavior_tree
+        tty: true
+        environment:
+            - 'ROS_HOSTNAME=behavior_tree'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        #     - './docker/behavior_tree:/app/ros_ws/src/behavior_tree'
+        depends_on:
+            - master
