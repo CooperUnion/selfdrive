@@ -3,6 +3,7 @@
 #include <driver/gpio.h>
 #include <esp_attr.h>
 #include <math.h>
+#include <string.h>
 
 #include "cuber_base.h"
 #include "ember_common.h"
@@ -24,7 +25,6 @@
 // ######      PROTOTYPES       ###### //
 
 static float encoder2deg(void);
-static uint32_t gen_odrive_velocity(float vel);
 static bool odrive_calibration_needed(void);
 
 // ######     PRIVATE DATA      ###### //
@@ -144,26 +144,6 @@ static float encoder2deg(void)
     return deg;
 }
 
-static uint32_t gen_odrive_velocity(float vel)
-{
-    union {
-        float    vel;
-        uint32_t raw;
-    } crime;
-
-    crime.vel = vel;
-
-    // unfortunately, OpenCAN doesn't support
-    // IEEE754 signals at the moment...
-    uint32_t out
-        = ((crime.raw & 0x000000ff) <<  0)
-        | ((crime.raw & 0x0000ff00) <<  8)
-        | ((crime.raw & 0x00ff0000) << 16)
-        | ((crime.raw & 0xff000000) << 24);
-
-    return out;
-}
-
 static bool odrive_calibration_needed(void)
 {
     bool calibration_needed = false;
@@ -221,7 +201,10 @@ void CANTX_populate_STEER_ODriveRequestState(struct CAN_Message_STEER_ODriveRequ
 
 void CANTX_populate_STEER_ODriveVelocity(struct CAN_Message_STEER_ODriveVelocity * const m)
 {
-    m->STEER_odriveVelocity          = gen_odrive_velocity(velocity);
+    // unfortunately, OpenCAN doesn't support
+    // IEEE754 signals at the moment...
+    memcpy(&m->STEER_odriveVelocity, &velocity, sizeof(velocity));
+
     m->STEER_odriveTorqueFeedForward = 0;
 }
 
