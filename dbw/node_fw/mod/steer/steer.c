@@ -74,8 +74,10 @@ static void steer_100Hz()
         steer_state = NEEDS_CALIBRATION;
 
     bool steer_authorized =
-        CANRX_is_message_SUP_Authorization_ok() &&
         CANRX_is_message_DBW_SteeringCommand_ok() &&
+        CANRX_is_message_SUP_Authorization_ok() &&
+        CANRX_is_message_WHL_AbsoluteEncoder_ok() &&
+        CANRX_is_node_ODRIVE_ok() &&
         CANRX_get_SUP_steerAuthorized();
 
     if (!steer_authorized) {
