@@ -70,9 +70,7 @@ static void steer_100Hz()
 
     alarm.odrive_calibration = calibration_needed;
 
-    if (!calibration_needed)
-        steer_state = READY;
-    else if (steer_state != CALIBRATING)
+    if (calibration_needed && steer_state != CALIBRATING)
         steer_state = NEEDS_CALIBRATION;
 
     bool steer_authorized =
@@ -82,8 +80,11 @@ static void steer_100Hz()
 
     if (!steer_authorized) {
         base_request_state(CUBER_SYS_STATE_IDLE);
+
+        velocity = 0;
+
         odrive_state = IDLE;
-        velocity     = 0;
+        CANTX_doTx_STEER_ODriveRequestState();
 
         // reset our PID controller
         // for the next time we use it
@@ -97,16 +98,30 @@ static void steer_100Hz()
     // we only want to calibrate when DBW is active
     if (steer_state == NEEDS_CALIBRATION) {
         odrive_state = FULL_CALIBRATION_SEQUENCE;
-        steer_state  = CALIBRATING;
-
-        CANTX_doTx_STEER_ODriveClearErrors();
         CANTX_doTx_STEER_ODriveRequestState();
+
+        steer_state = CALIBRATING;
+
+        return;
     }
 
-    // we need to wait for calibration to complete
-    if (steer_state != READY) return;
+    if (steer_state == CALIBRATING) {
+        // TODO: ideally add a timeout to also reboot the ODrive
+        if (CANRX_get_ODRIVE_axisState() != CAN_ODRIVE_AXISSTATE_IDLE)
+            return;
+
+        steer_state = READY;
+    }
+
+    if (steer_state != READY) {
+        odrive_state = IDLE;
+        CANTX_doTx_STEER_ODriveRequestState();
+
+        return;
+    }
 
     odrive_state = CLOSED_LOOP_CONTROL;
+    CANTX_doTx_STEER_ODriveRequestState();
 
     velocity = pid_step(
         &pid,

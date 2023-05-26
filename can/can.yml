@@ -463,7 +463,6 @@ nodes:
 
     - ODriveRequestState:
         id: 0x307
-        cycletime: 10
 
         signals:
           - odriveRequestState:
