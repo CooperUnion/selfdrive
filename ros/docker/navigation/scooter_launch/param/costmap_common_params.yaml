@@ -6,6 +6,17 @@ footprint: [[0, -1], [0, 1], [3.2, -1], [3.2, 1]]  # if the robot is not circula
 
 map_type: voxel
 
+virtual_layer:
+  enabled:              true
+  zone_topics:          [/virtual_costmap_layer/zone]
+  obstacle_topics:      [/virtual_costmap_layer/obstacles]
+  one_zone:             true     
+  forms:    
+     - [0.4, 0.0]
+     - [[0.4, 0.0]]
+     - [[-0.4, 0.0],[0.0, 0.4]]
+     - [[100, 100],[-100, 100],[-100, -100],[100, -100]]
+
 # obstacle_layer:
 #   enabled:              true
 #   max_obstacle_height:  0.6

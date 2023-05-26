@@ -44,18 +44,11 @@ services:
         environment:
             - 'ROS_HOSTNAME=navigation'
             - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
         volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix' 
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
-
-    # py-steering:
-    #     build: docker/py-steering/.
-    #     container_name: py-steering
-    #     tty: true
-    #     privileged: true
-    #     volumes:
-    #         - '../dbw/py-steering:/app/py-steering'
-    #     depends_on:
-    #         - redis
 
     velodyne:
         build: docker/velodyne/.
@@ -122,7 +115,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-        #command: rviz
         depends_on:
             - master
 
@@ -185,4 +177,4 @@ services:
         volumes:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
-            - master
+            - master                        

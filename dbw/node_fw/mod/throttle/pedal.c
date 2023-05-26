@@ -134,3 +134,11 @@ void set_pedal_output(float32_t cmd)
 float32_t current_pedal_percent(void) {
     return current_percent;
 }
+
+uint32_t current_thr_A_dutyCycle(void) {
+    return thr_A_dutyCycle;
+}
+
+uint32_t current_thr_F_dutyCycle(void) {
+    return thr_F_dutyCycle;
+}

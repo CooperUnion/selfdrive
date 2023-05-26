@@ -29,7 +29,7 @@ static void throttle_100Hz();
 
 ember_rate_funcs_S module_rf = {
     .call_init  = throttle_init,
-    .call_10Hz = throttle_100Hz,
+    .call_100Hz = throttle_100Hz,
 };
 
 /*
@@ -54,6 +54,7 @@ static void throttle_init()
 static void throttle_100Hz()
 {
     bool throttle_authorized =
+        CANRX_is_message_SUP_Authorization_ok() &&
         CANRX_get_SUP_throttleAuthorized() &&
         CANRX_is_message_CTRL_VelocityCommand_ok();
 
@@ -87,8 +88,8 @@ static void control_relay(bool cmd)
 // ######        CAN TX         ###### //
 
 void CANTX_populate_THROTTLE_AccelData(struct CAN_Message_THROTTLE_AccelData * const m) {
-    m->THROTTLE_throttleADutyCycle = 0;
-    m->THROTTLE_throttleFDutyCycle = 0;
+    m->THROTTLE_throttleADutyCycle = current_thr_A_dutyCycle();
+    m->THROTTLE_throttleFDutyCycle = current_thr_F_dutyCycle();
     m->THROTTLE_percent            = current_pedal_percent() * 100;
     m->THROTTLE_relayState         = relay_state;
 }
