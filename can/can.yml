@@ -174,7 +174,7 @@ nodes:
 
     - SteeringCommand:
         id: 0x21
-        cycletime: 100
+        cycletime: 10
 
         signals:
           - steeringAngle:
