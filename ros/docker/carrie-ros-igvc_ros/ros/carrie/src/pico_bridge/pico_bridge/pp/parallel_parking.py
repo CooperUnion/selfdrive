@@ -13,10 +13,6 @@ goal_orientation = 0
 num_path_points = 100
 WB = .22
 
-
-
-
-
 class ParkingSpot:
 	def __init__(self, x_0, y_0, yaw_0, barrel1_x, barrel1_y, barrel2_x, barrel2_y):
 		self.start_point = Point(x_0, y_0)
