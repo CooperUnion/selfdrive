@@ -3,6 +3,24 @@
 import math
 import numpy as np
 
+class NearestWaypoint:
+	def __init__(self, cx, cy, halfwheelbase):
+		self.cx = cx
+		self.cy = cy
+		self.halfwheelbase = halfwheelbase
+
+	def get_target_idx(self, x, y, yaw):
+		# Calculate position of the front axle
+		fx, fy = lead_axle(x, y, yaw, self.halfwheelbase)
+
+		dx = [fx - icx for icx in self.cx] # Find the x-axis of the front axle relative to the path
+		dy = [fy - icy for icy in self.cy] # Find the y-axis^
+
+		d = np.hypot(dx, dy) # Find the distance from the front axle to the path
+		target_idx = np.argmin(d) # Find the shortest distance in the array
+
+		return target_idx, fx, fy
+
 class StanleyController:
 	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=.22, k_stanley=.5, logger=None):
 		self.cx = cx

@@ -6,7 +6,7 @@ import math
 from math import atan2
 
 from geometry_msgs.msg import Twist
-from std_msgs.msg import UInt16MultiArray, String
+from std_msgs.msg import UInt16MultiArray, Float32MultiArray, String
 
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'
@@ -14,7 +14,7 @@ VelocityCAN = 'DBW_VelocityCommand'
 SteerCAN = 'DBW_SteeringCommand'
 
 # ROS Topics
-PPTwist = '/cmd_vel'
+StanleyOut = '/stanley_cmd'
 EncoderTicks = '/encoder_ticks'
 
 # Creates subscriber object that listens for the /cmd_vel topic
@@ -24,19 +24,14 @@ EncoderTicks = '/encoder_ticks'
 class ROStouCAN:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
-        rospy.Subscriber(PPTwist, Twist, self.callback)
-    def callback(self, msg):
-        angle = 0
-        if msg.linear.x != 0 and msg.angular.z != 0:
-            angle = -atan2(msg.angular.z * 1.8, msg.linear.x)
-        else:
-            rospy.loginfo(f"Warning: invalid steering angle combo:lin.x:{msg.linear.x}, ang.z:{msg.angular.z}")
-            angle = 0
+        rospy.Subscriber(StanleyOut, Float32MultiArray, self.stanley_callback)
+    def stanley_callback(self, msg):
+        [vel_next,steer_next] = msg.data
         self.bus.send(VelocityCAN, {
-            'DBW_linearVelocity': msg.linear.x
+            'DBW_linearVelocity': vel_next
         })
         self.bus.send(SteerCAN, {
-            'DBW_steeringAngleCmd': angle
+            'DBW_steeringAngleCmd': steer_next
         })
 
 # Establishes publisher for the /encoder_ticks topic
