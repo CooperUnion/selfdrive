@@ -11,7 +11,7 @@ RUN pip install /tmp/cantools /tmp/igvcutils && \
     rm -rf /tmp/cantools /tmp/igvcutils
 
 RUN pip install --upgrade odrive
-RUN pip install opencan-cand==0.0.5
+RUN pip install opencan-cand==0.1.1
 
 WORKDIR /app
 
