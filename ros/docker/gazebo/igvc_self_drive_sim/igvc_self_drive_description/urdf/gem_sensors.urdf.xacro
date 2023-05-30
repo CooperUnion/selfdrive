@@ -32,6 +32,6 @@
   <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/kinda_zed.urdf.xacro" />
   <xacro:kinect_camera name="rgbd_camera_front" parent="base_footprint" >
     <origin xyz="1.9 0 2.2" rpy="0 0.4 0" />
-  </xacro:kinect_camera>d
+  </xacro:kinect_camera>
 
 </robot>
