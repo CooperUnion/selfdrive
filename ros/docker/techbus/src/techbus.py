@@ -14,7 +14,7 @@ VelocityCAN = 'DBW_VelocityCommand'
 SteerCAN = 'DBW_SteeringCommand'
 
 # ROS Topics
-StanleyOut = '/stanley_cmd'
+StanleyOut = '/cmd_stanley'
 EncoderTicks = '/encoder_ticks'
 
 # Creates subscriber object that listens for the /cmd_vel topic
@@ -26,12 +26,12 @@ class ROStouCAN:
         self.bus = cand.client.Bus(redis_host='redis')
         rospy.Subscriber(StanleyOut, Float32MultiArray, self.stanley_callback)
     def stanley_callback(self, msg):
-        [vel_next,steer_next] = msg.data
-        self.bus.send(VelocityCAN, {
-            'DBW_linearVelocity': vel_next
-        })
+        [steer_next, vel_next] = msg.data
         self.bus.send(SteerCAN, {
             'DBW_steeringAngleCmd': steer_next
+        })
+        self.bus.send(VelocityCAN, {
+            'DBW_linearVelocity': vel_next
         })
 
 # Establishes publisher for the /encoder_ticks topic

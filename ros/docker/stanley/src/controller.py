@@ -3,6 +3,14 @@
 import math
 import numpy as np
 
+def coterminal_angle(a):
+	return (a + math.pi) % (2*math.pi) - math.pi
+
+def lead_axle(x, y, yaw, dist):
+	rx = x + dist*np.cos(yaw)
+	ry = y + dist*np.sin(yaw)
+	return rx, ry
+
 class NearestWaypoint:
 	def __init__(self, cx, cy, halfwheelbase):
 		self.cx = cx
@@ -21,8 +29,10 @@ class NearestWaypoint:
 
 		return target_idx, fx, fy
 
+# Tune k_stanley parameter based on testing 
+# double check wheelbase in meters
 class StanleyController:
-	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=.22, k_stanley=.5, logger=None):
+	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=1.35, k_stanley=.5, logger=None):
 		self.cx = cx
 		self.cy = cy
 		self.cyaw = cyaw
@@ -61,13 +71,13 @@ class StanleyController:
 		dist_to_path = np.hypot(dx, dy)
   
 		# see if we missed the end of the path?
-		if dist_to_path > (abs(cross_track_error) + self.tolerance):
-			print(f'dist_to_path={dist_to_path} cross_track_error={cross_track_error}')
-			raise Exception('missed the end!')
+		# if dist_to_path > (abs(cross_track_error) + self.tolerance):
+		# 	print(f'dist_to_path={dist_to_path} cross_track_error={cross_track_error}')
+		# 	raise Exception('missed the end!')
 
 		# see if we're just generally far away
-		if dist_to_path > 5*self.tolerance:
-			raise Exception('too far away!')
+		# if dist_to_path > 5*self.tolerance:
+		# 	raise Exception('too far away!')
 
 		# Calculate heading error
 		theta_e = yaw - self.cyaw[target_idx]
