@@ -61,7 +61,6 @@ services:
             - 'QT_X11_NO_MITSHM=1'
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/velodyne/velodyne_launch:/app/ros_ws/src/velodyne_launch'
         depends_on:
             - master
         ports:
