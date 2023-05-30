@@ -22,5 +22,5 @@ RUN cd ros_ws &&\
 # copy alias bash and add to bashrc
 COPY ./alias.sh /
 RUN echo "source /alias.sh" >> ~/.bashrc
-
+z
 CMD ["bash"]
