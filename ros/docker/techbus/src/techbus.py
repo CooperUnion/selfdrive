@@ -24,9 +24,12 @@ EncoderTicks = '/encoder_ticks'
 class ROStouCAN:
     def __init__(self):
         self.bus = cand.client.Bus(redis_host='redis')
-        rospy.Subscriber(StanleyOut, Float32MultiArray, self.stanley_callback)
+        # rospy.Subscriber(StanleyOut, Float32MultiArray, self.stanley_callback)
+        rospy.Subscriber(StanleyOut, Twist, self.stanley_callback)
     def stanley_callback(self, msg):
-        [steer_next, vel_next] = msg.data
+        # [steer_next, vel_next] = msg.data
+        steer_next = msg.angular.z
+        vel_next = msg.linear.x
         self.bus.send(SteerCAN, {
             'DBW_steeringAngleCmd': steer_next
         })

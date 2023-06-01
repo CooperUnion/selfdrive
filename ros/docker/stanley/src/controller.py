@@ -32,7 +32,7 @@ class NearestWaypoint:
 # Tune k_stanley parameter based on testing 
 # double check wheelbase in meters
 class StanleyController:
-	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=1.35, k_stanley=.5, logger=None):
+	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=1.27, k_stanley=.05, logger=None):
 		self.cx = cx
 		self.cy = cy
 		self.cyaw = cyaw
@@ -45,7 +45,7 @@ class StanleyController:
 		self.nw = NearestWaypoint(cx, cy, halfwheelbase=self.halfwheelbase)
 		self.nw_rev = NearestWaypoint(cx, cy, halfwheelbase=-self.halfwheelbase)
 		self.logger = logger
-
+ 
 	def set_logger(self, logger):
 		self.logger = logger
 
@@ -57,7 +57,8 @@ class StanleyController:
 		halfwheelbase is distance from com to front axle
 		k_stanley is gain
 		'''
-		if v < 0: # moving backwards!
+		# Tolerance changed bc of gazebo odom sensitivity
+		if v < -0.05: # moving backwards!
 			yaw = coterminal_angle(yaw + math.pi)
 		target_idx, rx, ry = self.nw.get_target_idx(x, y, yaw)
 
@@ -69,7 +70,10 @@ class StanleyController:
 		path_yaw = self.cyaw[target_idx]
 		cross_track_error = dx*np.sin(path_yaw) - dy*np.cos(path_yaw)
 		dist_to_path = np.hypot(dx, dy)
-  
+
+		# print(f'Nearest Waypoint: {self.cx[target_idx],self.cy[target_idx]}')
+		# print(f'Distance to the path: {dist_to_path}')
+		
 		# see if we missed the end of the path?
 		# if dist_to_path > (abs(cross_track_error) + self.tolerance):
 		# 	print(f'dist_to_path={dist_to_path} cross_track_error={cross_track_error}')
