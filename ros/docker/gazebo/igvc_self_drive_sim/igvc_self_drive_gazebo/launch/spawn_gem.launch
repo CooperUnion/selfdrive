@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="start_x" default="0.0" />
+  <arg name="start_y" default="0.0" />
+  <arg name="start_z" default="0.0" />
+  <arg name="start_yaw" default="0.0" />
+  <arg name="twist_mode" default="true" />
+  <arg name="pub_tf" default="false" />
+
+  <param if="$(eval env('ROS_DISTRO')!='kinetic')" name="robot_description" command="$(find xacro)/xacro '$(find igvc_self_drive_description)/urdf/gem.urdf.xacro' twist_mode:=$(arg twist_mode) pub_tf:=$(arg pub_tf)" />
+  <param if="$(eval env('ROS_DISTRO')=='kinetic')" name="robot_description" command="$(find xacro)/xacro --inorder '$(find igvc_self_drive_description)/urdf/gem.urdf.xacro' twist_mode:=$(arg twist_mode) pub_tf:=$(arg pub_tf)" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_gem" args="-urdf -param robot_description -model vehicle -x $(arg start_x) -y $(arg start_y) -z $(arg start_z) -Y $(arg start_yaw)"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="state_publisher">
+    <param name="publish_frequency" value="100.0" />
+  </node>
+
+</launch>

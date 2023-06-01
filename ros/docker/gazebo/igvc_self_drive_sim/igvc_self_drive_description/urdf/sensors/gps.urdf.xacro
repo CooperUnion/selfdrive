@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot name="gps" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="gps" params="name parent *origin" >
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius=".07" length=".06"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1 1 1 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius=".07" length=".06"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" />
+        <mass value="0.1" />
+        <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}" />
+    </joint>
+
+    <gazebo reference="${name}" >
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <gazebo>
+      <plugin name="${name}" filename="libhector_gazebo_ros_gps.so">
+        <alwaysOn>1</alwaysOn>
+        <updateRate>10.0</updateRate>
+        <bodyName>${name}</bodyName>
+        <topicName>fix</topicName>
+        <frameId>world</frameId>
+        <referenceLatitude>42.679292</referenceLatitude>
+        <referenceLongitude>-83.195249</referenceLongitude>
+        <referenceHeading>90</referenceHeading>
+        <velocityTopicName>fix_velocity</velocityTopicName>
+        <drift>0.0 0.0 0.0</drift>
+        <gaussianNoise>0.01 0.01 0.01</gaussianNoise>
+        <velocityDrift>0 0 0</velocityDrift>
+        <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>
