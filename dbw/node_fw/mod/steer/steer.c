@@ -141,7 +141,7 @@ static float encoder2deg(void)
 
     // unfortunately, OpenCAN doesn't support
     // big-endian messages at the moment...
-    uint16_t ticks = ((raw_ticks & 0xff00) << 8) | (raw_ticks & 0xff);
+    int16_t ticks = ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
 
     float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
