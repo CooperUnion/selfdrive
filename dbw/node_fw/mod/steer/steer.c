@@ -122,8 +122,10 @@ static void steer_100Hz()
         return;
     }
 
-    odrive_state = CLOSED_LOOP_CONTROL;
-    CANTX_doTx_STEER_ODriveRequestState();
+    if (odrive_state != CLOSED_LOOP_CONTROL) {
+        odrive_state = CLOSED_LOOP_CONTROL;
+        CANTX_doTx_STEER_ODriveRequestState();
+    }
 
     velocity = pid_step(
         &pid,
