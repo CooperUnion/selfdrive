@@ -85,12 +85,10 @@ static void steer_100Hz()
 
         velocity = 0;
 
-        odrive_state = IDLE;
-        CANTX_doTx_STEER_ODriveRequestState();
-
-        // reset our PID controller
-        // for the next time we use it
-        pid_setpoint_reset(&pid, 0, 0);
+        if (odrive_state != IDLE) {
+            odrive_state = IDLE;
+            CANTX_doTx_STEER_ODriveRequestState();
+        }
 
         return;
     }
@@ -125,6 +123,8 @@ static void steer_100Hz()
     if (odrive_state != CLOSED_LOOP_CONTROL) {
         odrive_state = CLOSED_LOOP_CONTROL;
         CANTX_doTx_STEER_ODriveRequestState();
+
+        pid_setpoint_reset(&pid, CANRX_get_DBW_steeringAngle(), encoder2deg());
     }
 
     velocity = pid_step(
