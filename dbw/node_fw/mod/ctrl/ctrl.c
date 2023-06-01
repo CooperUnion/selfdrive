@@ -3,6 +3,9 @@
 #include <esp_attr.h>
 #include <driver/gpio.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "ember_common.h"
 #include "cuber_base.h"
 #include "ember_taskglue.h"
@@ -11,10 +14,10 @@
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A 26
-#define ENCODER0_CHAN_B 27
-#define ENCODER1_CHAN_A 17
-#define ENCODER1_CHAN_B 0
+#define ENCODER0_CHAN_A  4
+#define ENCODER0_CHAN_B  3
+#define ENCODER1_CHAN_A 36
+#define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -81,24 +84,54 @@ static void ctrl_100Hz()
     prv_pulse_cnt[0] = cur_pulse_cnt[0];
     prv_pulse_cnt[1] = cur_pulse_cnt[1];
 
-    // check if we're over the speed limit and trigger estop if so
+    // check if we're over the speed limit and
+    // go into the ESTOP state if that's the case
     if (
         (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
-        (ABS(right_delta) >= ENCODER_MAX_TICKS)
-    ) {
-        speed_alarm = true;
-        base_set_state_estop(0 /* placeholder */);
-    } else {
-        speed_alarm = false;
-    }
-
-    if (CANRX_is_node_DBW_ok() && base_dbw_active()) {
-        brake_percent    = CANRX_get_DBW_brakePercent();
-        throttle_percent = CANRX_get_DBW_throttlePercent();
-    } else {
+        (ABS(right_delta) >= ENCODER_MAX_TICKS))
+    {
         brake_percent    = 0;
         throttle_percent = 0;
+
+        speed_alarm = true;
+        base_request_state(CUBER_SYS_STATE_ESTOP);
+
+        return;
     }
+
+    speed_alarm = false;
+
+    /*
+     * We want to set brake and throttle percentages based on either a
+     * raw or normal velocity command.  Ideally, a raw velocity command
+     * would not be sent when a regular velocity command is being sent
+     * and vice-versa.  To avoid this situation, we give the raw
+     * velocity command priority when setting percentages.
+     */
+    if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+        taskDISABLE_INTERRUPTS();
+        brake_percent    = CANRX_get_DBW_brakePercent();
+        throttle_percent = CANRX_get_DBW_throttlePercent();
+        taskENABLE_INTERRUPTS();
+
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+        return;
+    }
+
+    if (CANRX_is_message_DBW_VelocityCommand_ok()) {
+        // TODO: set brake and throttle percentages
+        // using a PID controller
+
+        brake_percent    = 0;
+        throttle_percent = 0;
+
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+        return;
+    }
+
+    brake_percent    = 0;
+    throttle_percent = 0;
+    base_request_state(CUBER_SYS_STATE_IDLE);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -193,10 +226,10 @@ void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
     m->CTRL_speedAlarm   = speed_alarm;
 }
 
-void CANTX_populate_CTRL_VelocityCommand(struct CAN_Message_CTRL_VelocityCommand * const m)
+void CANTX_populateTemplate_VelocityCommand(struct CAN_TMessage_DBWVelocityCommand * const m)
 {
-    m->CTRL_brakePercent    = brake_percent;
-    m->CTRL_throttlePercent = throttle_percent;
+    m->brakePercent    = brake_percent;
+    m->throttlePercent = throttle_percent;
 }
 
 void CANTX_populateTemplate_EncoderData(struct CAN_TMessage_EncoderData * const m)
