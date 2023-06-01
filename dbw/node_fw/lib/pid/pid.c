@@ -61,7 +61,7 @@ void pid_setpoint_reset(pid_S *pid, float desired, float current)
     pid->private.error.velocity = 0.0;
 }
 
-float step(pid_S *pid, float desired, float current)
+float pid_step(pid_S *pid, float desired, float current)
 {
     float error = desired - current;
 
