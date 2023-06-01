@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>igvc_self_drive_gazebo_plugins</name>
+  <version>0.1.4</version>
+  <description>
+    Gazebo plugins for IGVC Self-Drive simulator
+  </description>
+  <maintainer email="mtradovn@oakland.edu">Micho Radovnikovich</maintainer>
+  <author email="mtradovn@oakland.edu">Micho Radovnikovich</author>
+  <license>BSD2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>gazebo_ros</depend>
+  <depend>dynamic_reconfigure</depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>hector_gazebo_plugins</exec_depend>
+  <exec_depend>hector_models</exec_depend>
+  <exec_depend>gazebo_ros_pkgs</exec_depend>
+</package>

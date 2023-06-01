@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="road_intersection">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://road_intersection/meshes/road_intersection.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://road_intersection/meshes/road_intersection.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
+
