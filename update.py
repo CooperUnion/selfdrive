@@ -1,4 +1,8 @@
+# spdx-license-identifier: MPL-2.0
+# ember_bl updater.
+# (c) 2023 Daniel Mezhiborsky
 
+import argparse
 import can
 import coloredlogs
 import isotp
@@ -46,20 +50,20 @@ class TargetNode():
                 'UPD_currentIsoTpChunk': chunk
             }
 
-            self.bus.send(f'UPD_UpdateControl_{TARGET_NODE}', signals)
+            self.bus.send(f'UPD_UpdateControl_{self.node}', signals)
             sleep(0.02)
 
     def state(self) -> str:
-        message = f'{self.node}_Status'
+        message = f'{self.node}BL_Status'
         data = self.bus.get_data(message)
         if data is None:
             self.log.error(f"Missing {message} from cand... is the node present?")
             exit(-1)
 
-        return data[f'{self.node}_state']
+        return data[f'{self.node}BL_state']
 
     def is_alive(self) -> bool:
-        message = f'{self.node}_Status'
+        message = f'{self.node}BL_Status'
         dt = self.bus.get_time_delta(message)
 
         if dt is None:
@@ -70,30 +74,36 @@ class TargetNode():
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Update a node over CAN.')
+    parser.add_argument('--iface', type=str, default='can0', help='CAN interface to use')
+    parser.add_argument('--target', type=str, metavar='THROTTLE', help='Target node to update', required=True)
+    parser.add_argument('--bin', type=str, metavar='firmware.bin', help='Firmware binary to send', required=True)
+    args = parser.parse_args()
+
     global chunk
 
     coloredlogs.install(level='info')
     log = logging.getLogger('main')
 
     cand_bus = Bus()
-    isotp_tx_id = cand_bus.get_message_id(f'UPD_IsoTpTx_{TARGET_NODE}')
-    isotp_rx_id = cand_bus.get_message_id(f'{TARGET_NODE}BL_IsoTpTx')
+    isotp_tx_id = cand_bus.get_message_id(f'UPD_IsoTpTx_{args.target}')
+    isotp_rx_id = cand_bus.get_message_id(f'{args.target}BL_IsoTpTx')
     print(f"Using isotp_tx_id {isotp_tx_id} and isotp_rx_id {isotp_rx_id}.")
 
     isotp_stack = isotp.CanStack(
-        can.interface.Bus(iface, bustype = 'socketcan'),
+        can.interface.Bus(args.iface, bustype = 'socketcan'),
         address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=isotp_rx_id, txid=isotp_tx_id),
     )
     log.info('Created isotp stack')
 
-    firmware = open('build/dbw/node_fw/throttle/firmware.bin', 'rb').read()
+    firmware = open(args.bin, 'rb').read()
     total_size = len(firmware)
     log.info(f'Read firmware binary ({total_size} bytes).')
 
-    node = TargetNode(f"{TARGET_NODE}BL", total_size)
+    node = TargetNode(args.target, total_size)
     log.info(f'Tracking target node {node.node}')
 
-    log.info(f'Waiting for {node.node} to come up...')
+    log.info(f'Waiting for {node.node}BL to come up...')
     while not node.is_alive():
         sleep(SLEEP_WAIT)
 
