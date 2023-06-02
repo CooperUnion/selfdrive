@@ -21,10 +21,17 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS 600  // slightly over 5MPH
+#define ENCODER_MAX_TICKS           600  // slightly over 5MPH
+#define ENCODER_TICKS_PER_ROTATION 4000
+
+#define WHEEL_CIRCUMFERENCE_M 1.899156
+
+#define AVERAGE_VELOCITY_SAMPLES          4
+#define AVERAGE_VELOCITY_SAMPLE_RATE_HZ 100.0
 
 // ######      PROTOTYPES       ###### //
 
+static void calculate_average_velocity(int16_t left_delta, int16_t right_delta);
 static void encoder0_chan_a(void *arg);
 static void encoder0_chan_b(void *arg);
 static void encoder1_chan_a(void *arg);
@@ -36,6 +43,8 @@ static volatile uint16_t pulse_cnt[2];
 static bool speed_alarm;
 static uint8_t brake_percent;
 static uint8_t throttle_percent;
+
+static float average_velocity;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -78,6 +87,8 @@ static void ctrl_100Hz()
 
     prv_pulse_cnt[0] = cur_pulse_cnt[0];
     prv_pulse_cnt[1] = cur_pulse_cnt[1];
+
+    calculate_average_velocity(left_delta, right_delta);
 
     // check if we're over the speed limit and
     // go into the ESTOP state if that's the case
@@ -130,6 +141,26 @@ static void ctrl_100Hz()
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
+
+static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
+{
+    static size_t  index;
+    static int32_t average_velocity_sum;
+    static int32_t average_velocity_buf[AVERAGE_VELOCITY_SAMPLES];
+
+    // remove stale value
+    average_velocity_sum -= average_velocity_buf[index];
+
+    average_velocity_buf[index] = (left_delta + right_delta) / 2;
+    average_velocity_sum += average_velocity_buf[index];
+
+    index = (index + 1) % AVERAGE_VELOCITY_SAMPLES;
+
+    average_velocity
+        = (average_velocity_sum / AVERAGE_VELOCITY_SAMPLES)
+        * (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
+        / (1.0 / AVERAGE_VELOCITY_SAMPLE_RATE_HZ);
+}
 
 static void IRAM_ATTR encoder0_chan_a(void *arg)
 {
