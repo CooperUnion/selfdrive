@@ -87,6 +87,19 @@ message_templates:
             width: 16
 
 nodes:
+- BLINK:
+    rx:
+      - DBW_ESTOP
+
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xD0
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xE0
+
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
@@ -553,14 +566,6 @@ nodes:
 
 - TEST:
     rx: "*"
-    messages:
-    - NodeInfo:
-        from_template: DBWNodeInfo
-        id: 0xD0
-
-    - NodeStatus:
-        from_template: DBWNodeStatus
-        id: 0xE0
 
 - THROTTLE:
     rx:
