@@ -85,6 +85,32 @@ message_templates:
             description: Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
+- UpdateControl:
+    cycletime: 20
+
+    signals:
+        - updateSizeBytes:
+            description: Total update binary size in bytes.
+            width: 24
+        - currentIsoTpChunk:
+            description: Current isotp 4095-byte chunk.
+            width: 12
+
+- BlStatus:
+    cycletime: 20
+
+    signals:
+        - state:
+            enumerated_values:
+            - AWAIT_TRIGGER
+            - RECV_CHUNK
+            - CHECK_DESC
+            - COMMIT_CHUNK
+            - FINALIZE
+            - REBOOT_FW
+            - FAULT
+            - RESET
+
 nodes:
 - BRAKE:
     rx:
@@ -320,7 +346,7 @@ nodes:
 - TEST:
     rx:
     - DBW_ESTOP
-    - UPD_UpdateControl
+    - UPD_UpdateControl_TEST
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -332,50 +358,36 @@ nodes:
 
 - TESTBL:
     rx:
-    - UPD_IsoTpTx
-    - UPD_UpdateControl
+    - UPD_IsoTpTx_TEST
+    - UPD_UpdateControl_TEST
     messages:
     - IsoTpTx:
         id: 0x301
     - Status:
+        from_template: BlStatus
         id: 0x302
-        cycletime: 20
-
-        signals:
-          - state:
-              enumerated_values:
-                - AWAIT_TRIGGER
-                - RECV_CHUNK
-                - CHECK_DESC
-                - COMMIT_CHUNK
-                - FINALIZE
-                - REBOOT_FW
-                - FAULT
-                - RESET
 
 - UPD:
     rx:
     - TESTBL_IsoTpTx
     messages:
-    - IsoTpTx:
+    - IsoTpTx_TEST:
         id: 0x330
-    - UpdateControl:
+    - IsoTpTx_THROTTLE:
+        id: 0x331
+    - UpdateControl_TEST:
+        from_template: UpdateControl
         id: 0x2A0
-        cycletime: 20
-
-        signals:
-          - updateSizeBytes:
-              description: Total update binary size in bytes.
-              width: 24
-          - currentIsoTpChunk:
-              description: Current isotp 4095-byte chunk.
-              width: 12
+    - UpdateControl_THROTTLE:
+        from_template: UpdateControl
+        id: 0x2A1
 
 - THROTTLE:
     rx:
     - DBW_ESTOP
     - CTRL_VelocityCommand
     - SUP_Authorization
+    - UPD_UpdateControl_THROTTLE
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -409,6 +421,17 @@ nodes:
           - relayState:
               description: Current relay state.
               width: 1
+
+- THROTTLEBL:
+    rx:
+    - UPD_IsoTpTx_THROTTLE
+    - UPD_UpdateControl_THROTTLE
+    messages:
+    - IsoTpTx:
+        id: 0x303
+    - Status:
+        from_template: BlStatus
+        id: 0x304
 
 - WHL:
     messages:

@@ -54,31 +54,34 @@ const esp_partition_t *app_partition;
 
 // ######          CAN          ###### //
 
-void CANRX_onRxCallback_UPD_IsoTpTx(
+#define CANRX_ISOTP_CALLBACK_NAME_(IDENTITY) CANRX_onRxCallback_UPD_IsoTpTx_ ## IDENTITY
+#define CANRX_ISOTP_CALLBACK_NAME(IDENTITY) CANRX_ISOTP_CALLBACK_NAME_(IDENTITY)
+
+void CANRX_ISOTP_CALLBACK_NAME(EMBER_NODE_IDENTITY)(
     const uint8_t * const data,
     const uint8_t len)
 {
     isotp_on_can_message(&isotp_link, data, len);
 }
 
-void CANTX_populate_TESTBL_Status(struct CAN_Message_TESTBL_Status * const m)
+void CANTX_populateTemplate_Status(struct CAN_TMessage_BlStatus * const m)
 {
-    typeof(m->TESTBL_state) s;
+    typeof(m->state) s;
 
     switch (bl_state) {
-        case BL_STATE_INIT:             s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
-        case BL_STATE_AWAIT_TRIGGER:    s = CAN_TESTBL_STATE_AWAIT_TRIGGER;     break;
-        case BL_STATE_RECV_CHUNK:       s = CAN_TESTBL_STATE_RECV_CHUNK;        break;
-        case BL_STATE_CHECK_DESC:       s = CAN_TESTBL_STATE_CHECK_DESC;        break;
-        case BL_STATE_COMMIT_CHUNK:     s = CAN_TESTBL_STATE_COMMIT_CHUNK;      break;
-        case BL_STATE_FINALIZE:         s = CAN_TESTBL_STATE_FINALIZE;          break;
-        case BL_STATE_REBOOT_FW:        s = CAN_TESTBL_STATE_REBOOT_FW;         break;
-        case BL_STATE_FAULT:            s = CAN_TESTBL_STATE_FAULT;             break;
-        case BL_STATE_RESET:            s = CAN_TESTBL_STATE_RESET;             break;
-        default:                        s = CAN_TESTBL_STATE_RESET;             break;
+        case BL_STATE_INIT:             s = CAN_T_BLSTATUS_STATE_AWAIT_TRIGGER;     break;
+        case BL_STATE_AWAIT_TRIGGER:    s = CAN_T_BLSTATUS_STATE_AWAIT_TRIGGER;     break;
+        case BL_STATE_RECV_CHUNK:       s = CAN_T_BLSTATUS_STATE_RECV_CHUNK;        break;
+        case BL_STATE_CHECK_DESC:       s = CAN_T_BLSTATUS_STATE_CHECK_DESC;        break;
+        case BL_STATE_COMMIT_CHUNK:     s = CAN_T_BLSTATUS_STATE_COMMIT_CHUNK;      break;
+        case BL_STATE_FINALIZE:         s = CAN_T_BLSTATUS_STATE_FINALIZE;          break;
+        case BL_STATE_REBOOT_FW:        s = CAN_T_BLSTATUS_STATE_REBOOT_FW;         break;
+        case BL_STATE_FAULT:            s = CAN_T_BLSTATUS_STATE_FAULT;             break;
+        case BL_STATE_RESET:            s = CAN_T_BLSTATUS_STATE_RESET;             break;
+        default:                        s = CAN_T_BLSTATUS_STATE_RESET;             break;
     }
 
-    m->TESTBL_state = s;
+    m->state = s;
 }
 
 // ######    RATE FUNCTIONS     ###### //
@@ -122,9 +125,12 @@ static void bl_init(void) {
         }
     }
 
+    #define CANRX_ISOTP_TX_ID_(IDENTITY) CAN_MSG_ ## IDENTITY ## BL_IsoTpTx_ID
+    #define CANRX_ISOTP_TX_ID(IDENTITY) CANRX_ISOTP_TX_ID_(IDENTITY)
+
     isotp_init_link(
         &isotp_link,
-        0x301,
+        CANRX_ISOTP_TX_ID(EMBER_NODE_IDENTITY),
         isotp_tx_buf,
         sizeof(isotp_tx_buf),
         isotp_rx_buf,

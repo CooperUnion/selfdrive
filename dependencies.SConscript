@@ -7,7 +7,7 @@ Import("env")
 
 # VERSIONS ------------------------------------------------
 env['RUST_VERSION']    = 'beta'
-env['OPENCAN_VERSION'] = 'adc28bc'
+env['OPENCAN_VERSION'] = 'beae1fda'
 # ---------------------------------------------------------
 
 # venv & pip ----------------------------------------------
