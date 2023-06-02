@@ -14,6 +14,8 @@ iface = 'can0'
 
 SLEEP_WAIT = 0.01
 
+TARGET_NODE = 'THROTTLE'
+
 # current chunk; global and shared
 chunk = 0
 
@@ -44,7 +46,7 @@ class TargetNode():
                 'UPD_currentIsoTpChunk': chunk
             }
 
-            self.bus.send('UPD_UpdateControl', signals)
+            self.bus.send(f'UPD_UpdateControl_{TARGET_NODE}', signals)
             sleep(0.02)
 
     def state(self) -> str:
@@ -73,17 +75,22 @@ def main():
     coloredlogs.install(level='info')
     log = logging.getLogger('main')
 
+    cand_bus = Bus()
+    isotp_tx_id = cand_bus.get_message_id(f'UPD_IsoTpTx_{TARGET_NODE}')
+    isotp_rx_id = cand_bus.get_message_id(f'{TARGET_NODE}BL_IsoTpTx')
+    print(f"Using isotp_tx_id {isotp_tx_id} and isotp_rx_id {isotp_rx_id}.")
+
     isotp_stack = isotp.CanStack(
         can.interface.Bus(iface, bustype = 'socketcan'),
-        address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=0x301, txid=0x330),
+        address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=isotp_rx_id, txid=isotp_tx_id),
     )
     log.info('Created isotp stack')
 
-    firmware = open('dbw/node_fw/.pio/build/blink2.0A/firmware.bin', 'rb').read()
+    firmware = open('build/dbw/node_fw/throttle/firmware.bin', 'rb').read()
     total_size = len(firmware)
     log.info(f'Read firmware binary ({total_size} bytes).')
 
-    node = TargetNode('TESTBL', total_size)
+    node = TargetNode(f"{TARGET_NODE}BL", total_size)
     log.info(f'Tracking target node {node.node}')
 
     log.info(f'Waiting for {node.node} to come up...')
