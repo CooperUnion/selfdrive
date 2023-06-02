@@ -422,7 +422,6 @@ nodes:
         from_template: DBWNodeStatus
         id: 0xE6
 
-    # unused
     - ODriveClearErrors:
         id: 0x318
 
@@ -460,6 +459,7 @@ nodes:
     - ODriveESTOP:
         id: 0x302
 
+    # unused
     - ODriveReboot:
         id: 0x316
 

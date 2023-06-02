@@ -95,9 +95,9 @@ static void steer_100Hz()
 
     base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 
-    // errors get cleared on reboot
+    // clear errors before calibrating
     if (calibration_needed) {
-        CANTX_doTx_STEER_ODriveReboot();
+        CANTX_doTx_STEER_ODriveClearErrors();
         steer_state = NEEDS_CALIBRATION;
 
         return;
@@ -174,12 +174,6 @@ void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 }
 
 void CANTX_populate_STEER_ODriveClearErrors(uint8_t * const data, uint8_t * const len)
-{
-    (void) data;
-    (void) len;
-}
-
-void CANTX_populate_STEER_ODriveReboot(uint8_t * const data, uint8_t * const len)
 {
     (void) data;
     (void) len;
