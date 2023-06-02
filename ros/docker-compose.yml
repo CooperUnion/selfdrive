@@ -178,7 +178,22 @@ services:
         volumes:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
-            - master
+            - master                        
+
+    lane_detection:
+            build: docker/lane_detection/
+            container_name: lane_detection
+            tty: true
+            environment:
+                - 'ROS_HOSTNAME=lane_detection'
+                - 'ROS_MASTER_URI=http://master:11311'
+                - 'DISPLAY=$DISPLAY'
+                - 'QT_X11_NO_MITSHM=1'
+            volumes:
+                - '/tmp/.X11-unix:/tmp/.X11-unix'
+                - './docker/lane_detection:/app/ros_ws/src/lane_detection'
+            depends_on:
+                - master
 
     gazebo:
         build: docker/gazebo/.
