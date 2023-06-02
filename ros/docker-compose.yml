@@ -131,6 +131,7 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             #- ~/.ros:/root
+            - '/home/eeadmin/comp-data:/comp-data'
             - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
         depends_on:
             - master
@@ -192,4 +193,22 @@ services:
                 - '/tmp/.X11-unix:/tmp/.X11-unix'
                 - './docker/lane_detection:/app/ros_ws/src/lane_detection'
             depends_on:
-                - master  
+                - master
+
+    gazebo:
+        build: docker/gazebo/.
+        container_name: gazebo
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=gazebo'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/gazebo/igvc_self_drive_sim:/app/ros_ws/src/igvc_self_drive_sim'
+        depends_on:
+            - master
+        restart: unless-stopped
+            - master
