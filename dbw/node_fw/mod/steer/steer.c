@@ -212,10 +212,6 @@ void CANTX_populate_STEER_ODriveVelocity(struct CAN_Message_STEER_ODriveVelocity
 
 void CANTX_populate_STEER_SteeringData(struct CAN_Message_STEER_SteeringData * const m)
 {
-    m->STEER_angle             = 0;
-    m->STEER_encoderTimeoutSet = 0;
-    m->STEER_oDriveConnected   = 0;
-
     switch (steer_state) {
         case READY:
             m->STEER_state = CAN_STEER_STATE_READY;

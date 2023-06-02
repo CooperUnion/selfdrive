@@ -504,22 +504,6 @@ nodes:
         cycletime: 10
 
         signals:
-          - angle:
-              description: Absolute steering angle in radians.
-              # minimum: -0.610865238
-              # maximum: 0.610865238
-              scale: 0.000000001
-              twos_complement: true
-              width: 32
-
-          - encoderTimeoutSet:
-              description: Has the encoder timed out?
-              width: 1
-
-          - oDriveConnected:
-              description: Is the ODrive connected?
-              width: 1
-
           - state:
               description: Steering state.
 
