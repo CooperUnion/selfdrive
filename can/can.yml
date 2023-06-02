@@ -182,7 +182,7 @@ nodes:
               # minimum: -0.471238898
               # maximum: 0.471238898
               scale: 0.000000001
-              # is_signed: true
+              twos_complement: true
               width: 32
 
     - VelocityCommand:
