@@ -38,20 +38,12 @@ def gray_binary(img:np.ndarray):
 
 
 def hsv_filter(img: np.ndarray):
+    """
+    bgr img -> hsv, sat, grayscale img
+    """
+
     hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     h, s, v = cv2.split(hsv_img)
-
-    # # Apply Otsu's thresholding to the value channel
-    # _, thres_img = cv2.threshold(v, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # # Find the red region in the hue channel
-    # lower = np.array([155,25,0])
-    # upper = np.array([179,255,255])
-    # red_mask = cv2.inRange(hsv_img, lower, upper)
-    # cv2.imwrite('/app/ocr/data/redmask.png', red_mask)
-
-    # # Apply the red mask to the thresholded image
-    # masked_img = cv2.bitwise_and(thres_img, thres_img, mask=red_mask)
 
     return hsv_img, s, v
 
@@ -98,3 +90,38 @@ def get_oct(img:np.ndarray, gray:np.ndarray):
     mask = np.array(mask, dtype=np.uint8)
 
     return mask
+
+def get_red(img:np.ndarray):
+    """
+    Use HSV image to get red mask
+    """
+
+    result= img.copy()
+    #cv2.imwrite("/app/ocr/data/hsv2.png", result)
+    lower = np.array([155,25,0])
+    upper = np.array([179,255,255])
+    #gauss = cv2.GaussianBlur(img, (7,7), 0)
+    mask = cv2.inRange(img, lower, upper)
+    cv2.imwrite("/app/ocr/data/hsv3.png", mask)
+    #result = cv2.bitwise_and(result, result, mask=mask)
+    return mask
+
+    # # Apply Otsu's thresholding to the value channel
+    # _, thres_img = cv2.threshold(v, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # # Find the red region in the hue channel
+    # lower = np.array([155,25,0])
+    # upper = np.array([179,255,255])
+    # red_mask = cv2.inRange(hsv_img, lower, upper)
+    # cv2.imwrite('/app/ocr/data/redmask.png', red_mask)
+
+    # # Apply the red mask to the thresholded image
+    # masked_img = cv2.bitwise_and(thres_img, thres_img, mask=red_mask)
+
+def erosion(img):
+    src = img
+    kernel = np.ones((3,3))
+    # You can try more different parameters
+    dst = cv2.dilate(src, kernel)
+
+    return dst
