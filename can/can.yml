@@ -427,7 +427,6 @@ nodes:
 
     - ODriveControllerMode:
         id: 0x30B
-        cycletime: 10
 
         signals:
           - odriveControlMode:

@@ -179,12 +179,6 @@ void CANTX_populate_STEER_ODriveClearErrors(uint8_t * const data, uint8_t * cons
     (void) len;
 }
 
-void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveControllerMode * const m)
-{
-    m->STEER_odriveControlMode = CAN_STEER_ODRIVECONTROLMODE_VELOCITY_CONTROL;
-    m->STEER_odriveInputMode   = CAN_STEER_ODRIVEINPUTMODE_PASSTHROUGH;
-}
-
 void CANTX_populate_STEER_ODriveReboot(uint8_t * const data, uint8_t * const len)
 {
     (void) data;
