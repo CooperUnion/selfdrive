@@ -116,13 +116,6 @@ static void steer_100Hz()
         steer_state = READY;
     }
 
-    if (steer_state != READY) {
-        odrive_state = IDLE;
-        CANTX_doTx_STEER_ODriveRequestState();
-
-        return;
-    }
-
     float encoder_deg = encoder2deg();
 
     if (odrive_state != CLOSED_LOOP_CONTROL) {
