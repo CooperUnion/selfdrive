@@ -20,7 +20,7 @@
 #define ENCODER2DEG_SLOPE        0.0029
 #define ENCODER2DEG_SLOPE_OFFSET 0.0446
 
-#define RAD2DEG(ang) (ang * (180 / M_PI))
+#define RAD2DEG(ang) (ang * (180.0 / M_PI))
 
 // ######      PROTOTYPES       ###### //
 
