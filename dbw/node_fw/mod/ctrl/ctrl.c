@@ -59,11 +59,6 @@ static void ctrl_init()
     gpio_set_intr_type(ENCODER1_CHAN_A, GPIO_INTR_ANYEDGE);
     gpio_set_intr_type(ENCODER1_CHAN_B, GPIO_INTR_ANYEDGE);
 
-    gpio_pullup_en(ENCODER0_CHAN_A);
-    gpio_pullup_en(ENCODER0_CHAN_B);
-    gpio_pullup_en(ENCODER1_CHAN_A);
-    gpio_pullup_en(ENCODER1_CHAN_B);
-
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
     gpio_isr_handler_add(ENCODER0_CHAN_A, encoder0_chan_a, NULL);

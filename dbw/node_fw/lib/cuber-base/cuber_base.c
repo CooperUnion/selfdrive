@@ -179,6 +179,11 @@ static void set_status_LEDs() {
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
+enum cuber_sys_states base_get_state(void)
+{
+    return sys_state;
+}
+
 void base_request_state(enum cuber_sys_states state) {
     requested_state = state;
 }

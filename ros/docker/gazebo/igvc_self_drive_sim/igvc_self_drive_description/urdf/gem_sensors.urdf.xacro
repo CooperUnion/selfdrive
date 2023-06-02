@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<robot name="gem_sensors" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+
+  <!-- Camera -->
+  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/camera.urdf.xacro" />
+  <xacro:camera_sim name="camera_front" parent="base_footprint" >
+    <origin xyz="1.75 0 2.1" rpy="0 0.55 0" />
+  </xacro:camera_sim>
+
+  <!-- LIDAR -->
+  <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
+  <xacro:hokuyo_utm30lx name="laser" parent="base_footprint" ros_topic="scan" update_rate="40" ray_count="720" min_angle="-90" max_angle="90" >
+    <origin xyz="2.75 0 0.85" rpy="0 0 0" />
+  </xacro:hokuyo_utm30lx>
+
+  <!-- GPS -->
+  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/gps.urdf.xacro" />
+  <xacro:gps name="gps" parent="base_footprint" >
+    <origin xyz="0.8 0 2.35" rpy="0 0 0" />
+  </xacro:gps>
+
+  <!-- VLP-16 LiDAR -->
+  <!-- skipped setting organize_cloud and gpu -->
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
+  <xacro:VLP-16 parent="base_footprint" name="velodyne" topic="/velodyne_points" hz="10" samples="440">
+    <origin xyz="0.95 0 2.5" rpy="0 0 0" />
+  </xacro:VLP-16>
+
+  <!-- Camera -->
+  <xacro:include filename="$(find igvc_self_drive_description)/urdf/sensors/kinda_zed.urdf.xacro" />
+  <xacro:kinect_camera name="rgbd_camera_front" parent="base_footprint" >
+    <origin xyz="1.9 0 2.2" rpy="0 0.4 0" />
+  </xacro:kinect_camera>
+
+</robot>

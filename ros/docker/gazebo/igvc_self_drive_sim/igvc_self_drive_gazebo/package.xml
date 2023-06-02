@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>igvc_self_drive_gazebo</name>
+  <version>0.1.4</version>
+  <description>
+    Gazebo models and runtime configuration for igvc_self_drive simulator
+  </description>
+  <maintainer email="mtradovn@oakland.edu">Micho Radovnikovich</maintainer>
+  <author email="mtradovn@oakland.edu">Micho Radovnikovich</author>
+  <license>BSD2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+
+  <test_depend>roslaunch</test_depend>
+
+  <export>
+    <gazebo_ros gazebo_model_path="${prefix}/models/"/>
+  </export>
+</package>

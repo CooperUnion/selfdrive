@@ -16,11 +16,11 @@
 
 
     <!-- RGB-D related topics -->
-    <!-- <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" /> -->
+    <!-- <arg name="rgb_topic"               default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color" />
     <arg name="depth_topic"             default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered" />
-    <!-- <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" /> -->
-    <!-- <arg name="depth_camera_info_topic" default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/camera_info" /> -->
-    <arg name="rgbd_topic"              default="$(arg zed_namespace)/rgbd_image" />
+    <arg name="camera_info_topic"       default="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info" />
+    <arg name="depth_camera_info_topic" default="/$(arg zed_namespace)/$(arg zed_node_name)/depth/camera_info" />
+    <arg name="rgbd_topic"              default="$(arg zed_namespace)/rgbd_image" /> -->
 
     <!-- Odometry topic name -->
     <arg name="odom_topic"              default="/encoder_odom" />
@@ -32,7 +32,7 @@
     <arg unless="$(arg deletedb)"   name="rtabmap_args"    default=""/>
 
     <group ns="rtabmap">
-        <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync">
+        <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_sync/rgbd_sync">
             <remap from="rgb/image"       to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/image_rect_color"/>
             <remap from="depth/image"     to="/$(arg zed_namespace)/$(arg zed_node_name)/depth/depth_registered"/>
             <remap from="rgb/camera_info" to="/$(arg zed_namespace)/$(arg zed_node_name)/rgb/camera_info"/>
@@ -41,7 +41,7 @@
 
         <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry" output="screen" >
 
-            <remap from="scan"      to="/scan"/>
+            <remap from="scan_cloud"      to="/velodyne_points"/>
             <remap from="odom"      to="$(arg odom_topic)"/>
             <!-- <remap from="odom_info"      to="/rtabmap/odom_info"/> -->
 
@@ -49,16 +49,16 @@
             <param name="deskewing"       type="string" value="true"/>
 
             <param name="odom_frame_id"   type="string" value="icp_odom"/>
-            <param name="guess_frame_id"  type="string" value="odom"/>
+            <!-- <param name="guess_frame_id"  type="string" value="odom"/> -->
 
             <param name="Icp/VoxelSize"     type="string" value="0.05"/>
-            <param name="Icp/RangeMax"      type="string" value="0"/> 
+            <param name="Icp/RangeMax"      type="string" value="0"/>
             <!-- not sure about max range, think 0 is defaukt -->
             <param name="Icp/Epsilon"       type="string" value="0.001"/>
             <param name="Icp/MaxTranslation" type="string" value="0"/> <!-- can be set to reject large ICP jumps -->
             <param if="$(arg p2n)" name="Icp/PointToPlane"  type="string" value="true"/>
             <param if="$(arg p2n)" name="Icp/PointToPlaneK"  type="string" value="5"/>
-            <param if="$(arg p2n)" name="Icp/PointToPlaneRadius"  type="string" value="0.3"/>
+            <param if="$(arg p2n)" name="Icp/PointToPlaneRadius"  type="string" value=""/>
             <param unless="$(arg p2n)" name="Icp/PointToPlane"  type="string" value="false"/>
             <param unless="$(arg p2n)" name="Icp/PointToPlaneK"  type="string" value="0"/>
             <param unless="$(arg p2n)" name="Icp/PointToPlaneRadius"  type="string" value="0"/>
@@ -71,19 +71,28 @@
             <param name="Odom/ScanKeyFrameThr"  type="string" value="0.75"/>
         </node>
 
-
-        <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+        <node name="rtabmap" pkg="rtabmap_slam" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
             <rosparam command="load" file="/app/ros_ws/src/rtabmap_launch/params/rtabmap.yaml" />
 
-            <!-- determine if we subscribe to lidar -->
+            <!-- determine if we subscribe to lidar
             <param     if="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="true"/>
-            <param unless="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="false"/>
+            <param unless="$(arg subscribe_scan)"   name="subscribe_scan"   type="bool"   value="false"/> -->
+
+            <!-- scan relevant -->
+            <!-- <param     if="$(arg subscribe_scan)"   name="gen_scan"         value="false"/>  -->
+            <!-- <param unless="$(arg subscribe_scan)"   name="gen_scan"         value="true"/> -->
+            <!-- <param unless="$(arg subscribe_scan)"   name="Grid/FromDepth"   value="false"/> -->
 
             <!-- input topics -->
-            <remap from="scan"              to="/scan" />
+            <!-- <remap from="scan"              to="/scan" /> -->
             <remap from="scan_cloud"        to="/velodyne_points"/>
-            <remap from="odom"              to="$(arg odom_topic)" />
-            <remap from="gps/fix"               to="/gps/fix"/>
+            <!-- <remap from="rgb/image"         to="$(arg rgb_topic)" />
+            <remap from="depth/image"       to="$(arg depth_topic)" /> -->
+            <!-- <remap from="rgbd_image"        to=$() -->
+            <!-- <remap from="rgb/camera_info"   to="$(arg camera_info_topic)" /> -->
+            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
+            <remap from="odom"              to="/odom" />
+            <!-- <remap from="gps/fix"               to="/gps/fix"/> -->
 
             <!-- map -->
             <remap from="grid_map"          to="map" />
@@ -98,28 +107,28 @@
             <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
             <param name="odom_frame_id" type="string" value=""/>
 
+            <!-- <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> -->
         </node>
 
-        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+        <node name="rtabmap_viz" pkg="rtabmap_viz" type="rtabmap_viz" output="screen" args="" launch-prefix="">
             <param name="subscribe_stereo"          type="bool"     value="false"/>
             <param name="subscribe_odom_info"       type="bool"     value="false"/>
             <param name="subscribe_depth"           type="bool"     value="false"/>
             <param name="subscribe_rgbd"           type="bool"     value="true"/>
+
+            <!-- <remap from="rgb/image"         to="$(arg rgb_topic)"/>
+            <remap from="depth/image"       to="$(arg depth_topic)"/>
+            <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/> -->
+            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
 
             <remap from="grid_map"          to="map" />
             <remap from="odom"              to="$(arg odom_topic)"/>
             <remap from="scan_cloud"        to="/velodyne_points"/>
         </node>
 
-        <!-- visualization with RVIZ -->
-        <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
-        <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="standalone rtabmap_ros/point_cloud_xyzrgb" output="screen">
-            <!-- <remap from="rgbd_image"        to="/$(arg zed_namespace)/rgbd_image"/> -->
-            <remap from="cloud"             to="/rtabmap/local_grid/obstacle" />
-
-            <param name="decimation"  type="double" value="4"/>
-            <param name="voxel_size"  type="double" value="0.0"/>
-            <param name="approx_sync" type="bool"   value="$(arg approx_sync)"/>
+        <param name="cuber_description" textfile="$(find rtabmap_launch)/urdf/cuber.urdf" />
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+            <remap from="robot_description" to="cuber_description" />
         </node>
 
     </group>
