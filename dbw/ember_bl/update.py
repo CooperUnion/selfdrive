@@ -5,6 +5,7 @@
 import argparse
 import can
 import coloredlogs
+import datetime
 import isotp
 import logging
 
@@ -104,7 +105,12 @@ def main():
     log.info(f'Tracking target node {node.node}')
 
     log.info(f'Waiting for {node.node}BL to come up...')
+    init_start = datetime.datetime.now()
     while not node.is_alive():
+        if datetime.datetime.now() - init_start > datetime.timedelta(seconds=10):
+            log.error(f"Node {node.node}BL did not come up. Exiting.")
+            exit(-1)
+
         sleep(SLEEP_WAIT)
 
     log.info(f"Waiting for node to be in RECV_CHUNK....")
