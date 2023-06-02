@@ -525,6 +525,7 @@ nodes:
       - DBW_SteeringCommand
       - DBW_VelocityCommand
       - STEER_NodeStatus
+      - STEER_SteeringData
       - THROTTLE_NodeStatus
     messages:
     - Authorization:
