@@ -120,6 +120,7 @@ nodes:
     - DBW_ESTOP
     - DBW_VelocityCommand
     - SUP_Authorization
+    - UPD_UpdateControl_BRAKE # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -145,12 +146,23 @@ nodes:
                 width: 10
                 unit: percent
                 scale: 0.1
+- BRAKEBL:
+    rx:
+    - UPD_IsoTpTx_BRAKE
+    - UPD_UpdateControl_BRAKE
+    messages:
+    - IsoTpTx:
+        id: 0x301
+    - Status:
+        from_template: BlStatus
+        id: 0x302
 
 - CTRL:
     rx:
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
+    - UPD_UpdateControl_CTRL # bootloader
     messages:
     - Alarms:
         id: 0x22
@@ -179,6 +191,17 @@ nodes:
     - VelocityCommand:
         from_template: DBWVelocityCommand
         id: 0x20
+
+- CTRLBL:
+    rx:
+    - UPD_IsoTpTx_CTRL
+    - UPD_UpdateControl_CTRL
+    messages:
+    - IsoTpTx:
+        id: 0x303
+    - Status:
+        from_template: BlStatus
+        id: 0x304
 
 - DBW:
     messages:
@@ -315,6 +338,7 @@ nodes:
       - DBW_VelocityCommand
       - STEER_NodeStatus
       - THROTTLE_NodeStatus
+      - UPD_UpdateControl_SUP # bootloader
     messages:
     - Authorization:
         id: 0x1A
@@ -339,10 +363,21 @@ nodes:
         from_template: DBWNodeInfo
         id: 0x1C
 
+- SUPBL:
+    rx:
+    - UPD_IsoTpTx_SUP
+    - UPD_UpdateControl_SUP
+    messages:
+    - IsoTpTx:
+        id: 0x305
+    - Status:
+        from_template: BlStatus
+        id: 0x306
+
 - TEST:
     rx:
     - DBW_ESTOP
-    - UPD_UpdateControl_TEST
+    - UPD_UpdateControl_TEST # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -358,32 +393,47 @@ nodes:
     - UPD_UpdateControl_TEST
     messages:
     - IsoTpTx:
-        id: 0x301
+        id: 0x307
     - Status:
         from_template: BlStatus
-        id: 0x302
+        id: 0x308
 
 - UPD:
     rx:
     - TESTBL_IsoTpTx
     messages:
-    - IsoTpTx_TEST:
+    - IsoTpTx_BRAKE:
         id: 0x330
-    - IsoTpTx_THROTTLE:
+    - IsoTpTx_CTRL:
         id: 0x331
-    - UpdateControl_TEST:
+    - IsoTpTx_SUP:
+        id: 0x332
+    - IsoTpTx_TEST:
+        id: 0x333
+    - IsoTpTx_THROTTLE:
+        id: 0x334
+    - UpdateControl_BRAKE:
         from_template: UpdateControl
         id: 0x2A0
-    - UpdateControl_THROTTLE:
+    - UpdateControl_CTRL:
         from_template: UpdateControl
         id: 0x2A1
+    - UpdateControl_SUP:
+        from_template: UpdateControl
+        id: 0x2A2
+    - UpdateControl_TEST:
+        from_template: UpdateControl
+        id: 0x2A3
+    - UpdateControl_THROTTLE:
+        from_template: UpdateControl
+        id: 0x2A4
 
 - THROTTLE:
     rx:
     - DBW_ESTOP
     - CTRL_VelocityCommand
     - SUP_Authorization
-    - UPD_UpdateControl_THROTTLE
+    - UPD_UpdateControl_THROTTLE # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -424,10 +474,10 @@ nodes:
     - UPD_UpdateControl_THROTTLE
     messages:
     - IsoTpTx:
-        id: 0x303
+        id: 0x309
     - Status:
         from_template: BlStatus
-        id: 0x304
+        id: 0x30a
 
 - WHL:
     messages:
