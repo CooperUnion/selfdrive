@@ -17,6 +17,9 @@
 #define KP 1.750
 #define TS 0.001
 
+#define PID_UPPER_LIMIT  10
+#define PID_LOWER_LIMIT -10
+
 #define ENCODER2DEG_SLOPE        0.0029
 #define ENCODER2DEG_SLOPE_OFFSET 0.0446
 
@@ -61,7 +64,7 @@ ember_rate_funcs_S module_rf = {
 
 static void steer_init()
 {
-    pid_init(&pid, KP, 0, 0, TS, 0, 0, 0);
+    pid_init(&pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
 }
 
 static void steer_100Hz()
