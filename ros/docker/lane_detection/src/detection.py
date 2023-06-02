@@ -3,6 +3,7 @@
 import cv2 as cv
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
+from nptyping import NDArray
 from sensor_msgs.msg import Image
 import numpy as np
 from matplotlib import pyplot as plt
@@ -64,8 +65,30 @@ class Lanes():
         # cv.waitKey(1)
         return self.source_img
 
+    def get_largest_contour(contours, min_area: int = 30):
+        """
+    Finds the largest contour with size greater than min_area.
+
+    Args:
+        contours: A list of contours found in an image.
+        min_area: The smallest contour to consider (in number of pixels)
+
+    Returns:
+        The largest contour from the list, or None if no contour was larger
+        than min_area.
+        """
+    # Check that the list contains at least one contour
+        if len(contours) == 0:
+            return None
+
+        # Find and return the largest contour if it is larger than min_area
+        greatest_contour = max(contours, key=cv.contourArea)
+        if cv.contourArea(greatest_contour) < min_area:
+            return None
+        return greatest_contour
+
 def main():
-    
+
     rospy.init_node('car_vision', anonymous=True)
     sub_img = Subscriber()
     pub_img = Publisher()
