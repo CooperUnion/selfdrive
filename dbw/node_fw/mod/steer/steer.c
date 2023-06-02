@@ -73,9 +73,6 @@ static void steer_100Hz()
 
     alarm.odrive_calibration = calibration_needed;
 
-    if (calibration_needed && steer_state != CALIBRATING)
-        steer_state = NEEDS_CALIBRATION;
-
     bool steer_authorized =
         CANRX_is_message_DBW_SteeringCommand_ok() &&
         CANRX_is_message_SUP_Authorization_ok() &&
@@ -97,6 +94,14 @@ static void steer_100Hz()
     }
 
     base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
+    // errors get cleared on reboot
+    if (calibration_needed) {
+        CANTX_doTx_STEER_ODriveReboot();
+        steer_state = NEEDS_CALIBRATION;
+
+        return;
+    }
 
     // we only want to calibrate when DBW is active
     if (steer_state == NEEDS_CALIBRATION) {
@@ -178,6 +183,12 @@ void CANTX_populate_STEER_ODriveControllerMode(struct CAN_Message_STEER_ODriveCo
 {
     m->STEER_odriveControlMode = CAN_STEER_ODRIVECONTROLMODE_VELOCITY_CONTROL;
     m->STEER_odriveInputMode   = CAN_STEER_ODRIVEINPUTMODE_PASSTHROUGH;
+}
+
+void CANTX_populate_STEER_ODriveReboot(uint8_t * const data, uint8_t * const len)
+{
+    (void) data;
+    (void) len;
 }
 
 void CANTX_populate_STEER_ODriveRequestState(struct CAN_Message_STEER_ODriveRequestState * const m)
