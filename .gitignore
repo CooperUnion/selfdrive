@@ -10,3 +10,7 @@ deps
 
 # Local developer files
 .vscode
+
+# Image files for ocr
+**.png
+**.comments
