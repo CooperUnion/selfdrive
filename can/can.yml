@@ -1,5 +1,7 @@
 ---
 
+bitrate: 500000
+
 message_templates:
 - DBWNodeInfo:
     cycletime: 1000
@@ -132,23 +134,17 @@ nodes:
           cycletime: 100
 
           signals:
-            - frequency:
-                description: Frequency of PWM input.
-                width: 16
-                unit: hertz
-            - resolution:
-                description: Resolution of PWM input.
-                width: 16
             - dutyCycle:
-                description: Duty Cycle of PWM input.
-                width: 16
+                description: Brake duty cycle.
+                width: 10
+
             - percent:
                 description: Percentage commanded.
-                width: 8
+                # minimum: 0.0
+                # maximum: 100.0
+                width: 10
                 unit: percent
-            - pressure:
-                description: Pressure Sensed.
-                width: 8
+                scale: 0.1
 
 - CTRL:
     rx:
@@ -414,7 +410,7 @@ nodes:
               description: Percentage commanded.
               # minimum: 0.0
               # maximum: 100.0
-              width: 7
+              width: 10
               unit: percent
               scale: 0.1
 

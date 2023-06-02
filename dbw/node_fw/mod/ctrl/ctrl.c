@@ -14,10 +14,10 @@
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A 26
-#define ENCODER0_CHAN_B 27
-#define ENCODER1_CHAN_A 17
-#define ENCODER1_CHAN_B 0
+#define ENCODER0_CHAN_A  4
+#define ENCODER0_CHAN_B  3
+#define ENCODER1_CHAN_A 36
+#define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
