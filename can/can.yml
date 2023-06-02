@@ -422,9 +422,11 @@ nodes:
         from_template: DBWNodeStatus
         id: 0xE6
 
+    # unused
     - ODriveClearErrors:
         id: 0x318
 
+    # unused
     - ODriveControllerMode:
         id: 0x30B
 
@@ -454,6 +456,7 @@ nodes:
                 - MIRROR:       0x07
                 - TUNING:       0x08
 
+    # unused
     - ODriveESTOP:
         id: 0x302
 
