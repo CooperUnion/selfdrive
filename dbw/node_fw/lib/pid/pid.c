@@ -6,8 +6,8 @@ void pid_init(
     float  ki,
     float  kd,
     float  ts,
-    float  upper_limit,
     float  lower_limit,
+    float  upper_limit,
     float  sigma)
 {
     pid->kp = kp;
@@ -15,8 +15,8 @@ void pid_init(
     pid->kd = kd;
     pid->ts = ts;
 
-    pid->limit.upper = upper_limit;
     pid->limit.lower = lower_limit;
+    pid->limit.upper = upper_limit;
 
     pid->sigma = sigma;
 
