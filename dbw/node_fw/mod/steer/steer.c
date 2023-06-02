@@ -123,17 +123,19 @@ static void steer_100Hz()
         return;
     }
 
+    float encoder_deg = encoder2deg();
+
     if (odrive_state != CLOSED_LOOP_CONTROL) {
         odrive_state = CLOSED_LOOP_CONTROL;
         CANTX_doTx_STEER_ODriveRequestState();
 
-        pid_setpoint_reset(&pid, CANRX_get_DBW_steeringAngle(), encoder2deg());
+        pid_setpoint_reset(&pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
     }
 
     velocity = pid_step(
         &pid,
         RAD2DEG(CANRX_get_DBW_steeringAngle()),
-        encoder2deg());
+        encoder_deg);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
