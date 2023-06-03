@@ -29,7 +29,7 @@ ember_rate_funcs_S* ember_task_list[] = {
     &base_rf,
     &can_rf,
     // TODO: boards crash without EEPROM
-    // &eeprom_rf,
+    &eeprom_rf,
     &module_rf,
 };
 
