@@ -7,6 +7,8 @@
 #include <esp_ota_ops.h>
 #include <esp_system.h>
 #include <esp_timer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #include "ember_app_desc.h"
 #include "ember_taskglue.h"
@@ -87,11 +89,12 @@ void CANTX_populateTemplate_Status(struct CAN_TMessage_BlStatus * const m)
 // ######    RATE FUNCTIONS     ###### //
 
 static void bl_init(void);
-static void bl_1kHz(void);
+static void bl_step(void);
+static void bl_loop(void *unused);
 
 const ember_rate_funcs_S bl_rf = {
     .call_init = bl_init,
-    .call_1kHz = bl_1kHz,
+    // .call_1kHz = bl_1kHz,
 };
 
 static void bl_init(void) {
@@ -136,6 +139,9 @@ static void bl_init(void) {
         isotp_rx_buf,
         sizeof(isotp_rx_buf)
     );
+
+    static TaskHandle_t bl_loop_handle;
+    xTaskCreatePinnedToCore(bl_loop, "BL_LOOP", 8192, NULL, 3, &bl_loop_handle, 1);
 }
 
 #define ESP_CHECKED(call)                                               \
@@ -150,8 +156,7 @@ static void bl_init(void) {
     }                                                                   \
 }                                                                       \
 
-static void bl_1kHz(void) {
-
+static void bl_step(void) {
     static esp_ota_handle_t ota_handle = 0;
     static uint32_t update_size = 0;
     static uint32_t bytes_so_far = 0;
@@ -277,6 +282,15 @@ static void bl_1kHz(void) {
 
     if (next_state != bl_state)
         set_state(next_state);
+}
+
+static void bl_loop(void *unused) {
+    (void)unused;
+
+    for (;;) {
+        bl_step();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
