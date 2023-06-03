@@ -19,14 +19,17 @@ DEPTH_TOPIC = '/zed/zed_node/depth/depth_registered' # something like this
 
 #Published Topics
 LANE_TOPIC = '/lane_detection/rgb/image_rect_color'
+LANE_CENTER_TOPIC = '/lane_detection/centers/rgb/image_rect_color'
 TIRE_TOPIC = '/tire_detection/rgb/image_rect_color'
 BARREL_TOPIC = '/barrel_detection/rgb/image_rect_color'
 BARREL_BOOL = '/barrel_bool'
 
 # Parameters
+AREA_THRESH = 150
+BARREL_MAX_DIST = 3.5
 BLUR_PARAM_X = 9
 BLUR_PARAM_Y = 9
-BARREL_MAX_DIST = 3.5
+
 
 kernel = np.ones((5,5),np.float32)/25
 bridge = CvBridge()
@@ -47,20 +50,34 @@ class Subscriber():
 class Publisher():
     def __init__(self):
         self.lane_pub =  rospy.Publisher(LANE_TOPIC, Image, queue_size=2)
+        self.lane_center_pub = rospy.Publisher(LANE_CENTER_TOPIC, Image, queue_size=2)
         self.tire_pub =  rospy.Publisher(TIRE_TOPIC, Image, queue_size=2)
         self.barrel_pub = rospy.Publisher(BARREL_TOPIC, Image, queue_size = 2)
         self.barrel_bool_pub = rospy.Publisher(BARREL_BOOL, Bool, queue_size = 2)
         self.rate = rospy.Rate(1)
-    def pub_img(self,cv_image):
+    def pub_lane(self,cv_image):
         img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
         self.lane_pub.publish(img_msg)
         self.rate.sleep()
-    def pub_barrel(self,distance):
-        if (dist_to_thing < 3.5): #distance is less than 3 inches 
-            self.msg.Bool = True 
+    def pub_lane_center(self,cv_image):
+        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
+        self.lane_center_pub.publish(img_msg)
+        self.rate.sleep()
+    def pub_tire(self,cv_image):
+        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
+        self.tire_pub.publish(img_msg)
+        self.rate.sleep()
+    def pub_barrel(self,cv_image):
+        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
+        self.barrel_pub.publish(img_msg)
+        self.rate.sleep()
+    def pub_bool_barrel(self,distance):
+        msg = Bool()
+        if (distance < 3.5): #distance is less than 3 inches 
+            msg.Bool = True 
         else:
-            self.msg.Bool = False  
-        self.pub.publish(self.bool_barrel)
+            msg.Bool = False  
+        self.barrel_bool_pub.publish(msg)
         self.rate.sleep()
 
 # Clean this up later 
@@ -163,6 +180,15 @@ class Tire():
         ret, thresh = cv.threshold(grayed, 100, 255, cv.THRESH_BINARY_INV)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
+
+        for contour in contours:
+            area = cv.contourArea(contour)
+            # contour = get_largest_contour(contour)
+            if area > AREA_THRESH:
+                (x0,y0) = self.get_contour_center(contour)
+                cv.circle(self.source_img, (y0,x0), radius=20, color=(255,0,0), thickness=10)
+                cv.drawContours(self.source_img, contour, -1, (0,0,255), 10)
+
         return self.source_img
 
 class Lanes():
@@ -170,27 +196,8 @@ class Lanes():
         self.source_img = cv.imread("../images/lane.jpg") # small glitch not sure how to intialize image
         # self.source_img = None
     
-    def detection(self):
-        grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
-        ret, thresh = cv.threshold(grayed, 200, 255, 0)
-        contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
-        cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
-        return self.source_img
-
     def get_largest_contour(contours, min_area: int = 30):
-        """
-    Finds the largest contour with size greater than min_area.
-
-    Args:
-        contours: A list of contours found in an image.
-        min_area: The smallest contour to consider (in number of pixels)
-
-    Returns:
-        The largest contour from the list, or None if no contour was larger
-        than min_area.
-        """
-    # Check that the list contains at least one contour
+        # Check that the list contains at least one contour
         if len(contours) == 0:
             return None
 
@@ -200,6 +207,38 @@ class Lanes():
             return None
         return greatest_contour
 
+    def get_contour_center(contour):
+            M = cv.moments(contour)
+            # Check that the contour is not empty
+            # (M["m00"] is the number of pixels in the contour)
+            if M["m00"] <= 0:
+                return None
+            # Compute and return the center of mass of the contour
+            center_row = round(M["m01"] / M["m00"])
+            center_column = round(M["m10"] / M["m00"])
+            return (center_row, center_column)
+
+    def draw_center_points(self,contours):
+        for contour in contours:
+            area = cv.contourArea(contour)
+            if area > AREA_THRESH:
+                (x0,y0) = self.get_contour_center(contour)
+                contour_center_img = cv.circle(self.source_img, (y0,x0), radius=20, color=(255,0,0), thickness=10)
+                contour_center_img = cv.drawContours(self.source_img, contour, -1, (0,0,255), 10)
+        return contour_center_img
+
+    def detection(self):
+        grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
+        ret, thresh = cv.threshold(grayed, 200, 255, 0)
+        contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
+        contour_img = cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
+        # center points
+        contour_center_img = self.draw_center_points(contours)
+
+        return contour_img, contour_center_img
+
+   
 def main():
 
     rospy.init_node('car_vision', anonymous=True)
@@ -213,13 +252,14 @@ def main():
     while not rospy.is_shutdown():
         lanes.source_img = sub.cv_img   # Eventually each class will get a different image topic from subscriber class
         tire.source_img = sub.cv_img
-        lanes_img = lanes.detection()
+        [lanes_img, contour_center_img] = lanes.detection()
         tire_img = tire.detection()
         [barrel_img, barrel_distance] = barrel.detection()
-        pub.pub_img(lanes_img)
-        pub.pub_img(tire_img)
-        pub.pub_img(barrel_img)
-        pub.pub_bool(barrel_distance)
+        pub.pub_lane(lanes_img)
+        pub.pub_lane_center(contour_center_img)
+        pub.pub_tire(tire_img)
+        pub.pub_barrel(barrel_img)
+        pub.pub_bool_barrel(barrel_distance)
 
 if __name__ == "__main__":
     main()
