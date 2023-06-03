@@ -140,6 +140,28 @@ services:
                     devices:
                         - capabilities: [gpu]
 
+    ocr:
+        build: docker/ocr/.
+        container_name: ocr
+        tty: true
+        privileged: true
+        environment:
+            - 'ROS_HOSTNAME=ocr'
+            - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/ocr/src:/app/ocr'
+            - './docker/ocr/src/data:/app/ocr/data'
+        depends_on:
+            - master
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+
     gps:
         build: docker/gps/.
         container_name: gps

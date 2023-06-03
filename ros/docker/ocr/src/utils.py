@@ -38,27 +38,28 @@ def hsv_filter(img: np.ndarray):
     return hsv_img, s, v
 
 
-def get_oct(img:np.ndarray, debug=False) -> np.ndarray:
+def get_oct(sat_img:np.ndarray, ori_img:np.ndarray, debug=False) -> np.ndarray:
     """
     input:
-        saturation channel of hsv image.
+        sat_img (np.ndarray): saturation channel of hsv image.
+        ori_img (np.ndarray): original image on which the octagons will be drawn.
+        debug (boolean): whether to display the image. 
     return:
         a binary mask of the largest octagon in the image.
         Inside of the octagon is (255, 255, 255) and the 
         outside is (0, 0, 0).
     """
     # Add Gaussian Blur to the image
-    gauss = cv2.GaussianBlur(img, (7,7), 0)
+    gauss = cv2.GaussianBlur(sat_img, (7,7), 0)
 
     # Make a binary image
     _, gauss_blur_binary_img =cv2.threshold(gauss, 90, 255, cv2.THRESH_BINARY)
 
     # Find the contours
     contours, _ = cv2.findContours(gauss_blur_binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    print("Num contours detected:", len(contours))
 
     if debug:
-        all_oct_img = copy.deepcopy(img)
+        all_oct_img = copy.deepcopy(ori_img)
     
     # Prepare lists to get the largest octagon
     length_list = []
@@ -77,16 +78,18 @@ def get_oct(img:np.ndarray, debug=False) -> np.ndarray:
                 cv2.drawContours(all_oct_img, [approx], -1, (0, 255, 255), 3)
     
     if debug:
-        cv2.imwrite('/app/ocr/data/all_oct.png', all_oct_img)
+        cv2.imshow('octagon detected', all_oct_img)
+        cv2.waitKey(1)
+
+    if len(length_list) == 0:
+        return False
 
     # Find the contour with longest sum of length of edges
     idx = np.where(length_list == max(length_list))[0][0]
     the_octagon = approx_list[idx].reshape(-1, 2)
-    if debug:
-        print(f'Best contour:\n{the_octagon}')
     
     # Create a binary mask
-    mask = np.zeros(img.shape)
+    mask = np.zeros(sat_img.shape)
     cv2.fillPoly(mask, np.int32([the_octagon]), color = (255, 255, 255))
     mask = np.array(mask, dtype=np.uint8)
 
