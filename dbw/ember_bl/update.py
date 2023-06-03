@@ -109,7 +109,7 @@ def main():
     while not node.is_alive():
         if datetime.datetime.now() - init_start > datetime.timedelta(seconds=10):
             log.error(f"Node {node.node}BL did not come up. Exiting.")
-            exit(-1)q
+            exit(-1)
 
         sleep(SLEEP_WAIT)
 
@@ -141,7 +141,7 @@ def main():
             bl_state = node.state()
 
             if bl_state == 'RECV_CHUNK':
-                sleep(0.005) # give the node some time, but this shouldn't be needed
+                sleep(0.1) # give the node some time, but this shouldn't be needed
                 break
             elif bl_state == 'FAULT':
                 log.error('Node is in FAULT; aborting.')
