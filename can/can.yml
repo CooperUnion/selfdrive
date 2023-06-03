@@ -51,6 +51,7 @@ message_templates:
           description: Reset reason.
           enumerated_values:
             - POWERON
+            - SW_RESET
             - WATCHDOG_RESET
             - UNKNOWN
       - esp32ResetReasonCode:
@@ -86,11 +87,37 @@ message_templates:
             description: Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
+- UpdateControl:
+    cycletime: 20
+
+    signals:
+        - updateSizeBytes:
+            description: Total update binary size in bytes.
+            width: 24
+        - currentIsoTpChunk:
+            description: Current isotp 4095-byte chunk.
+            width: 12
+
+- BlStatus:
+    cycletime: 20
+
+    signals:
+        - state:
+            enumerated_values:
+            - AWAIT_TRIGGER
+            - RECV_CHUNK
+            - CHECK_DESC
+            - COMMIT_CHUNK
+            - FINALIZE
+            - REBOOT_FW
+            - FAULT
+            - RESET
+
 nodes:
 - BLINK:
     rx:
       - DBW_ESTOP
-
+      - UPD_UpdateControl_BLINK # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -100,12 +127,24 @@ nodes:
         from_template: DBWNodeStatus
         id: 0xE0
 
+- BLINKBL:
+    rx:
+    - UPD_IsoTpTx_BLINK
+    - UPD_UpdateControl_BLINK
+    messages:
+    - IsoTpTx:
+        id: 0x501
+    - Status:
+        from_template: BlStatus
+        id: 0x502
+
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
     - DBW_ESTOP
     - DBW_VelocityCommand
     - SUP_Authorization
+    - UPD_UpdateControl_BRAKE # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -131,12 +170,23 @@ nodes:
                 width: 10
                 unit: percent
                 scale: 0.1
+- BRAKEBL:
+    rx:
+    - UPD_IsoTpTx_BRAKE
+    - UPD_UpdateControl_BRAKE
+    messages:
+    - IsoTpTx:
+        id: 0x503
+    - Status:
+        from_template: BlStatus
+        id: 0x504
 
 - CTRL:
     rx:
     - DBW_ESTOP
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
+    - UPD_UpdateControl_CTRL # bootloader
     messages:
     - Alarms:
         id: 0x22
@@ -165,6 +215,17 @@ nodes:
     - VelocityCommand:
         from_template: DBWVelocityCommand
         id: 0x20
+
+- CTRLBL:
+    rx:
+    - UPD_IsoTpTx_CTRL
+    - UPD_UpdateControl_CTRL
+    messages:
+    - IsoTpTx:
+        id: 0x505
+    - Status:
+        from_template: BlStatus
+        id: 0x506
 
 - DBW:
     messages:
@@ -375,7 +436,7 @@ nodes:
               description: Trajectory done.
               start_bit: 63
               width: 1
-      
+
 
 - PB:
     rx:
@@ -413,6 +474,7 @@ nodes:
       - ODRIVE_Status
       - SUP_Authorization
       - WHL_AbsoluteEncoder
+      - UPD_UpdateControl_STEER
     messages:
     - Alarms:
         id: 0x17
@@ -526,6 +588,16 @@ nodes:
                 - READY
                 - CALIBRATING
                 - NEEDS_CALIBRATION
+- STEERBL:
+    rx:
+    - UPD_IsoTpTx_STEER
+    - UPD_UpdateControl_STEER
+    messages:
+    - IsoTpTx:
+        id: 0x507
+    - Status:
+        from_template: BlStatus
+        id: 0x508
 
 - SUP:
     rx:
@@ -540,6 +612,7 @@ nodes:
       - STEER_NodeStatus
       - STEER_SteeringData
       - THROTTLE_NodeStatus
+      - UPD_UpdateControl_SUP # bootloader
     messages:
     - Authorization:
         id: 0x1A
@@ -564,14 +637,83 @@ nodes:
         from_template: DBWNodeInfo
         id: 0x1C
 
+- SUPBL:
+    rx:
+    - UPD_IsoTpTx_SUP
+    - UPD_UpdateControl_SUP
+    messages:
+    - IsoTpTx:
+        id: 0x509
+    - Status:
+        from_template: BlStatus
+        id: 0x50a
+
 - TEST:
     rx: "*"
+
+- UPD:
+    rx:
+    - BLINK_NodeStatus
+    - BLINKBL_IsoTpTx
+    - BLINKBL_Status
+
+    - BRAKE_NodeStatus
+    - BRAKEBL_IsoTpTx
+    - BRAKEBL_Status
+
+    - CTRL_NodeStatus
+    - CTRLBL_IsoTpTx
+    - CTRLBL_Status
+
+    - STEER_NodeStatus
+    - STEERBL_IsoTpTx
+    - STEERBL_Status
+
+    - SUP_NodeStatus
+    - SUPBL_IsoTpTx
+    - SUPBL_Status
+
+    - THROTTLE_NodeStatus
+    - THROTTLEBL_IsoTpTx
+    - THROTTLEBL_Status
+    messages:
+    - IsoTpTx_BLINK:
+        id: 0x530
+    - IsoTpTx_BRAKE:
+        id: 0x531
+    - IsoTpTx_CTRL:
+        id: 0x532
+    - IsoTpTx_STEER:
+        id: 0x533
+    - IsoTpTx_SUP:
+        id: 0x534
+    - IsoTpTx_THROTTLE:
+        id: 0x535
+    - UpdateControl_BLINK:
+        from_template: UpdateControl
+        id: 0x5A0
+    - UpdateControl_BRAKE:
+        from_template: UpdateControl
+        id: 0x5A1
+    - UpdateControl_CTRL:
+        from_template: UpdateControl
+        id: 0x5A2
+    - UpdateControl_STEER:
+        from_template: UpdateControl
+        id: 0x5A3
+    - UpdateControl_SUP:
+        from_template: UpdateControl
+        id: 0x5A4
+    - UpdateControl_THROTTLE:
+        from_template: UpdateControl
+        id: 0x5A5
 
 - THROTTLE:
     rx:
     - DBW_ESTOP
     - CTRL_VelocityCommand
     - SUP_Authorization
+    - UPD_UpdateControl_THROTTLE # bootloader
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -605,6 +747,17 @@ nodes:
           - relayState:
               description: Current relay state.
               width: 1
+
+- THROTTLEBL:
+    rx:
+    - UPD_IsoTpTx_THROTTLE
+    - UPD_UpdateControl_THROTTLE
+    messages:
+    - IsoTpTx:
+        id: 0x50b
+    - Status:
+        from_template: BlStatus
+        id: 0x50c
 
 - WHL:
     messages:

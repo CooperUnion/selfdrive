@@ -1,5 +1,6 @@
 #include "cuber_base.h"
 
+#include <esp_system.h>
 #include <driver/gpio.h>
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
 #include <driver/temperature_sensor.h>
@@ -13,6 +14,7 @@
 #include "node_pins.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "watchdog.h"
 
 // ######        DEFINES        ###### //
 
@@ -79,6 +81,26 @@ static void base_init()
 static void base_10Hz()
 {
     set_status_LEDs();
+
+    /* Critical section */
+    portDISABLE_INTERRUPTS();
+    {
+        if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
+            if (sys_state == CUBER_SYS_STATE_IDLE) {
+                /* It's update time. No going back; we will reboot. */
+
+                /**
+                 * Set the RTC watchdog timeout to 1 second to give us some time
+                 * since the task_wdt_servicer() is not running anymore.
+                 */
+                set_up_rtc_watchdog_1sec();
+
+                /* Reboot */
+                esp_restart();
+            }
+        }
+    }
+    portENABLE_INTERRUPTS();
 }
 
 static void base_100Hz()
@@ -273,6 +295,9 @@ void CANTX_populateTemplate_NodeStatus(struct CAN_TMessage_DBWNodeStatus * const
     switch (reset_reason) {
         case POWERON_RESET:
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
+            break;
+        case RTC_SW_CPU_RESET:
+            m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_SW_RESET;
             break;
         case RTCWDT_RTC_RESET:
             m->resetReason = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
