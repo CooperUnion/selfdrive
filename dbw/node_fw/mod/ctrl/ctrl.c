@@ -26,8 +26,9 @@
 
 #define WHEEL_CIRCUMFERENCE_M 1.899156
 
-#define AVERAGE_VELOCITY_SAMPLES          4
-#define AVERAGE_VELOCITY_SAMPLE_RATE_HZ 100.0
+#define METERS_PER_TICK (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
+
+#define AVERAGE_TICKS_SAMPLES 4
 
 // ######      PROTOTYPES       ###### //
 
@@ -145,21 +146,21 @@ static void ctrl_100Hz()
 static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
 {
     static size_t  index;
-    static int32_t average_velocity_sum;
-    static int32_t average_velocity_buf[AVERAGE_VELOCITY_SAMPLES];
+    static int32_t average_ticks_sum;
+    static int32_t average_ticks_buf[AVERAGE_TICKS_SAMPLES];
 
     // remove stale value
-    average_velocity_sum -= average_velocity_buf[index];
+    average_ticks_sum -= average_ticks_buf[index];
 
-    average_velocity_buf[index] = (left_delta + right_delta) / 2;
-    average_velocity_sum += average_velocity_buf[index];
+    average_ticks_buf[index] = (left_delta + right_delta) / 2;
+    average_ticks_sum += average_ticks_buf[index];
 
-    index = (index + 1) % AVERAGE_VELOCITY_SAMPLES;
+    index = (index + 1) % AVERAGE_TICKS_SAMPLES;
 
-    average_velocity
-        = (average_velocity_sum / AVERAGE_VELOCITY_SAMPLES)
-        * (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
-        / (1.0 / AVERAGE_VELOCITY_SAMPLE_RATE_HZ);
+    int16_t ticks = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
+
+    // magic scaling factor of 10 here, no idea why
+    average_velocity = ticks * METERS_PER_TICK / 0.1;
 }
 
 static void IRAM_ATTR encoder0_chan_a(void *arg)
