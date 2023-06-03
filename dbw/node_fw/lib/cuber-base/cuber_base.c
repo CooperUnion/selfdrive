@@ -86,7 +86,7 @@ static void base_10Hz()
     portDISABLE_INTERRUPTS();
     {
         if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
-            if (sys_state == CUBER_SYS_STATE_IDLE) {
+            if (sys_state != CUBER_SYS_STATE_DBW_ACTIVE) {
                 /* It's update time. No going back; we will reboot. */
 
                 /**
