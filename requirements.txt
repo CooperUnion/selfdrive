@@ -2,8 +2,9 @@ common/igvcutils
 common/cantools
 
 matplotlib==3.7.1
-odrive==0.5.4
-opencan-cand==0.1.1
+opencan-cand==0.1.2
+can-isotp==1.8
 pip-chill==1.0.1
 platformio==6.1.6
 strictyaml==1.7.3
+tqdm==4.65.0
