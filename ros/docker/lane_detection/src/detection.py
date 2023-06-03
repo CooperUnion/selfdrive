@@ -87,6 +87,30 @@ class Lanes():
             return None
         return greatest_contour
 
+
+    def get_contour_center(contour):
+        """
+        Finds the center of a contour from an image.
+        Args:
+            contour: The contour of which to find the center.
+        Returns:
+            The (row, column) of the pixel at the center of the contour, or None if the
+            contour is empty.
+        """
+        M = cv.moments(contour)
+        # Check that the contour is not empty
+        # (M["m00"] is the number of pixels in the contour)
+        if M["m00"] <= 0:
+            return None
+        # Compute and return the center of mass of the contour
+        center_row = round(M["m01"] / M["m00"])
+        center_column = round(M["m10"] / M["m00"])
+        return (center_row, center_column)
+
+
+
+    
+
 def main():
 
     rospy.init_node('car_vision', anonymous=True)
