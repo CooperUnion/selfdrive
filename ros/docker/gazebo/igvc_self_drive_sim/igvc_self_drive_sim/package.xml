@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>igvc_self_drive_sim</name>
+  <version>0.1.4</version>
+  <description>
+    Metapackage for igvc_self_drive_sim
+  </description>
+  <maintainer email="mradov@gmail.com">Micho Radovnikovich</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>igvc_self_drive_gazebo</exec_depend>
+  <exec_depend>igvc_self_drive_gazebo_plugins</exec_depend>
+  <exec_depend>igvc_self_drive_description</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

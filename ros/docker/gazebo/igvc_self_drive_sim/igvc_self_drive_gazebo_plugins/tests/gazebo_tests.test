@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+  <param name="use_sim_time" value="true" />
+
+  <node pkg="gazebo_ros" type="gzserver" name="gazebo" output="screen" args="--verbose -e ode worlds/empty.world" />
+
+  <test pkg="igvc_self_drive_gazebo_plugins" type="gazebo_tests.py" test-name="gazebo_tests" time-limit="300.0" />
+
+</launch>

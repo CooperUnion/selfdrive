@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>igvc_self_drive_description</name>
+  <version>0.1.4</version>
+  <description>
+    Meshes and URDF descriptions for Gem vehicle
+  </description>
+  <author email="mtradovn@oakland.edu">Micho Radovnikovich</author>
+  <maintainer email="mtradovn@oakland.edu">Micho Radovnikovich</maintainer>
+  <license>BSD2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>hector_gazebo_plugins</exec_depend>
+</package>

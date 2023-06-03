@@ -47,7 +47,7 @@ static void sup_100Hz()
     // STEER
     authorized = true;
     taskDISABLE_INTERRUPTS();
-    authorized &= CANRX_is_message_DBW_VelocityCommand_ok();
+    authorized &= CANRX_is_message_DBW_SteeringCommand_ok();
     authorized &= CANRX_get_STEER_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     taskENABLE_INTERRUPTS();
     steer_authorized = authorized;
@@ -60,6 +60,7 @@ static void sup_100Hz()
     authorized &= CANRX_is_node_THROTTLE_ok();
     authorized &= CANRX_get_CTRL_sysStatus()     != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
     authorized &= CANRX_get_THROTTLE_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    authorized &= CANRX_get_STEER_state()        == CAN_STEER_STATE_READY;
     authorized &= !CANRX_get_CTRL_speedAlarm();
     taskENABLE_INTERRUPTS();
     throttle_authorized = authorized;

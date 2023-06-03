@@ -6,8 +6,8 @@ void pid_init(
     float  ki,
     float  kd,
     float  ts,
-    float  upper_limit,
     float  lower_limit,
+    float  upper_limit,
     float  sigma)
 {
     pid->kp = kp;
@@ -15,8 +15,8 @@ void pid_init(
     pid->kd = kd;
     pid->ts = ts;
 
-    pid->limit.upper = upper_limit;
     pid->limit.lower = lower_limit;
+    pid->limit.upper = upper_limit;
 
     pid->sigma = sigma;
 
@@ -61,7 +61,7 @@ void pid_setpoint_reset(pid_S *pid, float desired, float current)
     pid->private.error.velocity = 0.0;
 }
 
-float step(pid_S *pid, float desired, float current)
+float pid_step(pid_S *pid, float desired, float current)
 {
     float error = desired - current;
 

@@ -7,8 +7,8 @@ typedef struct pid {
     float kd;
     float ts;
     struct {
-        float upper;
         float lower;
+        float upper;
     } limit;
     float sigma;
     struct {
@@ -30,8 +30,8 @@ void pid_init(
     float  ki,
     float  kd,
     float  ts,
-    float  upper_limit,
     float  lower_limit,
+    float  upper_limit,
     float  sigma);
 float pid_saturate(pid_S *pid, float u);
 void pid_set_sigma(pid_S *pid, float value);
