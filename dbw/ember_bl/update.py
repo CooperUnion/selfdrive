@@ -92,8 +92,8 @@ def main():
     print(f"Using isotp_tx_id {isotp_tx_id} and isotp_rx_id {isotp_rx_id}.")
 
     isotp_stack = isotp.CanStack(
-        can.interface.Bus(args.iface, bustype = 'socketcan'),
-        address = isotp.Address(isotp.AddressingMode.Normal_29bits, rxid=isotp_rx_id, txid=isotp_tx_id),
+        can.interface.Bus('can0', bustype = 'socketcan'),
+        address = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=isotp_rx_id, txid=isotp_tx_id),
     )
     log.info('Created isotp stack')
 
@@ -109,7 +109,7 @@ def main():
     while not node.is_alive():
         if datetime.datetime.now() - init_start > datetime.timedelta(seconds=10):
             log.error(f"Node {node.node}BL did not come up. Exiting.")
-            exit(-1)
+            exit(-1)q
 
         sleep(SLEEP_WAIT)
 
