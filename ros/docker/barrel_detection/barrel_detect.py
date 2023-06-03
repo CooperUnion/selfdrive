@@ -3,11 +3,6 @@ import numpy as np
 import os 
 from std_msgs.msg import Bool
 
-
-
-
-
-
 class Barrel_Detection:
     def create_blob(self):
         # Set up the SimpleBlobDetector with default parameters
