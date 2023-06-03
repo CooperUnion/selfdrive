@@ -28,6 +28,18 @@
 
 #define METERS_PER_TICK (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
 
+#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING      15.40
+#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING        -58.03
+#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET -11.33
+
+#define ACCELERATION_TO_THROTTLE_PERCENT(x)                 \
+    ((x) * ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING)
+
+#define ACCELERATION_TO_BRAKE_PERCENT(x)                  \
+    (((x) * ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING) \
+    +                                                     \
+    ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET)
+
 #define AVERAGE_TICKS_SAMPLES 4
 
 // ######      PROTOTYPES       ###### //
@@ -37,6 +49,10 @@ static void encoder0_chan_a(void *arg);
 static void encoder0_chan_b(void *arg);
 static void encoder1_chan_a(void *arg);
 static void encoder1_chan_b(void *arg);
+static void velocity_control(
+    float desired_velocity,
+    float current_velocity,
+    float desired_acceleration);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -240,6 +256,28 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
         } else {
             ++pulse_cnt[1];
         }
+    }
+}
+
+static void velocity_control(
+    float desired_velocity,
+    float current_velocity,
+    float desired_acceleration)
+{
+    // we'd like to stop, or so i hope
+    if (!desired_velocity) {
+        brake_percent    = 50;
+        throttle_percent = 0;
+
+        return;
+    }
+
+    if (desired_acceleration > 0) {
+        brake_percent    = 0;
+        throttle_percent = ACCELERATION_TO_THROTTLE_PERCENT(desired_acceleration);
+    } else {
+        brake_percent    = ACCELERATION_TO_BRAKE_PERCENT(desired_acceleration);
+        throttle_percent = 0;
     }
 }
 
