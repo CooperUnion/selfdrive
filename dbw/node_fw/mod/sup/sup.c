@@ -35,17 +35,20 @@ static bool brake_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
 
-static nvs_handle_t out_handle;
-
 enum strobe_states {
-    STROBE_SOLID = 0,
-    STROBE_BLINK = 3,
+    STROBE_SOLID = 1,
+    STROBE_BLINK = 2,
 };
 
 static enum strobe_states desired_state;
 static enum strobe_states previous_state;
 
+static nvs_handle_t out_handle;
+
 static bool toggle_strobe;
+static bool initialize = false;
+static volatile bool initialize_flag;
+static void initialize_flash(bool initial);
 
 /*
 static uint8_t solid_state                   = 1;
@@ -69,6 +72,13 @@ ember_rate_funcs_S module_rf = {
 void strobe_light_task(void * unused) {
     (void)unused;
 
+    // must be called within spawned in task because
+    // caller may not be initialized if called during the init()
+    if (initialize_flag) {
+        initialize = CANRX_get_DBW_init();
+    }
+
+    initialize_flash(initialize);
     uint8_t previous_gpio;
     esp_err_t get_previous_gpio = nvs_get_u8(out_handle, "strobe", &previous_gpio);
 
@@ -82,27 +92,25 @@ void strobe_light_task(void * unused) {
         {
             if (desired_state == STROBE_SOLID)
             {
-                for (int i = 0; i < 4; i++) {
-                    gpio_set_level(STROBE_GPIO, 1);
-                    vTaskDelay(100);
-                    gpio_set_level(STROBE_GPIO, 0);
-                    vTaskDelay(100);
-                }
-                previous_gpio = 0;
+                gpio_set_level(STROBE_GPIO, 1);
+                vTaskDelay(100);
+                gpio_set_level(STROBE_GPIO, 0);
+                vTaskDelay(100);
+                previous_gpio = 1;
                 previous_state = STROBE_SOLID;
-                nvs_set_u8(out_handle, "strobe", 0);
+                nvs_set_u8(out_handle, "strobe", 1);
             }
             else
             {
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < 6; i++) {
                     gpio_set_level(STROBE_GPIO, 1);
                     vTaskDelay(100);
                     gpio_set_level(STROBE_GPIO, 0);
                     vTaskDelay(100);
                 }
-                previous_gpio = 1;
+                previous_gpio = 2;
                 previous_state = STROBE_BLINK;
-                nvs_set_u8(out_handle, "strobe", 1);
+                nvs_set_u8(out_handle, "strobe", 2);
             }
         }
         else {
@@ -120,7 +128,6 @@ static void sup_init()
 
     nvs_flash_init();
     esp_err_t init_state = nvs_open("strobe", NVS_READWRITE, &out_handle);
-    nvs_set_u8(out_handle, "strobe", 0);
 }
 
 static void sup_100Hz()
@@ -181,7 +188,25 @@ static void sup_100Hz()
 // that you write to write to when requesting new state
 //
 
+static void initialize_flash(bool initial)
+{
+    if (initial) {
+        nvs_set_u8(out_handle, "strobe", 1);
+    }
+}
+
 // only read when the tasking function starts, dont read in cyclic or init.
+
+// ######        CAN RX         ###### //
+void CANRX_onRxCallback_DBW_InitStrobe(
+    const struct CAN_MessageRaw_DBW_InitStrobe * const raw,
+    const struct CAN_Message_DBW_InitStrobe * const dec)
+{
+    (void) raw;
+    (void) dec;
+    initialize_flag = true;
+}
+
 // ######        CAN TX         ###### //
 
 void CANTX_populate_SUP_Authorization(

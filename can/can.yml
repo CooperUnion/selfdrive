@@ -167,6 +167,14 @@ nodes:
                 - TIMEOUT
                 - INVALID_STATE
                 - LIMIT_EXCEEDED
+    - InitStrobe:
+        id: 0x73
+
+        signals:
+          - init:
+              description: Flash initial strobe value.
+              width: 1
+
 
     - RawVelocityCommand:
         from_template: DBWVelocityCommand
@@ -284,6 +292,7 @@ nodes:
       - CTRL_NodeStatus
       - CTRL_VelocityCommand
       - DBW_ESTOP
+      - DBW_InitStrobe
       - DBW_RawVelocityCommand
       - DBW_VelocityCommand
       - STEER_NodeStatus
