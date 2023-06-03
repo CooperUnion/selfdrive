@@ -1,6 +1,13 @@
 import cv2 
 import numpy as np 
 import os 
+from std_msgs.msg import Bool
+
+
+
+
+
+
 class Barrel_Detection:
     def create_blob(self):
         # Set up the SimpleBlobDetector with default parameters
@@ -87,15 +94,43 @@ class Barrel_Detection:
         #have to add an offset to this then divided by 12 
         return (dist_to_car/12)
     
+    def publisher(self): 
+        pass 
+    
+    
+class pub_barrel:
+    def __init__(self):
+        self.bool_barrel = Bool
+        self.pub = rospy.Publisher('/bool_barrel',Bool, queue_size = 2)
+        self.rate = rospy.rate(2) #2G Hz
 
+    def publish(self): 
+            folder = "Barrel_Images"
+            file = "Barrel_3.jpg"
+            img = cv2.imread(os.path.join(folder,file))
+            Barrel_D = Barrel_Detection()
+            dist_to_thing = Barrel_D.orange_color(img)
+
+            if (dist_to_thing < 3.5): #distance is less than 3 inches 
+                self.msg.Bool = True 
+            else:
+                self.msg.Bool = False  
+                 
+            while not rospy.is_shutdown():
+                    self.pub.publish(self.bool_barrel)
+                    
 def main():    
     folder = "Barrel_Images"
     file = "Barrel_3.jpg"
     img = cv2.imread(os.path.join(folder,file))
     Barrel_D = Barrel_Detection()
-
     dist_to_thing = Barrel_D.orange_color(img)
     print(dist_to_thing)
 
 if __name__ == "__main__":
-    main()
+     rospy.init_node('bool_barrel',anoymous = True)
+     publisher = pub_barrel()
+     publisher.publish()
+     rospy.spin()
+
+    #reference is 5ft from the zed to the barrel 
