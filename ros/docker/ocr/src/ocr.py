@@ -37,37 +37,57 @@ class OCR(object):
 
         except Exception as e:
             rospy.logerr(e)
+    
+    def depth_callback(self, msg):
+        try:
+            img = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)[..., 3]
+            cv2.imshow('depth', img)
+            cv2.waitKey(1)
+
+        except Exception as e:
+            rospy.logerr(e)
 
 
     def read_img(self):
-        rospy.init_node('image_subscriber', anonymous=True)
+        rospy.init_node('zed_node', anonymous=True)
+        rate = rospy.Rate(2)
         
         # Create a subscriber for the image topic
         rospy.Subscriber('/zed/zed_node/rgb/image_rect_color', img_msg, self.image_callback)
+        # Create a subscriber for the depth image topic
         
-        rospy.spin()
+        # rospy.spin()
+        while not rospy.is_shutdown():
+            rate.sleep()
 
     
     def preprocess(self, img):
-        # Get hsv, sat, and grayscale image
-        _, sat_img, _ = utils.hsv_filter(img)
+        # Apply red mask
+        red_mask, _ = utils.red_mask(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
+        red_mask = cv2.dilate(red_mask, np.ones((6, 6)))
+
         if self.debug:
-            cv2.imshow('saturation', sat_img)
+            cv2.imshow('red mask', red_mask)
             cv2.waitKey(1)
 
         # Make the binary image from sat image (0 or 255)
+        _, sat_img, _ = cv2.split((cv2.cvtColor(img, cv2.COLOR_BGR2HSV)))
         _,bin_img = cv2.threshold(sat_img,127,255,cv2.THRESH_BINARY)
         if self.debug:
-            cv2.imshow('binary',bin_img)
+            cv2.imshow('sat img', sat_img)
+            cv2.waitKey(1)
+        if self.debug:
+            cv2.imshow('bin img',bin_img)
             cv2.waitKey(1)
 
         # Get octagon mask from sat image
-        oct_mask = utils.get_oct(sat_img, img, self.debug)
+        oct_mask = utils.get_oct(red_mask, img, self.debug)
 
         # If no octagon is detected, return False
         if oct_mask is False:
             return None
         
+        oct_mask = cv2.erode(oct_mask, np.ones((10, 10)))
         if self.debug:
             cv2.imshow('octagon mask', oct_mask)
             cv2.waitKey(1)
@@ -81,12 +101,12 @@ class OCR(object):
         
 
         # Apply dilation
-        dilated = utils.dilate(ocr_img)
+        ocr_img = cv2.dilate(ocr_img, np.ones((2, 2)))
         if self.debug:
-            cv2.imshow('dilated (fully preprocessed)', dilated)
+            cv2.imshow('fully preprocessed', ocr_img)
             cv2.waitKey(1)
 
-        return dilated
+        return ocr_img
 
 
     def run_ocr(self, img, img_preprocessed):
@@ -103,6 +123,8 @@ class OCR(object):
                 
                 if data["text"][i].lower() == 'stop':
                     print('STOP recognized!')
+                if data["text"][i].lower() == 'igvc' or data["text"][i].lower() == 'soup':
+                    print('LOL you are trying to trick us!')
                 (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
                 annotated_img = cv2.rectangle(annotated_img, (x, y), (x + width, y + height), (0, 255, 0), 2)
                 annotated_img = cv2.putText(annotated_img, data['text'][i], (x, y + height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
