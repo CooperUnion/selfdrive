@@ -22,7 +22,7 @@ void pid_init(
 
     pid->private.ts    = ts;
     pid->private.sigma = sigma;
-    pid->private.beta  = (2 * sigma - ts) / (2 * sigma - ts);
+    pid->private.beta  = ((2 * sigma) - ts) / ((2 * sigma) + ts);
     pid->private.y0    = 0.0;
 
     pid->private.error.position = 0.0;
