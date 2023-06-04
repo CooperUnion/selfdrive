@@ -125,8 +125,9 @@ static void ctrl_100Hz()
     // check if we're over the speed limit and
     // go into the ESTOP state if that's the case
     if (
-        (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
-        (ABS(right_delta) >= ENCODER_MAX_TICKS))
+        (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE) &&
+        ((ABS(left_delta) >= ENCODER_MAX_TICKS)          ||
+        (ABS(right_delta) >= ENCODER_MAX_TICKS)))
     {
         brake_percent    = 0;
         throttle_percent = 0;
