@@ -11,6 +11,7 @@
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "pid.h"
 
 // ######        DEFINES        ###### //
 
@@ -42,6 +43,14 @@
 
 #define AVERAGE_TICKS_SAMPLES 4
 
+#define KP    3.00
+#define KI    0.30
+#define KD    1.35
+#define SIGMA 1.00
+
+#define PID_LOWER_LIMIT -5
+#define PID_UPPER_LIMIT  5
+
 // ######      PROTOTYPES       ###### //
 
 static void calculate_average_velocity(int16_t left_delta, int16_t right_delta);
@@ -62,6 +71,10 @@ static uint8_t brake_percent;
 static uint8_t throttle_percent;
 
 static float average_velocity;
+static float desired_acceleration;
+
+static pid_S pid;
+static bool  setpoint_reset;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -91,6 +104,8 @@ static void ctrl_init()
     gpio_isr_handler_add(ENCODER0_CHAN_B, encoder0_chan_b, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_A, encoder1_chan_a, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
+
+    pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 }
 
 static void ctrl_100Hz()
@@ -132,29 +147,45 @@ static void ctrl_100Hz()
      * velocity command priority when setting percentages.
      */
     if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
         taskDISABLE_INTERRUPTS();
         brake_percent    = CANRX_get_DBW_brakePercent();
         throttle_percent = CANRX_get_DBW_throttlePercent();
         taskENABLE_INTERRUPTS();
 
-        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
         return;
     }
 
     if (CANRX_is_message_DBW_VelocityCommand_ok()) {
-        // TODO: set brake and throttle percentages
-        // using a PID controller
-
-        brake_percent    = 0;
-        throttle_percent = 0;
-
         base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
+        float current_velocity = average_velocity;
+        float desired_velocity = CANRX_get_DBW_linearVelocity();
+
+        if (setpoint_reset) {
+            pid_setpoint_reset(&pid, desired_velocity, current_velocity);
+            setpoint_reset = false;
+        }
+
+        desired_acceleration = pid_step(
+            &pid,
+            desired_velocity,
+            current_velocity);
+
+        velocity_control(
+            desired_velocity,
+            current_velocity,
+            desired_acceleration);
+
         return;
     }
 
+    base_request_state(CUBER_SYS_STATE_IDLE);
+
     brake_percent    = 0;
     throttle_percent = 0;
-    base_request_state(CUBER_SYS_STATE_IDLE);
+    setpoint_reset   = true;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
