@@ -87,6 +87,24 @@ message_templates:
             description: Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
+- PIDGains:
+    signals:
+      - gainKp:
+          description: Kp gain.
+          width: 16
+          scale: 0.001
+
+      - gainKi:
+          description: Ki gain.
+          width: 16
+          scale: 0.001
+
+      - gainKd:
+          description: Kd gain.
+          width: 17
+          twos_complement: true
+          scale: 0.001
+
 - UpdateControl:
     cycletime: 20
 
@@ -184,6 +202,7 @@ nodes:
 - CTRL:
     rx:
     - DBW_ESTOP
+    - DBW_SetVelocityGains
     - DBW_RawVelocityCommand
     - DBW_VelocityCommand
     - UPD_UpdateControl_CTRL # bootloader
@@ -222,6 +241,11 @@ nodes:
               twos_complement: true
               scale: 0.001
               width: 16
+
+    - ControllerGains:
+        from_template: PIDGains
+        id: 0x25
+        cycletime: 10
 
     - NodeInfo:
         from_template: DBWNodeInfo
@@ -268,6 +292,10 @@ nodes:
     - RawVelocityCommand:
         from_template: DBWVelocityCommand
         id: 0x667
+
+    - SetVelocityGains:
+        from_template: PIDGains
+        id: 0x777
 
     - SteeringCommand:
         id: 0x21

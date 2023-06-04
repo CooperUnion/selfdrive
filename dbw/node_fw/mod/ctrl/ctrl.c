@@ -314,6 +314,19 @@ static void velocity_control(
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
+// ######         CAN RX         ###### //
+
+void CANRX_onRxCallback_DBW_SetVelocityGains(
+    const struct CAN_TMessageRaw_PIDGains * const raw,
+    const struct CAN_TMessage_PIDGains * const dec)
+{
+    (void) raw;
+
+    pid.kp = dec->gainKp;
+    pid.ki = dec->gainKi;
+    pid.kd = dec->gainKd;
+}
+
 // ######        CAN TX         ###### //
 
 void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
@@ -326,6 +339,13 @@ void CANTX_populate_CTRL_ControllerData(struct CAN_Message_CTRL_ControllerData *
 {
     m->CTRL_averageVelocity     = average_velocity;
     m->CTRL_desiredAcceleration = desired_acceleration;
+}
+
+void CANTX_populateTemplate_ControllerGains(struct CAN_TMessage_PIDGains * const m)
+{
+    m->gainKp = pid.kp;
+    m->gainKi = pid.ki;
+    m->gainKd = pid.kd;
 }
 
 void CANTX_populateTemplate_VelocityCommand(struct CAN_TMessage_DBWVelocityCommand * const m)
