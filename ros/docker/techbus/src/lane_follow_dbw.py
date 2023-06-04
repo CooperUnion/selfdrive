@@ -36,8 +36,10 @@ def main():
         bus.send('DBW_SteeringCommand', {'DBW_steeringAngle': math.radians(steer_angle)})
 
         if lane_offset.stop and (datetime.datetime.now() - start) > datetime.timedelta(seconds=10):
-            DIST_FULLSTOP = 40
-            vel = 1.5 - (1.5 * ((lane_offset.dist - DIST_FULLSTOP) / DIST_FULLSTOP))
+            DIST_FULLSTOP = 50
+            BASE_VEL = 1.5
+            vel_slap = (1.5 * ((lane_offset.dist - DIST_FULLSTOP) / DIST_FULLSTOP))
+            vel = BASE_VEL - vel_slap if vel_slap > 0 else 0
             print(f"vel is slowing: {vel}")
             bus.send('DBW_VelocityCommand', {'DBW_linearVelocity': min(0, vel)})
         else:

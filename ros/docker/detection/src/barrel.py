@@ -133,7 +133,7 @@ class Barrel():
             main_blob = contours[max_index] #biggest one --> closest to camera --> one we are interested in 
 
             x,y,w,h = cv.boundingRect(main_blob)
-            self.source_img = cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
+            self.source_img = cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(0,165,255),2)
             # cv.imshow('Contours', im_with_keypoints)
             # cv.waitKey(1)
             # cv.destroyAllWindows()
