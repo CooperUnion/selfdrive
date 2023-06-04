@@ -1,4 +1,6 @@
 import rospy
+import cv2 as cv
+import numpy as np
 from cv_bridge import CvBridge
 from std_msgs.msg import Int16
 from sensor_msgs.msg import Image
@@ -16,7 +18,7 @@ bridge = CvBridge()
 
 class Subscriber():
     def __init__(self):
-        self.cv_img = None
+        self.cv_img = cv.imread("../images/lane.jpg")   # kinda silly
         rospy.Subscriber(IMAGE_TOPIC, Image, self.img2cv)
 
     def img2cv(self,data):
@@ -26,7 +28,7 @@ class Subscriber():
         # Can optionally do color or pixel depth conversion
         self.cv_img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
 
-class Publisher(self):
+class Publisher():
     def __init__(self):
         self.lane_pub =  rospy.Publisher(LANE_TOPIC, Image, queue_size=2)
         self.offset_pub = rospy.Publisher(LANE_OFFSET, Int16, queue_size=2)
@@ -47,12 +49,11 @@ def main():
     sub = Subscriber()
     pub = Publisher()
     lanes = Lanes()
-    
     while not rospy.is_shutdown():
         offset = lanes.detection(sub.cv_img)
         print(offset)
         pub.pub_lane(lanes.source_img)
         pub.pub_offset(offset)
 
-if __name__ ==  'main':
+if __name__ ==  '__main__':
     main()
