@@ -107,7 +107,7 @@ def dilate(img):
 def red_mask(hsv_img:np.ndarray):
     result = hsv_img.copy()
 
-    lower = np.array([165, 170, 0])
+    lower = np.array([170, 170, 63])
     upper = np.array([179, 255, 255])
     mask = cv2.inRange(hsv_img, lower, upper)
     result = cv2.bitwise_and(result, result, mask=mask)

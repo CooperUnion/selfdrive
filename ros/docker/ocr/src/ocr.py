@@ -123,14 +123,20 @@ class OCR(object):
                 
                 if data["text"][i].lower() == 'stop':
                     print('STOP recognized!')
-                if data["text"][i].lower() == 'igvc' or data["text"][i].lower() == 'soup':
+                    (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
+                    annotated_img = cv2.rectangle(annotated_img, (x, y), (x + width, y + height), (0, 255, 0), 2)
+                    annotated_img = cv2.putText(annotated_img, data['text'][i], (x, y + height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                if data["text"][i].lower() == 'igvc' or data["text"][i].lower() == 'icvc' or data["text"][i].lower() == 'soup':
                     print('LOL you are trying to trick us!')
-                (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
-                annotated_img = cv2.rectangle(annotated_img, (x, y), (x + width, y + height), (0, 255, 0), 2)
-                annotated_img = cv2.putText(annotated_img, data['text'][i], (x, y + height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
+                    annotated_img = cv2.rectangle(annotated_img, (x, y), (x + width, y + height), (0, 255, 0), 2)
+                    annotated_img = cv2.putText(annotated_img, data['text'][i], (x, y + height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         
         # cv2.imwrite('/app/ocr/data/out_annotated.png', self.annotated_img)
+        
+        cv2.namedWindow('annotated', cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty('annotate', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
         cv2.imshow('annotated', annotated_img)
         cv2.waitKey(1)
     
