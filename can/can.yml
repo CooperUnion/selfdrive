@@ -200,6 +200,29 @@ nodes:
               description: Speed violation
               width: 1
 
+    - ControllerData:
+        id: 0x24
+        cycletime: 10
+
+        signals:
+          - averageVelocity:
+              description: Average velocity.
+              # minimum: -12.0
+              # maximum:  12.0
+              unit: m/s
+              twos_complement: true
+              scale: 0.001
+              width: 16
+
+          - desiredAcceleration:
+              description: Desired acceleration.
+              # minimum: -12.0
+              # maximum:  12.0
+              unit: m/s
+              twos_complement: true
+              scale: 0.001
+              width: 16
+
     - NodeInfo:
         from_template: DBWNodeInfo
         id: 0xD4

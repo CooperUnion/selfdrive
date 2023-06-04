@@ -322,6 +322,12 @@ void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
     m->CTRL_speedAlarm   = speed_alarm;
 }
 
+void CANTX_populate_CTRL_ControllerData(struct CAN_Message_CTRL_ControllerData * const m)
+{
+    m->CTRL_averageVelocity     = average_velocity;
+    m->CTRL_desiredAcceleration = desired_acceleration;
+}
+
 void CANTX_populateTemplate_VelocityCommand(struct CAN_TMessage_DBWVelocityCommand * const m)
 {
     m->brakePercent    = brake_percent;
