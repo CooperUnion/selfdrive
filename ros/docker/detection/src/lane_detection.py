@@ -41,20 +41,12 @@ class Lanes():
             
     def compute_target(self, coords):
         final_coords = []
-        if len(coords) >= 2:
-            final_coords.append(coords[0])
-            final_coords.append(coords[1])
-
+        if len(coords) >= 1:
+            final_coords.append(coords[0][0])
             for (x0,y0) in coords:
-                if y0 > final_coords[0][1]:
-                    final_coords[0][0] == x0
-                    final_coords[0][1] == y0
-                elif y0 > final_coords[1][1]:
-                    final_coords[1][0] == x0
-                    final_coords[1][1] == y0
-            # hypotenuse = sqrt((final_coords[0][0]+final_coords[1][0])^2+(final_coords[0][1]+final_coords[1][1])^2)
-        
-            return (final_coords[0][0] + final_coords[1][0]) // 2
+                if x0 > final_coords[0]:
+                    final_coords[0] == x0
+            return (final_coords[0])
         else:
             return None
 
@@ -72,11 +64,11 @@ class Lanes():
         return img
     
     def detection(self,img):
-        source_img = img.copy()
+        source_img = img.copy()[-50:][-200:]
         self.source_img = source_img
 
         grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
-        ret, thresh = cv.threshold(grayed, 220, 255, 0)
+        ret, thresh = cv.threshold(grayed, 150, 255, 0)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
         contour_img = cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
@@ -87,7 +79,8 @@ class Lanes():
         center_coordinates = self.get_contour_centers(contours)
         target_coordinate = self.compute_target(center_coordinates)
         if (target_coordinate is not None):
-            offset = self.target_offset(target_coordinate,source_img)
-            return offset
+            return target_coordinate
+            # offset = self.target_offset(target_coordinate,source_img)
+            # return offset
 
 

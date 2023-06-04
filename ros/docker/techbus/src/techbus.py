@@ -36,7 +36,7 @@ class ROStouCAN:
             'DBW_linearVelocity': msg.linear.x
         })
         self.bus.send(SteerCAN, {
-            'DBW_steeringAngleCmd': angle
+            'DBW_steeringAngle': angle
         })
 
 # Establishes publisher for the /encoder_ticks topic

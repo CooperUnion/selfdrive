@@ -11,9 +11,7 @@ RUN apt-get update && apt install -y python3.9 python3.9-venv python3-pip --fix-
 
 RUN apt update && apt install -y curl
 
-RUN python3.9 -m venv .venv && \
-    source .venv/bin/activate && \
-    python3.9 -m pip install opencan-cand numpy msgpack cantools
+RUN python3.9 -m pip install opencan-cand==0.1.2 numpy msgpack cantools
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 

@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 import cv2 as cv
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
 import os 
 from sensor_msgs.msg import Image
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -18,72 +16,54 @@ IMAGE_TOPIC = '/zed/zed_node/rgb/image_rect_color'
 DEPTH_TOPIC = '/zed/zed_node/depth/depth_registered' # something like this
 
 #Published Topics
-LANE_TOPIC = '/lane_detection/rgb/image_rect_color'
-LANE_CENTER_TOPIC = '/lane_detection/centers/rgb/image_rect_color'
-TIRE_TOPIC = '/tire_detection/rgb/image_rect_color'
 BARREL_TOPIC = '/barrel_detection/rgb/image_rect_color'
 BARREL_BOOL = '/barrel_bool'
+BARREL_DIST = '/barrel_dist'
 
-# Parameters
-AREA_THRESH = 30
+#PARAMETERS
 BARREL_MAX_DIST = 3.5
-BLUR_PARAM_X = 9
-BLUR_PARAM_Y = 9
 
-
-kernel = np.ones((5,5),np.float32)/25
 bridge = CvBridge()
 
 class Subscriber():
     def __init__(self):
         
-        self.cv_img =  self.source_img = cv.imread("../images/barrel.jpg")
+        self.cv_img = cv.imread("../images/barrel.jpg")
         rospy.Subscriber(IMAGE_TOPIC, Image, self.img2cv)
 
     def img2cv(self,data):
-        rospy.loginfo('Video Frame Received')
+        # rospy.loginfo('Video Frame Received')                                  
         # Converts image topic stream to cv image
         # Possible encoding schemes: 8UC[1-4], 8SC[1-4], 16UC[1-4], 16SC[1-4], 32SC[1-4], 32FC[1-4], 64FC[1-4]     
         # Can optionally do color or pixel depth conversion
         self.cv_img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
-        
+
 class Publisher():
     def __init__(self):
-        self.lane_pub =  rospy.Publisher(LANE_TOPIC, Image, queue_size=2)
-        self.lane_center_pub = rospy.Publisher(LANE_CENTER_TOPIC, Image, queue_size=2)
-        self.tire_pub =  rospy.Publisher(TIRE_TOPIC, Image, queue_size=2)
         self.barrel_pub = rospy.Publisher(BARREL_TOPIC, Image, queue_size = 2)
         self.barrel_bool_pub = rospy.Publisher(BARREL_BOOL, Bool, queue_size = 2)
+        self.barrel_dist_pub = rospy.Publisher(BARREL_DIST, Float32, queue_size = 2)
         self.rate = rospy.Rate(60)
-    def pub_lane(self,cv_image):
-        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
-        self.lane_pub.publish(img_msg)
-        self.rate.sleep()
-    def pub_lane_center(self,cv_image):
-        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
-        self.lane_center_pub.publish(img_msg)
-        self.rate.sleep()
-    def pub_tire(self,cv_image):
-        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
-        self.tire_pub.publish(img_msg)
-        self.rate.sleep()
     def pub_barrel(self,cv_image):
         img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
         self.barrel_pub.publish(img_msg)
         self.rate.sleep()
+    def pub_dist(self,dist):
+        self.barrel_dist_pub.publish(dist)
+        self.rate.sleep()
     def pub_bool_barrel(self,distance):
         msg = Bool()
-        if (distance < 3.5): #distance is less than 3 inches 
+        if (distance < 100): #distance is less than 3 inches 
             msg.data = True 
         else:
             msg.data = False  
         self.barrel_bool_pub.publish(msg)
-        
 
-# Clean this up later 
+
 class Barrel():
     def __init__(self):
         self.source_img = cv.imread("../images/barrel.jpg")
+        self.dist = 0
 
     def create_blob(self):
     # Set up the SimpleBlobDetector with default parameters
@@ -120,6 +100,8 @@ class Barrel():
         detector = cv.SimpleBlobDetector_create(params)
         return detector
 
+
+
     def detection(self):
         #---------------------------(RESIZE_STUFF)---------------------------# 
         scale_percent = 20 # percent of original size
@@ -151,7 +133,7 @@ class Barrel():
             main_blob = contours[max_index] #biggest one --> closest to camera --> one we are interested in 
 
             x,y,w,h = cv.boundingRect(main_blob)
-            cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
+            self.source_img = cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
             # cv.imshow('Contours', im_with_keypoints)
             # cv.waitKey(1)
             # cv.destroyAllWindows()
@@ -168,101 +150,28 @@ class Barrel():
 
             print("Distance from car: ")
             print(dist_to_car/12)
+            self.dist = dist_to_car/12
             #have to add an offset to this then divided by 12 
-            return im_with_keypoints, (dist_to_car/12)
+            return (dist_to_car/12)
 
         else:
             pass
-        
 
-class Tire():
-    def __init__(self):
-        self.source_img = cv.imread("../images/tire.jpeg")
-
-    def detection(self):
-        # kernel = np.ones((5,5),np.float32)/25
-        grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
-        ret, thresh = cv.threshold(grayed, 100, 255, cv.THRESH_BINARY_INV)
-        contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
-
-        return self.source_img
-
-class Lanes():
-    def __init__(self):
-        self.source_img = cv.imread("../images/lane.jpg") # small glitch not sure how to intialize image
-        # self.source_img = None
-    
-    def get_largest_contour(contours, min_area: int = 30):
-        # Check that the list contains at least one contour
-        if len(contours) == 0:
-            return None
-
-        # Find and return the largest contour if it is larger than min_area
-        greatest_contour = max(contours, key=cv.contourArea)
-        if cv.contourArea(greatest_contour) < min_area:
-            return None
-        return greatest_contour
-
-    def get_contour_center(self,contour):
-            M = cv.moments(contour)
-            # Check that the contour is not empty
-            # (M["m00"] is the number of pixels in the contour)
-            if M["m00"] <= 0:
-                return None
-            # Compute and return the center of mass of the contour
-            center_row = round(M["m01"] / M["m00"])
-            center_column = round(M["m10"] / M["m00"])
-            return (center_row, center_column)
-
-    def detection(self):
-        grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
-        ret, thresh = cv.threshold(grayed, 215, 255, 0)
-        contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
-        contour_img = cv.drawContours(self.source_img, contours, -1, (0,0,255),10)
-        
-        # center points
-        center_img = self.source_img.copy()
-        for contour in contours:
-            area = cv.contourArea(contour)
-            if area > AREA_THRESH:
-                (x0,y0) = self.get_contour_center(contour)
-                cv.circle(center_img, (y0,x0), radius=20, color=(255,0,0), thickness=10)
-        
-      
-        return contour_img,  center_img
-        # return contour_img
-
-   
 def main():
 
     rospy.init_node('car_vision', anonymous=True)
     sub = Subscriber()
     pub = Publisher()
     barrel = Barrel()
-    tire = Tire()
-    lanes = Lanes()
-    
 
     while not rospy.is_shutdown():
-        lanes.source_img = sub.cv_img[:][:500]   # Eventually each class will get a different image topic from subscriber class
-        # lanes_img = lanes.detection()
-        # tire.source_img = sub.cv_img
         barrel.source_img = sub.cv_img.copy()
-        [lanes_img, contour_center_img] = lanes.detection()
-        # tire_img = tire.detection()
-        [barrel_img, barrel_distance] = barrel.detection()
+        barrel.detection()
         
-        
-        pub.pub_lane(lanes_img)
-        pub.pub_lane_center(contour_center_img)
-        # pub.pub_tire(tire_img)
-        pub.pub_barrel(barrel_img)
-        # pub.pub_bool_barrel(barrel_distance)
-
+        pub.pub_barrel(barrel.source_img)
+        pub.pub_dist(barrel.dist)
+        pub.pub_bool_barrel(barrel.dist)
 
 if __name__ == "__main__":
     main()
     
-
