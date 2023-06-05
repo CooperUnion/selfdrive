@@ -164,7 +164,8 @@ class path_generation:
         TYPE = 6
         start_point = Point(0,0) 
         start_orientation =  np.pi / 2
-        goal_point = Point((1.175), (3)) #assume in ft
+        goal_point = Point((-4.25), (8)) #assume in ft
+        
         goal_orientation = np.pi / 2
         num_path_points = 100
 
@@ -410,6 +411,8 @@ class path_generation:
         cyaw = self.calculate_yaw(cx,cy,start_yaw)
         cyaw = np.array(cyaw)
         con = np.stack((cx, cy,cyaw), axis=1)
+        print(cx)
+        print(cy)
 
         return con
         
@@ -440,8 +443,10 @@ def main():
 
     # make_path = path_generation(start_point, start_orientation, goal_point, goal_orientation, num_path_points) 
     make_path = path_generation()
-    path = make_path.swerve_R2L(start_point,start_orientation,goal_point,goal_orientation)
+    path = make_path.swerve_L2R(start_point,start_orientation,goal_point,goal_orientation)
     # path_wide = make_path.right_turn(start_point2,start_orientation2,goal_point2,goal_orientation2)
+
+    
 
 
 
@@ -452,11 +457,11 @@ def main():
     # delta2 = make_path.steering_angle(path_wide)
     distance_4_swerve = make_path.arclength(path)
     yaws = make_path.stan_inputs(path)
+    print(yaws)
 
 
     print("AC")
     print(distance_4_swerve)
-    print(yaws)
 
     # print(delta)
 
