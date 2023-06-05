@@ -5,6 +5,7 @@ from cv_bridge import CvBridge
 from std_msgs.msg import Int16, Bool
 from sensor_msgs.msg import Image
 from lane_detection import Lanes
+from stop_line_detection import StopLine
 
 # DEFINES
 # Subscribed Topics
@@ -48,7 +49,7 @@ class Publisher():
         self.rate.sleep()
     def pub_stop_line(self, cv_image):
         img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
-        self.stop_line_pub.publish(msg.data)
+        self.stop_line_pub.publish(img_msg)
         self.rate.sleep()
     def pub_stop_line_bool(self, detected):
         msg = Bool()
@@ -62,13 +63,16 @@ def main():
     sub = Subscriber()
     pub = Publisher()
     lanes = Lanes()
+    stop_line = StopLine()
     while not rospy.is_shutdown():
         offset = lanes.detection(sub.cv_img)
         print(offset)
         pub.pub_lane(lanes.source_img)
         pub.pub_offset(offset)
-        # pub.pub_stop_line()
-        # pub.pub_stop_line_bool()
+
+        stop_line_detected = stop_line.detection(sub.cv_img)
+        pub.pub_stop_line(stop_line.source_img)
+        # pub.pub_stop_line_bool(stop_line_detected)
 
 if __name__ ==  '__main__':
     main()
