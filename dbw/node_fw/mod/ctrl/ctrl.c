@@ -11,6 +11,7 @@
 #include "ember_taskglue.h"
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "pid.h"
 
 // ######        DEFINES        ###### //
 
@@ -21,14 +22,46 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS 600  // slightly over 5MPH
+#define ENCODER_MAX_TICKS           600  // slightly over 5MPH
+#define ENCODER_TICKS_PER_ROTATION 4000
+
+#define WHEEL_CIRCUMFERENCE_M 1.899156
+
+#define METERS_PER_TICK (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
+
+#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING      15.40
+#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING        -58.03
+#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET -11.33
+
+#define ACCELERATION_TO_THROTTLE_PERCENT(x)                 \
+    ((x) * ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING)
+
+#define ACCELERATION_TO_BRAKE_PERCENT(x)                  \
+    (((x) * ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING) \
+    +                                                     \
+    ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET)
+
+#define AVERAGE_TICKS_SAMPLES 4
+
+#define KP    3.00
+#define KI    0.30
+#define KD    1.35
+#define SIGMA 1.00
+
+#define PID_LOWER_LIMIT -5
+#define PID_UPPER_LIMIT  5
 
 // ######      PROTOTYPES       ###### //
 
+static void calculate_average_velocity(int16_t left_delta, int16_t right_delta);
 static void encoder0_chan_a(void *arg);
 static void encoder0_chan_b(void *arg);
 static void encoder1_chan_a(void *arg);
 static void encoder1_chan_b(void *arg);
+static void velocity_control(
+    float desired_velocity,
+    float current_velocity,
+    float desired_acceleration);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -36,6 +69,12 @@ static volatile uint16_t pulse_cnt[2];
 static bool speed_alarm;
 static uint8_t brake_percent;
 static uint8_t throttle_percent;
+
+static float average_velocity;
+static float desired_acceleration;
+
+static pid_S pid;
+static bool  setpoint_reset;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -65,6 +104,8 @@ static void ctrl_init()
     gpio_isr_handler_add(ENCODER0_CHAN_B, encoder0_chan_b, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_A, encoder1_chan_a, NULL);
     gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
+
+    pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 }
 
 static void ctrl_100Hz()
@@ -79,11 +120,14 @@ static void ctrl_100Hz()
     prv_pulse_cnt[0] = cur_pulse_cnt[0];
     prv_pulse_cnt[1] = cur_pulse_cnt[1];
 
+    calculate_average_velocity(left_delta, right_delta);
+
     // check if we're over the speed limit and
     // go into the ESTOP state if that's the case
     if (
-        (ABS(left_delta)  >= ENCODER_MAX_TICKS) ||
-        (ABS(right_delta) >= ENCODER_MAX_TICKS))
+        (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE) &&
+        ((ABS(left_delta) >= ENCODER_MAX_TICKS)          ||
+        (ABS(right_delta) >= ENCODER_MAX_TICKS)))
     {
         brake_percent    = 0;
         throttle_percent = 0;
@@ -104,32 +148,68 @@ static void ctrl_100Hz()
      * velocity command priority when setting percentages.
      */
     if (CANRX_is_message_DBW_RawVelocityCommand_ok()) {
+        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
         taskDISABLE_INTERRUPTS();
         brake_percent    = CANRX_get_DBW_brakePercent();
         throttle_percent = CANRX_get_DBW_throttlePercent();
         taskENABLE_INTERRUPTS();
 
-        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
         return;
     }
 
     if (CANRX_is_message_DBW_VelocityCommand_ok()) {
-        // TODO: set brake and throttle percentages
-        // using a PID controller
-
-        brake_percent    = 0;
-        throttle_percent = 0;
-
         base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
+
+        float current_velocity = average_velocity;
+        float desired_velocity = CANRX_get_DBW_linearVelocity();
+
+        if (setpoint_reset) {
+            pid_setpoint_reset(&pid, desired_velocity, current_velocity);
+            setpoint_reset = false;
+        }
+
+        desired_acceleration = pid_step(
+            &pid,
+            desired_velocity,
+            current_velocity);
+
+        velocity_control(
+            desired_velocity,
+            current_velocity,
+            desired_acceleration);
+
         return;
     }
 
+    base_request_state(CUBER_SYS_STATE_IDLE);
+
     brake_percent    = 0;
     throttle_percent = 0;
-    base_request_state(CUBER_SYS_STATE_IDLE);
+    setpoint_reset   = true;
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
+
+static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
+{
+    static size_t  index;
+    static int32_t average_ticks_sum;
+    static int32_t average_ticks_buf[AVERAGE_TICKS_SAMPLES];
+
+    // remove stale value
+    average_ticks_sum -= average_ticks_buf[index];
+
+    average_ticks_buf[index] = (left_delta + right_delta) / 2;
+    average_ticks_sum += average_ticks_buf[index];
+
+    index = (index + 1) % AVERAGE_TICKS_SAMPLES;
+
+    int16_t ticks = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
+
+    // magic scaling factor of 10 here, no idea why
+    average_velocity = ticks * METERS_PER_TICK / 0.1;
+}
 
 static void IRAM_ATTR encoder0_chan_a(void *arg)
 {
@@ -211,7 +291,42 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
     }
 }
 
+static void velocity_control(
+    float desired_velocity,
+    float current_velocity,
+    float desired_acceleration)
+{
+    // we'd like to stop, or so i hope
+    if (!desired_velocity) {
+        brake_percent    = 50;
+        throttle_percent = 0;
+
+        return;
+    }
+
+    if (desired_acceleration > 0) {
+        brake_percent    = 0;
+        throttle_percent = ACCELERATION_TO_THROTTLE_PERCENT(desired_acceleration);
+    } else {
+        brake_percent    = ACCELERATION_TO_BRAKE_PERCENT(desired_acceleration);
+        throttle_percent = 0;
+    }
+}
+
 // ######   PUBLIC FUNCTIONS    ###### //
+
+// ######         CAN RX         ###### //
+
+void CANRX_onRxCallback_DBW_SetVelocityGains(
+    const struct CAN_TMessageRaw_PIDGains * const raw,
+    const struct CAN_TMessage_PIDGains * const dec)
+{
+    (void) raw;
+
+    pid.kp = dec->gainKp;
+    pid.ki = dec->gainKi;
+    pid.kd = dec->gainKd;
+}
 
 // ######        CAN TX         ###### //
 
@@ -219,6 +334,19 @@ void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
 {
     m->CTRL_alarmsRaised = speed_alarm;
     m->CTRL_speedAlarm   = speed_alarm;
+}
+
+void CANTX_populate_CTRL_ControllerData(struct CAN_Message_CTRL_ControllerData * const m)
+{
+    m->CTRL_averageVelocity     = average_velocity;
+    m->CTRL_desiredAcceleration = desired_acceleration;
+}
+
+void CANTX_populateTemplate_ControllerGains(struct CAN_TMessage_PIDGains * const m)
+{
+    m->gainKp = pid.kp;
+    m->gainKi = pid.ki;
+    m->gainKd = pid.kd;
 }
 
 void CANTX_populateTemplate_VelocityCommand(struct CAN_TMessage_DBWVelocityCommand * const m)

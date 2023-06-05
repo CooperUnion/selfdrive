@@ -1,3 +1,4 @@
+#include "ember_app_desc.h"
 #include "ember_bltools.h"
 #include "ember_tasking.h"
 #include "module_list.inc"
@@ -9,5 +10,6 @@ void app_main()
 
     /* begin running tasks */
     ember_tasking_begin();
-}
 
+    fprintf(stderr, "Hello from %.16s\n", ember_app_description.node_identity);
+}
