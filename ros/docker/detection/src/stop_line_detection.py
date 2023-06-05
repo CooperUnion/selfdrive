@@ -33,5 +33,5 @@ class StopLine():
 
         # hsv = cv.cvtColor(strip, cv.COLOR_BGR2HSV)
         self.source_img = gray
-        return ratio > 0.25
+        return ratio > 0.20
 

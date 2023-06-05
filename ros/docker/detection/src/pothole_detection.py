@@ -8,9 +8,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # DEFINES
-AREA_THRESH = 5000 
+AREA_THRESH = 800 
 BLUR_PARAM_X, BLUR_PARAM_Y = (13,13)
-HUE_THRESHOLD = 200 # Before dark, 200 worked well
+HUE_THRESHOLD = 160 # Before dark, 200 worked well
 
 # Subscribed Topics
 IMAGE_TOPIC = '/zed/zed_node/rgb/image_rect_color'  
@@ -56,7 +56,7 @@ class Pothole():
 
     def detection(self,img):
         source_img = img.copy()
-        self.source_img = source_img
+        self.source_img = source_img[150:, :]
 
         grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
         ret, thresh = cv.threshold(grayed, HUE_THRESHOLD, 255, 0)
@@ -65,6 +65,10 @@ class Pothole():
 
         contours = self.find_circle(contours)
         cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
+        if(len(contours) == 1):
+                print('Pothole Detected!')
+        else:
+                print("No Pothole Detected")
 
 def main():
 

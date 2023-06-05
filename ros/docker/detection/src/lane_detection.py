@@ -68,7 +68,7 @@ class Lanes():
         self.source_img = source_img
 
         grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
-        ret, thresh = cv.threshold(grayed, 150, 255, 0)
+        ret, thresh = cv.threshold(grayed, 200, 255, 0)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
         contour_img = cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)

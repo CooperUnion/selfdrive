@@ -72,7 +72,7 @@ def main():
 
         stop_line_detected = stop_line.detection(sub.cv_img)
         pub.pub_stop_line(stop_line.source_img)
-        # pub.pub_stop_line_bool(stop_line_detected)
+        pub.pub_stop_line_bool(stop_line_detected)
 
 if __name__ ==  '__main__':
     main()
