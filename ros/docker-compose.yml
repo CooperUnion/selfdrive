@@ -116,6 +116,7 @@ services:
         volumes:
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/cuber/src:/app/cuber'
+            - './docker/:/app/cuber/modules'
         depends_on:
             - master
 

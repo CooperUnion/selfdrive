@@ -34,6 +34,7 @@ publish topic: {self.publish_topic}'''
         self.publisher = rospy.Publisher(rostopic, rostopic_type, queue_size=queue_size)
 
     def publish(self, message:type):
+        print(f'Publishing to {self.publish_topic}')
         while not rospy.is_shutdown():
             self.publisher.publish(message)
             self.rate.sleep()
