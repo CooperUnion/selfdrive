@@ -320,6 +320,7 @@ nodes:
               # maximum: 100.0
               scale: 0.1
               width: 10
+              offset: -50
           # TODO: determine realistic bounds
 #         - angularVelocity:
 #             description: Velocity in rad/s

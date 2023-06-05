@@ -51,6 +51,8 @@
 #define PID_LOWER_LIMIT -5
 #define PID_UPPER_LIMIT  5
 
+
+
 // ######      PROTOTYPES       ###### //
 
 static void calculate_average_velocity(int16_t left_delta, int16_t right_delta);
@@ -303,8 +305,10 @@ static void velocity_control(
 
         return;
     }
-
-    if (desired_acceleration > 0) {
+    // -ve acceleration indicates speeding up, +ve indicates slowing down
+    // only works when in reverse mode.
+    // if in forwards, will continually accelerate to the speed limit.
+    if (desired_acceleration < 0) {
         brake_percent    = 0;
         throttle_percent = ACCELERATION_TO_THROTTLE_PERCENT(desired_acceleration);
     } else {
