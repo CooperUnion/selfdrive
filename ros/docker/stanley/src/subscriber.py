@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
+from std_msgs.msg import Int16
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry, Path
+from stan_path_planner import path_generation
 
 import math
 import numpy as np
@@ -28,6 +30,7 @@ class Subscriber:
         self.path = rospy.Subscriber('/path', Path, self.set_waypoints)
         self.goal = rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.update_goal)
 
+        self.state = rospy.Subscriber('/func_state', Int16, self.update_path)
         # Car Info
         self.xpos = 0
         self.ypos = 0
@@ -44,6 +47,58 @@ class Subscriber:
         self.ygoal = 0
         self.yawgoal = 0
 
+        self.pg = path_generation()
+
+
+    def update_path(self, msg):
+        pg =self.pg 
+        n_points = 100
+
+        course_event = {
+        # Course 1 Events 
+        0: pg.right_turn(x,y,n_points),
+        1: pg.swerve_R2L(x,y,n_points),
+        2: pg.vertical_line(x,y,n_points),
+        3: pg.swerve_L2R(x,y,n_points),
+        4: pg.left_turn(x,y,n_points),
+        5: pg.horizontal_line(x,y,n_points),
+        6: pg.left_turn(x,y,n_points),
+        8: pg.vertical_line(x,y,n_points),
+        9: pg.vertical_line(x,y,n_points),
+        10: pg.left_turn(x,y,n_points),
+
+        #Course 2 Events
+        11: pg.left_turn(x,y,n_points),
+        12: pg.vertical_line(x,y,n_points),
+        2: pg.swerve_R2L(x,y,n_points),
+        3: pg.vertical_line(x,y,n_points),
+        4: pg.swerve_L2R(x,y,n_points),
+        5: pg.left_turn(x,y,n_points),
+        6: pg.horizontal_line(x,y,n_points),
+        8: pg.left_turn(x,y,n_points),
+        9: pg.swerve_R2L(x,y,n_points),
+        10: pg.vertical_line(x,y,n_points),
+        11: pg.swerve_L2R(x,y,n_points),
+        12: pg.left_turn(x,y,n_points),
+        13: pg.horizontal_line(x,y,n_points),
+        14: pg.horizontal_line(x,y,n_points),
+        15: pg.left_turn(x,y,n_points)
+        
+        
+    }
+        path = course_event.get(msg.data)
+        path_points = pg.stan_inputs(path)
+
+
+        self.pathx = path_points[0]
+        self.pathy = path_points[1]
+        self.pathyaw = path_points[2]
+
+
+
+
+         
+
     # Decode Odometry topic to get current position, velocity, and yaw
     def update_car(self,msg):
         self.xpos = msg.pose.pose.position.x
@@ -54,6 +109,7 @@ class Subscriber:
     # Decode Path topic into a series of waypoints
     # The nearest waypoint will be chosen by the Stanley controller
     def set_waypoints(self,msg):
+        
         for i in range(0,n_points-1):
             self.pathx[i] = msg.PoseStamped[i].pose.position.x    # Sets x coordinate of waypoint 
             self.pathy[i] = msg.PoseStamped[i].pose.position.y    # Sets y coordinate of waypoint 
