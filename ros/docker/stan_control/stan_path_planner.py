@@ -41,15 +41,44 @@ class path_generation:
 
         #plot a circle 
 
-        Drawing_uncolored_circle = plt.Circle( (center[0], center[1] ),
-                                      radius ,
+        print(center)
+
+        center[0] = 7.5
+        center[1] = 0
+
+        print(center)
+
+        radius = 3
+
+
+        Drawing_uncolored_circle_F = plt.Circle((center[0], center[1]),
+                                      radius, color = 'm',
                                       fill = False )
+        # Drawing_uncolored_circle = plt.Circle( (-7.5, 0 ),
+                                    #   3,
+                                    #   fill = False )
+
+        radius = 6
+        Drawing_uncolored_circle_G = plt.Circle((center[0], center[1]),
+                                      radius, color = 'r',
+                                      fill = False )
+
+        radius = 9
+        
+        Drawing_uncolored_circle_H = plt.Circle((center[0], center[1]),
+                                      radius, color = 'm',
+                                      fill = False )
+
  
         axes.set_aspect( 1 )
-        axes.add_artist( Drawing_uncolored_circle )
+        # axes.set_aspect( 1 )
+        # axes.add_artist( Drawing_uncolored_circle )
+        axes.add_artist( Drawing_uncolored_circle_F)
+        axes.add_artist( Drawing_uncolored_circle_G)
+        axes.add_artist( Drawing_uncolored_circle_H)
+        plt.xlim(-10, 10)
+        plt.ylim(-10, 10)
         plt.title( 'Circle' )
-
-    
         plt.show()
     def calculate_yaw(self, cx, cy, start_yaw):
         yaw = [start_yaw]
@@ -93,10 +122,10 @@ class path_generation:
     def right_turn(self,start_point,start_orientation,goal_point,goal_orientation):
         global TYPE 
         TYPE = 3
-        # start_point = Point((0), 0) 
-        # start_orientation = np.pi / 2
-        # goal_point = Point((5.76), 5.76) #assume in m
-        # goal_orientation = 0
+        start_point = Point((0), 0) 
+        start_orientation = np.pi / 2
+        goal_point = Point((5.76), 5.76) #assume in m
+        goal_orientation = 0
         num_path_points = 100
 
         right_turn = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
@@ -107,10 +136,10 @@ class path_generation:
     def left_turn(self,start_point,start_orientation,goal_point,goal_orientation):
         global TYPE 
         TYPE = 4
-        # start_point = Point(0,0) 
-        # start_orientation =  np.pi / 2
-        # goal_point = Point((-9.5), (9.5)) #assume in ft
-        # goal_orientation = np.pi
+        start_point = Point(0,0) 
+        start_orientation =  np.pi / 2
+        goal_point = Point((-9.5), (9.5)) #assume in ft
+        goal_orientation = np.pi
         num_path_points = 100
 
         left_turn = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
@@ -120,11 +149,11 @@ class path_generation:
     def swerve_R2L(self,start_point,start_orientation,goal_point,goal_orientation):
         global TYPE 
         TYPE = 5
-        # start_point = Point(0,0) 
-        # start_orientation =  np.pi / 2
-        # goal_point = Point((1.175), (3)) #assume in ft
-        # goal_orientation = np.pi / 2
-        num_path_points = 10
+        start_point = Point(0,0) 
+        start_orientation =  np.pi / 2
+        goal_point = Point((4.25), (8)) #assume in ft
+        goal_orientation = np.pi / 2
+        num_path_points = 100
 
         swerve = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
 
@@ -133,10 +162,10 @@ class path_generation:
         #measure this tommorow 
         global TYPE 
         TYPE = 6
-        # start_point = Point(0,0) 
-        # start_orientation =  np.pi / 2
-        # goal_point = Point((1.175), (3)) #assume in ft
-        # goal_orientation = np.pi / 2
+        start_point = Point(0,0) 
+        start_orientation =  np.pi / 2
+        goal_point = Point((1.175), (3)) #assume in ft
+        goal_orientation = np.pi / 2
         num_path_points = 100
 
         swerve = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
@@ -201,8 +230,9 @@ class path_generation:
         TYPE = 8
         # start_point = Point((0), 0) 
         # start_orientation = np.pi / 2
-        # goal_point = Point((-4.5), 6.4) #assume in m
-        # goal_orientation = (np.pi * 3) / 4
+        # goal_point = Point((1.5), 3) #assume in m
+        # goal_orientation = (np.pi/180 * 60)
+        # num_path_points = 100
         num_path_points = 100
 
         curve_lane = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
@@ -212,10 +242,10 @@ class path_generation:
     def Curve_Lane_C4(self,start_point,start_orientation,goal_point,goal_orientation):
         global TYPE 
         TYPE = 8
-        # start_point = Point((0), 0) 
-        # start_orientation = np.pi / 2
-        # goal_point = Point((-4.5), 6.4) #assume in m
-        # goal_orientation = (np.pi * 3) / 4
+        start_point = Point((0), 0) 
+        start_orientation = np.pi / 2
+        goal_point = Point((-1.5), 2.6) #assume in m
+        goal_orientation = (np.pi * -3) / 4
         num_path_points = 100
 
         curve_lane = generate_clothoid_path(start_point, start_orientation, goal_point, goal_orientation, num_path_points)
@@ -296,7 +326,7 @@ class path_generation:
 
             start_point = Point(0,0)
             goal_point = Point(5.76,5.76)  
-            # self.plot_clothoid(path,start_point, goal_point,A,B,C,center,radius)
+            
             
 
             # figure, axes = plt.subplots()
@@ -349,6 +379,7 @@ class path_generation:
         # con = np.concatenate((arc_array, delta_array1))
         con = np.stack((arc_array, delta_array1), axis=1)
         print(con)
+        self.plot_clothoid(path,start_point, goal_point,A,B,C,center,radius)
 
 
 
@@ -384,22 +415,41 @@ class path_generation:
         
 
 def main(): 
-    # start_point = Point((19.25/2), 114) 
+    #CASE #1: 
+    # start_point = Point((0), 0) 
     # start_orientation = np.pi / 2
-    # goal_point = Point((19.25/2 + 22 + 9), 114 + 22) #assume in ft
-    # goal_orientation = 0
+    # goal_point = Point((-4), 2.6) #assume in m
+    # goal_orientation = (np.pi/180 * 60) + (np.pi/180 * 60)
+    # num_path_points = 100
+
+
+    #CASE #2:
+    # start_point = Point((0), 0) 
+    # start_orientation = np.pi / 2
+    # goal_point = Point((-1.0), 6.4) #assume in m
+    # goal_orientation = (np.pi * 3) / 4 + (np.pi/180 * 10)
+
+    #CASE #4: 
     start_point = Point((0), 0) 
     start_orientation = np.pi / 2
-    goal_point = Point((-1.5), 2.6) #assume in m
-    goal_orientation = (np.pi * 2) / 3
-    num_path_points = 100
+    goal_point = Point((5.5), 4.5) #assume in m
+    goal_orientation = (np.pi/180 * 50)
+
+
+
 
     # make_path = path_generation(start_point, start_orientation, goal_point, goal_orientation, num_path_points) 
     make_path = path_generation()
-    path = make_path.Curve_Lane_C1(start_point,start_orientation,goal_point,goal_orientation)
+    path = make_path.swerve_R2L(start_point,start_orientation,goal_point,goal_orientation)
+    # path_wide = make_path.right_turn(start_point2,start_orientation2,goal_point2,goal_orientation2)
+
+
+
     
     print(TYPE)
     delta = make_path.steering_angle(path)
+    
+    # delta2 = make_path.steering_angle(path_wide)
     distance_4_swerve = make_path.arclength(path)
     yaws = make_path.stan_inputs(path)
 
