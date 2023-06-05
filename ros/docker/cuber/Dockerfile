@@ -42,3 +42,16 @@ ENV TESSDATA_PREFIX '/app/ocr/data/tessdata'
 
 # Define a volume to mount the local directory /home/igvc/selfdrive/ocr/data to /app/ocr/data inside the container
 VOLUME ["/home/igvc/selfdrive/rviz/src", "/app/rviz"]
+
+# Change directory to cuber, install the package, and switch back to /app
+WORKDIR /app/cuber
+
+COPY ./src /app/cuber
+
+RUN pip install /app/cuber/cuber
+
+WORKDIR /app
+
+# Install the package with setup.py
+# RUN pip install ./cuber/cuber
+
