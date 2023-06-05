@@ -43,7 +43,7 @@
 
 #define AVERAGE_TICKS_SAMPLES 10
 
-#define KP    1.00
+#define KP    3.00
 #define KI    0.30
 #define KD    1.35
 #define SIGMA 1.00

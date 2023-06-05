@@ -8,9 +8,10 @@ import math
 from math import sin, cos, pi
 
 from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist, TransformStamped 
-from std_msgs.msg import UInt16MultiArray, String
+from std_msgs.msg import UInt16MultiArray, String, Float32MultiArray
 from nav_msgs.msg import Odometry
  
+
 class Subscribe:
     def __init__(self):
         self.left_ticks: ctypes.c_uint16 = 0
@@ -134,6 +135,8 @@ if __name__ == '__main__':
     
     rospy.init_node('encoder_odom', anonymous=True, log_level=rospy.DEBUG)
     pub = rospy.Publisher('/encoder_string', String)
+    pub_euler = rospy.Publisher('/euler_yaw', Float32MultiArray)
+    euler_msg = Float32MultiArray()
     encoder_odom = Encoder_Odom() 
 
     current_time = rospy.Time.now()
@@ -142,7 +145,8 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
 
         current_time = rospy.Time.now()
-        
+        euler_msg.data = [encoder_odom.x, encoder_odom.y, encoder_odom.th, encoder_odom.vx]
+        pub_euler.publish(euler_msg)
         encoder_odom.calc_odom(current_time,last_time)
 
         last_time = current_time

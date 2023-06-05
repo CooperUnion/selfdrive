@@ -28,6 +28,7 @@ def main():
     bus = Bus(redis_host='redis')
     lane_offset = LaneOffsetSubscriber()
     start = datetime.datetime.now()
+    stopping = False
     while not rospy.is_shutdown():
         STEER_OFFSET_DESIRED = 580
         STEER_OFFSET_KP = 0.1
@@ -35,15 +36,23 @@ def main():
         steer_angle = -STEER_OFFSET_KP * steer_deviation
         bus.send('DBW_SteeringCommand', {'DBW_steeringAngle': math.radians(steer_angle)})
 
-        if lane_offset.stop and (datetime.datetime.now() - start) > datetime.timedelta(seconds=10):
-            DIST_FULLSTOP = 50
-            BASE_VEL = 1.5
-            vel_slap = (1.5 * ((lane_offset.dist - DIST_FULLSTOP) / DIST_FULLSTOP))
+        if lane_offset.stop and not stopping:
+            print("### FOUND STOP ###")
+            print("### FOUND STOP ###")
+            print("### FOUND STOP ###")
+        
+        if stopping or lane_offset.stop:
+            stopping = True
+            print("SLOWING/STOPPING")
+            DIST_FULLSTOP = 60
+            BASE_VEL = 1.2
+            vel_slap = (1.2 * ((lane_offset.dist - DIST_FULLSTOP) / DIST_FULLSTOP))
             vel = BASE_VEL - vel_slap if vel_slap > 0 else 0
             print(f"vel is slowing: {vel}")
-            bus.send('DBW_VelocityCommand', {'DBW_linearVelocity': min(0, vel)})
+            bus.send('DBW_VelocityCommand', {'DBW_linearVelocity': max(0, vel)})
         else:
-            bus.send('DBW_VelocityCommand', {'DBW_linearVelocity': 1.5})
+            print("DRIVE OK")
+            bus.send('DBW_VelocityCommand', {'DBW_linearVelocity': 1.2})
         time.sleep(0.005)
     
     # while True:

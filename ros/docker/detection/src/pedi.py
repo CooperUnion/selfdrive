@@ -1,8 +1,67 @@
+import cv2 as cv
+from cv_bridge import CvBridge, CvBridgeError
+import rospy
+import os 
+from sensor_msgs.msg import Image
+from std_msgs.msg import Bool, Float32
+import numpy as np
+from matplotlib import pyplot as plt
 
+# DEFINES
+# Subscribed Topics
+IMAGE_TOPIC = '/zed/zed_node/rgb/image_rect_color'  
+# rgb/image topic and depth topic come from left camera
+# Depth map image registered on the left image (32-bit float in meters by default)
+DEPTH_TOPIC = '/zed/zed_node/depth/depth_registered' # something like this
+
+#Published Topics
+PEDI_TOPIC = '/pedi_detection/rgb/image_rect_color'
+PEDI_BOOL = '/pedi_bool'
+PEDI_DIST = '/pedi_dist'
+
+#PARAMETERS
+PEDI_MAX_DIST = 3.5
+
+bridge = CvBridge()
+
+class Subscriber():
+    def __init__(self):
+        
+        self.cv_img = cv.imread("../images/barrel.jpg")
+        rospy.Subscriber(IMAGE_TOPIC, Image, self.img2cv)
+
+    def img2cv(self,data):
+        # rospy.loginfo('Video Frame Received')                                  
+        # Converts image topic stream to cv image
+        # Possible encoding schemes: 8UC[1-4], 8SC[1-4], 16UC[1-4], 16SC[1-4], 32SC[1-4], 32FC[1-4], 64FC[1-4]     
+        # Can optionally do color or pixel depth conversion
+        self.cv_img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
+
+class Publisher():
+    def __init__(self):
+        self.pedi_pub = rospy.Publisher(PEDI_TOPIC, Image, queue_size = 2)
+        self.pedi_bool_pub = rospy.Publisher(PEDI_BOOL, Bool, queue_size = 2)
+        self.pedi_dist_pub = rospy.Publisher(PEDI_DIST, Float32, queue_size = 2)
+        self.rate = rospy.Rate(60)
+    def pub_pedi(self,cv_image):
+        img_msg = bridge.cv2_to_imgmsg(cv_image, "passthrough")
+        self.pedi_pub.publish(img_msg)
+        self.rate.sleep()
+    def pub_dist(self,dist):
+        self.pedi_dist_pub.publish(dist)
+        self.rate.sleep()
+    def pub_bool_pedi(self,distance):
+        msg = Bool()
+        if (distance < 100): #distance is less than 3 inches 
+            msg.data = True 
+        else:
+            msg.data = False  
+        self.pedi_bool_pub.publish(msg)
 
 class Pedestrian():
     def __init__(self):
-        self.source_img = cv.imread("../images/person.jpg")
+        self.source_img = cv.imread("../images/barrel.jpg")
+        self.dist = 0
 
     def create_blob(self):
     # Set up the SimpleBlobDetector with default parameters
@@ -74,7 +133,7 @@ class Pedestrian():
         main_blob = contours[max_index] #biggest one --> closest to camera --> one we are interested in 
 
         x,y,w,h = cv.boundingRect(main_blob)
-        cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
+        self.source_img = cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
         cv.imshow('Contours', im_with_keypoints)
         cv.waitKey(1)
         cv.destroyAllWindows()
@@ -91,5 +150,25 @@ class Pedestrian():
 
         print("Distance from car: ")
         print(dist_to_car/12)
+        self.dist = dist_to_car/12
         #have to add an offset to this then divided by 12 
-        return im_with_keypoints, (dist_to_car/12)
+        return (dist_to_car/12)
+
+
+def main():
+
+    rospy.init_node('pedi_vision', anonymous=True)
+    sub = Subscriber()
+    pub = Publisher()
+    pedi = Pedestrian()
+
+    while not rospy.is_shutdown():
+        pedi.source_img = sub.cv_img.copy()
+        pedi.detection()
+        
+        pub.pub_pedi(pedi.source_img)
+        pub.pub_dist(pedi.dist)
+        pub.pub_bool_pedi(pedi.dist)
+
+if __name__ == "__main__":
+    main()
