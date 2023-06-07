@@ -12,6 +12,7 @@
 extern ember_rate_funcs_S base_rf;
 extern ember_rate_funcs_S can_rf;
 extern ember_rate_funcs_S eeprom_rf;
+extern ember_rate_funcs_S ember_bl_servicing_rf;
 
 /*
  * Single extern definition for the one-per-build mod/ module.
@@ -31,6 +32,7 @@ ember_rate_funcs_S* ember_task_list[] = {
     // TODO: boards crash without EEPROM
     // &eeprom_rf,
     &module_rf,
+    &ember_bl_servicing_rf,
 };
 
 const size_t ember_task_count = ARRAY_SIZE(ember_task_list);

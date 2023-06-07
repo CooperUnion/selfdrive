@@ -8,6 +8,7 @@
 #include <rom/rtc.h>
 #include <sdkconfig.h>
 
+#include "ember_bl_servicing.h"
 #include "ember_common.h"
 #include "ember_taskglue.h"
 #include "libgitrev.h"
@@ -81,26 +82,6 @@ static void base_init()
 static void base_10Hz()
 {
     set_status_LEDs();
-
-    /* Critical section */
-    portDISABLE_INTERRUPTS();
-    {
-        if (CANRX_is_node_UPD_ok() && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
-            if (sys_state != CUBER_SYS_STATE_DBW_ACTIVE) {
-                /* It's update time. No going back; we will reboot. */
-
-                /**
-                 * Set the RTC watchdog timeout to 1 second to give us some time
-                 * since the task_wdt_servicer() is not running anymore.
-                 */
-                set_up_rtc_watchdog_1sec();
-
-                /* Reboot */
-                esp_restart();
-            }
-        }
-    }
-    portENABLE_INTERRUPTS();
 }
 
 static void base_100Hz()
@@ -315,4 +296,9 @@ void CANTX_populateTemplate_NodeInfo(struct CAN_TMessage_DBWNodeInfo * const m)
     m->gitHash = GITREV_BUILD_REV;
     m->gitDirty = GITREV_BUILD_DIRTY;
     m->eepromIdentity = 0; // no eeprom identity at the moment
+}
+
+bool ember_bl_servicing_cb_are_we_ready_to_reboot(void) {
+    // allow reboot if we're not in DBW_ACTIVE
+    return (sys_state != CUBER_SYS_STATE_DBW_ACTIVE);
 }
