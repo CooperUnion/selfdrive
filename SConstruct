@@ -57,7 +57,6 @@ Export('env')
 # Dependencies first
 env.SConscript('dependencies.SConscript', variant_dir='deps',               duplicate=0)
 env.SConscript('can/SConscript',          variant_dir='build/can',          duplicate=0)
-env.SConscript('dbw/ember_bl/SConscript', variant_dir='build/dbw/ember_bl', duplicate=0)
 env.SConscript('dbw/node_fw/SConscript',  variant_dir='build/dbw/node_fw',  duplicate=0)
 # ---------------------------------------------------------
 

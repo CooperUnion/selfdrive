@@ -9,9 +9,10 @@
 /*
  * List an extern definition for each module's struct rate_tasks.
  */
-extern ember_rate_funcs_S leds_rf;
+extern ember_rate_funcs_S base_rf;
 extern ember_rate_funcs_S can_rf;
-extern ember_rate_funcs_S bl_rf;
+extern ember_rate_funcs_S eeprom_rf;
+extern ember_rate_funcs_S ember_bl_servicing_rf;
 
 /*
  * Single extern definition for the one-per-build mod/ module.
@@ -26,9 +27,12 @@ extern ember_rate_funcs_S module_rf;
  * they appear here, but it's best not to rely on that fact for program logic.
  */
 ember_rate_funcs_S* ember_task_list[] = {
-    &leds_rf,
+    &base_rf,
     &can_rf,
-    &bl_rf,
+    // TODO: boards crash without EEPROM
+    // &eeprom_rf,
+    &module_rf,
+    &ember_bl_servicing_rf,
 };
 
 const size_t ember_task_count = ARRAY_SIZE(ember_task_list);

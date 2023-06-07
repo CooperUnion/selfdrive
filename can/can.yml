@@ -704,27 +704,21 @@ nodes:
 
 - UPD:
     rx:
-    - BLINK_NodeStatus
     - BLINKBL_IsoTpTx
     - BLINKBL_Status
 
-    - BRAKE_NodeStatus
     - BRAKEBL_IsoTpTx
     - BRAKEBL_Status
 
-    - CTRL_NodeStatus
     - CTRLBL_IsoTpTx
     - CTRLBL_Status
 
-    - STEER_NodeStatus
     - STEERBL_IsoTpTx
     - STEERBL_Status
 
-    - SUP_NodeStatus
     - SUPBL_IsoTpTx
     - SUPBL_Status
 
-    - THROTTLE_NodeStatus
     - THROTTLEBL_IsoTpTx
     - THROTTLEBL_Status
     messages:
