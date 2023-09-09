@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <arg name="camera_model"        value="$(arg camera_model)" />
             <arg name="base_frame"          value="$(arg base_frame)" />
             <arg name="publish_urdf"        value="$(arg publish_urdf)" />
-        </include>    
-  
+        </include>
+
         <!-- <arg name="custom_rtabmap_launch_file" default="$(find zed_rtabmap_example)/launch/include/sl_rtabmap.launch.xml"/>
         <include file="$(arg custom_rtabmap_launch_file)">
             <arg name="odom_topic"              default="$(arg zed_node_name)/odom" />

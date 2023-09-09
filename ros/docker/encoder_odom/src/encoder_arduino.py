@@ -34,7 +34,7 @@ class Encoder_Odom:
     def __init__(self):
         self.sub = Subscribe()
         self.broadcaster = tf2_ros.TransformBroadcaster()
-        
+
         self.x = 0.0
         self.y = 0.0
         self.th = 0.0
@@ -47,9 +47,9 @@ class Encoder_Odom:
         self.delta_x = 0.0
         self.delta_y = 0.0
         self.delta_th = 0.0
-        
+
     def calc_odom(self,enc_vel,enc_omega,current_time,last_time):
-        
+
         # Change these lines
         self.vx = enc_vel
         self.vth = enc_omega
@@ -58,7 +58,7 @@ class Encoder_Odom:
         self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
         self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
         self.delta_th = self.vth * self.dt
-        
+
         self.x += self.delta_x
         self.y += self.delta_y
         self.th += self.delta_th
@@ -101,13 +101,13 @@ rospy.init_node('encoder_odom', anonymous=True)
 encoder_odom = Encoder_Odom()
 
 if __name__ == '__main__':
-    
+
     # rospy.init_node('encoder_odom', anonymous=True)
 
     current_time = rospy.Time.now()
     left_ticks = board.analog[left_enc_pin].read
     right_ticks = board.analog[right_enc_pin].read
-    
+
     # Not sure if we need to include sleep time since the measurements are limited by the rate of the publisher
     # time.sleep(0.1)
     delta_left = left_ticks - prev_left_ticks
@@ -125,14 +125,14 @@ if __name__ == '__main__':
     odom_msg = Odometry()
     odom_msg.header.stamp = current_time
     odom_msg.header.frame_id = "odom"
-    
+
     # set the position
     odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.odom_quat))
 
     # set the velocity
     odom_msg.child_frame_id = "base_link"
     odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
-    
+
     last_time = current_time
     prev_left_ticks = left_ticks
     prev_right_ticks = right_ticks

@@ -67,12 +67,12 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         # pub.publish("hello")
         ros_publisher.publish()
-        
+
 # sudo apt install python3.9
 # python3.9 -m pip install opencan-cand
 
 # start redis container
-# set up vcan on local machine 
+# set up vcan on local machine
 # sudo modprobe vcan
 # sudo ip link add dev vcan0 type vcan
 # sudo ip link set up vcan0

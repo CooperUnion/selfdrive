@@ -88,7 +88,7 @@
             <!-- <param unless="$(arg subscribe_scan)" name="Grid/FromDepth" value="false"/> -->
         </node>
 
-        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">
             <param name="subscribe_stereo"          type="bool"     value="false"/>
             <param name="subscribe_odom_info"       type="bool"     value="false"/>
             <param name="subscribe_depth"           type="bool"     value="false"/>

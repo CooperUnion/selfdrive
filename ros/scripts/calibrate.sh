@@ -32,7 +32,7 @@ tmux split-window -h 'fish'
 tmux send-keys 'sudo docker exec -it velodyne bash'
 tmux send-keys Enter
 # tmux send-keys 'roslaunch velodyne_pointcloud VLP16_points.launch'
-# tmux send-keys Enter 
+# tmux send-keys Enter
 
 tmux select-pane -t 0
 tmux split-window -v 'fish'
@@ -46,6 +46,6 @@ tmux split-window -v 'fish'
 tmux send-keys 'sudo docker exec -it rviz bash'
 tmux send-keys Enter
 # tmux send-keys 'rviz'
-# tmux send-keys Enter 
+# tmux send-keys Enter
 
 tmux attach-session -t stackcli

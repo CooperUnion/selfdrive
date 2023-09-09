@@ -4,7 +4,7 @@ TebLocalPlannerRos:
   # All default values for teb-acc
   acc_lim_x: 20.0
   acc_lim_theta: 20.0
-  
+
   max_vel_x: 2.2
   max_vel_x_backwards: 0.0 # Picked half foward vel
   max_vel_theta: 2.0
@@ -17,7 +17,7 @@ TebLocalPlannerRos:
 # Goal Tolerance Parameters
   # All default values for teb-tolerance
   yaw_goal_tolerance: 0.2
-  xy_goal_tolerance: 0.2  
+  xy_goal_tolerance: 0.2
   free_goal_vel: false # Allows the scooter to reach goal at max speed
 
 # Trajectory Configuration Parameters
@@ -49,18 +49,18 @@ TebLocalPlannerRos:
 
 # Optimization Parameters
 #   penalty_epsilon: 0.1                              # Adds small safety margin for penalty functions
-  weight_max_vel_x: 20.0                             
-#   weight_max_vel_theta: 1.0                         
-  weight_acc_lim_x: 20.0                             
-  weight_acc_lim_theta: 20.0                         
-#   weight_kinematics_nh: 1000                        
-#   weight_kinematics_foward_drive: 1.0               
-#   weight_kinematics_turning_radius: 1.0             
-  weight_optimaltime: 20.0                           
-#   weight_obstacle: 50.0                             
-#   weight_viapoint: 1.0                              
-#   weight_inflation: 0.1                             
-#   weight_adapt_factor: 2.0                          
+  weight_max_vel_x: 20.0
+#   weight_max_vel_theta: 1.0
+  weight_acc_lim_x: 20.0
+  weight_acc_lim_theta: 20.0
+#   weight_kinematics_nh: 1000
+#   weight_kinematics_foward_drive: 1.0
+#   weight_kinematics_turning_radius: 1.0
+  weight_optimaltime: 20.0
+#   weight_obstacle: 50.0
+#   weight_viapoint: 1.0
+#   weight_inflation: 0.1
+#   weight_adapt_factor: 2.0
 
 # Extra Parameters
   odom_topic: "odom"

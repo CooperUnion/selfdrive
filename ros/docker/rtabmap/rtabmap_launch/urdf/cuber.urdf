@@ -38,7 +38,7 @@
             </material>
         </visual>
     </link>
-    
+
     <joint name="zed_camera_pos_joint" type="fixed">
         <parent link="zed_camera_mount"/>
         <child link="zed_camera_pos"/>

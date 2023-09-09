@@ -5,7 +5,7 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app
 
 # install dep and such
-RUN apt update && apt install -y git 
+RUN apt update && apt install -y git
 
 # install gps driver
 RUN apt install -y ros-noetic-rviz ros-noetic-rviz-imu-plugin

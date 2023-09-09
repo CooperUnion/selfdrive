@@ -72,6 +72,3 @@ tmux send-keys 'docker exec -it encoder_odom bash'
 init
 tmux send-keys 'rosrun src encoder_odom.py'
 tmux send-keys Enter
-
-
-

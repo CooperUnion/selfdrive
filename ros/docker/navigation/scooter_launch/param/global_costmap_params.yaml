@@ -13,8 +13,8 @@ global_costmap:
     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
     - { name: virtual_layer,          type: "virtual_costmap_layer::VirtualLayer"}
     - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
-   
-   
+
+
   static_layer:
     enabled: true
     unknown_cost_value: -1
@@ -39,7 +39,7 @@ global_costmap:
     z_resolution: 0.2
     z_voxels: 10
     unknown_threshold: 2
-    mark_threshold: 0   
+    mark_threshold: 0
     footprint_clearing_enabled: true
     observation_sources: rtabmap  # scan
       #  scan:
@@ -56,7 +56,7 @@ global_costmap:
       clearing: false
       min_obstacle_height: -10.0
       max_obstacle_height: 2.0
-    
+
   inflation_layer:
       enabled: true
       inflation_radius: 0.3
