@@ -58,4 +58,3 @@ source .venv/bin/activate
 echo -e "\n-> Running 'make dependencies'...\n"
 rm -f .install-dependencies
 make dependencies
-

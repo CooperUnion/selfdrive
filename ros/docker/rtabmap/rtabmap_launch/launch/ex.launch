@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <arg name="depth_camera_info_topic" default="$(arg zed_node_name)/depth/camera_info" />
         </include>    -->
 
-        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+        <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">
             <param name="subscribe_stereo"          type="bool"     value="true"/>
             <param name="subscribe_odom_info"       type="bool"     value="true"/>
             <param name="subscribe_depth"           type="bool"     value="true"/>
@@ -54,6 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </node>
 
         <!-- Rviz -->
-        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zed_rtabmap_example)/rviz/zed-rtabmap.rviz" output="screen" /> 
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zed_rtabmap_example)/rviz/zed-rtabmap.rviz" output="screen" />
     </group>
 </launch>

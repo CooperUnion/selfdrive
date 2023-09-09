@@ -12,19 +12,19 @@
     <node pkg="map_server" type="map_server" name="map_server" args="$(find virtual_costmap_layer)/samples/map/map.yaml"/>
     <!--- Run the rviz node -->
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find virtual_costmap_layer)/samples/rviz/sample.rviz" respawn="true"/>
-    
+
     <!-- move base stuff -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
         <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-        <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
-        <rosparam file="$(find scooter_launch)/param/local_costmap_params.yaml" command="load" />   
+        <rosparam file="$(find scooter_launch)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find scooter_launch)/param/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/teb_newnew.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/move_base_params.yaml" command="load" />
         <rosparam file="$(find scooter_launch)/param/global_planner_params.yaml" command="load" />
         <!-- external params file that could be loaded into the move_base namespace -->
         <rosparam file="$(arg custom_param_file)" command="load" />
-        
+
         <!-- reset frame_id parameters using user input data -->
         <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
         <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)"/>

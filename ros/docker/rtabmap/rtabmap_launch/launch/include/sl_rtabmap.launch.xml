@@ -18,7 +18,7 @@
 
     <!-- Visual Odometry -->
     <!--
-    <node name="rtabmap_stereo_odometry" pkg="rtabmap_ros" type="stereo_odometry" output="screen" args="" launch-prefix="">    
+    <node name="rtabmap_stereo_odometry" pkg="rtabmap_ros" type="stereo_odometry" output="screen" args="" launch-prefix="">
         <remap from="/left/image_rect"      to="zed/zed_node/left/image_rect_color"/>
         <remap from="/right/image_rect"     to="zed/zed_node/right/image_rect_color"/>
         <remap from="/left/camera_info"     to="zed/zed_node/left/camera_info"/>
@@ -27,7 +27,7 @@
     -->
 
     <!-- RTABmapviz -->
-    <!-- <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">    
+    <!-- <node name="rtabmapviz" pkg="rtabmap_ros" type="rtabmapviz" output="screen" args="" launch-prefix="">
         <remap from="rgb/image"         to="$(arg rgb_topic)"/>
         <remap from="depth/image"       to="$(arg depth_topic)"/>
         <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
@@ -40,7 +40,7 @@
     <!-- RTABmap -->
     <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg args)" launch-prefix="">
         <rosparam command="load" file="$(find rtabmap_launch)/params/rtabmap.yaml" />
-    
+
         <remap from="rgb/image"         to="$(arg rgb_topic)"/>
         <remap from="depth/image"       to="$(arg depth_topic)"/>
         <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
@@ -54,9 +54,8 @@
         <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
     </node>
 
-    
+
 
 
 
 </launch>
-

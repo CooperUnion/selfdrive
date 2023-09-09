@@ -47,7 +47,7 @@ services:
             - 'DISPLAY=$DISPLAY'
             - 'QT_X11_NO_MITSHM=1'
         volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix' 
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
             - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
 
     velodyne:
@@ -178,7 +178,7 @@ services:
         volumes:
             - './docker/techbus:/app/ros_ws/src/techbus'
         depends_on:
-            - master                        
+            - master
 
     detection:
             build: docker/detection/

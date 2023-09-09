@@ -63,7 +63,7 @@ RUN rosdep init && \
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-base=1.5.0-1* 
+    ros-noetic-ros-base=1.5.0-1*
 
 WORKDIR /app
 

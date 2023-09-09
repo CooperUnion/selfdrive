@@ -3,7 +3,7 @@
 import cv2 as cv
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
-import os 
+import os
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
 import numpy as np
@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 
 # DEFINES
 # Subscribed Topics
-IMAGE_TOPIC = '/zed/zed_node/rgb/image_rect_color'  
+IMAGE_TOPIC = '/zed/zed_node/rgb/image_rect_color'
 # rgb/image topic and depth topic come from left camera
 # Depth map image registered on the left image (32-bit float in meters by default)
 DEPTH_TOPIC = '/zed/zed_node/depth/depth_registered' # something like this
@@ -36,17 +36,17 @@ bridge = CvBridge()
 
 class Subscriber():
     def __init__(self):
-        
+
         self.cv_img = None
         rospy.Subscriber(IMAGE_TOPIC, Image, self.img2cv)
 
     def img2cv(self,data):
         rospy.loginfo('Video Frame Received')
         # Converts image topic stream to cv image
-        # Possible encoding schemes: 8UC[1-4], 8SC[1-4], 16UC[1-4], 16SC[1-4], 32SC[1-4], 32FC[1-4], 64FC[1-4]     
+        # Possible encoding schemes: 8UC[1-4], 8SC[1-4], 16UC[1-4], 16SC[1-4], 32SC[1-4], 32FC[1-4], 64FC[1-4]
         # Can optionally do color or pixel depth conversion
         self.cv_img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
-        
+
 class Publisher():
     def __init__(self):
         self.lane_pub =  rospy.Publisher(LANE_TOPIC, Image, queue_size=2)
@@ -73,14 +73,14 @@ class Publisher():
         self.rate.sleep()
     def pub_bool_barrel(self,distance):
         msg = Bool()
-        if (distance < 3.5): #distance is less than 3 inches 
-            msg.Bool = True 
+        if (distance < 3.5): #distance is less than 3 inches
+            msg.Bool = True
         else:
-            msg.Bool = False  
+            msg.Bool = False
         self.barrel_bool_pub.publish(msg)
         self.rate.sleep()
 
-# Clean this up later 
+# Clean this up later
 class Barrel():
     def __init__(self):
         self.source_img = cv.imread("../images/barrel.jpg")
@@ -121,7 +121,7 @@ class Barrel():
         return detector
 
     def detection(self):
-        #---------------------------(RESIZE_STUFF)---------------------------# 
+        #---------------------------(RESIZE_STUFF)---------------------------#
         scale_percent = 20 # percent of original size
         width = int(self.source_img.shape[1] * scale_percent / 100)
         height = int(self.source_img.shape[0] * scale_percent / 100)
@@ -147,7 +147,7 @@ class Barrel():
 
         areas = [cv.contourArea(c) for c in contours]
         max_index = np.argmax(areas)
-        main_blob = contours[max_index] #biggest one --> closest to camera --> one we are interested in 
+        main_blob = contours[max_index] #biggest one --> closest to camera --> one we are interested in
 
         x,y,w,h = cv.boundingRect(main_blob)
         cv.rectangle(im_with_keypoints,(x,y),(x+w,y+h),(255,0,0),2)
@@ -157,17 +157,17 @@ class Barrel():
 
         pxl_width = w #pixels
         known_dist = 60 #inches
-        known_width = 24 #inches 
-        ref_pxl = 208.0667266845703 
-        #assuming 5 inches from barrel, using iphone camera scaled to 20 percent 
-        #THIS PROBABLY NEEDS TO BE CHANGED 
-        
+        known_width = 24 #inches
+        ref_pxl = 208.0667266845703
+        #assuming 5 inches from barrel, using iphone camera scaled to 20 percent
+        #THIS PROBABLY NEEDS TO BE CHANGED
+
         focal_ref = (ref_pxl * known_dist) / known_width
         dist_to_car = (known_width * focal_ref) / pxl_width
 
         print("Distance from car: ")
         print(dist_to_car/12)
-        #have to add an offset to this then divided by 12 
+        #have to add an offset to this then divided by 12
         return im_with_keypoints, (dist_to_car/12)
 
 class Tire():
@@ -195,7 +195,7 @@ class Lanes():
     def __init__(self):
         self.source_img = cv.imread("../images/lane.jpg") # small glitch not sure how to intialize image
         # self.source_img = None
-    
+
     def get_largest_contour(contours, min_area: int = 30):
         # Check that the list contains at least one contour
         if len(contours) == 0:
@@ -231,14 +231,14 @@ class Lanes():
         grayed  = cv.GaussianBlur(cv.cvtColor(self.source_img, cv.COLOR_BGR2GRAY), (BLUR_PARAM_X,BLUR_PARAM_Y),0)
         ret, thresh = cv.threshold(grayed, 200, 255, 0)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-        grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR) 
+        grayed = cv.cvtColor(grayed, cv.COLOR_GRAY2BGR)
         contour_img = cv.drawContours(self.source_img, contours, -1, (0,0,255), -1)
         # center points
         contour_center_img = self.draw_center_points(contours)
 
         return contour_img, contour_center_img
 
-   
+
 def main():
 
     rospy.init_node('car_vision', anonymous=True)
@@ -247,7 +247,7 @@ def main():
     barrel = Barrel()
     tire = Tire()
     lanes = Lanes()
-    
+
 
     while not rospy.is_shutdown():
         lanes.source_img = sub.cv_img   # Eventually each class will get a different image topic from subscriber class
@@ -263,5 +263,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-

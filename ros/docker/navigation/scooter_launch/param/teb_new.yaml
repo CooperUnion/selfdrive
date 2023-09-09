@@ -2,9 +2,9 @@ TebLocalPlannerROS:
 
  odom_topic: odom
  map_frame: /map
-    
+
  # Trajectory
-  
+
  teb_autosize: True
  dt_ref: 0.3
  dt_hysteresis: 0.1
@@ -12,9 +12,9 @@ TebLocalPlannerROS:
  max_global_plan_lookahead_dist: 9.0
  global_plan_viapoint_sep: 0.5
  feasibility_check_no_poses: 5
-    
+
  # Robot
-         
+
  max_vel_x: 4.0
  max_vel_x_backwards: 0.002
  max_vel_theta: 2.0
@@ -33,13 +33,13 @@ TebLocalPlannerROS:
    vertices: [ [0.25, -0.05], [0.18, -0.05], [0.18, -0.18], [-0.19, -0.18], [-0.25, 0], [-0.19, 0.18], [0.18, 0.18], [0.18, 0.05], [0.25, 0.05] ] # for type "polygon"
 
  # GoalTolerance
-    
+
  xy_goal_tolerance: 0.2
  yaw_goal_tolerance: 0.1
  free_goal_vel: False
-    
+
  # Obstacles
-    
+
  min_obstacle_dist: 0.4
  include_costmap_obstacles: False
  costmap_obstacles_behind_robot_dist: 1.0
@@ -49,7 +49,7 @@ TebLocalPlannerROS:
  costmap_converter_rate: 5
 
  # Optimization
-    
+
  no_inner_iterations: 5
  no_outer_iterations: 4
  optimization_activate: True

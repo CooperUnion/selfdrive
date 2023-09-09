@@ -45,7 +45,7 @@ def main():
 
         print("Checking speed...")
         pprint(listener.encoder_counts)
-        
+
         if listener.time_since_last_enc_counts > 3:
             do_estop_all(nodes, "encoder timeout")
 
@@ -53,7 +53,7 @@ def main():
         print(f"Left Encoder: {countL}, Right Encoder: {countR}")
         if countL > 80 or countR > 80:
             do_estop_all(nodes, f"speed violation: {countL}, {countR}")
-        
+
         if abs(countL - countR):
             do_estop_all(nodes, f"encoder difference violation: {countL}, {countR}")
 

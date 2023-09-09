@@ -16,9 +16,9 @@ xhost +si:localuser:root
 ```bash
 docker-compose up -d master <services>
 ```
-Where <services> are the containers you want to spin up from the docker-compose.yml file. 
+Where <services> are the containers you want to spin up from the docker-compose.yml file.
 
-For example, if you want to spin up the zed container, run the following command: 
+For example, if you want to spin up the zed container, run the following command:
 ```bash
 docker-compose up -d master zed
 ```

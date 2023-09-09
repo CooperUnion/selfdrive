@@ -18,13 +18,13 @@ class OdomEKF():
         print("available!")
         # Subscribe to the /robot_pose_ekf/odom_combined topic
         rospy.Subscriber('/novatel/oem7/odom', Odometry, self.pub_ekf_odom)
-        
+
         rospy.loginfo("Publishing combined odometry on /odom_ekf")
 
         self.adjusted = False
 
         # self._adjusted = false
-        
+
     def pub_ekf_odom(self, msg):
         # print("hello!!!!!!!!!!!!!!!!!!!!1")
         if not self.adjusted:
@@ -45,7 +45,7 @@ class OdomEKF():
         odom.pose.pose.orientation.y = -odom.pose.pose.orientation.y
 
         self.ekf_pub.publish(odom)
-        
+
 if __name__ == '__main__':
     print("I LIVE")
     try:
@@ -53,6 +53,3 @@ if __name__ == '__main__':
         rospy.spin()
     except:
         pass
-        
-
-        

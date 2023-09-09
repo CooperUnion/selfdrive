@@ -4,7 +4,6 @@ subscribe_depth:        false
 subscribe_rgbd:         true
 subscribe_rgb:          false
 subscribe_stereo:       false
-subscribe_stereo:       false
 subscribe_scan:         false
 subscribe_scan_cloud:   true # lidar on!!
 subscribe_user_data:    false

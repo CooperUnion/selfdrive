@@ -14,7 +14,7 @@ RUN mkdir -p ros_ws/src &&\
     git clone https://github.com/cagataysari/yostlab_imu.git ros_ws/src/imu
 
 RUN cd ros_ws &&\
-    source /opt/ros/noetic/setup.bash &&\ 
+    source /opt/ros/noetic/setup.bash &&\
     apt update --fix-missing &&\
     rosdep install --from-paths src --ignore-src -r -y &&\
     catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release

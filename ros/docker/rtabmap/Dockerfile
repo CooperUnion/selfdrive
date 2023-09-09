@@ -12,13 +12,13 @@ ENV NVIDIA_DRIVER_CAPABILITIES \
 
 WORKDIR /app
 
-RUN apt update && apt install -y git 
+RUN apt update && apt install -y git
 
 RUN apt-get update && apt install -y ros-noetic-robot-state-publisher
 
 RUN mkdir -p ros_ws/src &&\
-    git clone https://github.com/stereolabs/zed-ros-interfaces.git ros_ws/src/zed-ros-interfaces 
-    
+    git clone https://github.com/stereolabs/zed-ros-interfaces.git ros_ws/src/zed-ros-interfaces
+
 RUN cd ros_ws &&\
     source /opt/ros/noetic/setup.bash &&\
     rosdep install --from-paths src --ignore-src -r -y && \
