@@ -1,0 +1,35 @@
+---
+
+name: mdbook-deploy
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install latest version of `mdbook`
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: latest
+
+      - name: Build docs
+        run: mdbook build
+
+      - name: Deploy docs
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: build/docs
+          FOLDER: build/docs
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SKIP_EMPTY_COMMITS: true
+          MESSAGE: '{long-sha}'
