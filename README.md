@@ -11,15 +11,14 @@ selfdrive/
           tools/  - Miscellaneous tools and resources
 ```
 
-------------------------------------------------------------------------------
+______________________________________________________________________
 
 ## Copyright & Licensing
 
-Copyright (C) 2021-2022  Autonomy Lab
+Copyright (C) 2021-2022 Autonomy Lab
 
-Copyright (C) 2021-2022  Cooper IGVC
+Copyright (C) 2021-2022 Cooper IGVC
 
 Distributed under the [GPLv3] only.
 
-
-[GPLv3]: LICENSE.md
+[gplv3]: LICENSE.md
