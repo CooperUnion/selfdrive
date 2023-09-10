@@ -1,0 +1,13 @@
+[book]
+title       = 'Autonomy Lab Documentation'
+description = 'The official documentation of Autonomy Lab at The Cooper Union for the Advancement of Science and Art'
+language    = 'en'
+src         = 'docs'
+
+[build]
+build-dir = 'build/docs'
+
+[output.html]
+mathjax-support    = true
+no-section-label   = true
+git-repository-url = 'https://github.com/CooperUnion/selfdrive'
