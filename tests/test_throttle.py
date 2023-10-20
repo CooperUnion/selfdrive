@@ -85,7 +85,7 @@ def main():
 
     try:
         test.run(args.percent, args.time)
-    except:
+    except Exception:
         pass
 
     test.end()

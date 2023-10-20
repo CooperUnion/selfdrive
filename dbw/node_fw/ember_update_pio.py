@@ -1,3 +1,5 @@
+# ruff: noqa: F821
+
 Import("env")
 
 identity = env.GetProjectOption('board_node_identity', default=None)

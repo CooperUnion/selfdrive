@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # node simulator
 
-import logging
 import multiprocessing as mp
-
-from cand.client import Bus
 
 from node import Node
 

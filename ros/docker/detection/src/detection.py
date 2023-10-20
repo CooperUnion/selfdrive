@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 import cv2 as cv
-from cv_bridge import CvBridge, CvBridgeError
+import numpy as np
 import rospy
-import os
+
+
+from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
-import numpy as np
-from matplotlib import pyplot as plt
 
 
 # DEFINES
@@ -142,7 +142,7 @@ class Barrel:
         )
 
         hsv = cv.cvtColor(barrel_jpg, cv.COLOR_BGR2HSV)
-        # frame_thresh = cv2.inRange(hsv,orange_min,orange_max)
+        # frame_thresh = cv.inRange(hsv,orange_min,orange_max)
 
         orange_min = (0, 97, 4)
         orange_max = (18, 255, 255)
@@ -156,7 +156,7 @@ class Barrel:
             keypoints,
             np.zeros((1, 1)),
             (0, 0, 255),
-            cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+            cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
         )
         cv.imshow("Keypoints", im_with_keypoints)
         cv.waitKey(0)

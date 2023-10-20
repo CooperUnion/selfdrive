@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
-import rospy
 import cand
-import math
+import rospy
+
+
 from math import atan2
 
+
 from geometry_msgs.msg import Twist
-from std_msgs.msg import UInt16MultiArray, String
+from std_msgs.msg import UInt16MultiArray
+
 
 # CAN Messages
 EncoderCAN = 'CTRL_EncoderData'

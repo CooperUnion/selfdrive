@@ -30,10 +30,10 @@ def main():
                 initial.append(out.group().strip())
 
                 if len(initial) >= 2:
-                    if form == True:
+                    if form:
                         print('form: [')
                         print(f'{{{initial[0]}, {initial[1]}, z: 0.0}},')
-                    if form == False:
+                    if not form:
                         print(f'{{{initial[0]}, {initial[1]}, z: 0.0}}')
                         print("],")
                     form = not form
@@ -49,16 +49,16 @@ def main():
             coordinates.append(out.group().strip())
 
             if len(coordinates) >= 2:
-                if form == True:
+                if form:
                     print('form: [')
                     print(f'{{{coordinates[0]}, {coordinates[1]}, z: 0.0}},')
-                if form == False:
+                if not form:
                     print(f'{{{coordinates[0]}, {coordinates[1]}, z: 0.0}}')
                     print("],")
                 form = not form
                 coordinates = []
 
-    except:
+    except Exception:
         pass
 
     if close:

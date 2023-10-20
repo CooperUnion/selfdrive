@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 
+import ctypes
+
 import rospy
 import tf2_ros
 import tf_conversions
-import ctypes
-import math
-from math import sin, cos, pi
+
+
+from math import (
+    cos,
+    sin,
+)
 
 from geometry_msgs.msg import (
     Point,
     Pose,
     Quaternion,
-    Vector3,
-    Twist,
     TransformStamped,
+    Twist,
+    Vector3,
 )
+
 from std_msgs.msg import UInt16MultiArray, String
 from nav_msgs.msg import Odometry
 
@@ -87,7 +93,7 @@ class Encoder_Odom:
 
     def calc_odom(self, current_time, last_time):
         # Car Variables
-        wheel_radius = 0.3302  # 13 inch ~= 0.3302 meter
+        wheel_radius = 0.3302  # 13 inch ~= 0.3302 meter  # noqa: F841
         circumference = 1.899156
         enc_res = 65536
         tick_distance = circumference / enc_res

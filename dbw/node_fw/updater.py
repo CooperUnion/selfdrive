@@ -3,9 +3,7 @@
 import argparse
 import can
 import cantools
-import re
 
-from pprint import pprint
 from time import sleep
 from tqdm import trange
 

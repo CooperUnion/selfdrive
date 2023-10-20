@@ -2,7 +2,7 @@
 import unittest
 import rospy
 import rospkg
-from tf import LookupException, ExtrapolationException, TransformListener
+from tf import LookupException, TransformListener
 import os
 import sys
 import shlex

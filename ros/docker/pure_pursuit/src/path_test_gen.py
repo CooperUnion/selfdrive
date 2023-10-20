@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import numpy as np
 import rospy
+
+
 from nav_msgs.msg import Path
 
-import math
-import numpy as np
-import turtle
 
 if __name__ == "__main__":
     rospy.init_node('path_gen', anonymous=True)

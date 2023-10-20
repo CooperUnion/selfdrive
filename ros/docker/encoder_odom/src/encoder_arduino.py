@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 
+import pyfirmata
 import rospy
 import tf2_ros
-import math
-from math import sin, cos, pi
 
-# Used for Arudino
-import pyfirmata
-import time
 
-from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist
-from std_msgs.msg import Float32
+from math import (
+    cos,
+    sin,
+)
+
+from geometry_msgs.msg import (
+    Point,
+    Pose,
+    Quaternion,
+    Twist,
+    Vector3,
+)
 from nav_msgs.msg import Odometry
 
 
@@ -35,7 +41,7 @@ class Publish:
 # vy might always be zero
 class Encoder_Odom:
     def __init__(self):
-        self.sub = Subscribe()
+        self.sub = Subscribe()  # noqa: F821
         self.broadcaster = tf2_ros.TransformBroadcaster()
 
         self.x = 0.0

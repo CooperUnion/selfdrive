@@ -41,9 +41,9 @@ class UnitThrottle(unit.Unit):
         data_time, data_data = data_rec
         cmd_time, cmd_data = cmd_rec
 
-        if cur_time - data_time >= THROTTLE_ACCELDATA_TIMEOUT_NS:
+        if cur_time - data_time >= DBWNODE_ACCEL_DATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
-        if cur_time - cmd_time >= DBW_VELCMD_TIMEOUT_NS:
+        if cur_time - cmd_time >= DBWNODE_VEL_CMD_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
         perc_diff = abs(data_data['percent'] - cmd_data['throttlePercent'])
@@ -76,7 +76,7 @@ class UnitVelocity(unit.Unit):
 
         encoder_time, encoder_data = encoder_rec
 
-        if cur_time - encoder_time >= ENCF_ENCODERDATA_TIMEOUT_NS:
+        if cur_time - encoder_time >= DBWNODE_ENCODER_DATA_TIMEOUT_NS:
             return self.abort('TIMEOUT')
 
         encoder_max = max(

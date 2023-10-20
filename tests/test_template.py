@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import time
 
 import cand
 
@@ -62,7 +61,7 @@ def main():
 
     try:
         test.run()
-    except:
+    except Exception:
         pass
 
     test.end()

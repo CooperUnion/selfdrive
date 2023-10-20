@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import roslib
 import rospy
-from geometry_msgs.msg import PoseWithCovarianceStamped
+
+
 from nav_msgs.msg import Odometry
 
 
@@ -53,7 +53,7 @@ class OdomEKF:
 if __name__ == '__main__':
     print("I LIVE")
     try:
-        O = OdomEKF()
+        odom = OdomEKF()
         rospy.spin()
-    except:
+    except Exception:
         pass

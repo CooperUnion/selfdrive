@@ -1,2 +1,6 @@
-from . import can
-from . import ctrl
+# ruff: noqa: F401
+
+from . import (
+    can,
+    ctrl,
+)

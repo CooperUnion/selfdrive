@@ -1,3 +1,4 @@
+# ruff: noqa: F821
 # Simple script to add a #define for EMBER_NODE_IDENTITY.
 
 Import('env')

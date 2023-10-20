@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
-import rospy
-from std_msgs.msg import Float32MultiArray
-from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry, Path
-
 import math
+
+
 import numpy as np
+import rospy
+
+
+from nav_msgs.msg import Odometry, Path
+from std_msgs.msg import Float32MultiArray
+
 
 ld = 1.18  # define lookahead distance
 wheel_base = 1.75  # double check
@@ -116,7 +119,7 @@ def lookahead(curr_x, curr_y):
             else:
                 return 0, 0
 
-    except NoIntersectionException as e:
+    except NoIntersectionException:
         print("Path lookahead no intersection")
         return -999, -999
 

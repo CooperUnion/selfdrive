@@ -138,7 +138,7 @@ def main():
 
         sleep(SLEEP_WAIT)
 
-    log.info(f"Waiting for node to be in RECV_CHUNK....")
+    log.info("Waiting for node to be in RECV_CHUNK....")
     while node.state() != 'RECV_CHUNK':
         sleep(SLEEP_WAIT)
 

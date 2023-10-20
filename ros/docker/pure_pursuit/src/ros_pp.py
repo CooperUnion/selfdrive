@@ -127,7 +127,7 @@ def lookahead(curr_x, curr_y):
             else:
                 return 0, 0
 
-    except NoIntersectionException as e:
+    except NoIntersectionException:
         print("Path lookahead no intersection")
         return -999, -999
 
