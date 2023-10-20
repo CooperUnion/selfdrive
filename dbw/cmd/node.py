@@ -3,9 +3,10 @@ from pprint import pprint
 import cantools
 import can
 
-class DBWNode():
+
+class DBWNode:
     name = "UNDEF"
-    status = "UNDEF" # should correspond to undefined
+    status = "UNDEF"  # should correspond to undefined
 
     def __init__(self, name: str, id: int, db, bus):
         self.name = name
@@ -23,12 +24,18 @@ class DBWNode():
 
     def send_msg(self, msg, data):
         cmd = msg.encode(data)
-        msg = can.Message(arbitration_id=msg.frame_id, data=cmd, is_extended_id=False)
+        msg = can.Message(
+            arbitration_id=msg.frame_id, data=cmd, is_extended_id=False
+        )
         self.bus.send(msg)
 
     def send_syscmd(self, data):
         cmd = self.syscmd_msg.encode(data)
-        msg = can.Message(arbitration_id=self.syscmd_msg.frame_id, data=cmd, is_extended_id=False)
+        msg = can.Message(
+            arbitration_id=self.syscmd_msg.frame_id,
+            data=cmd,
+            is_extended_id=False,
+        )
         self.bus.send(msg)
 
     def send_estop(self):
@@ -55,4 +62,7 @@ class Accel(DBWNode):
         self.modectrl_status = 0
 
     def send_throttle_command(self, cmd):
-        self.send_msg(self.modectrl_msg, {"ThrottleCmd": cmd, "ModeCtrl": self.modectrl_status})
+        self.send_msg(
+            self.modectrl_msg,
+            {"ThrottleCmd": cmd, "ModeCtrl": self.modectrl_status},
+        )

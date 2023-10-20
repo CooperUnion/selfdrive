@@ -4,7 +4,9 @@ identity = env.GetProjectOption('board_node_identity', default=None)
 if identity is None:
     identity = env.GetProjectOption('board_can_node', default=None)
     if identity is None:
-        print("Error: board_node_identity or board_can_node must be set in platformio.ini")
+        print(
+            "Error: board_node_identity or board_can_node must be set in platformio.ini"
+        )
         exit(-1)
 
     print(f"Using board_can_node as node identity: {identity}")
@@ -12,5 +14,5 @@ if identity is None:
 env.AddCustomTarget(
     "ota",
     "$BUILD_DIR/${PROGNAME}.bin",
-    f"python3 ../ember_bl/update.py --bin $SOURCE --target {identity}"
+    f"python3 ../ember_bl/update.py --bin $SOURCE --target {identity}",
 )

@@ -8,15 +8,17 @@ def main():
     close = False
 
     if len(sys.argv) > 1:
-        if (sys.argv[1] == 'c'):
+        if sys.argv[1] == 'c':
             close = True
 
-    print('''rostopic pub /virtual_costmap_layer/obstacles custom_msgs/Obstacles 'list: [''')
+    print(
+        '''rostopic pub /virtual_costmap_layer/obstacles custom_msgs/Obstacles 'list: ['''
+    )
 
     form = True
 
     try:
-        initial = [ ]
+        initial = []
 
         if close:
             for line in sys.stdin:
@@ -37,7 +39,7 @@ def main():
                     form = not form
                     break
 
-        coordinates = [ ]
+        coordinates = []
         for line in sys.stdin:
             out = re.match(r'^\s\s[xy]: -?\d+\.\d+', line)
 
@@ -54,14 +56,13 @@ def main():
                     print(f'{{{coordinates[0]}, {coordinates[1]}, z: 0.0}}')
                     print("],")
                 form = not form
-                coordinates = [ ]
+                coordinates = []
 
     except:
         pass
 
     if close:
         print(f'{{{initial[0]}, {initial[1]}, z: 0.0}}')
-
 
     print("]'")
 

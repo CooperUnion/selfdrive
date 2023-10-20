@@ -11,11 +11,13 @@ from node import DBWNode
 
 estop_trigger = False
 
+
 def do_estop_all(nodes, reason):
     for node in nodes:
         node.send_estop()
     print(f"\nDOING ESTOP FOR {reason}\n")
     estop_trigger = True
+
 
 def main():
     pprint("DBW Test Command and Control")
@@ -55,13 +57,16 @@ def main():
             do_estop_all(nodes, f"speed violation: {countL}, {countR}")
 
         if abs(countL - countR):
-            do_estop_all(nodes, f"encoder difference violation: {countL}, {countR}")
+            do_estop_all(
+                nodes, f"encoder difference violation: {countL}, {countR}"
+            )
 
         for node in nodes:
             print(f"{node.name}: {node.get_status()}")
 
         time.sleep(0.1)
         print("")
+
 
 if __name__ == "__main__":
     main()

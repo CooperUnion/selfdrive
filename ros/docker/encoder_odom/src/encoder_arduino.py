@@ -13,6 +13,7 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, Twist
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 
+
 # The Odometry message type contains the following messages:
 # header (Coordinate frame for the pose)
 # child_frame_id (Coordinate frame for the twist)
@@ -23,9 +24,11 @@ class Publish:
         self.odom = rospy.Publisher('/encoder_odom', Odometry, queue_size=2)
         # increase rate for RTABmap
         self.rate = rospy.Rate(1.0)
-    def publish(self,data):
+
+    def publish(self, data):
         while not rospy.is_shutdown():
             self.odom.publish(data)
+
 
 # vx and vth come from encoders
 # Not sure whether to use EPAS encoder for th or use encoders for vth to calculate th
@@ -48,35 +51,41 @@ class Encoder_Odom:
         self.delta_y = 0.0
         self.delta_th = 0.0
 
-    def calc_odom(self,enc_vel,enc_omega,current_time,last_time):
-
+    def calc_odom(self, enc_vel, enc_omega, current_time, last_time):
         # Change these lines
         self.vx = enc_vel
         self.vth = enc_omega
 
         self.dt = (current_time - last_time).to_sec()
-        self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
-        self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
+        self.delta_x = (
+            self.vx * cos(self.th) - self.vy * sin(self.th)
+        ) * self.dt
+        self.delta_y = (
+            self.vx * sin(self.th) + self.vy * cos(self.th)
+        ) * self.dt
         self.delta_th = self.vth * self.dt
 
         self.x += self.delta_x
         self.y += self.delta_y
         self.th += self.delta_th
 
-        self.odom_quat = tf2_ros.transformations.quaternion_from_euler(0, 0, self.th)
+        self.odom_quat = tf2_ros.transformations.quaternion_from_euler(
+            0, 0, self.th
+        )
         self.broadcaster.sendTransform(
-            (self.x, self.y, 0.),
+            (self.x, self.y, 0.0),
             self.odom_quat,
             current_time,
             "base_link",
-            "odom"
+            "odom",
         )
+
 
 # Encoder variables
 wheel_radius = 1.0
 circumfrence = 3.1415926 * 2 * wheel_radius
 enc_res = 2048
-tick_distance = circumfrence/enc_res
+tick_distance = circumfrence / enc_res
 wheel_spacing = 1.0
 prev_left_ticks = 0
 prev_right_ticks = 0
@@ -101,7 +110,6 @@ rospy.init_node('encoder_odom', anonymous=True)
 encoder_odom = Encoder_Odom()
 
 if __name__ == '__main__':
-
     # rospy.init_node('encoder_odom', anonymous=True)
 
     current_time = rospy.Time.now()
@@ -114,24 +122,32 @@ if __name__ == '__main__':
     delta_right = right_ticks - prev_right_ticks
 
     v_left = (delta_left * tick_distance) / (current_time - last_time).to_sec()
-    v_right = (delta_right * tick_distance) / (current_time - last_time).to_sec()
+    v_right = (delta_right * tick_distance) / (
+        current_time - last_time
+    ).to_sec()
 
     # 10 is a scaling factor used to characterize system
     enc_vel = ((v_right + v_left) / 2) * 10
     enc_omega = ((v_right - v_left) / wheel_spacing) * 10
 
-    encoder_odom.calc_odom(enc_vel,enc_omega,current_time,last_time)
+    encoder_odom.calc_odom(enc_vel, enc_omega, current_time, last_time)
 
     odom_msg = Odometry()
     odom_msg.header.stamp = current_time
     odom_msg.header.frame_id = "odom"
 
     # set the position
-    odom_msg.pose.pose = Pose(Point(encoder_odom.x, encoder_odom.y, 0.), Quaternion(*encoder_odom.odom_quat))
+    odom_msg.pose.pose = Pose(
+        Point(encoder_odom.x, encoder_odom.y, 0.0),
+        Quaternion(*encoder_odom.odom_quat),
+    )
 
     # set the velocity
     odom_msg.child_frame_id = "base_link"
-    odom_msg.twist.twist = Twist(Vector3(encoder_odom.vx, encoder_odom.vy, 0), Vector3(0, 0, encoder_odom.vth))
+    odom_msg.twist.twist = Twist(
+        Vector3(encoder_odom.vx, encoder_odom.vy, 0),
+        Vector3(0, 0, encoder_odom.vth),
+    )
 
     last_time = current_time
     prev_left_ticks = left_ticks

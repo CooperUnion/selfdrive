@@ -16,17 +16,25 @@ class GazeboTests(unittest.TestSuite):
         rospy.init_node('igvc_self_drive_gazebo_tests')
         super(GazeboTests, self).__init__()
         tests = [
-            SpawnModelTest('vehicle', False, False, True),  # Don't publish TF, raw actuator mode
+            SpawnModelTest(
+                'vehicle', False, False, True
+            ),  # Don't publish TF, raw actuator mode
             JointStateTopicTest(),
             TwistTopicTest(False),
             GpsTopicTest(False),
             ScanTopicTest(False),
             SonarTopicTest(False),
-            SpawnModelTest('vehicle_2', True, True, True)    # Publish TF, twist mode
+            SpawnModelTest(
+                'vehicle_2', True, True, True
+            ),  # Publish TF, twist mode
         ]
 
         self.addTests(tests)
 
 
 if __name__ == '__main__':
-    rostest.rosrun('igvc_self_drive_gazebo_plugins', 'gazebo_tests', 'gazebo_tests.GazeboTests')
+    rostest.rosrun(
+        'igvc_self_drive_gazebo_plugins',
+        'gazebo_tests',
+        'gazebo_tests.GazeboTests',
+    )

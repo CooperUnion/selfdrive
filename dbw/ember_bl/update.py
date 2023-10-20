@@ -24,7 +24,8 @@ TARGET_NODE = 'THROTTLE'
 # current chunk; global and shared
 chunk = 0
 
-class TargetNode():
+
+class TargetNode:
     def __init__(self, node: str, total_size: int):
         self.bus = Bus()
         self.log = logging.getLogger(f"target_node_{node}")
@@ -34,7 +35,9 @@ class TargetNode():
 
         self.stop_set = False
 
-        self.update_control_thread = Thread(target = self.update_control, daemon = True)
+        self.update_control_thread = Thread(
+            target=self.update_control, daemon=True
+        )
         self.update_control_thread.start()
         self.log.info("Started UpdateControl thread.")
 
@@ -48,7 +51,7 @@ class TargetNode():
 
             signals = {
                 'UPD_updateSizeBytes': self.total_size,
-                'UPD_currentIsoTpChunk': chunk
+                'UPD_currentIsoTpChunk': chunk,
             }
 
             self.bus.send(f'UPD_UpdateControl_{self.node}', signals)
@@ -58,7 +61,9 @@ class TargetNode():
         message = f'{self.node}BL_Status'
         data = self.bus.get_data(message)
         if data is None:
-            self.log.error(f"Missing {message} from cand... is the node present?")
+            self.log.error(
+                f"Missing {message} from cand... is the node present?"
+            )
             exit(-1)
 
         return data[f'{self.node}BL_state']
@@ -70,15 +75,29 @@ class TargetNode():
         if dt is None:
             return False
 
-        ALIVE_DELTA_NS = 500 * 1000 * 1000 # 0.5 seconds
+        ALIVE_DELTA_NS = 500 * 1000 * 1000  # 0.5 seconds
         return dt <= ALIVE_DELTA_NS
 
 
 def main():
     parser = argparse.ArgumentParser(description='Update a node over CAN.')
-    parser.add_argument('--iface', type=str, default='can0', help='CAN interface to use')
-    parser.add_argument('--target', type=str, metavar='THROTTLE', help='Target node to update', required=True)
-    parser.add_argument('--bin', type=str, metavar='firmware.bin', help='Firmware binary to send', required=True)
+    parser.add_argument(
+        '--iface', type=str, default='can0', help='CAN interface to use'
+    )
+    parser.add_argument(
+        '--target',
+        type=str,
+        metavar='THROTTLE',
+        help='Target node to update',
+        required=True,
+    )
+    parser.add_argument(
+        '--bin',
+        type=str,
+        metavar='firmware.bin',
+        help='Firmware binary to send',
+        required=True,
+    )
     args = parser.parse_args()
 
     global chunk
@@ -92,8 +111,12 @@ def main():
     print(f"Using isotp_tx_id {isotp_tx_id} and isotp_rx_id {isotp_rx_id}.")
 
     isotp_stack = isotp.CanStack(
-        can.interface.Bus('can0', bustype = 'socketcan'),
-        address = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=isotp_rx_id, txid=isotp_tx_id),
+        can.interface.Bus('can0', bustype='socketcan'),
+        address=isotp.Address(
+            isotp.AddressingMode.Normal_11bits,
+            rxid=isotp_rx_id,
+            txid=isotp_tx_id,
+        ),
     )
     log.info('Created isotp stack')
 
@@ -107,7 +130,9 @@ def main():
     log.info(f'Waiting for {node.node}BL to come up...')
     init_start = datetime.datetime.now()
     while not node.is_alive():
-        if datetime.datetime.now() - init_start > datetime.timedelta(seconds=10):
+        if datetime.datetime.now() - init_start > datetime.timedelta(
+            seconds=10
+        ):
             log.error(f"Node {node.node}BL did not come up. Exiting.")
             exit(-1)
 
@@ -131,7 +156,6 @@ def main():
         chunk_data = firmware[start:end]
         isotp_stack.send(chunk_data)
 
-
         log.debug('Waiting for isotp stack to be done transmitting')
         while isotp_stack.transmitting():
             isotp_stack.process()
@@ -141,7 +165,9 @@ def main():
             bl_state = node.state()
 
             if bl_state == 'RECV_CHUNK':
-                sleep(0.1) # give the node some time, but this shouldn't be needed
+                sleep(
+                    0.1
+                )  # give the node some time, but this shouldn't be needed
                 break
             elif bl_state == 'FAULT':
                 log.error('Node is in FAULT; aborting.')
