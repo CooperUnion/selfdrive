@@ -29,3 +29,8 @@ repos:
         exclude: LICENSE\.md
         additional_dependencies:
           - mdformat-gfm
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.1
+    hooks:
+      - id: ruff
