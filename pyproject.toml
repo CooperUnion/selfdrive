@@ -1,0 +1,55 @@
+[build-system]
+requires      = ['setuptools']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name        = 'selfdrive'
+description = "Autonomy Lab's monorepo"
+version     = '0.0.0'
+
+authors = [
+	{name = 'Autonomy Lab'},
+]
+license = {'text' = 'GPL-3.0-only'}
+
+requires-python = '>=3.11'
+dependencies = [
+	'black',
+	'can-isotp',
+	'cantools',
+	'matplotlib',
+	'mdformat-gfm',
+	'opencan-cand',
+	'pip-tools',
+	'platformio',
+	'pre-commit',
+	'ruff',
+	'strictyaml',
+	'tqdm',
+]
+
+[project.urls]
+repo = 'https://github.com/CooperUnion/selfdrive'
+
+[tool.black]
+line-length               = 79
+skip-string-normalization = true
+
+[tool.pip-tools]
+allow-unsafe    = true
+generate-hashes = true
+strip-extras    = false
+upgrade         = true
+verbose         = true
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[tool.ruff.isort]
+force-single-line = true
+
+[tool.setuptools.packages.find]
+exclude = ['*']

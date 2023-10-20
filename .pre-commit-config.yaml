@@ -14,7 +14,6 @@ repos:
       - id: check-xml
       - id: check-yaml
       - id: end-of-file-fixer
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
 
   - repo: https://github.com/executablebooks/mdformat
