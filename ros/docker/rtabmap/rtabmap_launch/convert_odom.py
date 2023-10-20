@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
-import roslib
 import rospy
-from geometry_msgs.msg import PoseWithCovarianceStamped
+
+
 from nav_msgs.msg import Odometry
 
-class OdomEKF():
+
+class OdomEKF:
     def __init__(self):
         # Give the node a name
         rospy.init_node('odom_ekf', anonymous=False)
 
         # Publisher of type nav_msgs/Odometry
-        self.ekf_pub = rospy.Publisher('/odom_fucking_ekf', Odometry, queue_size=10)
+        self.ekf_pub = rospy.Publisher(
+            '/odom_fucking_ekf', Odometry, queue_size=10
+        )
         print("hello_start")
         # Wait for the /odom topic to become available
         rospy.wait_for_message('/novatel/oem7/odom', Odometry)
@@ -46,10 +49,11 @@ class OdomEKF():
 
         self.ekf_pub.publish(odom)
 
+
 if __name__ == '__main__':
     print("I LIVE")
     try:
-        O = OdomEKF()
+        odom = OdomEKF()
         rospy.spin()
-    except:
+    except Exception:
         pass

@@ -12,12 +12,12 @@ import unit
 
 
 DBW_ACTIVE_TIMEOUT_NS = 20_000_000
-TEST_DELAY_S          = 0.01
+TEST_DELAY_S = 0.01
 
 
 class Safed:
     def __init__(self, bus: cand.client.Bus, tests: list[unit.Unit]):
-        self._bus   = bus
+        self._bus = bus
         self._tests = tests
 
         self._logger = logging.getLogger('safed')
@@ -27,11 +27,15 @@ class Safed:
 
     def run(self) -> bool:
         rec = self._bus.get('dbwActive')
-        if rec is None: return True
+        if rec is None:
+            return True
 
         msg_unix_ns, data = rec
 
-        if not data['Active'] or time.time_ns() - msg_unix_ns >= DBW_ACTIVE_TIMEOUT_NS:
+        if (
+            not data['Active']
+            or time.time_ns() - msg_unix_ns >= DBW_ACTIVE_TIMEOUT_NS
+        ):
             return True
 
         out = True

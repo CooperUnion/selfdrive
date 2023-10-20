@@ -26,14 +26,16 @@ env.PrependENVPath('PATH', env['VENV_DIR'].Dir('bin').abspath)
 env['ENV']['VIRTUAL_ENV'] = env['VENV_DIR'].abspath
 
 # pip packages
-REQUIREMENTS = env.File('$REPO_ROOT/requirements.txt')
+REQUIREMENTS = [env.File('$REPO_ROOT/requirements.txt')]
+REQUIREMENTS += [env.File('$REPO_ROOT/requirements-local.txt')]
 
 [pip_deps_builder] = env.Command(
   env['VENV_DIR'].File('.requirements-installed'),
   REQUIREMENTS,
   [
-    '$VENV_DIR/bin/pip3 install -r $SOURCE',
-    'touch $TARGET'
+    f'$VENV_DIR/bin/pip3 install -r {REQUIREMENTS[0].path}',
+    f'$VENV_DIR/bin/pip3 install -r {REQUIREMENTS[1].path}',
+    'touch $TARGET',
   ]
 )
 

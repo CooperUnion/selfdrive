@@ -21,7 +21,8 @@ class Test:
 
         i = 0
         while True:
-            if (time.time() - time_start) > abs(duration): break
+            if (time.time() - time_start) > abs(duration):
+                break
 
             print(f"{i} {self._bus.get_data('WHL_AbsoluteEncoder')}")
 
@@ -77,7 +78,7 @@ def main():
 
     try:
         test.run(args.percent, args.time)
-    except:
+    except Exception:
         pass
 
     test.end()

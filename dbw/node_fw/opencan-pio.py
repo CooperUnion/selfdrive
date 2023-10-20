@@ -1,15 +1,19 @@
+# ruff: noqa: F821
+
 Import("env")
 
-node        = env.GetProjectOption("board_can_node")
-yml         = env.File("../../can/can.yml")
-opencan     = env.File("../../deps/rust/current/bin/opencan-cli") # see dependencies.SConscript
-build_dir   = Dir(env['BUILD_DIR'])
-gen_dir     = build_dir.Dir(f"../opencan_generated/{node}")
+node = env.GetProjectOption("board_can_node")
+yml = env.File("../../can/can.yml")
+opencan = env.File(
+    "../../deps/rust/current/bin/opencan-cli"
+)  # see dependencies.SConscript
+build_dir = Dir(env['BUILD_DIR'])
+gen_dir = build_dir.Dir(f"../opencan_generated/{node}")
 
 # These Execute calls call opencan-cli every time.
 # They could be replaced with a proper Command, but it was tricky getting
 # PlatformIO to reliably execute them. You could ask them on GitHub or similar.
-if 0 != env.Execute(f'scons -QD deps-opencan'):
+if 0 != env.Execute('scons -QD deps-opencan'):
     print("Error making sure opencan-cli is installed; stopping build.")
     exit(-1)
 

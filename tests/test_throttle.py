@@ -14,14 +14,18 @@ class Test:
         self._bus.send('DBW_Enable', {'DBW_enable': 1})
         self._bus.send(
             'DBW_VelCmd',
-            {'DBW_throttlePercent': min(abs(percent), 100), 'DBW_brakePercent': 0},
+            {
+                'DBW_throttlePercent': min(abs(percent), 100),
+                'DBW_brakePercent': 0,
+            },
         )
 
         time_start = time.time()
 
         i = 0
         while True:
-            if (time.time() - time_start) > abs(duration): break
+            if (time.time() - time_start) > abs(duration):
+                break
 
             print(f"{i} {self._bus.get_data('ENCF_EncoderData')}")
 
@@ -81,7 +85,7 @@ def main():
 
     try:
         test.run(args.percent, args.time)
-    except:
+    except Exception:
         pass
 
     test.end()
