@@ -1,6 +1,12 @@
+---
+
 name: Build node_fw
 
-on: [pull_request, push, workflow_dispatch]
+# yamllint disable-line rule:truthy
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
 
 jobs:
   pre_job:
