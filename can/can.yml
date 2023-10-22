@@ -156,6 +156,30 @@ nodes:
         from_template: BlStatus
         id: 0x502
 
+- LED:
+    rx:
+      - DBW_ESTOP
+      - UPD_UpdateControl_LED 
+    messages:
+    - NodeInfo:
+        from_template: DBWNodeInfo
+        id: 0xA0
+
+    - NodeStatus:
+        from_template: DBWNodeStatus
+        id: 0xB0
+
+- LEDBL:
+    rx:
+    - UPD_IsoTpTx_LED
+    - UPD_UpdateControl_LED
+    messages:
+    - IsoTpTx:
+        id: 0x536
+    - Status:
+        from_template: BlStatus
+        id: 0x537
+
 - BRAKE:
     rx:
     - CTRL_VelocityCommand
@@ -708,6 +732,10 @@ nodes:
     - BLINKBL_IsoTpTx
     - BLINKBL_Status
 
+    - LED_NodeStatus
+    - LEDBL_IsoTpTx
+    - LEDBL_Status
+
     - BRAKE_NodeStatus
     - BRAKEBL_IsoTpTx
     - BRAKEBL_Status
@@ -740,9 +768,14 @@ nodes:
         id: 0x534
     - IsoTpTx_THROTTLE:
         id: 0x535
+    - IsoTpTx_LED:
+        id: 0x540
     - UpdateControl_BLINK:
         from_template: UpdateControl
         id: 0x5A0
+    - UpdateControl_LED:
+        from_template: UpdateControl
+        id: 0x5A6
     - UpdateControl_BRAKE:
         from_template: UpdateControl
         id: 0x5A1

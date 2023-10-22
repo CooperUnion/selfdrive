@@ -1,0 +1,9 @@
+{
+    "name": "cuber-led",
+    "version": "rolling",
+    "description": "Steering DBW node",
+    "build": {
+      "libLDFMode": "deep"
+    }
+  }
+  
