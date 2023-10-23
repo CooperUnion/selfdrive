@@ -1,21 +1,31 @@
-# max_obstacle_height: 0.60  # assume something like an arm is mounted on top of the robot
+---
+
+# assume something like an arm is mounted on top of the robot
+# max_obstacle_height: 0.60
 
 # Obstacle Cost Shaping (http://wiki.ros.org/costmap_2d/hydro/inflation)
-#robot_radius: 5.0  # distance a circular robot should be clear of the obstacle (kobuki: 0.18)
-footprint: [[0, -1], [0, 1], [3.2, -1], [3.2, 1]]  # if the robot is not circular
+# distance a circular robot should be clear of the obstacle (kobuki: 0.18)
+# robot_radius: 5.0
+footprint:  # if the robot is not circular
 
+  - [0, -1]
+  - [0, 1]
+  - [3.2, -1]
+  - [3.2, 1]
 map_type: voxel
 
 virtual_layer:
-  enabled:              true
-  zone_topics:          [/virtual_costmap_layer/zone]
-  obstacle_topics:      [/virtual_costmap_layer/obstacles]
-  one_zone:             true
+  enabled: true
+  zone_topics:
+    - /virtual_costmap_layer/zone
+  obstacle_topics:
+    - /virtual_costmap_layer/obstacles
+  one_zone: true
   forms:
-     - [0.4, 0.0]
-     - [[0.4, 0.0]]
-     - [[-0.4, 0.0],[0.0, 0.4]]
-     - [[100, 100],[-100, 100],[-100, -100],[100, -100]]
+    - [0.4, 0.0]
+    - [[0.4, 0.0]]
+    - [[-0.4, 0.0], [0.0, 0.4]]
+    - [[100, 100], [-100, 100], [-100, -100], [100, -100]]
 
 # obstacle_layer:
 #   enabled:              true
@@ -49,8 +59,12 @@ virtual_layer:
 #     max_obstacle_height: 0.15
 #   # for debugging only, let's you see the entire voxel grid
 
-# #cost_scaling_factor and inflation_radius were now moved to the inflation_layer ns
+# cost_scaling_factor and inflation_radius were now moved to the
+# inflation_layer ns
 # inflation_layer:
 #   enabled:              true
-#   cost_scaling_factor:  3.0  # exponential rate at which the obstacle cost drops off (default: 10)
-#   inflation_radius:     1.0  # max. distance from an obstacle at which costs are incurred for planning paths.
+#   # exponential rate at which the obstacle cost drops off (default: 10)
+#   cost_scaling_factor: 3.0
+#   # max. distance from an obstacle at which costs are incurred for
+#   # planning paths.
+#   inflation_radius: 1.0

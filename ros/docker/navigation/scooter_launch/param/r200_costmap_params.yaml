@@ -1,3 +1,6 @@
+---
+
+# yamllint disable rule:line-length
 global_costmap:
   robot_radius: 0.20  # distance a circular robot should be clear of the obstacle (kobuki: 0.18)
   obstacle_layer:
@@ -6,7 +9,7 @@ global_costmap:
       topic: scan
       marking: true
       clearing: true
-      min_obstacle_height: 0.05 # previous: 0.25, too high for the R200 configuration!
+      min_obstacle_height: 0.05  # previous: 0.25, too high for the R200 configuration!
       max_obstacle_height: 0.35
 
 local_costmap:
@@ -17,5 +20,7 @@ local_costmap:
       topic: scan
       marking: true
       clearing: true
-      min_obstacle_height: 0.05 # previous: 0.25, too high for the R200 configuration!
+      min_obstacle_height: 0.05  # previous: 0.25, too high for the R200 configuration!
       max_obstacle_height: 0.35
+
+# yamllint enable rule:line-length

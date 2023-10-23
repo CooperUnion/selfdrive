@@ -1,7 +1,10 @@
+---
+
 name: Build node_bl
 
 # node_bl job triggers disabled for now while bootloader is under rework
 # on: [pull_request, push, workflow_dispatch]
+# yamllint disable-line rule:truthy
 on: workflow_dispatch
 
 jobs:
@@ -41,13 +44,13 @@ jobs:
       - name: Build firmware
         run: . .venv/bin/activate && make dbw/node_bl
 
-      - name: 'Upload CAN network'
+      - name: Upload CAN network
         uses: actions/upload-artifact@v3
         with:
           name: can-dbc
           path: build/can/igvc_can.dbc
 
-      - name: 'Upload firmware binaries'
+      - name: Upload firmware binaries
         uses: actions/upload-artifact@v3
         with:
           name: node_bl-bin

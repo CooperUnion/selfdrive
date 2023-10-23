@@ -2,8 +2,9 @@
 
 name: mdbook
 
+# yamllint disable-line rule:truthy
 on:
-  pull_request:
+  pull_request: ~
 
 jobs:
   build:

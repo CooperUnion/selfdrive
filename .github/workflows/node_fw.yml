@@ -1,6 +1,12 @@
+---
+
 name: Build node_fw
 
-on: [pull_request, push, workflow_dispatch]
+# yamllint disable-line rule:truthy
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
 
 jobs:
   pre_job:
@@ -17,7 +23,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
