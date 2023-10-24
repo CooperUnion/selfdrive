@@ -884,6 +884,10 @@ ruyaml==0.91.0 \
     --hash=sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755 \
     --hash=sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab
     # via yamlfix
+scons==4.5.2 \
+    --hash=sha256:2f66a1c5c485068a496c12356583eefb2d79e17177278c7334b12b460f0503ce \
+    --hash=sha256:813360b2bce476bc9cc12a0f3a22d46ce520796b352557202cb07d3e402f5458
+    # via selfdrive (pyproject.toml)
 semantic-version==2.10.0 \
     --hash=sha256:bdabb6d336998cbb378d4b9db3a4b56a1e3235701dc05ea2690d9a997ed5041c \
     --hash=sha256:de78a3b8e0feda74cabc54aab2da702113e33ac9d9eb9d2389bcf1f58b7d9177
@@ -1050,3 +1054,4 @@ setuptools==68.2.2 \
     #   pip-tools
     #   python-can
     #   ruyaml
+    #   scons

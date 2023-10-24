@@ -31,7 +31,6 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.nixpkgs-fmt
-            pkgs.scons
             rust
             python
           ];

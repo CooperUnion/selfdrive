@@ -24,6 +24,7 @@ dependencies = [
 	'platformio',
 	'pre-commit',
 	'ruff',
+	'scons',
 	'strictyaml',
 	'tqdm',
 	'yamlfix',
