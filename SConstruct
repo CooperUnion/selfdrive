@@ -2,6 +2,9 @@
 #*#*# Cooper IGVC #*#*#
 #*#*#*#*#*#*#*#*#*#*#*#
 
+EnsureSConsVersion(4, 5, 2)
+EnsurePythonVersion(3, 11)
+
 import os
 
 # Basic setup ---------------------------------------------
