@@ -7,18 +7,20 @@ EnsurePythonVersion(3, 11)
 
 import os
 
-# Basic setup ---------------------------------------------
-# We should get more disciplined about our PATH later.
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
-# Save the repo root in the env
+from env import ENV
+
+
+# Basic setup ---------------------------------------------
+env = Environment(ENV=ENV)
+
+for var in ['PATH', 'TERM']:
+    if val := os.environ.get(var):
+        env['ENV'][var] = val
+
 env['REPO_ROOT'] = env.Dir('.')
 
 Decider('content-timestamp')
-
-term = os.environ.get('TERM') # for color
-if term is not None:
-    env['ENV']['TERM'] = term
 # ---------------------------------------------------------
 
 
