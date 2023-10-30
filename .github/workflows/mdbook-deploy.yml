@@ -9,11 +9,7 @@ on:
       - dev
 
 jobs:
-  checkout:
-    uses: ./.github/workflows/checkout.yml
-
   deploy:
-    needs: checkout
     runs-on: ubuntu-latest
 
     steps:

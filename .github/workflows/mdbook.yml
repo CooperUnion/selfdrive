@@ -7,11 +7,7 @@ on:
   pull_request: ~
 
 jobs:
-  checkout:
-    uses: ./.github/workflows/checkout.yml
-
   build:
-    needs: checkout
     runs-on: ubuntu-latest
 
     steps:

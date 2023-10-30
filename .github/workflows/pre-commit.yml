@@ -8,11 +8,7 @@ on:
   - push
 
 jobs:
-  checkout:
-    uses: ./.github/workflows/checkout.yml
-
   pre-commit:
-    needs: checkout
     runs-on: ubuntu-latest
 
     steps:
