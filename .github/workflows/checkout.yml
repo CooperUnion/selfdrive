@@ -1,0 +1,19 @@
+---
+
+name: checkout selfdrive
+description: cache selfdrive dependencies for subsequent workflows
+
+# yamllint disable-line rule:truthy
+on:
+  - workflow_call
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/checkout
