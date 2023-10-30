@@ -1,9 +1,6 @@
-#*#*#*#*#*#*#*#*#*#*#*#
-#*#*# Cooper IGVC #*#*#
-#*#*#*#*#*#*#*#*#*#*#*#
-
 EnsureSConsVersion(4, 5, 2)
 EnsurePythonVersion(3, 11)
+
 
 import os
 
@@ -42,16 +39,8 @@ env['AddHelp'] = AddHelp
     'rm -rf build/'
 )
 
-[rm_deps] = env.Command(
-    'phony-rm-deps',
-    [],
-    'rm -rf deps/'
-)
-
-env.Alias('clean',    rm_build)
-env.Alias('cleanall', [rm_build, rm_deps])
-AddHelp('clean',    'Clean (remove) build/ directory')
-AddHelp('cleanall', 'Clean (remove) build/ and deps/ (aka everything)')
+env.Alias('clean', rm_build)
+AddHelp('clean', 'Clean (remove) build/ directory')
 # ---------------------------------------------------------
 
 
@@ -60,7 +49,6 @@ Default(None)
 Export('env')
 
 # Dependencies first
-env.SConscript('dependencies.SConscript', variant_dir='deps',               duplicate=0)
 env.SConscript('can/SConscript',          variant_dir='build/can',          duplicate=0)
 env.SConscript('dbw/ember_bl/SConscript', variant_dir='build/dbw/ember_bl', duplicate=0)
 env.SConscript('dbw/node_fw/SConscript',  variant_dir='build/dbw/node_fw',  duplicate=0)

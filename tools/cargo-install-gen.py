@@ -6,7 +6,7 @@ import shlex
 import tomllib
 
 
-def generate_cargo_commands(crates: dict[str, dict[str, str]]) -> list[str]:
+def generate_commands(crates: dict[str, dict[str, str]]) -> list[str]:
     cmds = []
 
     for crate, options in crates.items():
@@ -36,8 +36,8 @@ def generate_cargo_commands(crates: dict[str, dict[str, str]]) -> list[str]:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog='cargo.py',
-        description='generate cargo commands',
+        prog='cargo-install-gen.py',
+        description='generate cargo install commands',
     )
 
     parser.add_argument(
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     with open(args.config, 'rb') as f:
         config = tomllib.load(f)
 
-    cmds = generate_cargo_commands(config)
+    cmds = generate_commands(config)
 
     print('\n'.join(cmds))
