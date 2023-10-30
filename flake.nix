@@ -30,9 +30,10 @@
       {
         devShells.default = pkgs.mkShell {
           packages = [
+            pkgs.act
             pkgs.nixpkgs-fmt
-            rust
             python
+            rust
           ];
         };
       }
