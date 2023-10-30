@@ -23,7 +23,7 @@ jobs:
 
       - uses: ./.github/actions/checkout
 
-      - name: Build docs
+      - name: Build firmware
         run: fwpio run
 
       - name: Upload CAN network
