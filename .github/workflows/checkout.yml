@@ -1,7 +1,6 @@
 ---
 
 name: checkout selfdrive
-description: cache selfdrive dependencies for subsequent workflows
 
 # yamllint disable-line rule:truthy
 on:
