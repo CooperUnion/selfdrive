@@ -9,13 +9,19 @@ on:
       - dev
 
 jobs:
+  checkout:
+    uses: ./.github/workflows/checkout.yml
+
   deploy:
+    needs: checkout
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: ./.github/actions/checkout
 
       - name: Install latest version of `mdbook`
         uses: peaceiris/actions-mdbook@v1
