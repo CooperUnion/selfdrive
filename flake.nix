@@ -31,6 +31,7 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.act
+            pkgs.mdbook
             pkgs.nixpkgs-fmt
             python
             rust
