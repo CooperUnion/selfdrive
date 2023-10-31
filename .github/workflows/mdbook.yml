@@ -15,7 +15,8 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/checkout
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
 
       - name: Build docs
         run: mdbook build

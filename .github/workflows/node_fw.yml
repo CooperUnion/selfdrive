@@ -17,7 +17,8 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/checkout
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
 
       - name: Build firmware
         run: fwpio run

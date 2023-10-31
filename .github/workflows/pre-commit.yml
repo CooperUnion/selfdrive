@@ -16,6 +16,7 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/checkout
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
 
       - run: pre-commit run --show-diff-on-failure --color=always
