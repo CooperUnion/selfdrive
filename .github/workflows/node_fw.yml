@@ -20,6 +20,9 @@ jobs:
       - name: Checkout `selfdrive`
         uses: ./.github/actions/checkout
 
+      - name: Build DBC
+        run: scons dbc
+
       - name: Build firmware
         run: fwpio run
 
