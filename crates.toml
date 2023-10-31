@@ -1,0 +1,4 @@
+[opencan-cli]
+git = 'https://github.com/opencan/opencan'
+locked = true
+rev = 'beae1fda'

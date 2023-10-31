@@ -4,15 +4,20 @@ name: pre-commit
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request: ~
-  push: ~
+  - pull_request
+  - push
 
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/setup-python@v4
-      - uses: pre-commit/action@v3.0.0
+
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
+
+      - name: Run `pre-commit` hooks
+        run: pre-commit run --show-diff-on-failure --color=always

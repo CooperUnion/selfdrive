@@ -13,12 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          submodules: recursive
 
-      - name: Install latest version of `mdbook`
-        uses: peaceiris/actions-mdbook@v1
-        with:
-          mdbook-version: latest
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
 
       - name: Build docs
         run: mdbook build
