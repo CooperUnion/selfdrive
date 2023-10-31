@@ -19,4 +19,5 @@ jobs:
       - name: Checkout `selfdrive`
         uses: ./.github/actions/checkout
 
-      - run: pre-commit run --show-diff-on-failure --color=always
+      - name: Run `pre-commit` hooks
+        run: pre-commit run --show-diff-on-failure --color=always
