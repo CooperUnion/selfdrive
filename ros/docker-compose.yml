@@ -1,214 +1,220 @@
+---
+
 # https://docs.docker.com/compose/gpu-support/
 version: '3'
 
 services:
-    master:
-        build: docker/master/.
-        container_name: master
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=master'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        ports:
-            - '11311:11311'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        restart: unless-stopped
-        command: stdbuf -o L roscore
+  master:
+    build: docker/master/.
+    container_name: master
+    tty: true
+    environment:
+      - ROS_HOSTNAME=master
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    ports:
+      - 11311:11311
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    restart: unless-stopped
+    command: stdbuf -o L roscore
 
-    redis:
-        image: redis:7.0-alpine
-        container_name: redis
-        restart: unless-stopped
-        ports:
-            - '6379:6379'
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
 
-    pure_pursuit:
-        build: docker/pure_pursuit/.
-        container_name: pure_pursuit
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=pure_pursuit'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/pure_pursuit:/app/ros_ws/src/pure_pursuit'
-        depends_on:
-            - master
+  pure_pursuit:
+    build: docker/pure_pursuit/.
+    container_name: pure_pursuit
+    tty: true
+    environment:
+      - ROS_HOSTNAME=pure_pursuit
+      - ROS_MASTER_URI=http://master:11311
+    volumes:
+      - ./docker/pure_pursuit:/app/ros_ws/src/pure_pursuit
+    depends_on:
+      - master
 
-    navigation:
-        build: docker/navigation/.
-        container_name: navigation
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=navigation'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch'
+  navigation:
+    build: docker/navigation/.
+    container_name: navigation
+    tty: true
+    environment:
+      - ROS_HOSTNAME=navigation
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./docker/navigation/scooter_launch:/app/ros_ws/src/scooter_launch
 
-    velodyne:
-        build: docker/velodyne/.
-        container_name: velodyne
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=velodyne'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/velodyne/velodyne_launch:/app/ros_ws/src/velodyne_launch'
-        depends_on:
-            - master
-        ports:
-            - 2368:2368/udp
-            - 8308:8308/udp
+  velodyne:
+    build: docker/velodyne/.
+    container_name: velodyne
+    tty: true
+    environment:
+      - ROS_HOSTNAME=velodyne
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./docker/velodyne/velodyne_launch:/app/ros_ws/src/velodyne_launch
+    depends_on:
+      - master
+    ports:
+      - 2368:2368/udp
+      - 8308:8308/udp
 
-    zed:
-        build: docker/zed/.
-        #image: git-registry.cooperigvc.org/igvc/selfdrive/ros/zed:0.1
-        container_name: zed
-        tty: true
-        privileged: true
-        environment:
-            - 'ROS_HOSTNAME=zed'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/zed/zed_launch:/app/ros_ws/src/zed_launch'
-        # depends_on:
-        #     - master
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
-        restart: unless-stopped
+  zed:
+    build: docker/zed/.
+    container_name: zed
+    tty: true
+    privileged: true
+    environment:
+      - ROS_HOSTNAME=zed
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      # Come up with a better solution later. Maybe mount the file
+      # associated with the zed only
+      - /dev:/dev
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./docker/zed/zed_launch:/app/ros_ws/src/zed_launch
+    # depends_on:
+    #     - master
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+                - gpu
+    restart: unless-stopped
 
-    imu:
-        build: docker/yost_imu/.
-        container_name: imu
-        tty: true
-        privileged: true
-        environment:
-            - 'ROS_HOSTNAME=imu'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - '/dev:/dev' # Come up with a better solution later. Maybe mount the file associated with the zed only
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
+  imu:
+    build: docker/yost_imu/.
+    container_name: imu
+    tty: true
+    privileged: true
+    environment:
+      - ROS_HOSTNAME=imu
+      - ROS_MASTER_URI=http://master:11311
+    volumes:
+      # Come up with a better solution later. Maybe mount the file
+      # associated with the zed only
+      - /dev:/dev
+      - /tmp/.X11-unix:/tmp/.X11-unix
 
-    rviz:
-        build: docker/rviz/.
-        container_name: rviz
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=rviz'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        depends_on:
-            - master
+  rviz:
+    build: docker/rviz/.
+    container_name: rviz
+    tty: true
+    environment:
+      - ROS_HOSTNAME=rviz
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    depends_on:
+      - master
 
-    rtabmap:
-        build: docker/rtabmap/.
-        container_name: rtabmap
-        tty: true
-        privileged: true
-        environment:
-            - 'ROS_HOSTNAME=rtabmap'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-            #- ~/.ros:/root
-            - '/home/eeadmin/comp-data:/comp-data'
-            - './docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch'
-        depends_on:
-            - master
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
+  rtabmap:
+    build: docker/rtabmap/.
+    container_name: rtabmap
+    tty: true
+    privileged: true
+    environment:
+      - ROS_HOSTNAME=rtabmap
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # - ~/.ros:/root
+      - /home/eeadmin/comp-data:/comp-data
+      - ./docker/rtabmap/rtabmap_launch:/app/ros_ws/src/rtabmap_launch
+    depends_on:
+      - master
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+                - gpu
 
-    gps:
-        build: docker/gps/.
-        container_name: gps
-        tty: true
-        privileged: true
-        environment:
-            - 'ROS_HOSTNAME=gps'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-        depends_on:
-            - master
+  gps:
+    build: docker/gps/.
+    container_name: gps
+    tty: true
+    privileged: true
+    environment:
+      - ROS_HOSTNAME=gps
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    depends_on:
+      - master
 
-    encoder_odom:
-        build: docker/encoder_odom
-        container_name: encoder_odom
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=encoder_odom'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/encoder_odom/src:/app/ros_ws/src/encoder_odom'
-        depends_on:
-            - master
+  encoder_odom:
+    build: docker/encoder_odom
+    container_name: encoder_odom
+    tty: true
+    environment:
+      - ROS_HOSTNAME=encoder_odom
+      - ROS_MASTER_URI=http://master:11311
+    volumes:
+      - ./docker/encoder_odom/src:/app/ros_ws/src/encoder_odom
+    depends_on:
+      - master
 
-    techbus:
-        build: docker/techbus/
-        container_name: techbus
-        tty: true
-        environment:
-            - 'ROS_HOSTNAME=techbus'
-            - 'ROS_MASTER_URI=http://master:11311'
-        volumes:
-            - './docker/techbus:/app/ros_ws/src/techbus'
-        depends_on:
-            - master
+  techbus:
+    build: docker/techbus/
+    container_name: techbus
+    tty: true
+    environment:
+      - ROS_HOSTNAME=techbus
+      - ROS_MASTER_URI=http://master:11311
+    volumes:
+      - ./docker/techbus:/app/ros_ws/src/techbus
+    depends_on:
+      - master
 
-    detection:
-            build: docker/detection/
-            container_name: detection
-            tty: true
-            environment:
-                - 'ROS_HOSTNAME=detection'
-                - 'ROS_MASTER_URI=http://master:11311'
-                - 'DISPLAY=$DISPLAY'
-                - 'QT_X11_NO_MITSHM=1'
-            volumes:
-                - '/tmp/.X11-unix:/tmp/.X11-unix'
-                - './docker/detection:/app/ros_ws/src/detection'
-            depends_on:
-                - master
+  detection:
+    build: docker/detection/
+    container_name: detection
+    tty: true
+    environment:
+      - ROS_HOSTNAME=detection
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./docker/detection:/app/ros_ws/src/detection
+    depends_on:
+      - master
 
-    gazebo:
-        build: docker/gazebo/.
-        container_name: gazebo
-        tty: true
-        privileged: true
-        environment:
-            - 'ROS_HOSTNAME=gazebo'
-            - 'ROS_MASTER_URI=http://master:11311'
-            - 'DISPLAY=$DISPLAY'
-            - 'QT_X11_NO_MITSHM=1'
-        volumes:
-            - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - './docker/gazebo/igvc_self_drive_sim:/app/ros_ws/src/igvc_self_drive_sim'
-        depends_on:
-            - master
-        restart: unless-stopped
-            - master
+  gazebo:
+    build: docker/gazebo/.
+    container_name: gazebo
+    tty: true
+    privileged: true
+    environment:
+      - ROS_HOSTNAME=gazebo
+      - ROS_MASTER_URI=http://master:11311
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./docker/gazebo/igvc_self_drive_sim:/app/ros_ws/src/igvc_self_drive_sim
+    depends_on:
+      - master
+    restart: unless-stopped - master

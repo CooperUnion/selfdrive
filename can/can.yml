@@ -3,9 +3,9 @@
 bitrate: 500000
 
 message_templates:
-- DBWNodeInfo:
-    cycletime: 1000
-    signals:
+  - DBWNodeInfo:
+      cycletime: 1000
+      signals:
         - gitHash:
             description: Githash of the currently-running firmware.
             width: 32
@@ -16,99 +16,101 @@ message_templates:
             description: EEPROM identity.
             width: 6
 
-- DBWNodeStatus:
-    cycletime: 100
+  - DBWNodeStatus:
+      cycletime: 100
 
-    signals:
-      - sysStatus:
-          description: Status of the node.
-          enumerated_values:
-            - UNDEF
-            - INIT
-            - IDLE
-            - ACTIVE
-            - LOST_CAN
-            - BAD
-            - ESTOP
-      - requestedSysStatus:
-          description: Requested node status.
-          enumerated_values:
-            - UNDEF
-            - INIT
-            - IDLE
-            - ACTIVE
-            - LOST_CAN
-            - BAD
-            - ESTOP
-      - temperature:
-          description: Core temperature in Celsius
-          width: 7
-          offset: 31
-      - counter:
-          description: Counter for fun.
-          width: 8
-      - resetReason:
-          description: Reset reason.
-          enumerated_values:
-            - POWERON
-            - SW_RESET
-            - WATCHDOG_RESET
-            - UNKNOWN
-      - esp32ResetReasonCode:
-          description: ESP32 reset reason code (enum RESET_REASON)
-          width: 5
+      signals:
+        - sysStatus:
+            description: Status of the node.
+            enumerated_values:
+              - UNDEF
+              - INIT
+              - IDLE
+              - ACTIVE
+              - LOST_CAN
+              - BAD
+              - ESTOP
+        - requestedSysStatus:
+            description: Requested node status.
+            enumerated_values:
+              - UNDEF
+              - INIT
+              - IDLE
+              - ACTIVE
+              - LOST_CAN
+              - BAD
+              - ESTOP
+        - temperature:
+            description: Core temperature in Celsius
+            width: 7
+            offset: 31
+        - counter:
+            description: Counter for fun.
+            width: 8
+        - resetReason:
+            description: Reset reason.
+            enumerated_values:
+              - POWERON
+              - SW_RESET
+              - WATCHDOG_RESET
+              - UNKNOWN
+        - esp32ResetReasonCode:
+            description: ESP32 reset reason code (enum RESET_REASON)
+            width: 5
 
-- DBWVelocityCommand:
-    cycletime: 10
+  - DBWVelocityCommand:
+      cycletime: 10
 
-    signals:
-      - brakePercent:
-          description: Brake percentage.
-          # mimumum: 0.0
-          # maximum: 100.0
-          unit: percent
-          width: 10
-          scale: 0.1
-      - throttlePercent:
-          description: Throttle percentage.
-          # minimum: 0.0
-          # maximum: 100.0
-          unit: percent
-          width: 10
-          scale: 0.1
+      signals:
+        - brakePercent:
+            description: Brake percentage.
+            # mimumum: 0.0
+            # maximum: 100.0
+            unit: percent
+            width: 10
+            scale: 0.1
+        - throttlePercent:
+            description: Throttle percentage.
+            # minimum: 0.0
+            # maximum: 100.0
+            unit: percent
+            width: 10
+            scale: 0.1
 
-- EncoderData:
-    cycletime: 10
-    signals:
+  - EncoderData:
+      cycletime: 10
+      signals:
         - encoderLeft:
-            description: Left encoder pulses (continuous, bidirectional, and overflowing).
+            description: >
+              Left encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
         - encoderRight:
-            description: Right encoder pulses (continuous, bidirectional, and overflowing).
+            description: >
+              Right encoder pulses (continuous, bidirectional, and overflowing).
             width: 16
 
-- PIDGains:
-    signals:
-      - gainKp:
-          description: Kp gain.
-          width: 16
-          scale: 0.001
+  - PIDGains:
+      signals:
+        - gainKp:
+            description: Kp gain.
+            width: 16
+            scale: 0.001
 
-      - gainKi:
-          description: Ki gain.
-          width: 16
-          scale: 0.001
+        - gainKi:
+            description: Ki gain.
+            width: 16
+            scale: 0.001
 
-      - gainKd:
-          description: Kd gain.
-          width: 17
-          twos_complement: true
-          scale: 0.001
+        - gainKd:
+            description: Kd gain.
+            width: 17
+            twos_complement: true
+            scale: 0.001
 
-- UpdateControl:
-    cycletime: 20
+  - UpdateControl:
+      cycletime: 20
 
-    signals:
+      signals:
         - updateSizeBytes:
             description: Total update binary size in bytes.
             width: 24
@@ -116,26 +118,26 @@ message_templates:
             description: Current isotp 4095-byte chunk.
             width: 12
 
-- BlStatus:
-    cycletime: 20
+  - BlStatus:
+      cycletime: 20
 
-    signals:
+      signals:
         - state:
             enumerated_values:
-            - AWAIT_TRIGGER
-            - RECV_CHUNK
-            - CHECK_DESC
-            - COMMIT_CHUNK
-            - FINALIZE
-            - REBOOT_FW
-            - FAULT
-            - RESET
+              - AWAIT_TRIGGER
+              - RECV_CHUNK
+              - CHECK_DESC
+              - COMMIT_CHUNK
+              - FINALIZE
+              - REBOOT_FW
+              - FAULT
+              - RESET
 
 nodes:
 - BLINK:
     rx:
       - DBW_ESTOP
-      - UPD_UpdateControl_BLINK # bootloader
+      - UPD_UpdateControl_BLINK
     messages:
     - NodeInfo:
         from_template: DBWNodeInfo

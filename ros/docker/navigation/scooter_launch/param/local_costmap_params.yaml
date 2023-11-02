@@ -1,3 +1,4 @@
+---
 local_costmap:
   # Costmap_2d parameters
   global_frame: map
@@ -9,11 +10,14 @@ local_costmap:
   width: 100
   height: 100
   plugins:
-    - {name: static_layer,            type: "costmap_2d::StaticLayer"}
-    - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
-    - { name: virtual_layer,          type: "virtual_costmap_layer::VirtualLayer"}
-    - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
-
+    - name: static_layer
+      type: costmap_2d::StaticLayer
+    - name: obstacle_layer
+      type: costmap_2d::VoxelLayer
+    - name: virtual_layer
+      type: virtual_costmap_layer::VirtualLayer
+    - name: inflation_layer
+      type: costmap_2d::InflationLayer
 
   static_layer:
     enabled: true
@@ -29,7 +33,7 @@ local_costmap:
   obstacle_layer:
     enabled: true
     # combination_method:   1       Used for ObstacleCostmapPlugin
-    track_unknown_space:  false
+    track_unknown_space: false
     # Global Parameters applied to all sensors
     max_obstacle_height: 1.8
     obstacle_range: 2.5
@@ -42,13 +46,14 @@ local_costmap:
     mark_threshold: 0
     footprint_clearing_enabled: true
     observation_sources: rtabmap  # scan
-      #  scan:
-      #     data_type: LaserScan
-      #     topic: /scan_filtered
-      #     marking: true              # Only used by local costmap
-      #     clearing: true             # Has to free up space for local planner is path is avalible
-      #     min_obstacle_height: 0.0
-      #     max_obstacle_height: 2.0
+    # scan:
+    #   data_type: LaserScan
+    #   topic: /scan_filtered
+    #   marking: true  # Only used by local costmap
+    #  # Has to free up space for local planner is path is avalible
+    #   clearing: true
+    #   min_obstacle_height: 0.0
+    #   max_obstacle_height: 2.0
     rtabmap:
       data_type: PointCloud2
       topic: /rtabmap/cloud_map
@@ -58,6 +63,6 @@ local_costmap:
       max_obstacle_height: 2.0
 
   inflation_layer:
-      enabled: true
-      inflation_radius: 0.3
-      cost_scaling_factor: 0.5
+    enabled: true
+    inflation_radius: 0.3
+    cost_scaling_factor: 0.5

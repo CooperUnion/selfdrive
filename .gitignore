@@ -1,12 +1,10 @@
-# Build / generated files
-*__pycache__/
 *.egg-info
-.install-dependencies
+.cargo
+.direnv
+.platformio
+.ruff_cache
 .sconsign.dblite
 .venv
-.direnv
-build
-deps
-
-# Local developer files
 .vscode
+__pycache__
+build

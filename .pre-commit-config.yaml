@@ -25,12 +25,29 @@ repos:
     rev: 0.7.17
     hooks:
       - id: mdformat
-        args: [--wrap, '72']
+        args:
+          - --wrap
+          - '72'
         exclude: LICENSE\.md
         additional_dependencies:
           - mdformat-gfm
+
+  - repo: https://github.com/nix-community/nixpkgs-fmt
+    rev: v1.3.0
+    hooks:
+      - id: nixpkgs-fmt
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.1
     hooks:
       - id: ruff
+
+  - repo: https://github.com/lyz-code/yamlfix/
+    rev: 1.13.0
+    hooks:
+      - id: yamlfix
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint

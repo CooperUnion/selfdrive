@@ -1,78 +1,45 @@
-name: Build node_fw
+---
 
-on: [pull_request, push, workflow_dispatch]
+name: build `node_fw`
+
+# yamllint disable-line rule:truthy
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
 
 jobs:
-  pre_job:
+  build:
     runs-on: ubuntu-latest
 
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5.3.0
-
-  build:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Cache build/
-        id: cache-build-dir
-        uses: actions/cache@v3
-        with:
-          path: build
-          key: build_cache
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
 
-      - name: Cache deps/
-        id: cache-deps-dir
-        uses: actions/cache@v3
-        with:
-          path: deps
-          key: deps_cache
-
-      - name: Cache .sconsign.dblite
-        id: cache-sconsign
-        uses: actions/cache@v3
-        with:
-          path: .sconsign.dblite
-          key: sconsign_cache
-
-      - name: Set up Python
-        run: |
-          sudo apt-get update -yqq
-          sudo apt-get install python3 python3-pip python3-venv -yqq
-
-      - name: Install scons
-        run: pip install scons
-
-      - name: Build CAN network
+      - name: Build DBC
         run: scons dbc
 
       - name: Build firmware
-        run: scons node_fw
+        run: fwpio run
 
       - name: Upload CAN network
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: can-dbc
           path: build/can/igvc_can.dbc
 
       - name: Upload OpenCAN Codegen Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: opencan-codegen-files
           path: build/dbw/node_fw/opencan_generated/*
 
       - name: Upload firmware binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: node_fw-bin
           path: build/dbw/node_fw/*/firmware.bin

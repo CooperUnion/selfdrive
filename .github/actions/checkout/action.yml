@@ -1,0 +1,22 @@
+---
+
+name: checkout selfdrive
+
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/cache@v3.3.2
+      with:
+        key: dependencies
+        path: |
+          .cargo
+          .venv
+
+    - uses: DeterminateSystems/nix-installer-action@v6
+
+    - uses: DeterminateSystems/magic-nix-cache-action@v2
+
+    - uses: HatsuneMiku3939/direnv-action@v1.0.2
+      with:
+        direnvVersion: 2.32.3
