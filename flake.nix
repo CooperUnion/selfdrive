@@ -31,6 +31,8 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.act
+            pkgs.dhall
+            pkgs.dhall-yaml
             pkgs.mdbook
             pkgs.nixpkgs-fmt
             python
