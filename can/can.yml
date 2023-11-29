@@ -160,8 +160,8 @@ nodes:
 
   - BRAKE:
       rx:
-        - CTRL_VelocityCommand
         - DBW_ESTOP
+        - DBW_RawVelocityCommand
         - DBW_VelocityCommand
         - SUP_Authorization
         - UPD_UpdateControl_BRAKE  # bootloader
