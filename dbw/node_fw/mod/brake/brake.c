@@ -62,18 +62,7 @@ static void brake_100Hz()
 {
     static float32_t prv_cmd;
 
-    bool brake_authorized =
-        CANRX_is_message_DBW_RawVelocityCommand_ok();
-
-    float cmd;
-
-    if (brake_authorized) {
-        cmd = ((float32_t) CANRX_get_DBW_brakePercent()) / 100.0;
-        base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
-    } else {
-        cmd = 0.0;
-        base_request_state(CUBER_SYS_STATE_IDLE);
-    }
+    float cmd = 0.0;
 
     if (cmd > CMD_MAX) cmd = CMD_MAX;
 
