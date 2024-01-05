@@ -72,6 +72,55 @@ Introductory blurb...
 ...
 ```
 
+## Directory Structure
+
+Our documentation has the following directory structure:
+
+```
+docs/
++-- components/
+|   +-- complicated-component/
+|   |   +-- README.md
+|   |   |
+|   |   +-- ...
+|   +-- component.md
+|
++-- concepts/
+|   +-- complicated-concept/
+|   |   +-- README.md
+|   |   |
+|   |   +-- ...
+|   +-- concept.md
+|
++-- projects/
+|   +-- project/
+|       +-- complicated-topic/
+|       |   +-- README.md
+|       |   |
+|       |   +-- ...
+|       +-- topic.d/
+|       |   +-- figure.png
+|       +-- topic.md
+|
++-- README.md
++-- SUMMARY.md
+|
++-- ...
+```
+
+Typically, a new addition to our documentation is a single markdown
+file. If we split the documentation into multiple files, we can
+represent it as a directory with a `README.md`, which serves as the
+introductory point.
+
+All file paths should be lowercase (except for `README.md`), and use
+dashes for spaces.
+
+If you need to include a file (i.e. a figure) but are only using a
+single markdown file, a folder with the same base name but suffix `.d`
+can be created (i.e. `topic.md -> topic.d`). Otherwise, included files
+specific to the documentation should reside in the same folder.
+
 [pre-commit hook]: https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml
 [`git blame`]: https://git-scm.com/docs/git-blame
 [`git log`]: https://git-scm.com/docs/git-log
