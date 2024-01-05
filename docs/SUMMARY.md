@@ -4,4 +4,6 @@
 
 ______________________________________________________________________
 
+[Contributing](contributing.md)
+
 [Contributors](contributors.md)
