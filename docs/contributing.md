@@ -45,6 +45,36 @@ your name forever on the internet, so be professional! That said, don't
 be afraid to have some fun! Humor is always welcome where appropriate to
 give our work some life!
 
+## Formatting
+
+We use [`mdbook`] to render our documentation. If this is your first
+time using [`mdbook`], please read over its documentation to get a feel
+for how to navigate it.
+
+We've also decided to normalize our markdown using [`mdformat`]. If your
+markdown isn't normalized, it will trigger our [pre-commit hook]. To
+normalize a markdown file, it suffices to run the following in the root
+of [`selfdrive`]:
+
+```
+$ mdformat path/to/file.md
+```
+
+Each markdown file should, at the very least, look like this:
+
+```md
+# Title
+
+Introductory blurb...
+
+## First Topic
+
+...
+```
+
+[pre-commit hook]: https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml
 [`git blame`]: https://git-scm.com/docs/git-blame
 [`git log`]: https://git-scm.com/docs/git-log
+[`mdbook`]: https://rust-lang.github.io/mdBook/
+[`mdformat`]: https://github.com/executablebooks/mdformat
 [`selfdrive`]: https://github.com/CooperUnion/selfdrive
