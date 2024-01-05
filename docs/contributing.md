@@ -14,3 +14,37 @@ Before you get to writing anything, ask yourself a few questions:
 - Is what you're about to write correct to the best of your knowledge?
 
 > *As an aside, no documentation is better than wrong documentation!*
+
+## Writing Style
+
+*Active voice over passive voice where possible.*
+
+Passive voice is less concise than the active voice, making
+documentation difficult to read. More importantly, passive voice can
+hide the agent of a sentence, diminishing your contribution to the work
+you put so many hours into!
+
+*Talk to the reader.*
+
+Remember, we read documentation far more often than we write it. That
+said, write documentation that's easy to read; this means talking to the
+reader to engage them with the material. We've all read dry
+documentation before; let's avoid it here at Autonomy Lab.
+
+*You're writing on behalf of Autonomy Lab.*
+
+Since we're a lab, avoid the word I. Work done for the lab, although
+individual at times, can become collaborative in an instant. There's no
+need to worry about your contribution getting lost in the chaos as it'll
+always be traceable with [`git blame`] and [`git log`].
+
+*Be professional, but don't be afraid to have some fun!*
+
+[`selfdrive`] is a public repo: any contribution you make gets tied to
+your name forever on the internet, so be professional! That said, don't
+be afraid to have some fun! Humor is always welcome where appropriate to
+give our work some life!
+
+[`git blame`]: https://git-scm.com/docs/git-blame
+[`git log`]: https://git-scm.com/docs/git-log
+[`selfdrive`]: https://github.com/CooperUnion/selfdrive
