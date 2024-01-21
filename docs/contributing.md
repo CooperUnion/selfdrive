@@ -136,6 +136,14 @@ the [CC BY-NC-SA 4.0].
 > Additionally, if the figure you add is a binary file track it with
 > [Git LFS].
 
+## When in Doubt, Look at Existing Work
+
+Not sure how to do something? Check if there's already existing work
+that achieves a similar pattern. If you can't find anything that quite
+matches what you're looking to write, take your own stab at it. The nice
+part of having PRs is that the Lab can give you feedback on your work so
+that we can all converge on an ideal solution.
+
 [cc by-nc-sa 4.0]: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 [git lfs]: https://git-lfs.com/
 [pre-commit hook]: https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml
