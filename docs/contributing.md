@@ -121,6 +121,23 @@ single markdown file, a folder with the same base name but suffix `.d`
 can be created (i.e. `topic.md -> topic.d`). Otherwise, included files
 specific to the documentation should reside in the same folder.
 
+## Figures
+
+When creating figures, make them in such a manner that they're editable
+at a later time. The exception to this are images. When adding images,
+make sure they don't contain any personally identifiable EXIF data (i.e.
+the location of your house) before adding it to [`selfdrive`]!
+
+When adding figures ***not*** created by Autonomy Lab, they must be
+appropriately accredited. Only link to such figures, and do not add them
+to the [`selfdrive`] repo. External figures must also be compatible with
+the [CC BY-NC-SA 4.0].
+
+> Additionally, if the figure you add is a binary file track it with
+> [Git LFS].
+
+[cc by-nc-sa 4.0]: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+[git lfs]: https://git-lfs.com/
 [pre-commit hook]: https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml
 [`git blame`]: https://git-scm.com/docs/git-blame
 [`git log`]: https://git-scm.com/docs/git-log
