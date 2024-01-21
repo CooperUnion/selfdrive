@@ -4,6 +4,7 @@
 
 ______________________________________________________________________
 
-[Contributing](contributing.md)
+# About
 
-[Contributors](contributors.md)
+- [Contributing](contributing.md)
+- [Contributors](contributors.md)
