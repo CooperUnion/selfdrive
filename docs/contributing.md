@@ -144,9 +144,17 @@ matches what you're looking to write, take your own stab at it. The nice
 part of having PRs is that the Lab can give you feedback on your work so
 that we can all converge on an ideal solution.
 
+## Remember to Credit Yourself
+
+Most important of all, don't forget to credit yourself! No matter how
+small your contribution, make sure to add your name, in alphabetical
+order, to [the list of contributors]! At the end of the day, it's people
+like you that make this resource a possibility!
+
 [cc by-nc-sa 4.0]: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 [git lfs]: https://git-lfs.com/
 [pre-commit hook]: https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml
+[the list of contributors]: contributors.md
 [`git blame`]: https://git-scm.com/docs/git-blame
 [`git log`]: https://git-scm.com/docs/git-log
 [`mdbook`]: https://rust-lang.github.io/mdBook/
