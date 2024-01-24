@@ -91,7 +91,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Overview</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><a href="contributors.html">Contributors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Overview</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">About</li><li class="chapter-item expanded "><a href="contributing.html">Contributing</a></li><li class="chapter-item expanded "><a href="contributors.html">Contributors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -182,6 +182,127 @@
 Cooper Union for the Advancement of Science and Art!</p>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
 <p>Autonomy Lab's documentation is distributed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">CC BY-NC-SA 4.0</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
+<p>Thank you for taking time out of your day to contribute! We're excited
+to have you contribute to our documentation, but before you do, let's go
+over how best to contribute.</p>
+<h2 id="before-you-start"><a class="header" href="#before-you-start">Before You Start</a></h2>
+<p>Before you get to writing anything, ask yourself a few questions:</p>
+<ul>
+<li>Can existing documentation be improved?</li>
+<li>If the existing documentation is insufficient, can it be expanded?</li>
+<li>Have you generalized to a reasonable degree?</li>
+<li>Is what you're about to write correct to the best of your knowledge?</li>
+</ul>
+<blockquote>
+<p><em>As an aside, no documentation is better than wrong documentation!</em></p>
+</blockquote>
+<h2 id="writing-style"><a class="header" href="#writing-style">Writing Style</a></h2>
+<p><em>Active voice over passive voice where possible.</em></p>
+<p>Passive voice is less concise than the active voice, making
+documentation difficult to read. More importantly, passive voice can
+hide the agent of a sentence, diminishing your contribution to the work
+you put so many hours into!</p>
+<p><em>Talk to the reader.</em></p>
+<p>Remember, we read documentation far more often than we write it. That
+said, write documentation that's easy to read; this means talking to the
+reader to engage them with the material. We've all read dry
+documentation before; let's avoid it here at Autonomy Lab.</p>
+<p><em>You're writing on behalf of Autonomy Lab.</em></p>
+<p>Since we're a lab, avoid the word I. Work done for the lab, although
+individual at times, can become collaborative in an instant. There's no
+need to worry about your contribution getting lost in the chaos as it'll
+always be traceable with <a href="https://git-scm.com/docs/git-blame"><code>git blame</code></a> and <a href="https://git-scm.com/docs/git-log"><code>git log</code></a>.</p>
+<p><em>Be professional, but don't be afraid to have some fun!</em></p>
+<p><a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> is a public repo: any contribution you make gets tied to
+your name forever on the internet, so be professional! That said, don't
+be afraid to have some fun! Humor is always welcome where appropriate to
+give our work some life!</p>
+<h2 id="formatting"><a class="header" href="#formatting">Formatting</a></h2>
+<p>We use <a href="https://rust-lang.github.io/mdBook/"><code>mdbook</code></a> to render our documentation. If this is your first
+time using <a href="https://rust-lang.github.io/mdBook/"><code>mdbook</code></a>, please read over its documentation to get a feel
+for how to navigate it.</p>
+<p>We've also decided to normalize our markdown using <a href="https://github.com/executablebooks/mdformat"><code>mdformat</code></a>. If your
+markdown isn't normalized, it will trigger our <a href="https://github.com/CooperUnion/selfdrive/blob/dev/.pre-commit-config.yaml">pre-commit hook</a>. To
+normalize a markdown file, it suffices to run the following in the root
+of <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>:</p>
+<pre><code>$ mdformat path/to/file.md
+</code></pre>
+<p>Each markdown file should, at the very least, look like this:</p>
+<pre><code class="language-md"># Title
+
+Introductory blurb...
+
+## First Topic
+
+...
+</code></pre>
+<h2 id="directory-structure"><a class="header" href="#directory-structure">Directory Structure</a></h2>
+<p>Our documentation has the following directory structure:</p>
+<pre><code>docs/
++-- components/
+|   +-- complicated-component/
+|   |   +-- README.md
+|   |   |
+|   |   +-- ...
+|   +-- component.md
+|
++-- concepts/
+|   +-- complicated-concept/
+|   |   +-- README.md
+|   |   |
+|   |   +-- ...
+|   +-- concept.md
+|
++-- projects/
+|   +-- project/
+|       +-- complicated-topic/
+|       |   +-- README.md
+|       |   |
+|       |   +-- ...
+|       +-- topic.d/
+|       |   +-- figure.png
+|       +-- topic.md
+|
++-- README.md
++-- SUMMARY.md
+|
++-- ...
+</code></pre>
+<p>Typically, a new addition to our documentation is a single markdown
+file. If we split the documentation into multiple files, we can
+represent it as a directory with a <code>README.md</code>, which serves as the
+introductory point.</p>
+<p>All file paths should be lowercase (except for <code>README.md</code>), and use
+dashes for spaces.</p>
+<p>If you need to include a file (i.e. a figure) but are only using a
+single markdown file, a folder with the same base name but suffix <code>.d</code>
+can be created (i.e. <code>topic.md -&gt; topic.d</code>). Otherwise, included files
+specific to the documentation should reside in the same folder.</p>
+<h2 id="figures"><a class="header" href="#figures">Figures</a></h2>
+<p>When creating figures, make them in such a manner that they're editable
+at a later time. The exception to this are images. When adding images,
+make sure they don't contain any personally identifiable EXIF data (i.e.
+the location of your house) before adding it to <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>!</p>
+<p>When adding figures <em><strong>not</strong></em> created by Autonomy Lab, they must be
+appropriately accredited. Only link to such figures, and do not add them
+to the <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> repo. External figures must also be compatible with
+the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">CC BY-NC-SA 4.0</a>.</p>
+<blockquote>
+<p>Additionally, if the figure you add is a binary file track it with
+<a href="https://git-lfs.com/">Git LFS</a>.</p>
+</blockquote>
+<h2 id="when-in-doubt-look-at-existing-work"><a class="header" href="#when-in-doubt-look-at-existing-work">When in Doubt, Look at Existing Work</a></h2>
+<p>Not sure how to do something? Check if there's already existing work
+that achieves a similar pattern. If you can't find anything that quite
+matches what you're looking to write, take your own stab at it. The nice
+part of having PRs is that the Lab can give you feedback on your work so
+that we can all converge on an ideal solution.</p>
+<h2 id="remember-to-credit-yourself"><a class="header" href="#remember-to-credit-yourself">Remember to Credit Yourself</a></h2>
+<p>Most important of all, don't forget to credit yourself! No matter how
+small your contribution, make sure to add your name, in alphabetical
+order, to <a href="contributors.html">the list of contributors</a>! At the end of the day, it's people
+like you that make this resource a possibility!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
 <p>Here is a list of the contributors who have helped in writing our
 documentation, huge shout-out to them!</p>
