@@ -4,4 +4,7 @@
 
 ______________________________________________________________________
 
-[Contributors](contributors.md)
+# About
+
+- [Contributing](contributing.md)
+- [Contributors](contributors.md)
