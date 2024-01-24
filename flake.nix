@@ -33,6 +33,7 @@
             pkgs.act
             pkgs.mdbook
             pkgs.nixpkgs-fmt
+            pkgs.zlib
             python
             rust
           ];
