@@ -9,11 +9,13 @@ EnsurePythonVersion(3, 11)
 
 
 # Basic setup ---------------------------------------------
-env = Environment(ENV=ENV)
-
-for var in ['PATH', 'TERM']:
-    if val := os.environ.get(var):
-        env['ENV'][var] = val
+env = Environment(
+    ENV={
+        **ENV,
+        'PATH': os.environ['PATH'],
+        'TERM': os.environ.get('TERM'),
+    }
+)
 
 env['REPO_ROOT'] = env.Dir('.')
 
