@@ -1,11 +1,11 @@
-EnsureSConsVersion(4, 5, 2)
-EnsurePythonVersion(3, 11)
-
+# ruff: noqa: F821
 
 import os
 
-
 from env import ENV
+
+EnsureSConsVersion(4, 5, 2)
+EnsurePythonVersion(3, 11)
 
 
 # Basic setup ---------------------------------------------
@@ -24,20 +24,18 @@ Decider('content-timestamp')
 # Global help adder function ------------------------------
 help_list = []
 
+
 def AddHelp(cmd, text):
     global help_list
     help_list.append((cmd, text))
+
 
 env['AddHelp'] = AddHelp
 # ---------------------------------------------------------
 
 
 # Cleaning targets ----------------------------------------
-[rm_build] = env.Command(
-    'phony-rm-build',
-    [],
-    'rm -rf build/'
-)
+[rm_build] = env.Command('phony-rm-build', [], 'rm -rf build/')
 
 env.Alias('clean', rm_build)
 AddHelp('clean', 'Clean (remove) build/ directory')
@@ -49,27 +47,34 @@ Default(None)
 Export('env')
 
 # Dependencies first
-env.SConscript('can/SConscript',          variant_dir='build/can',          duplicate=0)
-env.SConscript('dbw/ember_bl/SConscript', variant_dir='build/dbw/ember_bl', duplicate=0)
-env.SConscript('dbw/node_fw/SConscript',  variant_dir='build/dbw/node_fw',  duplicate=0)
+env.SConscript('can/SConscript.py', variant_dir='build/can', duplicate=0)
+env.SConscript(
+    'dbw/ember_bl/SConscript.py', variant_dir='build/dbw/ember_bl', duplicate=0
+)
+env.SConscript(
+    'dbw/node_fw/SConscript.py', variant_dir='build/dbw/node_fw', duplicate=0
+)
 # ---------------------------------------------------------
 
 # Populate Help -------------------------------------------
 # scons provides Help for you to call to provide the text given by `scons -h`.
 # you can call Help more than once and it will append.
-Help('''
+Help(
+    '''
      So you want to build a car?
 
      You can specify targets after `scons`, like:
 
-''')
+'''
+)
 
 help_list.sort()
 
-for (cmd, text) in help_list:
+for cmd, text in help_list:
     Help(f"     `scons {cmd + '`' : <30} {text : <60}\n")
 
-Help(f'''
+Help(
+    '''
 
      Note: try these helpful aliases (if you have `direnv`):
 
@@ -78,10 +83,12 @@ Help(f'''
                 recommended way to use PlatformIO. For example:
 
                     $ fwpio run -e blink1.1
-''')
+'''
+)
 # ---------------------------------------------------------
 
 if not COMMAND_LINE_TARGETS:
     from SCons.Script import help_text
+
     print(help_text)
     exit(0)
