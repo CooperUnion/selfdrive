@@ -16,7 +16,13 @@ PATHS: typing.Final[dict[str, str]] = {
 }
 
 
+FLAGS: typing.Final[dict[str, str]] = {
+    'SCONSFLAGS': f'--directory={PATHS["REPO_ROOT"]}',
+}
+
+
 ENV: typing.Final[dict[str, str]] = {
+    **FLAGS,
     **PATHS,
 }
 
