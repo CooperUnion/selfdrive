@@ -132,6 +132,13 @@ tools that can help!
 - [`fzf`]: a command-line fuzzy finder
 - [`rg`]: ripgrep recursively searches directories for a regex pattern
 
+## So What's Next?
+
+Now that you have a general idea of how [`selfdrive`] works, it's time
+to move on to group-specific getting started guides. Feel free to move
+along to these without finishing all of the suggested [missing semester]
+lectures; however, understand they do nothing but benefit you!
+
 [command-line environment]: https://missing.csail.mit.edu/2020/command-line/
 [contributing guidelines]: contributing.md#directory-structure
 [course overview + the shell]: https://missing.csail.mit.edu/2020/course-shell/
@@ -140,6 +147,7 @@ tools that can help!
 [direnv]: https://direnv.net/
 [editors (vim)]: https://missing.csail.mit.edu/2020/editors/
 [metaprogramming]: https://missing.csail.mit.edu/2020/metaprogramming/
+[missing semester]: https://missing.csail.mit.edu/
 [mit's missing semester]: https://missing.csail.mit.edu/
 [nix package manager]: https://nixos.org/
 [opencan]: https://github.com/opencan
