@@ -44,7 +44,96 @@ effort to make getting your machine ready as painless as possible with
 the [Nix package manager] and [direnv]. You can find cloning
 instructions and system setup information on the repo's [`README.md`].
 
+## Repo Layout
+
+> Currently, [`selfdrive`] does not respect this structure. We're in the
+> process of migrating over to this layout. Sorry for the time being.
+
+```
+selfdrive/
++-- docs/
+|
++-- components/
+|   +-- component/
+|   |   +-- docs/
+|   |   +-- src/
+|   |   +-- component.yml
+|   |
+|   +-- ...
+|
++-- lib/
+|
++-- projects/
+|   +-- project/
+|   |   +-- docs/
+|   |   +-- project.yml
+|   |
+|   +-- ...
+|
++-- can.yml
+|
++-- ...
+```
+
+There's quite a bit to unpack here, so let's get to it!
+
+### [`components/`]
+
+The [`components/`] directory contains components that serve as the
+building blocks of a project.
+
+Each component has a `docs/` directory that contains symlinks to
+relevant documentation. These symlinks need to stay up to date as they
+will automatically get triggered for manual review on pull requests to
+ensure that documentation stays up to date. Having these symlinks also
+ensures that anyone who wishes to get up to speed on a component has a
+quick list of relevant documentation to read.
+
+The `src` directory contains the source files. The contents and layout
+of this directory highly depend on the component language(s) and use
+case. It is best to see existing components to get a feel for it.
+
+Finally, `component.yml` contains metadata related to the component.
+
+### [`docs/`]
+
+The [contributing guidelines] cover the structure for documentation. You
+may notice that it closely follows the structure of [`selfdrive`]
+itself.
+
+### [`lib/`]
+
+The [`lib/`] directory contains shared libraries used in components.
+Since these are generalized pieces of software, the contents of each
+directory can wildly vary. Feel free to explore these directories if
+you're curious.
+
+### [`projects/`]
+
+The [`projects/`] directory contains projects that are composed of
+various components. Like a component, each project has a `docs/`
+directory with symlinks to relevant documentation and a `project.yml`
+with related metadata.
+
+### [`can.yml`]
+
+[`can.yml`] describes the CAN networks of our projects. Here, you'll
+find definitions for networks, messages, and signals for [OpenCAN] to
+process.
+
+### What About Everything Else?
+
+It'd be impractical to cover every last file and directory in
+[`selfdrive`]. Unfortunately, there's no shortcut to knowing where you
+can find everything or how various bits of code interact, but there are
+tools that can help!
+
+- [`fd`]: a simple, fast and user-friendly alternative to `find`
+- [`fzf`]: a command-line fuzzy finder
+- [`rg`]: ripgrep recursively searches directories for a regex pattern
+
 [command-line environment]: https://missing.csail.mit.edu/2020/command-line/
+[contributing guidelines]: contributing.md#directory-structure
 [course overview + the shell]: https://missing.csail.mit.edu/2020/course-shell/
 [data wrangling]: https://missing.csail.mit.edu/2020/data-wrangling/
 [debugging and profiling]: https://missing.csail.mit.edu/2020/debugging-profiling/
@@ -53,10 +142,19 @@ instructions and system setup information on the repo's [`README.md`].
 [metaprogramming]: https://missing.csail.mit.edu/2020/metaprogramming/
 [mit's missing semester]: https://missing.csail.mit.edu/
 [nix package manager]: https://nixos.org/
+[opencan]: https://github.com/opencan
 [potpourri]: https://missing.csail.mit.edu/2020/potpourri/
 [q&a]: https://missing.csail.mit.edu/2020/qa/
 [security and cryptography]: https://missing.csail.mit.edu/2020/security/
 [shell tools and scripting]: https://missing.csail.mit.edu/2020/shell-tools/
 [version control (git)]: https://missing.csail.mit.edu/2020/version-control/
+[`can.yml`]: https://github.com/CooperUnion/selfdrive/blob/dev/can.yml
+[`components/`]: https://github.com/CooperUnion/selfdrive/tree/dev/components
+[`docs/`]: https://github.com/CooperUnion/selfdrive/tree/dev/docs
+[`fd`]: https://github.com/sharkdp/fd
+[`fzf`]: https://github.com/junegunn/fzf
+[`lib/`]: https://github.com/CooperUnion/selfdrive/tree/dev/lib
+[`projects/`]: https://github.com/CooperUnion/selfdrive/tree/dev/projects
 [`readme.md`]: https://github.com/CooperUnion/selfdrive/blob/dev/README.md
+[`rg`]: https://github.com/BurntSushi/ripgrep
 [`selfdrive`]: https://github.com/CooperUnion/selfdrive
