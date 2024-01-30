@@ -36,16 +36,27 @@ exercises for [Course overview + the shell] and [Version Control (Git)],
 as these lectures provide you the fundamentals to hit the ground
 running.
 
+## System Configuration
+
+Since [`selfdrive`] consists of software written in different
+programming languages with a wide variety of dependencies, we've made an
+effort to make getting your machine ready as painless as possible with
+the [Nix package manager] and [direnv]. You can find cloning
+instructions and system setup information on the repo's [`README.md`].
+
 [command-line environment]: https://missing.csail.mit.edu/2020/command-line/
 [course overview + the shell]: https://missing.csail.mit.edu/2020/course-shell/
 [data wrangling]: https://missing.csail.mit.edu/2020/data-wrangling/
 [debugging and profiling]: https://missing.csail.mit.edu/2020/debugging-profiling/
+[direnv]: https://direnv.net/
 [editors (vim)]: https://missing.csail.mit.edu/2020/editors/
 [metaprogramming]: https://missing.csail.mit.edu/2020/metaprogramming/
 [mit's missing semester]: https://missing.csail.mit.edu/
+[nix package manager]: https://nixos.org/
 [potpourri]: https://missing.csail.mit.edu/2020/potpourri/
 [q&a]: https://missing.csail.mit.edu/2020/qa/
 [security and cryptography]: https://missing.csail.mit.edu/2020/security/
 [shell tools and scripting]: https://missing.csail.mit.edu/2020/shell-tools/
 [version control (git)]: https://missing.csail.mit.edu/2020/version-control/
+[`readme.md`]: https://github.com/CooperUnion/selfdrive/blob/dev/README.md
 [`selfdrive`]: https://github.com/CooperUnion/selfdrive
