@@ -82,7 +82,7 @@ There's quite a bit to unpack here, so let's get to it!
 The [`components/`] directory contains components that serve as the
 building blocks of a project.
 
-Each component has a `docs/` directory that contains symlinks to
+Each component has a `docs/` directory that contains [symlinks] to
 relevant documentation. These symlinks need to stay up to date as they
 will automatically get triggered for manual review on pull requests to
 ensure that documentation stays up to date. Having these symlinks also
@@ -155,6 +155,7 @@ lectures; however, understand they do nothing but benefit you!
 [q&a]: https://missing.csail.mit.edu/2020/qa/
 [security and cryptography]: https://missing.csail.mit.edu/2020/security/
 [shell tools and scripting]: https://missing.csail.mit.edu/2020/shell-tools/
+[symlinks]: https://en.wikipedia.org/wiki/Symbolic_link
 [version control (git)]: https://missing.csail.mit.edu/2020/version-control/
 [`can.yml`]: https://github.com/CooperUnion/selfdrive/blob/dev/can.yml
 [`components/`]: https://github.com/CooperUnion/selfdrive/tree/dev/components
