@@ -16,7 +16,11 @@ env = Environment(
         **ENV,
         'PATH': os.environ['PATH'],
         'TERM': os.environ.get('TERM'),
-    }
+    },
+    tools=[
+        'default',
+        'Phony',
+    ],
 )
 
 Export('env')
