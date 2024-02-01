@@ -7,6 +7,10 @@
 #include <esp_adc/adc_continuous.h>
 #include <hal/adc_types.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
+
 #include "cuber_base.h"
 #include "ember_common.h"
 #include "ember_taskglue.h"
@@ -27,7 +31,19 @@
 
 #define CMD2DUTY(cmd) ((cmd) * ((1 << PWM_RESOLUTION) - 1))
 
+#define TASK_STACK_SIZE 8192
+
 #define SAMPLING_RATE 20000
+#define SAMPLE_DUMP_TIME 2 // (SECONDS)
+#define SAMPLE_DUMP_SIZE (SAMPLING_RATE * SAMPLE_DUMP_TIME)
+
+#define PREV_SAMPLE_DELAY 0.010 // (SECONDS)
+#define PREV_SAMPLE_SIZE (size_t) (PREV_SAMPLE_DELAY * SAMPLING_RATE)
+
+
+#define FRAME_SAMPLES 20
+#define FRAME_SIZE (sizeof(adc_digi_output_data_t) * FRAME_SAMPLES)
+#define POOL_SIZE (FRAME_SIZE * 2)
 
 // ######      PROTOTYPES       ###### //
 static void adc_calibration();
@@ -35,6 +51,8 @@ static void adc_calibration();
 static bool adc_callback(adc_continuous_handle_t handle,
                          const adc_continuous_evt_data_t *cbs,
                          void * user_data);
+static void adc_task();
+static void dump_samples();
 
 // ######     PRIVATE DATA      ###### //
 typedef struct adc {
@@ -63,6 +81,13 @@ static adc_t adc = {
     .cali_handle = NULL,
     .cont_handle = NULL,
 };
+
+static SemaphoreHandle_t adc_sem = NULL;
+
+static uint16_t dump_buf[SAMPLE_DUMP_SIZE];
+static size_t readIndex;
+static size_t writeIndex;
+
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -114,6 +139,9 @@ static void brake_100Hz()
 
 // ######   PRIVATE FUNCTIONS   ###### //
 static void adc_calibration() {
+        adc_sem = xSemaphoreCreateBinary();
+        static TaskHandle_t adc_task_handle;
+        xTaskCreatePinnedToCore(adc_task, "adc_task", TASK_STACK_SIZE, 0, configMAX_PRIORITIES - 1, &adc_task_handle, 1);
         // Setup the calibration driver
         adc_cali_curve_fitting_config_t adc_cali_cfg = {
             .unit_id  = ADC_UNIT_1,     // Using ADC 1
@@ -124,14 +152,14 @@ static void adc_calibration() {
 
         // Setup the continous driver
         adc_continuous_handle_cfg_t adc_cont_handle_cfg = {
-            .max_store_buf_size = 1024, // size of conversion result
-            .conv_frame_size    = SOC_ADC_DIGI_DATA_BYTES_PER_CONV * 4, // Conversion frames are 16 bytes
+            .max_store_buf_size = POOL_SIZE, //Pool size is 2 frames
+            .conv_frame_size    = FRAME_SIZE,
         };
         ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cont_handle_cfg, &adc.cont_handle));
 
         adc_digi_pattern_config_t adc_digi_cfg = {
             .atten     = ADC_ATTEN_DB_0,
-            .bit_width = ADC_BITWIDTH_9,
+            .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
             .channel   = ADC_CHANNEL_7,
             .unit      = ADC_UNIT_1,
         };
@@ -155,12 +183,57 @@ static void adc_calibration() {
         ESP_ERROR_CHECK(adc_continuous_start(adc.cont_handle));
 }
 
-static bool adc_callback(adc_continuous_handle_t handle,
+static bool IRAM_ATTR adc_callback(adc_continuous_handle_t handle,
                          const adc_continuous_evt_data_t *cbs,
-                         void * user_data) {
-    return false;
+                         void *user_data) {
+    xSemaphoreGiveFromISR(adc_sem, NULL);
+    return true;
 }
 
+static IRAM_ATTR void adc_task()
+{
+loop:
+    if (xSemaphoreTake(adc_sem, portMAX_DELAY) != pdTRUE)
+        goto loop;
+
+    static uint8_t frame_buf[FRAME_SIZE];
+    static uint32_t out_length;
+
+    if (adc_continuous_read(adc.cont_handle, frame_buf, FRAME_SIZE, &out_length, 0) != ESP_OK)
+        goto loop;
+
+    if (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE)
+    {
+        vTaskDelay(1);
+        readIndex = (writeIndex - PREV_SAMPLE_SIZE) % SAMPLE_DUMP_SIZE;
+    }
+    adc_digi_output_data_t *samples = (adc_digi_output_data_t*) frame_buf;
+    size_t sample_count = out_length / sizeof(adc_digi_output_data_t);
+
+    for (size_t i = 0; i < sample_count; i++)
+    {
+        if (writeIndex == readIndex)
+        {
+            dump_samples();
+        }
+        uint16_t data = samples[i].type2.data;
+        dump_buf[writeIndex] = data;
+        writeIndex = (writeIndex + 1) % SAMPLE_DUMP_SIZE;
+    }
+
+    goto loop;
+}
+
+static void dump_samples()
+{
+    for (size_t i = 0; i < SAMPLE_DUMP_SIZE; i++)
+    {
+        printf("Sample: %zu, Value: %d\n", i, dump_buf[readIndex]);
+        readIndex = (readIndex + 1) % SAMPLE_DUMP_SIZE;
+    }
+
+    while(1);
+}
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
