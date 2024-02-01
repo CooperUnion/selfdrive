@@ -77,10 +77,14 @@ static ledc_channel_config_t pwm_channel = {
     .duty       = PWM_INIT_DUTY_CYCLE,
 };
 
+/*
 static adc_t adc = {
     .cali_handle = NULL,
     .cont_handle = NULL,
 };
+*/
+
+adc_continuous_handle_t handle = NULL;
 
 static SemaphoreHandle_t adc_sem = NULL;
 
@@ -101,6 +105,7 @@ ember_rate_funcs_S module_rf = {
 
 static void brake_init()
 {
+    printf("Brake Init\n");
     ledc_timer_config(&pwm_timer);
     ledc_channel_config(&pwm_channel);
     adc_calibration();
@@ -139,48 +144,39 @@ static void brake_100Hz()
 
 // ######   PRIVATE FUNCTIONS   ###### //
 static void adc_calibration() {
-        adc_sem = xSemaphoreCreateBinary();
+        adc_sem = xSemaphoreCreateCounting(32, 0);
         static TaskHandle_t adc_task_handle;
-        xTaskCreatePinnedToCore(adc_task, "adc_task", TASK_STACK_SIZE, 0, configMAX_PRIORITIES - 1, &adc_task_handle, 1);
-        // Setup the calibration driver
-        adc_cali_curve_fitting_config_t adc_cali_cfg = {
-            .unit_id  = ADC_UNIT_1,     // Using ADC 1
-            .atten    = ADC_ATTEN_DB_0, // Not sure which value to pick here
-            .bitwidth = ADC_BITWIDTH_9, // Smallest option (trying to fit a lot of data)
-        };
-        ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&adc_cali_cfg, &adc.cali_handle));
+        xTaskCreatePinnedToCore(adc_task, "adc_task", TASK_STACK_SIZE, 0, 1, &adc_task_handle, 1);
 
-        // Setup the continous driver
-        adc_continuous_handle_cfg_t adc_cont_handle_cfg = {
+
+        adc_continuous_handle_cfg_t adc_cont_config = {
             .max_store_buf_size = POOL_SIZE, //Pool size is 2 frames
             .conv_frame_size    = FRAME_SIZE,
         };
-        ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cont_handle_cfg, &adc.cont_handle));
+        ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cont_config, &handle));
 
-        adc_digi_pattern_config_t adc_digi_cfg = {
+        adc_digi_pattern_config_t adc_pattern = {
             .atten     = ADC_ATTEN_DB_0,
             .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-            .channel   = ADC_CHANNEL_7,
+            .channel   = ADC_CHANNEL_7, // GPIO 8
             .unit      = ADC_UNIT_1,
         };
 
-        adc_continuous_config_t adc_cont_cfg = {
-            .pattern_num    = 1, // One channel
-            .adc_pattern    = &adc_digi_cfg, // Pass in pre-configured digi config
-            .sample_freq_hz = SAMPLING_RATE, // 20kHz
-            .conv_mode      = ADC_CONV_SINGLE_UNIT_1, // Only use ADC 1
+        adc_continuous_config_t dig_cfg = {
+            .sample_freq_hz = SAMPLING_RATE,
+            .conv_mode      = ADC_CONV_SINGLE_UNIT_1,
             .format         = ADC_DIGI_OUTPUT_FORMAT_TYPE2, // Only type 2 works on ESP32S3
+            .pattern_num    = 1,
+            .adc_pattern    = &adc_pattern,
         };
-        ESP_ERROR_CHECK(adc_continuous_config(adc.cont_handle, &adc_cont_cfg));
-        // From here on, the ADC should be appropriately configured
-        // This is where you would setup the callback feature
+        ESP_ERROR_CHECK(adc_continuous_config(handle, &dig_cfg));
 
         adc_continuous_evt_cbs_t adc_evt_cbs = {
             .on_conv_done = adc_callback,
         };
-        ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(adc.cont_handle, &adc_evt_cbs, NULL));
+        ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(handle, &adc_evt_cbs, NULL));
 
-        ESP_ERROR_CHECK(adc_continuous_start(adc.cont_handle));
+        ESP_ERROR_CHECK(adc_continuous_start(handle));
 }
 
 static bool IRAM_ATTR adc_callback(adc_continuous_handle_t handle,
@@ -199,12 +195,11 @@ loop:
     static uint8_t frame_buf[FRAME_SIZE];
     static uint32_t out_length;
 
-    if (adc_continuous_read(adc.cont_handle, frame_buf, FRAME_SIZE, &out_length, 0) != ESP_OK)
+    if (adc_continuous_read(handle, frame_buf, FRAME_SIZE, &out_length, 0) != ESP_OK)
         goto loop;
 
     if (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE)
     {
-        vTaskDelay(1);
         readIndex = (writeIndex - PREV_SAMPLE_SIZE) % SAMPLE_DUMP_SIZE;
     }
     adc_digi_output_data_t *samples = (adc_digi_output_data_t*) frame_buf;
@@ -228,7 +223,7 @@ static void dump_samples()
 {
     for (size_t i = 0; i < SAMPLE_DUMP_SIZE; i++)
     {
-        printf("Sample: %zu, Value: %d\n", i, dump_buf[readIndex]);
+        printf("Sample: %ul, Value: %d\n", i, dump_buf[readIndex]);
         readIndex = (readIndex + 1) % SAMPLE_DUMP_SIZE;
     }
 
