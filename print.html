@@ -91,7 +91,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Overview</a></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">About</li><li class="chapter-item expanded "><a href="contributing.html">Contributing</a></li><li class="chapter-item expanded "><a href="contributors.html">Contributors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item affix "><a href="index.html">Overview</a></li><li class="spacer"></li><li class="chapter-item "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">About</li><li class="chapter-item "><a href="contributing.html">Contributing</a></li><li class="chapter-item "><a href="contributors.html">Contributors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -182,6 +182,121 @@
 Cooper Union for the Advancement of Science and Art!</p>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
 <p>Autonomy Lab's documentation is distributed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">CC BY-NC-SA 4.0</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p><a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> is a rather <em>complicated</em> repo.</p>
+<p>If you've never worked on a project of this scale, it can be daunting to
+know where to start. The goal of this guide is to give you enough of a
+foothold to start asking the right questions and to begin your adventure
+here at Autonomy Lab.</p>
+<h2 id="fundamentals"><a class="header" href="#fundamentals">Fundamentals</a></h2>
+<p>Before we even get to cloning <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>, you need to have the basic
+mechanical skills required to traverse a shell. <a href="https://missing.csail.mit.edu/">MIT's Missing Semester</a>
+serves as a great starting point for just this. The following table
+lists the lectures you should watch if you plan to work on a specific
+Autonomy Lab group:</p>
+<div class="table-wrapper"><table><thead><tr><th>Lecture</th><th>Hardware</th><th>Firmware</th><th>Algorithms</th></tr></thead><tbody>
+<tr><td><a href="https://missing.csail.mit.edu/2020/course-shell/">Course overview + the shell</a></td><td>✓*</td><td>✓*</td><td>✓*</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/shell-tools/">Shell Tools and Scripting</a></td><td>✓</td><td>✓*</td><td>✓*</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/editors/">Editors (Vim)</a></td><td></td><td></td><td></td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/data-wrangling/">Data Wrangling</a></td><td></td><td>✓</td><td>✓*</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/command-line/">Command-line Environment</a></td><td>✓</td><td>✓*</td><td>✓*</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/version-control/">Version Control (Git)</a></td><td>✓*</td><td>✓*</td><td>✓*</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/debugging-profiling/">Debugging and Profiling</a></td><td></td><td>✓</td><td>✓</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/metaprogramming/">Metaprogramming</a></td><td></td><td>✓</td><td>✓</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/security/">Security and Cryptography</a></td><td></td><td></td><td></td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/potpourri/">Potpourri</a></td><td></td><td>✓</td><td>✓</td></tr>
+<tr><td><a href="https://missing.csail.mit.edu/2020/qa/">Q&amp;A</a></td><td></td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><em>Note: an <code>*</code> denotes you should also do the associated exercises.</em></p>
+</blockquote>
+<p>At a minimum, to clone <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>, you should watch and do the
+exercises for <a href="https://missing.csail.mit.edu/2020/course-shell/">Course overview + the shell</a> and <a href="https://missing.csail.mit.edu/2020/version-control/">Version Control (Git)</a>,
+as these lectures provide you the fundamentals to hit the ground
+running.</p>
+<h2 id="system-configuration"><a class="header" href="#system-configuration">System Configuration</a></h2>
+<p>Since <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> consists of software written in different
+programming languages with a wide variety of dependencies, we've made an
+effort to make getting your machine ready as painless as possible with
+the <a href="https://nixos.org/">Nix package manager</a> and <a href="https://direnv.net/">direnv</a>. You can find cloning
+instructions and system setup information on the repo's <a href="https://github.com/CooperUnion/selfdrive/blob/dev/README.md"><code>README.md</code></a>.</p>
+<h2 id="repo-layout"><a class="header" href="#repo-layout">Repo Layout</a></h2>
+<blockquote>
+<p>Currently, <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> does not respect this structure. We're in the
+process of migrating over to this layout. Sorry for the time being.</p>
+</blockquote>
+<pre><code>selfdrive/
++-- docs/
+|
++-- components/
+|   +-- component/
+|   |   +-- docs/
+|   |   +-- src/
+|   |   +-- component.yml
+|   |
+|   +-- ...
+|
++-- lib/
+|
++-- projects/
+|   +-- project/
+|   |   +-- docs/
+|   |   +-- project.yml
+|   |
+|   +-- ...
+|
++-- can.yml
+|
++-- ...
+</code></pre>
+<p>There's quite a bit to unpack here, so let's get to it!</p>
+<h3 id="components"><a class="header" href="#components"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/components"><code>components/</code></a></a></h3>
+<p>The <a href="https://github.com/CooperUnion/selfdrive/tree/dev/components"><code>components/</code></a> directory contains components that serve as the
+building blocks of a project.</p>
+<p>Each component has a <code>docs/</code> directory that contains <a href="https://en.wikipedia.org/wiki/Symbolic_link">symlinks</a> to
+relevant documentation. These symlinks need to stay up to date as they
+will automatically get triggered for manual review on pull requests to
+ensure that documentation stays up to date. Having these symlinks also
+ensures that anyone who wishes to get up to speed on a component has a
+quick list of relevant documentation to read.</p>
+<p>The <code>src</code> directory contains the source files. The contents and layout
+of this directory highly depend on the component language(s) and use
+case. It is best to see existing components to get a feel for it.</p>
+<p>Finally, <code>component.yml</code> contains metadata related to the component.</p>
+<h3 id="docs"><a class="header" href="#docs"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/docs"><code>docs/</code></a></a></h3>
+<p>The <a href="contributing.html#directory-structure">contributing guidelines</a> cover the structure for documentation. You
+may notice that it closely follows the structure of <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>
+itself.</p>
+<h3 id="lib"><a class="header" href="#lib"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/lib"><code>lib/</code></a></a></h3>
+<p>The <a href="https://github.com/CooperUnion/selfdrive/tree/dev/lib"><code>lib/</code></a> directory contains shared libraries used in components.
+Since these are generalized pieces of software, the contents of each
+directory can wildly vary. Feel free to explore these directories if
+you're curious.</p>
+<h3 id="projects"><a class="header" href="#projects"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/projects"><code>projects/</code></a></a></h3>
+<p>The <a href="https://github.com/CooperUnion/selfdrive/tree/dev/projects"><code>projects/</code></a> directory contains projects that are composed of
+various components. Like a component, each project has a <code>docs/</code>
+directory with symlinks to relevant documentation and a <code>project.yml</code>
+with related metadata.</p>
+<h3 id="canyml"><a class="header" href="#canyml"><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a></a></h3>
+<p><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a> describes the CAN networks of our projects. Here, you'll
+find definitions for networks, messages, and signals for <a href="https://github.com/opencan">OpenCAN</a> to
+process.</p>
+<h3 id="what-about-everything-else"><a class="header" href="#what-about-everything-else">What About Everything Else?</a></h3>
+<p>It'd be impractical to cover every last file and directory in
+<a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>. Unfortunately, there's no shortcut to knowing where you
+can find everything or how various bits of code interact, but there are
+tools that can help!</p>
+<ul>
+<li><a href="https://github.com/sharkdp/fd"><code>fd</code></a>: a simple, fast and user-friendly alternative to <code>find</code></li>
+<li><a href="https://github.com/junegunn/fzf"><code>fzf</code></a>: a command-line fuzzy finder</li>
+<li><a href="https://github.com/BurntSushi/ripgrep"><code>rg</code></a>: ripgrep recursively searches directories for a regex pattern</li>
+</ul>
+<h2 id="so-whats-next"><a class="header" href="#so-whats-next">So What's Next?</a></h2>
+<p>Now that you have a general idea of how <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a> works, it's time
+to move on to group-specific getting started guides. Feel free to move
+along to these without finishing all of the suggested <a href="https://missing.csail.mit.edu/">missing semester</a>
+lectures; however, understand they do nothing but benefit you!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
 <p>Thank you for taking time out of your day to contribute! We're excited
 to have you contribute to our documentation, but before you do, let's go
