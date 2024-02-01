@@ -1,29 +1,20 @@
 # ruff: noqa: F821
 
+import os
+
+
 Import('env')
 
-flags_opt = AddOption(
-    '--pioflags',
-    dest='pioflags',
-    type='string',
-    action='store',
-    metavar='-e blink1.1',
-    help='PlatformIO environment',
+
+platformio_ini = env.File('platformio.ini')
+
+node_fw = env.Command(
+    '.node_fw',
+    platformio_ini,
+    'platformio run --project-dir ' + os.path.dirname(str(platformio_ini)),
 )
-env['AddHelp'](
-    "node_fw --pioflags=FLAGS",
-    'Run pio for node_fw with FLAGS, e.g. `scons node_fw --pioflags="run -e blink1.1"`',
-)
+env.AlwaysBuild(node_fw)
+env.Alias('node_fw', node_fw)
 
-pioflags = GetOption('pioflags')
-command = None
-if pioflags is None:
-    command = 'pio run -d dbw/node_fw'
-else:
-    command = f'pio {pioflags} -d dbw/node_fw'
 
-[pio_builder] = env.Command(env.Dir('.'), [], command)
-env.AlwaysBuild(pio_builder)
-
-env.Alias('node_fw', pio_builder)
-env['AddHelp']('node_fw', 'Build dbw/node_fw')
+Return('node_fw')

@@ -2,25 +2,22 @@
 
 Import('env')
 
-# Make DBC ------------------------------------------------
-GENERATED_DBC = env.File('igvc_can.dbc')
-CAN_YML = env.File('can.yml')
-DBC_EMITTER = env.File('create-dbc.py')
 
-# Make emitter script
-env.Command(
-    DBC_EMITTER,
-    CAN_YML,
-    f'opencan-cli compose {CAN_YML} --dump-python > $TARGET',
+dbc = env.File('can.dbc')
+network = env.File('can.yml')
+
+dbc_emmitter = env.Command(
+    'create-dbc.py',
+    network,
+    [
+        'opencan-cli compose $SOURCE --dump-python > $TARGET',
+        # what a crime
+        f'sed -i -e s%opencan\\.dbc%{dbc.path}%g $TARGET',
+    ],
 )
 
-# Make DBC by running emitter script
-[dbc_builder] = env.Command(
-    GENERATED_DBC,
-    DBC_EMITTER,
-    [f'python3 {DBC_EMITTER.path}', Move("$TARGET", "opencan.dbc")],
-)
+dbc = env.Command('can.dbc', dbc_emmitter, 'python $SOURCE')
+env.Alias('dbc', dbc)
 
-env.Alias('dbc', dbc_builder)
-env['AddHelp']('dbc', 'Build igvc_can.dbc')
-# ---------------------------------------------------------
+
+Return('dbc')

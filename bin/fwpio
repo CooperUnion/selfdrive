@@ -1,3 +1,5 @@
 #!/bin/sh
 
-exec scons --directory="$REPO_ROOT" -DQs node_fw "--pioflags=$*"
+cd "$REPO_ROOT/dbw/node_fw" || exit 1
+
+exec pio "$@"
