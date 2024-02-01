@@ -33,20 +33,18 @@
 
 #define TASK_STACK_SIZE 8192
 
-#define SAMPLING_RATE 20000
-#define SAMPLE_DUMP_TIME 2 // (SECONDS)
-#define SAMPLE_DUMP_SIZE (SAMPLING_RATE * SAMPLE_DUMP_TIME)
+#define SAMPLING_RATE 80000
+#define SAMPLE_DUMP_TIME 1.5 // (SECONDS)
+#define SAMPLE_DUMP_SIZE 120000
 
 #define PREV_SAMPLE_DELAY 0.010 // (SECONDS)
 #define PREV_SAMPLE_SIZE (size_t) (PREV_SAMPLE_DELAY * SAMPLING_RATE)
-
-
-#define FRAME_SAMPLES 20
+#define FRAME_SAMPLES 80
 #define FRAME_SIZE (sizeof(adc_digi_output_data_t) * FRAME_SAMPLES)
 #define POOL_SIZE (FRAME_SIZE * 2)
 
 // ######      PROTOTYPES       ###### //
-static void adc_calibration();
+static void adc_init();
 
 static bool adc_callback(adc_continuous_handle_t handle,
                          const adc_continuous_evt_data_t *cbs,
@@ -55,11 +53,6 @@ static void adc_task();
 static void dump_samples();
 
 // ######     PRIVATE DATA      ###### //
-typedef struct adc {
-    adc_cali_handle_t       cali_handle;
-    adc_continuous_handle_t cont_handle;
-} adc_t;
-
 
 static ledc_timer_config_t pwm_timer = {
     .speed_mode      = LEDC_LOW_SPEED_MODE,
@@ -76,13 +69,6 @@ static ledc_channel_config_t pwm_channel = {
     .timer_sel  = LEDC_TIMER_0,
     .duty       = PWM_INIT_DUTY_CYCLE,
 };
-
-/*
-static adc_t adc = {
-    .cali_handle = NULL,
-    .cont_handle = NULL,
-};
-*/
 
 adc_continuous_handle_t handle = NULL;
 
@@ -108,7 +94,7 @@ static void brake_init()
     printf("Brake Init\n");
     ledc_timer_config(&pwm_timer);
     ledc_channel_config(&pwm_channel);
-    adc_calibration();
+    adc_init();
 }
 
 static void brake_100Hz()
@@ -143,7 +129,7 @@ static void brake_100Hz()
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
-static void adc_calibration() {
+static void adc_init() {
         adc_sem = xSemaphoreCreateCounting(32, 0);
         static TaskHandle_t adc_task_handle;
         xTaskCreatePinnedToCore(adc_task, "adc_task", TASK_STACK_SIZE, 0, 1, &adc_task_handle, 1);
@@ -156,7 +142,7 @@ static void adc_calibration() {
         ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cont_config, &handle));
 
         adc_digi_pattern_config_t adc_pattern = {
-            .atten     = ADC_ATTEN_DB_0,
+            .atten     = ADC_ATTEN_DB_11,
             .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
             .channel   = ADC_CHANNEL_7, // GPIO 8
             .unit      = ADC_UNIT_1,
@@ -221,13 +207,12 @@ loop:
 
 static void dump_samples()
 {
+    printf("-----------\n");
     for (size_t i = 0; i < SAMPLE_DUMP_SIZE; i++)
     {
-        printf("Sample: %ul, Value: %d\n", i, dump_buf[readIndex]);
+        printf("%u,%d\n",i,dump_buf[readIndex]);
         readIndex = (readIndex + 1) % SAMPLE_DUMP_SIZE;
     }
-
-    while(1);
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
