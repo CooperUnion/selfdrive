@@ -144,7 +144,8 @@ static void adc_init() {
         adc_digi_pattern_config_t adc_pattern = {
             .atten     = ADC_ATTEN_DB_11,
             .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-            .channel   = ADC_CHANNEL_7, // GPIO 8
+            //.channel   = ADC_CHANNEL_7, // GPIO 8
+            .channel   = ADC_CHANNEL_4, // GPIO 5
             .unit      = ADC_UNIT_1,
         };
 
