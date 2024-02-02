@@ -101,8 +101,7 @@ static void brake_100Hz()
 {
     static float32_t prv_cmd;
 
-    bool brake_authorized =
-        CANRX_is_message_SUP_Authorization_ok() &&
+    bool brake_authorized = CANRX_is_message_SUP_Authorization_ok() &&
         CANRX_get_SUP_brakeAuthorized() &&
         CANRX_is_message_CTRL_VelocityCommand_ok();
 
@@ -186,9 +185,11 @@ loop:
     if (adc_continuous_read(handle, frame_buf, FRAME_SIZE, &out_length, 0) != ESP_OK)
         goto loop;
 
-    if (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE)
+    static bool latch = 0;
+    if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
     {
         readIndex = (writeIndex - PREV_SAMPLE_SIZE) % SAMPLE_DUMP_SIZE;
+        latch = 1;
     }
     adc_digi_output_data_t *samples = (adc_digi_output_data_t*) frame_buf;
     size_t sample_count = out_length / sizeof(adc_digi_output_data_t);
@@ -198,6 +199,7 @@ loop:
         if (writeIndex == readIndex)
         {
             dump_samples();
+            readIndex = SIZE_MAX;
         }
         uint16_t data = samples[i].type2.data;
         dump_buf[writeIndex] = data;
