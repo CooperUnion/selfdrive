@@ -10,6 +10,8 @@ PATHS: typing.Final[dict[str, str]] = {
     key: os.path.abspath(value)
     for key, value in {
         'CARGO_HOME': '.cargo',
+        'IDF_PATH': 'lib/esp-idf',
+        'IDF_TOOLS_PATH': '.espressif',
         'REPO_ROOT': '.',
         'VIRTUAL_ENV': '.venv',
     }.items()
@@ -18,6 +20,7 @@ PATHS: typing.Final[dict[str, str]] = {
 
 ENV: typing.Final[dict[str, str]] = {
     **PATHS,
+    'IDF_TARGETS': 'esp32s3',
 }
 
 
