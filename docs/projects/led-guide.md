@@ -285,7 +285,6 @@ ember_rate_funcs_S module_rf = {
 
 static void led_init()
 {
-    gpio_pad_select_gpio(LED_GPIO);
     gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
 }
 
