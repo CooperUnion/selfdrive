@@ -10,3 +10,6 @@
 [submodule "dbw/ember_bl/lib/ember"]
 	path = dbw/ember_bl/lib/ember
 	url = git@github.com:cooperunion/ember.git
+[submodule "lib/esp-idf"]
+	path = lib/esp-idf
+	url = ../../espressif/esp-idf.git
