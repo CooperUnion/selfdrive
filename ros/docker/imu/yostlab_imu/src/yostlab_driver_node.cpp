@@ -1,4 +1,4 @@
-#include <yostlab_imu/YostLabDriver.h>
+#include "../include/yostlab_imu/YostLabDriver.h"
 
 
 int main(int argc, char **argv)

@@ -169,17 +169,36 @@ services:
         depends_on:
             - master
 
-    imu:
+    # imu:
+    #     build: docker/imu/.
+    #     container_name: imu
+    #     tty: true
+    #     privileged: true
+    #     environment:
+    #         # - '/dev/ttyUSB0:/dev/ttyUSB0'
+    #         # - '/dev/ttyUSB1:/dev/ttyUSB1'
+    #         - 'ROS_HOSTNAME=imu'
+    #         - 'ROS_MASTER_URI=http://master:11311'
+    #         - 'DISPLAY=$DISPLAY'
+    #         - 'QT_X11_NO_MITSHM=1'
+    #     volumes:
+    #         - '/tmp/.X11-unix:/tmp/.X11-unix'
+    #         - './docker/imu/yost:/app/ros_ws/src/imu'
+    #     depends_on:
+    #         - master
+
+    yost:
         build: docker/imu/.
-        container_name: imu
+        container_name: yost
         tty: true
         privileged: true
         environment:
-            - '/dev/ttyUSB0:/dev/ttyUSB0'
-            - '/dev/ttyUSB1:/dev/ttyUSB1'
-            - 'ROS_HOSTNAME=imu'
+            - 'ROS_HOSTNAME=yost'
             - 'ROS_MASTER_URI=http://master:11311'
+            - 'DISPLAY=$DISPLAY'
+            - 'QT_X11_NO_MITSHM=1'
         volumes:
-            - './docker/imu:/app/ros_ws/src/imu'
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - './docker/imu/yostlab_imu:/app/ros_ws/src/yostlab_imu'
         depends_on:
             - master
