@@ -17,6 +17,7 @@ dependencies = [
 	'black',
 	'can-isotp',
 	'cantools',
+	'invoke',
 	'matplotlib',
 	'mdformat-gfm',
 	'opencan-cand',
