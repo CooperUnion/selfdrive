@@ -21,7 +21,7 @@
           overlays = [ (import rust-overlay) ];
         };
 
-        python = pkgs.python311;
+        python = pkgs.python312;
 
         rust-version = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
         rust = rust-version.override { };

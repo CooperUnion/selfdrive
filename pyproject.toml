@@ -12,7 +12,7 @@ authors = [
 ]
 license = {'text' = 'GPL-3.0-only'}
 
-requires-python = '>=3.11'
+requires-python = '>=3.12'
 dependencies = [
 	'black',
 	'can-isotp',
