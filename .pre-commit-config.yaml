@@ -25,9 +25,6 @@ repos:
     rev: 0.7.17
     hooks:
       - id: mdformat
-        args:
-          - --wrap
-          - '72'
         exclude: LICENSE\.md
         additional_dependencies:
           - mdformat-gfm
