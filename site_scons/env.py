@@ -35,6 +35,7 @@ PATHS: typing.Final[dict[str, str]] = {
 
 ENV: typing.Final[dict[str, str]] = {
     **PATHS,
+    'CMAKE_GENERATOR': 'Ninja',
     'IDF_TARGETS': 'esp32s3',
 }
 
