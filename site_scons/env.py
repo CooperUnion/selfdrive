@@ -5,15 +5,30 @@ import os
 import shlex
 import typing
 
+_CARGO_HOME = '.cargo'
+_IDF_TOOLS_PATH = '.espressif'
+_VIRTUAL_ENV = '.venv'
+
+
+DIRENV_INSTALLED: typing.Final[dict[str, str]] = {
+    f'DIRENV_INSTALLED_{key}': f'{value}/.direnv.installed'
+    for key, value in {
+        'CRATES': _CARGO_HOME,
+        'IDF_TOOLS': _IDF_TOOLS_PATH,
+        'PYTHON_REQUIREMENTS': _VIRTUAL_ENV,
+    }.items()
+}
+
 
 PATHS: typing.Final[dict[str, str]] = {
     key: os.path.abspath(value)
     for key, value in {
-        'CARGO_HOME': '.cargo',
+        **DIRENV_INSTALLED,
+        'CARGO_HOME': _CARGO_HOME,
         'IDF_PATH': 'lib/esp-idf',
-        'IDF_TOOLS_PATH': '.espressif',
+        'IDF_TOOLS_PATH': _IDF_TOOLS_PATH,
         'REPO_ROOT': '.',
-        'VIRTUAL_ENV': '.venv',
+        'VIRTUAL_ENV': _VIRTUAL_ENV,
     }.items()
 }
 
