@@ -21,7 +21,7 @@
 // ######        DEFINES        ###### //
 
 
-#define CMD_MAX 0.6
+#define CMD_MAX 0.8
 
 #define PWM_PIN GPIO_NUM_37
 
@@ -141,7 +141,7 @@ static void adc_init() {
         ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cont_config, &handle));
 
         adc_digi_pattern_config_t adc_pattern = {
-            .atten     = ADC_ATTEN_DB_11,
+            .atten     = ADC_ATTEN_DB_6,
             .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
             //.channel   = ADC_CHANNEL_7, // GPIO 8
             //.channel   = ADC_CHANNEL_4, // GPIO 5
@@ -217,6 +217,9 @@ static void dump_samples()
         printf("%u,%d\n",i,dump_buf[readIndex]);
         readIndex = (readIndex + 1) % SAMPLE_DUMP_SIZE;
     }
+
+    if (!(i % 10000))
+        vTaskDelay(2 / portTICK_PERIOD_MS);
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
