@@ -20,11 +20,10 @@
 
 // ######        DEFINES        ###### //
 
-#define CMD_MAX 0.8
+#define CMD_MAX 1
 
-#define CS_PIN  GPIO_NUM_5
-#define PS_PIN  GPIO_NUM_9
-#define PWM_PIN GPIO_NUM_37
+#define DIR_PIN GPIO_NUM_1
+#define PWM_PIN GPIO_NUM_2
 
 #define PWM_FREQUENCY       1000
 #define PWM_INIT_DUTY_CYCLE 0
@@ -101,6 +100,9 @@ ember_rate_funcs_S module_rf = {
 
 static void brake_init(void)
 {
+	gpio_set_direction(DIR_PIN, GPIO_MODE_INPUT);
+	gpio_set_level(DIR_PIN, 1);
+
 	static ledc_timer_config_t pwm_timer = {
 		.speed_mode      = LEDC_LOW_SPEED_MODE,
 		.duty_resolution = PWM_RESOLUTION,
