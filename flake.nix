@@ -32,6 +32,7 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.act
+            pkgs.cmake
             pkgs.mdbook
             pkgs.nixpkgs-fmt
             pkgs.zlib
