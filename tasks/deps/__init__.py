@@ -8,6 +8,6 @@ from . import (
 
 ns = Collection()
 
-ns.add_collection(Collection.from_module(cargo))
-ns.add_collection(Collection.from_module(idf))
-ns.add_collection(Collection.from_module(python))
+ns.add_collection(cargo)
+ns.add_collection(idf)
+ns.add_collection(python)
