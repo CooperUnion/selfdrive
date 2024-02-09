@@ -6,6 +6,10 @@ At first the repository will seem a bit intimidating! There's plenty
 going on here, but for the purposes of this guide, you don't need to
 worry about most of it.
 
+As a prequiste, make sure you've read through Jacob's
+[getting started guide](https://github.com/CooperUnion/selfdrive#getting-started)
+on setting up the repository.
+
 We'll be starting off in the `selfdrive/dbw/node_fw/mod` directory the
 directory, as shown below.
 
@@ -301,7 +305,7 @@ static void led_1Hz()
 
 ## Building the File
 
-Now that we've written the code four our `led.c` and `led.h` files, it's
+Now that we've written the code for our `led.c` and `led.h` files, it's
 time to integrate it within our build system. This process is broken
 down into the three main steps, detailed below:
 
@@ -379,6 +383,11 @@ Each node has CAN messages associated with it that allow the node to
 communicate with other nodes over a CAN network. We define CAN messages
 and their respective nodes within the `can.yml` file in `selfdrive/can`
 
+Further documentation on what a CAN message is will be provided soon, a
+brief summary would be that CANbus is an automotative grade
+communication standard used to communicate between peripherals on the
+vehicle. CAN messages are sent (TX) and recieved (RX).
+
 Within `can.yml` we have `message_templates` which define skeleton
 structures for common CAN messages that will appear in multiple nodes.
 
@@ -392,7 +401,11 @@ need them.
 Beneath the `message_templates` we have the `nodes` section, which
 defines the messages for the nodes on the vehicle. Each node has a `rx`
 (CAN messages it recieves), `tx` (CAN messages it transmits) and a
-`messages` sections which populates the details of each message.
+`messages` sections which populates the details of each message. Each
+message within the `can.yml` file has a unique identifier associated
+with it. Additionally, each entry is placed within alphabetical order,
+so when adding new nodes/messages be sure to provide a unique ID and
+maintain the order of entries.
 
 We now add our `LED` node to the `can.yml`
 
