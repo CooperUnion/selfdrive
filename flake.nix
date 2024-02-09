@@ -34,6 +34,7 @@
             pkgs.act
             pkgs.cmake
             pkgs.mdbook
+            pkgs.ninja
             pkgs.nixpkgs-fmt
             pkgs.zlib
             python
