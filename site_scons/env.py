@@ -53,8 +53,6 @@ def idf(env: SConsEnvironment, target: str) -> SConsEnvironment:
     with open(PATHS[f'IDF_BUILD_SCONS_{target.upper()}']) as f:
         idf = json.load(f)
 
-    env.AppendENVPath('PATH', idf['path'])
-
     env.AppendUnique(
         CPPPATH=idf['includes'],
         CPPDEFINES=idf['defines'],
@@ -64,6 +62,8 @@ def idf(env: SConsEnvironment, target: str) -> SConsEnvironment:
         + idf['march']
         + idf['std'],
     )
+
+    env.PrependENVPath('PATH', idf['path'])
 
     prefix = idf['prefix']
 
