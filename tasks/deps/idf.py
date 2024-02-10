@@ -62,22 +62,27 @@ def scons_env_gen(c):
         includes = list(filter(startswith('-I'), flags))
         includes = [include.removeprefix('-I') for include in includes]
 
+        defines = list(filter(startswith('-D'), flags))
+        defines = [define.removeprefix('-D') for define in defines]
+
         options = list(filter(startswith('-f'), flags))
         options.remove('-fdiagnostics-color=always')
 
-        defines = list(filter(startswith('-D'), flags))
-        optimiation = list(filter(startswith('-O'), flags))
+        optimization = list(filter(startswith('-O'), flags))
         debug = list(filter(startswith('-g'), flags))
         march = list(filter(startswith('-m'), flags))
         std = list(filter(startswith('-std'), flags))
 
-        cflags = options + defines + optimiation + debug + march + std
-
         env = {
             'prefix': f'xtensa-{target}-elf-',
-            'cflags': cflags,
-            'includes': includes,
             'path': idf_path,
+            'includes': includes,
+            'defines': defines,
+            'options': options,
+            'optimization': optimization,
+            'debug': debug,
+            'march': march,
+            'std': std,
         }
 
         env_file = os.environ['IDF_BUILD_SCONS_ESP32S3']

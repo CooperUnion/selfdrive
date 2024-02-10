@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 import shlex
 import typing
+
+from SCons.Script.SConscript import SConsEnvironment
 
 _CARGO_HOME = '.cargo'
 _IDF_BUILD = '.esp-idf'
@@ -42,6 +45,42 @@ ENV: typing.Final[dict[str, str]] = {
     'CMAKE_GENERATOR': 'Ninja',
     'IDF_TARGETS': 'esp32s3',
 }
+
+
+def idf(env: SConsEnvironment, target: str) -> SConsEnvironment:
+    env = env.Clone()
+
+    with open(PATHS[f'IDF_BUILD_SCONS_{target.upper()}']) as f:
+        idf = json.load(f)
+
+    env.AppendENVPath('PATH', idf['path'])
+
+    env.AppendUnique(
+        CPPPATH=idf['includes'],
+        CPPDEFINES=idf['defines'],
+        CCFLAGS=idf['options']
+        + idf['optimization']
+        + idf['debug']
+        + idf['march']
+        + idf['std'],
+    )
+
+    prefix = idf['prefix']
+
+    env.Replace(
+        **{
+            key: f'{prefix}{val}'
+            for key, val in {
+                'AR': 'ar',
+                'AS': 'as',
+                'CC': 'gcc',
+                'CXX': 'g++',
+                'SHLINK': 'ld',
+            }.items()
+        }
+    )
+
+    return env
 
 
 if __name__ == '__main__':
