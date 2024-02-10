@@ -1,5 +1,4 @@
 ---
-
 bitrate: 500000
 
 message_templates:
@@ -698,6 +697,30 @@ nodes:
             from_template: BlStatus
             id: 0x50a
 
+  - LED:
+      rx:
+        - DBW_ESTOP
+        - UPD_UpdateControl_LED  # bootloader
+      messages:
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0xD7
+
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0xE7
+
+  - LEDBL:
+      rx:
+        - UPD_IsoTpTx_LED
+        - UPD_UpdateControl_LED
+      messages:
+        - IsoTpTx:
+            id: 0x601
+        - Status:
+            from_template: BlStatus
+            id: 0x602
+
   - TEST:
       rx: '*'
 
@@ -723,6 +746,10 @@ nodes:
         - SUPBL_IsoTpTx
         - SUPBL_Status
 
+        - LED_NodeStatus
+        - LEDBL_IsoTpTx
+        - LEDBL_Status
+
         - THROTTLE_NodeStatus
         - THROTTLEBL_IsoTpTx
         - THROTTLEBL_Status
@@ -739,6 +766,8 @@ nodes:
             id: 0x534
         - IsoTpTx_THROTTLE:
             id: 0x535
+        - IsoTpTx_LED:
+            id: 0x536
         - UpdateControl_BLINK:
             from_template: UpdateControl
             id: 0x5A0
@@ -757,6 +786,9 @@ nodes:
         - UpdateControl_THROTTLE:
             from_template: UpdateControl
             id: 0x5A5
+        - UpdateControl_LED:
+            from_template: UpdateControl
+            id: 0x5A6
 
   - THROTTLE:
       rx:
