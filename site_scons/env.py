@@ -75,6 +75,7 @@ def idf(env: SConsEnvironment, target: str) -> SConsEnvironment:
                 'AS': 'as',
                 'CC': 'gcc',
                 'CXX': 'g++',
+                'RANLIB': 'ranlib',
                 'SHLINK': 'ld',
             }.items()
         }
