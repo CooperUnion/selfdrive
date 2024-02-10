@@ -19,6 +19,7 @@ env = Environment(
     },
     tools=[
         'default',
+        'EspIdf',
         'Phony',
     ],
 )
