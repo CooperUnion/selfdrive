@@ -1,7 +1,12 @@
-from invoke import task
+from invoke import (
+    call,
+    task,
+)
+
+from . import direnv
 
 
-@task
+@task(post=[call(direnv.installed, 'CRATES')])
 def install(c):
     result = c.run('./tools/cargo-install-gen.py --config \'crates.toml\'')
 

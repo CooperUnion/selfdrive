@@ -2,15 +2,20 @@ import json
 import os
 import shlex
 
-from invoke import task
+from invoke import (
+    call,
+    task,
+)
+
+from . import direnv
 
 
-@task
+@task(post=[call(direnv.installed, 'IDF_TOOLS')])
 def install(c):
     c.run(f'{os.environ["IDF_PATH"]}/install.sh "{os.environ["IDF_TARGETS"]}"')
 
 
-@task
+@task(post=[call(direnv.installed, 'SCONS_ESP_IDF_ENVIRONMENT')])
 def scons_env_gen(c):
     # forgive me lord, for i have sinned
     # esp-idf really doesn't like multi-binary builds...
