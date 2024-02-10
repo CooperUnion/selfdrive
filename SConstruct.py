@@ -2,7 +2,7 @@
 
 import os
 
-from env import ENV
+import env as uenv
 
 EnsureSConsVersion(4, 5, 2)
 EnsurePythonVersion(3, 11)
@@ -13,7 +13,7 @@ build = 'build'
 
 env = Environment(
     ENV={
-        **ENV,
+        **uenv.ENV,
         'PATH': os.environ['PATH'],
         'TERM': os.environ.get('TERM'),
     },
@@ -22,8 +22,25 @@ env = Environment(
         'Phony',
     ],
 )
+env.AppendUnique(
+    CCFLAGS=[
+        '-Wall',
+        '-Wextra',
+        '-Wpedantic',
+        '-g',
+        '-std=gnu17',
+    ]
+)
+
+esp32s3 = uenv.idf(env, 'esp32s3')
+
+envs = {
+    'env': env,
+    'esp32s3': esp32s3,
+}
 
 Export('env')
+Export('envs')
 
 
 can = env.SConscript(
