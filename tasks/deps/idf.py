@@ -40,6 +40,7 @@ def scons_env_gen(c):
 
         # create our symlink placeholder to make cmake happy
         libprebuilt = f'{src}/main/libprebuilt.a'
+        c.run(f'rm "{libprebuilt}"')
         c.run(f'touch "{libprebuilt}"')
 
         c.run(
