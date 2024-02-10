@@ -17,6 +17,7 @@ DIRENV_INSTALLED: typing.Final[dict[str, str]] = {
         'CRATES': _CARGO_HOME,
         'IDF_TOOLS': _IDF_TOOLS_PATH,
         'PYTHON_REQUIREMENTS': _VIRTUAL_ENV,
+        'SCONS_ESP_IDF_ENVIRONMENT': _IDF_BUILD,
     }.items()
 }
 
