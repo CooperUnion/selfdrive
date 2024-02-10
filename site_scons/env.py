@@ -6,6 +6,7 @@ import shlex
 import typing
 
 _CARGO_HOME = '.cargo'
+_IDF_BUILD = '.esp-idf'
 _IDF_TOOLS_PATH = '.espressif'
 _VIRTUAL_ENV = '.venv'
 
@@ -25,6 +26,8 @@ PATHS: typing.Final[dict[str, str]] = {
     for key, value in {
         **DIRENV_INSTALLED,
         'CARGO_HOME': _CARGO_HOME,
+        'IDF_BUILD': _IDF_BUILD,
+        'IDF_BUILD_SCONS_ESP32S3': f'{_IDF_BUILD}/scons/esp32s3.json',
         'IDF_PATH': 'lib/esp-idf',
         'IDF_TOOLS_PATH': _IDF_TOOLS_PATH,
         'REPO_ROOT': '.',
