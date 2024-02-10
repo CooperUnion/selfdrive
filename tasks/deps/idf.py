@@ -38,6 +38,10 @@ def scons_env_gen(c):
         build = f'{os.environ["IDF_BUILD"]}/march/{target}'
         src = f'lib/march/{target}'
 
+        # create our symlink placeholder to make cmake happy
+        libprebuilt = f'{src}/main/libprebuilt.a'
+        c.run(f'touch "{libprebuilt}"')
+
         c.run(
             f'cmake -B "{build}" -S "{src}"',
             env={
