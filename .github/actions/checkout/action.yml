@@ -6,13 +6,6 @@ runs:
   using: composite
 
   steps:
-    - uses: actions/cache@v3.3.2
-      with:
-        key: dependencies
-        path: |
-          .cargo
-          .venv
-
     - uses: DeterminateSystems/nix-installer-action@v6
 
     - uses: DeterminateSystems/magic-nix-cache-action@v2
