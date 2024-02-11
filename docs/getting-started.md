@@ -57,7 +57,7 @@ selfdrive/
 |   +-- component/
 |   |   +-- docs/
 |   |   +-- src/
-|   |   +-- component.yml
+|   |   +-- component.toml
 |   |
 |   +-- ...
 |
@@ -66,7 +66,7 @@ selfdrive/
 +-- projects/
 |   +-- project/
 |   |   +-- docs/
-|   |   +-- project.yml
+|   |   +-- project.toml
 |   |
 |   +-- ...
 |
@@ -93,7 +93,7 @@ The `src` directory contains the source files. The contents and layout
 of this directory highly depend on the component language(s) and use
 case. It is best to see existing components to get a feel for it.
 
-Finally, `component.yml` contains metadata related to the component.
+Finally, `component.toml` contains metadata related to the component.
 
 ### [`docs/`]
 
@@ -112,7 +112,7 @@ you're curious.
 
 The [`projects/`] directory contains projects that are composed of
 various components. Like a component, each project has a `docs/`
-directory with symlinks to relevant documentation and a `project.yml`
+directory with symlinks to relevant documentation and a `project.toml`
 with related metadata.
 
 ### [`can.yml`]
