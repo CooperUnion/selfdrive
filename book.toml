@@ -11,3 +11,6 @@ build-dir = 'build/docs'
 mathjax-support = true
 no-section-label = true
 git-repository-url = 'https://github.com/CooperUnion/selfdrive'
+
+[output.html.fold]
+enable = true
