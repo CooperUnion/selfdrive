@@ -50,6 +50,11 @@ can = env.SConscript(
     variant_dir=f'{build}/can',
     duplicate=False,
 )
+components = env.SConscript(
+    'components/SConscript.py',
+    variant_dir=f'{build}/components',
+    duplicate=False,
+)
 ember_bl = env.SConscript(
     'dbw/ember_bl/SConscript.py',
     variant_dir=f'{build}/dbw/ember_bl',
