@@ -101,9 +101,9 @@ can-isotp==2.0.4 \
     --hash=sha256:2cbe8bfc0d4a9357024657ac63cdc9bb9937e3df6789095112ad62d0073cd2a7 \
     --hash=sha256:32b235fdb7e30f8005a875d3682339ef1123b92c2e76e97a299d5347c88630e2
     # via selfdrive (pyproject.toml)
-cantools==39.4.3 \
-    --hash=sha256:6063ab49624e683f3cc2e69845f97cac6f413f888a00b35db59ee1e40bb3f9a0 \
-    --hash=sha256:7aaa3d246bc5328bb29c681fc8162d2800be05ee095b3edb9470fa1478f9e506
+cantools==39.4.4 \
+    --hash=sha256:6e8e918b6671a62a9f3990546ece5623e1deb71defb1cef85a9955ac301da99e \
+    --hash=sha256:853f569dcb81d8a1384c4bd041dd2b30b2def60e9c124ece0f013776a44f7386
     # via
     #   opencan-cand
     #   selfdrive (pyproject.toml)
@@ -349,9 +349,9 @@ humanfriendly==10.0 \
     --hash=sha256:1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477 \
     --hash=sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc
     # via coloredlogs
-identify==2.5.33 \
-    --hash=sha256:161558f9fe4559e1557e1bff323e8631f6a0e4837f7497767c1782832f16b62d \
-    --hash=sha256:d40ce5fcd762817627670da8a7d8d8e65f24342d14539c59488dc603bf662e34
+identify==2.5.34 \
+    --hash=sha256:a4316013779e433d08b96e5eabb7f641e6c7942e4ab5d4c509ebd2e7a8994aed \
+    --hash=sha256:ee17bc9d499899bc9eaec1ac7bf2dc9eedd480db9d88b96d123d3b64a9d34f5d
     # via pre-commit
 idna==3.6 \
     --hash=sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca \
@@ -750,9 +750,9 @@ platformdirs==4.2.0 \
 platformio==6.1.13 \
     --hash=sha256:ed7c6397f0ced579bc8137c8253465c0cfab6c0cc38d4f63da4502e995bdb5ce
     # via selfdrive (pyproject.toml)
-pre-commit==3.6.0 \
-    --hash=sha256:c255039ef399049a5544b6ce13d135caba8f2c28c3b4033277a788f434308376 \
-    --hash=sha256:d30bad9abf165f7785c15a21a1f46da7d0677cb00ee7ff4c579fd38922efe15d
+pre-commit==3.6.1 \
+    --hash=sha256:9fe989afcf095d2c4796ce7c553cf28d4d4a9b9346de3cda079bcf40748454a4 \
+    --hash=sha256:c90961d8aa706f75d60935aba09469a6b0bcb8345f127c3fbee4bdc5f114cf4b
     # via selfdrive (pyproject.toml)
 pydantic==2.6.1 \
     --hash=sha256:0b6a909df3192245cb736509a92ff69e4fef76116feffec68e93a567347bae6f \
@@ -989,9 +989,17 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via maison
-tqdm==4.66.1 \
-    --hash=sha256:d302b3c5b53d47bce91fea46679d9c3c6508cf6332229aa1e7d8653723793386 \
-    --hash=sha256:d88e651f9db8d8551a62556d3cff9e3034274ca5d66e93197cf2490e2dcb69c7
+toml-sort==0.23.1 \
+    --hash=sha256:69ae60de9c4d67478533697eb4119092e2b30ddffe5ca09bbad3912905c935a0 \
+    --hash=sha256:833728c48b0f8d509aecd9ae8347768ca3a9332977b32c9fd2002932f0eb9c90
+    # via selfdrive (pyproject.toml)
+tomlkit==0.12.3 \
+    --hash=sha256:75baf5012d06501f07bee5bf8e801b9f343e7aac5a92581f20f80ce632e6b5a4 \
+    --hash=sha256:b0a645a9156dc7cb5d3a1f0d4bab66db287fcb8e0430bdd4664a095ea16414ba
+    # via toml-sort
+tqdm==4.66.2 \
+    --hash=sha256:1ee4f8a893eb9bef51c6e35730cebf234d5d0b6bd112b0271e10ed7c24a02bd9 \
+    --hash=sha256:6cd52cdf0fef0e0f543299cfc96fec90d7b8a7e88745f411ec33eb44d5ed3531
     # via selfdrive (pyproject.toml)
 typing-extensions==4.9.0 \
     --hash=sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783 \
@@ -1000,9 +1008,9 @@ typing-extensions==4.9.0 \
     #   pydantic
     #   pydantic-core
     #   python-can
-uc-micro-py==1.0.2 \
-    --hash=sha256:30ae2ac9c49f39ac6dce743bd187fcd2b574b16ca095fa74cd9396795c954c54 \
-    --hash=sha256:8c9110c309db9d9e87302e2f4ad2c3152770930d88ab385cd544e7a7e75f3de0
+uc-micro-py==1.0.3 \
+    --hash=sha256:d321b92cff673ec58027c04015fcaa8bb1e005478643ff4a500882eaab88c48a \
+    --hash=sha256:db1dffff340817673d7b466ec86114a9dc0e9d4d9b5ba229d9d60e5c12600cd5
     # via linkify-it-py
 urllib3==2.2.0 \
     --hash=sha256:051d961ad0c62a94e50ecf1af379c3aba230c66c710493493560c0c223c49f20 \

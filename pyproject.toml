@@ -27,6 +27,7 @@ dependencies = [
 	'ruff',
 	'scons',
 	'strictyaml',
+	'toml-sort',
 	'tqdm',
 	'yamlfix',
 	'yamllint',
