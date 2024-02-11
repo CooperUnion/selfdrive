@@ -44,6 +44,7 @@ ENV: typing.Final[dict[str, str]] = {
     **PATHS,
     'CMAKE_GENERATOR': 'Ninja',
     'IDF_TARGETS': 'esp32s3',
+    'VIRTUAL_ENV_DISABLE_PROMPT': 'true',
 }
 
 
