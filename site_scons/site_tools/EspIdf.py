@@ -1,11 +1,5 @@
 import os
 
-from SCons.Defaults import (
-    Copy,
-    Mkdir,
-)
-from SCons.Util.filelock import FileLock
-
 
 OUTPUTS = [
     'bootloader/config/sdkconfig.h',
@@ -42,22 +36,26 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
         f'{os.environ["REPO_ROOT"]}/lib/march/{target}/main/libprebuilt.a'
     )
 
+    # since the esp-idf build is shared resource we need to
+    # lock it while we compile and link with out shared library
     actions = [
+        f'exec {{LOCKFD}}> {build}/scons.lock',
+        'echo $$LOCKFD',
+        'flock --exclusive $$LOCKFD',
         f'rm -f {libprebuilt}',
         f'ln -s {library.abspath} {libprebuilt}',
         f'ninja -C {build}',
-        Mkdir(f'{outdir}/bootloader'),
-        Mkdir(f'{outdir}/partition_table'),
-        *[
-            Copy(f'{outdir}/{output}', f'{build}/{output}')
-            for output in OUTPUTS
-        ],
+        f'mkdir -p {outdir}/bootloader',
+        f'mkdir -p {outdir}/partition_table',
+        *[f'cp {build}/{output} {outdir}/{output}' for output in OUTPUTS],
+        'exec {LOCKFD}>&-',
     ]
 
-    with FileLock(build, timeout=0, writer=True) as _:
-        out = env.Command(
-            [f'{outdir}/{output}' for output in OUTPUTS], library, actions
-        )
+    actions = ' && '.join(actions)
+
+    out = env.Command(
+        [f'{outdir}/{output}' for output in OUTPUTS], library, actions
+    )
 
     return out
 
