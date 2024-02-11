@@ -1,3 +1,4 @@
+// ######        LIBRARIES        ###### //
 #include "led.h"
 
 #include <driver/gpio.h>
@@ -6,51 +7,52 @@
 #include "ember_taskglue.h"
 
 // ######        DEFINES        ###### //
+//define important constants/macros to be used within the program
+//these are available globally within the program
+
+#define LED_GPIO 18 //use a GPIO pin to blink the LED (ensure it is one that is not being used)
 
 // ######      PROTOTYPES       ###### //
+//declare non-rate based functions in the program
 
 static void led_init();
 static void led_1Hz();
 
 // ######     PRIVATE DATA      ###### //
+//define any variables that will not be used globally and only within the program
+
+static int LED_STATUS = 0; //initialize the LED status to off
+
 
 // ######    RATE FUNCTIONS     ###### //
+//Rate functions can run at 1Hz, 10Hz, 100Hz, or 1000Hz (1kHz)
+// rate functions can be declared as static because they are only used in this program
 
-/*
- * This struct is filled the pointers to the rate functions.
- *
- * hello_blink_rt is accessed using extern in module_list.h, which is read by
- * tasking.c, which runs the rate tasks. This is not declared as static because
- * of the above.
- *
- * Note that we just don't fill out the fields for the rates we don't need.
- * That's okay - the C standard guarantees they will be set to NULL.
- *
- * Note that it's perfectly okay that the rate functions are declared as static.
- */
 ember_rate_funcs_S module_rf = {
     .call_init = led_init,
     .call_1Hz = led_1Hz,
+    //.call_10Hz = led_10hz.
+    //.call_100Hz = led_100hz,
+    //.call_1000Hz = led_1000hz,
 };
 
-/*
- * Initializes the GPIO for the LED.
- *
- * In the future, we should probably centralize GPIO initialization.
- */
+//Create respective functions for each element defined within the struct above
+
 static void led_init()
 {
-
+    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT); //gpio pin, input/output
 }
 
-/*
- * Toggles the LED on each call.
- */
 static void led_1Hz()
 {
-
+    LED_STATUS = !LED_STATUS; //toggle the LED status
+    gpio_set_level(LED_GPIO, LED_STATUS); //set the LED to the new status
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
+//functions intended for use only within this .c file
 
-// ######   PUBLIC FUNCTIONS    ###### //
+// ######   PUBLIC FUNCTIONS    ###### ///
+//functions intended for use within and outside of this .c file
+
+// ######   CAN TX    ###### ///

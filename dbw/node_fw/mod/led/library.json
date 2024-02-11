@@ -1,8 +1,5 @@
 {
-    "name": "cuber-led",
-    "version": "rolling",
-    "description": "Steering DBW node",
-    "build": {
-      "libLDFMode": "deep"
-    }
-  }
+  "name": "cuber-led",
+  "version": "rolling",
+  "description": "simple node to turn on LED"
+}
