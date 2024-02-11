@@ -59,6 +59,9 @@ force-single-line = true
 [tool.setuptools.packages.find]
 exclude = ['*']
 
+[tool.tomlsort]
+trailing_comma_inline_array = true
+
 [tool.yamlfix]
 exclude              = ['common/cantools/**/*.yml']
 none_representation  = '~'
