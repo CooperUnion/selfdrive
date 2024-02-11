@@ -34,9 +34,10 @@ OUTPUTS = [
 ]
 
 
-def EspIdf(env, library, target):
+def EspIdf(env, library, target, *, outdir='esp-idf'):
     build = f'{os.environ["IDF_BUILD"]}/march/{target}'
-    outdir = f'{os.path.dirname(library.abspath)}/esp-idf'
+    outdir = f'{os.path.dirname(library.abspath)}/{outdir}'
+
     libprebuilt = (
         f'{os.environ["REPO_ROOT"]}/lib/march/{target}/main/libprebuilt.a'
     )
