@@ -39,6 +39,11 @@ repos:
     hooks:
       - id: ruff
 
+  - repo: https://github.com/pappasam/toml-sort
+    rev: v0.23.1
+    hooks:
+      - id: toml-sort-fix
+
   - repo: https://github.com/lyz-code/yamlfix/
     rev: 1.16.0
     hooks:
