@@ -8,13 +8,20 @@ from SCons.Util.filelock import FileLock
 
 
 OUTPUTS = [
+    'bootloader/config/sdkconfig.h',
+    'bootloader/.bin_timestamp',
     'bootloader/bootloader.bin',
     'bootloader/bootloader.elf',
     'bootloader/bootloader.map',
+    'bootloader/prefix_map_gdbinit',
+    'config/sdkconfig.h',
     'partition_table/partition-table.bin',
     '.bin_timestamp',
     'app-flash_args',
     'bootloader-flash_args',
+    'firmware.bin',
+    'firmware.elf',
+    'firmware.map',
     'flash_app_args',
     'flash_args',
     'flash_bootloader_args',
@@ -22,9 +29,7 @@ OUTPUTS = [
     'flasher_args.json',
     'ldgen_libraries',
     'partition-table-flash_args',
-    'firmware.bin',
-    'firmware.elf',
-    'firmware.map',
+    'prefix_map_gdbinit',
     'x509_crt_bundle.S',
 ]
 
