@@ -225,6 +225,10 @@ coloredlogs==15.0.1 \
     --hash=sha256:612ee75c546f53e92e70049c9dbfcc18c935a2b9a53b66085ce9ef6a6e5c0934 \
     --hash=sha256:7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0
     # via opencan-cand
+contextlib2==21.6.0 \
+    --hash=sha256:3fbdb64466afd23abaf6c977627b75b6139a5a3e8ce38405c5b413aed7a0471f \
+    --hash=sha256:ab1e2bfe1d01d968e1b7e8d9023bc51ef3509bba217bb730cee3827e1ee82869
+    # via schema
 contourpy==1.2.0 \
     --hash=sha256:0274c1cb63625972c0c007ab14dd9ba9e199c36ae1a231ce45d725cbcbfd10a8 \
     --hash=sha256:0d7e03c0f9a4f90dc18d4e77e9ef4ec7b7bbb437f7f675be8e530d65ae6ef956 \
@@ -953,6 +957,10 @@ ruyaml==0.91.0 \
     --hash=sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755 \
     --hash=sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab
     # via yamlfix
+schema==0.7.5 \
+    --hash=sha256:f06717112c61895cabc4707752b88716e8420a8819d71404501e114f91043197 \
+    --hash=sha256:f3ffdeeada09ec34bf40d7d79996d9f7175db93b7a5065de0faa7f41083c1e6c
+    # via selfdrive (pyproject.toml)
 scons==4.6.0.post1 \
     --hash=sha256:9e0527b7a924e7af2b312c1f8961ef2776847bdc46a4d886af5a75f301da7ce3 \
     --hash=sha256:d467a34546f5366a32e4d4419611d0138dd680210f24aa8491ebe9e4b83456cf

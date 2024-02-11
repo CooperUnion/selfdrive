@@ -23,6 +23,7 @@ dependencies = [
   'platformio',
   'pre-commit',
   'ruff',
+  'schema',
   'scons',
   'strictyaml',
   'toml-sort',
