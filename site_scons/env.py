@@ -6,7 +6,6 @@ import os
 import shlex
 import typing
 
-from SCons.Script.SConscript import SConsEnvironment
 
 _CARGO_HOME = '.cargo'
 _IDF_BUILD = '.esp-idf'
@@ -48,7 +47,7 @@ ENV: typing.Final[dict[str, str]] = {
 }
 
 
-def idf(env: SConsEnvironment, target: str) -> SConsEnvironment:
+def idf(env, target: str):
     env = env.Clone()
 
     with open(PATHS[f'IDF_BUILD_SCONS_{target.upper()}']) as f:
