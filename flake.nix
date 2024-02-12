@@ -21,7 +21,8 @@
           overlays = [ (import rust-overlay) ];
         };
 
-        python = pkgs.python311;
+        python = pkgs.python312;
+        pythonPackages = pkgs.python312Packages;
 
         rust-version = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
         rust = rust-version.override { };
@@ -31,10 +32,13 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.act
+            pkgs.cmake
             pkgs.mdbook
+            pkgs.ninja
             pkgs.nixpkgs-fmt
             pkgs.zlib
             python
+            pythonPackages.invoke
             rust
           ];
 

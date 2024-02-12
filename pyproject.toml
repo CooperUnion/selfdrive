@@ -1,49 +1,50 @@
 [build-system]
-requires      = ['setuptools']
+requires = ['setuptools']
 build-backend = 'setuptools.build_meta'
 
 [project]
-name        = 'selfdrive'
+name = 'selfdrive'
 description = "Autonomy Lab's monorepo"
-version     = '0.0.0'
-
+version = '0.0.0'
 authors = [
-	{name = 'Autonomy Lab'},
+  {name = 'Autonomy Lab'},
 ]
 license = {'text' = 'GPL-3.0-only'}
-
-requires-python = '>=3.11'
+requires-python = '>=3.12'
 dependencies = [
-	'black',
-	'can-isotp',
-	'cantools',
-	'matplotlib',
-	'mdformat-gfm',
-	'opencan-cand',
-	'pip-tools',
-	'platformio',
-	'pre-commit',
-	'ruff',
-	'scons',
-	'strictyaml',
-	'tqdm',
-	'yamlfix',
-	'yamllint',
+  'black',
+  'can-isotp',
+  'cantools',
+  'invoke',
+  'matplotlib',
+  'mdformat-gfm',
+  'opencan-cand',
+  'pip-tools',
+  'platformio',
+  'pre-commit',
+  'ruff',
+  'schema',
+  'scons',
+  'strictyaml',
+  'toml-sort',
+  'tqdm',
+  'yamlfix',
+  'yamllint',
 ]
 
 [project.urls]
 repo = 'https://github.com/CooperUnion/selfdrive'
 
 [tool.black]
-line-length               = 79
+line-length = 79
 skip-string-normalization = true
 
 [tool.pip-tools]
-allow-unsafe    = true
+allow-unsafe = true
 generate-hashes = true
-strip-extras    = false
-upgrade         = true
-verbose         = true
+strip-extras = false
+upgrade = true
+verbose = true
 
 [tool.ruff]
 line-length = 79
@@ -51,15 +52,18 @@ line-length = 79
 [tool.ruff.format]
 quote-style = 'single'
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
 
 [tool.setuptools.packages.find]
 exclude = ['*']
 
+[tool.tomlsort]
+trailing_comma_inline_array = true
+
 [tool.yamlfix]
-exclude              = ['common/cantools/**/*.yml']
-none_representation  = '~'
-section_whitelines   = 1
-sequence_style       = 'block_style'
-whitelines           = 1
+exclude = ['common/cantools/**/*.yml']
+none_representation = '~'
+section_whitelines = 1
+sequence_style = 'block_style'
+whitelines = 1

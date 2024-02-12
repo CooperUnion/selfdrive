@@ -1,6 +1,8 @@
 *.egg-info
 .cargo
 .direnv
+.esp-idf
+.espressif
 .platformio
 .ruff_cache
 .sconsign.dblite

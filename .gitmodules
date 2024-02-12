@@ -1,12 +1,15 @@
 [submodule "can/cantools"]
 	path = common/cantools
 	url = ../cantools-autonomylab.git
-[submodule "dbw/node_fw/lib/ember"]
-	path = dbw/node_fw/lib/ember
+[submodule "dbw/ember_bl/lib/ember"]
+	path = dbw/ember_bl/lib/ember
 	url = ../ember.git
 [submodule "dbw/node_fw/ccmn_defs"]
 	path = dbw/node_fw/ccmn_defs
 	url = ../ccmn_defs.git
-[submodule "dbw/ember_bl/lib/ember"]
-	path = dbw/ember_bl/lib/ember
-	url = git@github.com:cooperunion/ember.git
+[submodule "dbw/node_fw/lib/ember"]
+	path = dbw/node_fw/lib/ember
+	url = ../ember.git
+[submodule "lib/esp-idf"]
+	path = lib/esp-idf
+	url = ../../espressif/esp-idf.git
