@@ -92,7 +92,9 @@
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item affix "><a href="index.html">Overview</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="getting-started.html" class="active">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">About</li><li class="chapter-item "><a href="contributing.html">Contributing</a></li><li class="chapter-item "><a href="contributors.html">Contributors</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <!-- Track and set sidebar scroll position -->
@@ -227,7 +229,7 @@ process of migrating over to this layout. Sorry for the time being.</p>
 |   +-- component/
 |   |   +-- docs/
 |   |   +-- src/
-|   |   +-- component.yml
+|   |   +-- component.toml
 |   |
 |   +-- ...
 |
@@ -236,7 +238,7 @@ process of migrating over to this layout. Sorry for the time being.</p>
 +-- projects/
 |   +-- project/
 |   |   +-- docs/
-|   |   +-- project.yml
+|   |   +-- project.toml
 |   |
 |   +-- ...
 |
@@ -257,7 +259,7 @@ quick list of relevant documentation to read.</p>
 <p>The <code>src</code> directory contains the source files. The contents and layout
 of this directory highly depend on the component language(s) and use
 case. It is best to see existing components to get a feel for it.</p>
-<p>Finally, <code>component.yml</code> contains metadata related to the component.</p>
+<p>Finally, <code>component.toml</code> contains metadata related to the component.</p>
 <h3 id="docs"><a class="header" href="#docs"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/docs"><code>docs/</code></a></a></h3>
 <p>The <a href="contributing.html#directory-structure">contributing guidelines</a> cover the structure for documentation. You
 may notice that it closely follows the structure of <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>
@@ -270,7 +272,7 @@ you're curious.</p>
 <h3 id="projects"><a class="header" href="#projects"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/projects"><code>projects/</code></a></a></h3>
 <p>The <a href="https://github.com/CooperUnion/selfdrive/tree/dev/projects"><code>projects/</code></a> directory contains projects that are composed of
 various components. Like a component, each project has a <code>docs/</code>
-directory with symlinks to relevant documentation and a <code>project.yml</code>
+directory with symlinks to relevant documentation and a <code>project.toml</code>
 with related metadata.</p>
 <h3 id="canyml"><a class="header" href="#canyml"><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a></a></h3>
 <p><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a> describes the CAN networks of our projects. Here, you'll
