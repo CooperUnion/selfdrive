@@ -8,7 +8,8 @@ worry about most of it.
 
 As a prequiste, make sure you've read through Jacob's
 [getting started guide](https://github.com/CooperUnion/selfdrive#getting-started)
-on setting up the repository.
+on setting up the repository. You should create your own branch in the
+repo to work on this project.
 
 We'll be starting off in the `selfdrive/dbw/node_fw/mod` directory the
 directory, as shown below.
@@ -62,6 +63,13 @@ Create a new `led` directory and within it, add `led.c`, `led.h` and a
 Within `led.h` create a bare bones `.h` file to declare the contents of
 what is being created in `led.c`. Next, create `led.c`, will require a
 bit more explaining.
+
+```c
+#ifndef LED_H
+#define LED_H
+
+#endif
+```
 
 ### Basic Structure
 
@@ -405,7 +413,9 @@ defines the messages for the nodes on the vehicle. Each node has a `rx`
 message within the `can.yml` file has a unique identifier associated
 with it. Additionally, each entry is placed within alphabetical order,
 so when adding new nodes/messages be sure to provide a unique ID and
-maintain the order of entries.
+maintain the order of entries. Also note that YAML files are whitespace
+sensitive, meaning you need to adhere to the spacing format (like
+python).
 
 We now add our `LED` node to the `can.yml`
 
@@ -497,6 +507,10 @@ For starters, you'll want to run `scons dbc`, `scons ember_bl`, and
 `scons node_fw`. They'll set up the CAN database, the bootloader to
 upload your firmware to the node boards, and lastly all the nodes
 currently specified within `mod` and `platformio.ini`.
+
+To run the firmware, make sure you've allowed direnv (`direnv allow`).
+
+Then run, `fwpio -e run led`
 
 ## USB Passthrough
 
