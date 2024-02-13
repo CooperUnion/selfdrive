@@ -24,7 +24,7 @@ def Component(env, target, config):
 
     name = config['metadata']['name']
 
-    return env.Phony(f'component:{name}', target)
+    return env.Alias(f'component:{name}', target, '')
 
 
 def generate(env):
