@@ -98,7 +98,6 @@ $CLAYER
 $CELTYPE
   6
 ByLayer
-  9
 $CECOLOR
  62
    256
@@ -107,7 +106,7 @@ $CELTSCALE
  40
 1.0
   9
-$DISPSILH
+$DISPSIL
  70
      0
   9

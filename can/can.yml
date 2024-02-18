@@ -1,5 +1,4 @@
 ---
-
 bitrate: 500000
 
 message_templates:
@@ -137,7 +136,7 @@ nodes:
   - BLINK:
       rx:
         - DBW_ESTOP
-        - UPD_UpdateControl_BLINK  # bootloader
+        - UPD_UpdateControl_BLINK
       messages:
         - NodeInfo:
             from_template: DBWNodeInfo
@@ -322,7 +321,10 @@ nodes:
                   # maximum: 100.0
                   scale: 0.1
                   width: 10
-                  # TODO: determine realistic bounds
+          # TODO: determine realistic bounds
+
+  #         - angularVelocity:
+  #             description: Velocity in rad/s
 
   - ENCF:
       rx:
@@ -698,65 +700,31 @@ nodes:
             from_template: BlStatus
             id: 0x50a
 
-  - TEST:
-      rx: '*'
-
-  - UPD:
+  # LED NODE›
+  - LED:
       rx:
-        - BLINK_NodeStatus
-        - BLINKBL_IsoTpTx
-        - BLINKBL_Status
-
-        - BRAKE_NodeStatus
-        - BRAKEBL_IsoTpTx
-        - BRAKEBL_Status
-
-        - CTRL_NodeStatus
-        - CTRLBL_IsoTpTx
-        - CTRLBL_Status
-
-        - STEER_NodeStatus
-        - STEERBL_IsoTpTx
-        - STEERBL_Status
-
-        - SUP_NodeStatus
-        - SUPBL_IsoTpTx
-        - SUPBL_Status
-
-        - THROTTLE_NodeStatus
-        - THROTTLEBL_IsoTpTx
-        - THROTTLEBL_Status
+        - DBW_ESTOP
+        - UPD_UpdateControl_LED  # bootloader
       messages:
-        - IsoTpTx_BLINK:
-            id: 0x530
-        - IsoTpTx_BRAKE:
-            id: 0x531
-        - IsoTpTx_CTRL:
-            id: 0x532
-        - IsoTpTx_STEER:
-            id: 0x533
-        - IsoTpTx_SUP:
-            id: 0x534
-        - IsoTpTx_THROTTLE:
-            id: 0x535
-        - UpdateControl_BLINK:
-            from_template: UpdateControl
-            id: 0x5A0
-        - UpdateControl_BRAKE:
-            from_template: UpdateControl
-            id: 0x5A1
-        - UpdateControl_CTRL:
-            from_template: UpdateControl
-            id: 0x5A2
-        - UpdateControl_STEER:
-            from_template: UpdateControl
-            id: 0x5A3
-        - UpdateControl_SUP:
-            from_template: UpdateControl
-            id: 0x5A4
-        - UpdateControl_THROTTLE:
-            from_template: UpdateControl
-            id: 0x5A5
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0xD7
+
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0xE7
+
+  - LEDBL:
+      rx:
+        - UPD_IsoTpTx_LED
+        - UPD_UpdateControl_LED
+      messages:
+        - IsoTpTx:
+            id: 0x601
+        - Status:
+            from_template: BlStatus
+            id: 0x602
+  # END LED NODE
 
   - THROTTLE:
       rx:
@@ -804,10 +772,86 @@ nodes:
         - UPD_UpdateControl_THROTTLE
       messages:
         - IsoTpTx:
-            id: 0x50b
+            id: 0x603
         - Status:
             from_template: BlStatus
-            id: 0x50c
+            id: 0x604
+
+  - TEST:
+      rx: '*'
+
+  - UPD:
+      rx:
+        - BLINK_NodeStatus
+        - BLINKBL_IsoTpTx
+        - BLINKBL_Status
+
+        #   LED NODE
+        - LED_NodeStatus
+        - LEDBL_IsoTpTx
+        - LEDBL_Status
+
+        - BRAKE_NodeStatus
+        - BRAKEBL_IsoTpTx
+        - BRAKEBL_Status
+
+        - CTRL_NodeStatus
+        - CTRLBL_IsoTpTx
+        - CTRLBL_Status
+
+        - STEER_NodeStatus
+        - STEERBL_IsoTpTx
+        - STEERBL_Status
+
+        - SUP_NodeStatus
+        - SUPBL_IsoTpTx
+        - SUPBL_Status
+
+        - THROTTLE_NodeStatus
+        - THROTTLEBL_IsoTpTx
+        - THROTTLEBL_Status
+      messages:
+        - IsoTpTx_BLINK:
+            id: 0x530
+        - IsoTpTx_BRAKE:
+            id: 0x531
+        - IsoTpTx_CTRL:
+            id: 0x532
+        - IsoTpTx_STEER:
+            id: 0x533
+        - IsoTpTx_SUP:
+            id: 0x534
+        - IsoTpTx_THROTTLE:
+            id: 0x535
+
+            # LED NODE
+        - IsoTpTx_LED:
+            id: 0x536
+            # END LED NODE
+
+        - UpdateControl_BLINK:
+            from_template: UpdateControl
+            id: 0x5A0
+        - UpdateControl_BRAKE:
+            from_template: UpdateControl
+            id: 0x5A1
+        - UpdateControl_CTRL:
+            from_template: UpdateControl
+            id: 0x5A2
+        - UpdateControl_STEER:
+            from_template: UpdateControl
+            id: 0x5A3
+        - UpdateControl_SUP:
+            from_template: UpdateControl
+            id: 0x5A4
+        - UpdateControl_THROTTLE:
+            from_template: UpdateControl
+            id: 0x5A5
+
+        # LED NODE
+        - UpdateControl_LED:
+            from_template: UpdateControl
+            id: 0x5A6
 
   - WHL:
       messages:
@@ -833,3 +877,5 @@ nodes:
               - bar:
                   description: Bar.
                   width: 40
+
+        #    fjsfj
