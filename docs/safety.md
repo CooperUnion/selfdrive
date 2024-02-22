@@ -1,14 +1,10 @@
 # Safety Policies & Procedures
 
-Document serves purpose of safety guidelines (both in 701 and outside)
+The importance of this safety guide is to:
 
-### The importance of this safety guide is to ensure:
-
-1. **NO ONE GETS HARMED** or we mitigate the risk of people getting harm
-1. There isn’t a lot of capital damage to the car or anything in the
-   surrounding area
-1. Helps prevents any easily avoidable mistakes that could be prevented
-   and set back the timeline
+1. Ensure nobody gets harmed and reduce the risk of getting harmed
+2. How to prevent easily avoidable mistakes
+3. Reduce damage
 
 ## General
 
