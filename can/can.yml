@@ -324,6 +324,45 @@ nodes:
                   width: 10
                   # TODO: determine realistic bounds
 
+  - FNR:
+      rx:
+        - DBW_ESTOP
+        - DBW_RawVelocityCommand
+        - DBW_VelocityCommand
+        - SUP_Authorization
+        - UPD_UpdateControl_FNR  # bootloader
+      messages:
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0x82
+
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0x83
+
+        - FNRData:
+            id: 0x84
+            cycletime: 100
+
+            signals:
+              - relayState:
+                  description: Status of manual-DBW relay.
+                  width: 1
+                  enumerated_values:
+                    - MANUAL
+                    - DBW
+
+  - FNRLBL:
+      rx:
+        - UPD_IsoTpTx_FNR
+        - UPD_UpdateControl_FNR
+      messages:
+        - IsoTpTx:
+            id: 0x507
+        - Status:
+            from_template: BlStatus
+            id: 0x508
+
   - ENCF:
       rx:
         - DBW_ESTOP
@@ -644,10 +683,10 @@ nodes:
         - UPD_UpdateControl_STEER
       messages:
         - IsoTpTx:
-            id: 0x507
+            id: 0x509
         - Status:
             from_template: BlStatus
-            id: 0x508
+            id: 0x50a
 
   - SUP:
       rx:
@@ -655,6 +694,7 @@ nodes:
         - CTRL_Alarms
         - CTRL_NodeStatus
         - CTRL_VelocityCommand
+        - FNR_NodeStatus
         - DBW_ESTOP
         - DBW_RawVelocityCommand
         - DBW_SteeringCommand
@@ -671,6 +711,9 @@ nodes:
             signals:
               - brakeAuthorized:
                   description: Brake authorization.
+                  width: 1
+              - fnrAuthorized:
+                  description: FNR authorization.
                   width: 1
               - throttleAuthorized:
                   description: Throttle authorization.
@@ -693,10 +736,10 @@ nodes:
         - UPD_UpdateControl_SUP
       messages:
         - IsoTpTx:
-            id: 0x509
+            id: 0x50b
         - Status:
             from_template: BlStatus
-            id: 0x50a
+            id: 0x50c
 
   - TEST:
       rx: '*'
@@ -733,12 +776,14 @@ nodes:
             id: 0x531
         - IsoTpTx_CTRL:
             id: 0x532
-        - IsoTpTx_STEER:
+        - IsoTpTx_FNR:
             id: 0x533
-        - IsoTpTx_SUP:
+        - IsoTpTx_STEER:
             id: 0x534
-        - IsoTpTx_THROTTLE:
+        - IsoTpTx_SUP:
             id: 0x535
+        - IsoTpTx_THROTTLE:
+            id: 0x536
         - UpdateControl_BLINK:
             from_template: UpdateControl
             id: 0x5A0
@@ -748,15 +793,18 @@ nodes:
         - UpdateControl_CTRL:
             from_template: UpdateControl
             id: 0x5A2
-        - UpdateControl_STEER:
+        - UpdateControl_FNR:
             from_template: UpdateControl
             id: 0x5A3
-        - UpdateControl_SUP:
+        - UpdateControl_STEER:
             from_template: UpdateControl
             id: 0x5A4
-        - UpdateControl_THROTTLE:
+        - UpdateControl_SUP:
             from_template: UpdateControl
             id: 0x5A5
+        - UpdateControl_THROTTLE:
+            from_template: UpdateControl
+            id: 0x5A6
 
   - THROTTLE:
       rx:
@@ -804,10 +852,10 @@ nodes:
         - UPD_UpdateControl_THROTTLE
       messages:
         - IsoTpTx:
-            id: 0x50b
+            id: 0x50d
         - Status:
             from_template: BlStatus
-            id: 0x50c
+            id: 0x50e
 
   - WHL:
       messages:
