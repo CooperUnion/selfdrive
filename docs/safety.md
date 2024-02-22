@@ -3,8 +3,8 @@
 The importance of this safety guide is to:
 
 1. Ensure nobody gets harmed and reduce the risk of getting harmed
-2. How to prevent easily avoidable mistakes
-3. Reduce damage
+1. How to prevent easily avoidable mistakes
+1. Reduce damage
 
 ## General
 
@@ -54,6 +54,7 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
 - Wait until clear before jacking or releasing jack
 - Announce "ALL CLEAR, JACKING (FRONT OR BACK)"
 - Announce "ALL CLEAR, LOWERING" when releasing the jack
+- NO ONE allowed under car when it is on jacks (no exceptions)
 
 *When going under a car:*
 
@@ -74,8 +75,8 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
   blocks at all times)
 - Have the car face at the wall where it won’t hit the hallway or anyone
   else in case it drives forward by itself
-- Avoid keeping the car on it’s wheels unless needed for testing
-- Even this should be avoided by using the jack stands in the lab
+- Avoid keeping the car on it’s wheels unless needed for testing (Use
+  jack stands as needed)
 
 ### When using power tools / drills:
 
