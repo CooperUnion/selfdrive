@@ -258,7 +258,7 @@ static void led_init()
 
 static void led_1Hz()
 {
-    LED_STATUS = !LED_STATUS
+    LED_STATUS = !LED_STATUS;
     gpio_set_level(LED_GPIO, LED_STATUS);
 }
 ```
@@ -302,7 +302,7 @@ static void led_init()
 
 static void led_1Hz()
 {
-    LED_STATUS = !LED_STATUS
+    LED_STATUS = !LED_STATUS;
     gpio_set_level(LED_GPIO, LED_STATUS);
 }
 
