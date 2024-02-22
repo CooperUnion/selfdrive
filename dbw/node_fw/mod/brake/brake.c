@@ -22,6 +22,9 @@
 
 #define CMD2DUTY(cmd) ((cmd) * ((1 << PWM_RESOLUTION) - 1))
 
+#define LIM_SW_1 GPIO_NUM_15
+#define LIM_SW_2 GPIO_NUM_16
+
 // ######      PROTOTYPES       ###### //
 
 // ######     PRIVATE DATA      ###### //
@@ -56,6 +59,12 @@ static void brake_init()
 {
     ledc_timer_config(&pwm_timer);
     ledc_channel_config(&pwm_channel);
+
+    gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
+    gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
+    gpio_pullup_en(LIM_SW_1);
+    gpio_pullup_en(LIM_SW_2);
+
 }
 
 static void brake_100Hz()
@@ -67,9 +76,12 @@ static void brake_100Hz()
         CANRX_get_SUP_brakeAuthorized() &&
         CANRX_is_message_CTRL_VelocityCommand_ok();
 
+    bool lim_sw_tog =
+        gpio_get_level(LIM_SW_1) | gpio_get_level(LIM_SW_2);
+
     float cmd;
 
-    if (brake_authorized) {
+    if (brake_authorized && !lim_sw_tog) {
         cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
         base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
     } else {
