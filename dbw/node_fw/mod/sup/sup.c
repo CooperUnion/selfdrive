@@ -17,6 +17,7 @@
 // ######     PRIVATE DATA      ###### //
 
 static bool brake_authorized;
+static bool fnr_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
 
@@ -43,6 +44,14 @@ static void sup_100Hz()
     authorized &= !CANRX_get_CTRL_speedAlarm();
     taskENABLE_INTERRUPTS();
     brake_authorized = authorized;
+
+    // FNR
+    authorized = true;
+    taskDISABLE_INTERRUPTS();
+    authorized &= CANRX_is_message_DBW_VelocityCommand_ok() || CANRX_is_message_DBW_RawVelocityCommand_ok();
+    authorized &= CANRX_get_FNR_sysStatus() != CAN_T_DBWNODESTATUS_SYSSTATUS_ESTOP;
+    taskENABLE_INTERRUPTS();
+    steer_authorized = authorized;
 
     // STEER
     authorized = true;
@@ -78,6 +87,7 @@ void CANTX_populate_SUP_Authorization(
         struct CAN_Message_SUP_Authorization * const m)
 {
     m->SUP_brakeAuthorized    = brake_authorized;
+    m->SUP_fnrAuthorized      = fnr_authorized;
     m->SUP_throttleAuthorized = throttle_authorized;
     m->SUP_steerAuthorized    = steer_authorized;
 }
