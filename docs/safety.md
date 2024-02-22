@@ -151,15 +151,14 @@ tools, using power tools, cutting/stripping wire, soldering
 - Secure the test area with caution tape and orange cones
 - Have a megaphone in case an announcement needs to be made
 
-### Before commencing Test Day run through safety checklist:
+*Before a test day, confirm the following:*
 
-- Who is designated student safety officer?
-- Does the ESTOP work as intended?
-- Is the weather suitable for a test day?
-- Is there a lab technician or someone certified who agreed they’d be
-  with you during the duration of the test day?
+- Is there a designated safety officer?
+- Are E-STOPs functional?
+- Is weather suitable?
+- Is there a lab technician or someone certified who agreed they'd be
+  with you during the duration of the test?
 - Is the school grounds team aware of what section of the sidewalk will
-  be blocked for testing?
-- Make sure all members present for test day understand what system is
-  being tested when and are conscious of any dangers that maybe
-  associated with it
+  be blocked off for testing?
+- Ensure everyone participating is informed of the tests and the risks
+  associated with them
