@@ -133,18 +133,16 @@ tools, using power tools, cutting/stripping wire, soldering
 - Responsible for asking people not following safety protocol to leave
   the test environment
 
-### When car is ARMED
+*When a car is armed:*
 
-- Armed means any of the following: Key is in ignition, Node boards are
-  powered
-- Take extreme care not to short connections
-- If possible, turn off car / nodes before using metal tools on the
-  boards (metal snips, screw drivers, etc)
-- If anything shorts / makes smoke/ explodes, STOP what you're doing,
-  call for help, turn all systems OFF to prevent further damages,
-  identify problem before moving on
-- If working with something connected to a battery, take even more care
-  not to short components
+- A car is considered armed if the key is in the ignition or
+  microcontrollers are powered
+- Nobody is to be in front of an armed car, **no exceptions**
+- A fire extinguisher must be inside the car at all times
+- Avoid using tools
+- Take extreme care not to short anything
+- If anything shorts, smokes, or explores, **stop** immediately, turn
+  off **all** systems, and call for help before identifying the problem
 
 *When outside of 41CS:*
 
