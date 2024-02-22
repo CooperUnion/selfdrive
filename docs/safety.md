@@ -63,11 +63,10 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
 - Announce "GOING UNDER CAR" to make sure everyone near the car knows
   not to sit inside or move the car
 
-### When operating experimental boards / devices / new additions to car:
+*When operating experimental components:*
 
-- Check that it works on a node not plugged into car first
-- Check board is not being back-powered through battery device
-- Operate with power supply before connecting to electronics to car
+- Confirm the component works on a lab bench before testing on a project
+- Ensure there is a safe way to disengage the component
 
 ### When car is in 701:
 
