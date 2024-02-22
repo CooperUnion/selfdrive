@@ -94,10 +94,9 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
 - If a battery shorts, **stop** what you're doing, turn off all systems
   to prevent further damage, and identify the cause for the short
 
-### When soldering:
+*When soldering:*
 
-- Ensure some sort of fan/filter is on (either the ceiling air sucker or
-  the mini fan)
+- Ensure you have appropriate ventilation
 - Ensure soldering iron is not left on when finished
 
 *When using a heat gun:*
