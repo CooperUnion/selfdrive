@@ -39,9 +39,9 @@ The importance of this safety guide is to:
 - Keep applying pressure
 - Go to urgent care
 
-### If someone passes out / loses consciousness:
+*If someone loses consciousness:*
 
-- Call 911 NO EXCEPTIONS
+- Call 911, **NO EXCEPTIONS**
 
 ## When Using Equipment:
 
