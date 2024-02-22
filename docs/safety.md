@@ -43,16 +43,11 @@ The importance of this safety guide is to:
 
 - Call 911, **NO EXCEPTIONS**
 
-## When Using Equipment:
+## Using Equipment
 
-### MUST:
-
-- Wear goggles
-- Wear electrical gloves (if handling +48V line)
-- Place chock blocks on wheels if tires are not on dollies
-
-This includes but not limited to: mechanical maintenance, using hand
-tools, using power tools, cutting/stripping wire, soldering
+You **must** wear goggles (and electric gloves if handling high
+voltage). This includes, but is not limited to: mechanical maintenance,
+using hand/power tools, cutting/stripping wire, soldering, etc...
 
 ### When jacking car:
 
