@@ -86,15 +86,13 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
   flying or break
 - Use step bits when possible for drilling into plastic
 
-### When wiring to a battery (if battery leads are exposed):
+*When wiring a battery:*
 
-- Make sure all are clear before removing tape / no one is touching
-  other side of battery to prevent shorts
-- If anything is loose or hanging use electric tape to prevent any
-  accidental shorts
-- Use battery boots (when possible)
-- If battery shorts, STOP what you're doing, turn off all systems to
-  prevent further damage, identify problem.
+- Make sure all is clear before removing insulation to prevent shorts
+- For anything loose use electric tape to prevent any accidental shorts
+- Use battery boots (where possible)
+- If a battery shorts, **stop** what you're doing, turn off all systems
+  to prevent further damage, and identify the cause for the short
 
 ### When soldering:
 
