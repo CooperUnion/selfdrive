@@ -55,15 +55,13 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
 - Announce "ALL CLEAR, JACKING (FRONT OR BACK)"
 - Announce "ALL CLEAR, LOWERING" when releasing the jack
 
-### When going under car:
+*When going under a car:*
 
-- Announce / shout out “GOING UNDER CAR” to make sure everyone near the
-  car knows not to sit inside the car or move the car
-- Do not go under car until sure no one is going to sit in car / move
-  car
-- Put up caution tape or assign someone else to watch car or stand at
-  door so people coming in know not to go into car while you are under
-  the car
+- Put up caution tape or assign someone else to watch the car so people
+  coming nearby know to stay clear of the car
+- Do not go under the car until you are sure it is safe to do so
+- Announce "GOING UNDER CAR" to make sure everyone near the car knows
+  not to sit inside or move the car
 
 ### When operating experimental boards / devices / new additions to car:
 
