@@ -34,10 +34,9 @@ The importance of this safety guide is to:
 - Use disinfectant
 - Use gauze/band-aids
 
-### If bleeding is not stopping:
+*If bleeding doesn't stop:*
 
 - Keep applying pressure
-- Call for help
 - Go to urgent care
 
 ### If someone passes out / loses consciousness:
