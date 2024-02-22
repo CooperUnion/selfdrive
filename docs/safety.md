@@ -146,11 +146,10 @@ tools, using power tools, cutting/stripping wire, soldering
 - If working with something connected to a battery, take even more care
   not to short components
 
-### When outside:
+*When outside of 41CS:*
 
-- Yellow caution tape and orange cones for to corral/block pedestrians
-- No one in front or behind car while car is “ARMED” NO EXCEPTIONS
-- Must have fire extinguisher in car
+- Secure the test area with caution tape and orange cones
+- Have a megaphone in case an announcement needs to be made
 
 ### Before commencing Test Day run through safety checklist:
 
