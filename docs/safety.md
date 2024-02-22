@@ -8,10 +8,10 @@ The importance of this safety guide is to:
 
 ## General
 
-### If something starts smoking:
+*If something starts smoking:*
 
-- Press estop and turn off all power immediately
-- Clear the lab asap
+- Press the E-STOP and turn off all power immediately
+- Clear the lab
 - Call for help
 
 ### If fire:
