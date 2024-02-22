@@ -1,4 +1,4 @@
-# Autonomy Lab Safety Policies & Procedures
+# Safety Policies & Procedures
 
 Document serves purpose of safety guidelines (both in 701 and outside)
 
