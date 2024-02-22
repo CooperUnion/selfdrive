@@ -78,13 +78,12 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
 - Avoid keeping the car on it’s wheels unless needed for testing (Use
   jack stands as needed)
 
-### When using power tools / drills:
+*When operating power tools:*
 
-- Announce/ shout out “ALL CLEAR, DRILLING” so that all in car know to
-  be clear
-- Make sure all are clear before using tool
-- Ensure item you are drilling into is clamped in some way so that it
-  doesn’t go flying or break
+- Make sure all is clear before using the tool
+- Announce "ALL CLEAR, OPERATING (TOOL)" so that all know to be clear
+- Ensure items are properly clamped before drilling so they don't go
+  flying or break
 - Use step bits when possible for drilling into plastic
 
 ### When wiring to a battery (if battery leads are exposed):
