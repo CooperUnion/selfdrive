@@ -119,29 +119,19 @@ tools, using power tools, cutting/stripping wire, soldering
 
 ## Test Day Procedures
 
-### Test day safety officer
+*In general:*
 
-- One person (can be volunteer) is assigned to be safety officer for day
-- This person will make sure people are following the ALL CLEAR shouts
-- Person makes sure no one is in car when people are under car
-- Person makes sure people using tools are wearing goggles
-- Will be the person to call 911 if needed
-- Will be the first person to use the fire extinguisher if needed
-- Responsible for asking people not being safe to leave the room/test
-  environment
+- If not directly testing, **stay clear**
+- Do not distract people testing as it may cause a lapse in judgement
+- Save non-urgent questions for when people are not actively testing
 
-### In General
+*Test day safety officer:*
 
-- If not directly touching / testing something on car, STAY CLEAR
-- If have curiosity questions, it’s okay to ask but wait until the team
-  member who is working is finished or save questions for reflections or
-  other times
-- If afraid you might forget your question, write it down somewhere
-- Ideally, unless it’s urgent, don’t distract people using tools and
-  working on car
-- Not only is it important for team members to focus while using tools
-  to work on the car, distractions can cause mistakes which could cause
-  the car to become unsafe
+- One person is assigned to be safety officer for the day
+- Ensures people follow safety protocols
+- Designated as person to call 911 and use the fire extinguisher
+- Responsible for asking people not following safety protocol to leave
+  the test environment
 
 ### When car is ARMED
 
