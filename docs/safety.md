@@ -49,11 +49,11 @@ You **must** wear goggles (and electric gloves if handling high
 voltage). This includes, but is not limited to: mechanical maintenance,
 using hand/power tools, cutting/stripping wire, soldering, etc...
 
-### When jacking car:
+*When jacking a car:*
 
-- Announce “ALL CLEAR, JACKING FRONT” or “JACKING BACK”
-- Announce “ALL CLEAR, LOWERING” when releasing the jack
 - Wait until clear before jacking or releasing jack
+- Announce "ALL CLEAR, JACKING (FRONT OR BACK)"
+- Announce "ALL CLEAR, LOWERING" when releasing the jack
 
 ### When going under car:
 
