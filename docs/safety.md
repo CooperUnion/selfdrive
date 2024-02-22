@@ -25,14 +25,14 @@ The importance of this safety guide is to:
 - Do not rub eye
 - Call for help
 
-### If bleeding:
+*If bleeding:*
 
 - Call for help
-- Apply pressure to wound
-- First Aid kit near exit of 701
-- Use gauze/band aids
+- Apply pressure to the wound
+- First-aid kit is near the exit of 701
 - Wash hands
 - Use disinfectant
+- Use gauze/band-aids
 
 ### If bleeding is not stopping:
 
