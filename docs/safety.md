@@ -14,10 +14,10 @@ The importance of this safety guide is to:
 - Clear the lab
 - Call for help
 
-### If fire:
+*In case of fire:*
 
-- Fire extinguisher is on inside of car
-- Larger one in front of 701
+- There is a fire extinguisher on inside of the g-wagon
+- There is a larger fire extinguisher right outside 701
 
 ### If something in eye:
 
