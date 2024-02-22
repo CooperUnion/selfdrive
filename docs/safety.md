@@ -19,9 +19,9 @@ The importance of this safety guide is to:
 - There is a fire extinguisher on inside of the g-wagon
 - There is a larger fire extinguisher right outside 701
 
-### If something in eye:
+*If something gets in the eye:*
 
-- Eye wash is on either sink in 701
+- There is an eye wash in each 701 sink
 - Do not rub eye
 - Call for help
 
