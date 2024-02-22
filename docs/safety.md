@@ -100,11 +100,11 @@ using hand/power tools, cutting/stripping wire, soldering, etc...
   the mini fan)
 - Ensure soldering iron is not left on when finished
 
-### When using Heat-Gun
+*When using a heat gun:*
 
-- Make sure ONLY pointing at items want to heat up
-- Keep others clear when heat gun is on
-- Ensure heat gun is turned off when finished
+- Only point at items you want to heat
+- Keep clear of people and other objects when the heat gun is on
+- Ensure the heat gun is turned off when finished
 
 ## Test Day Procedures
 
