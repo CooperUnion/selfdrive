@@ -117,12 +117,6 @@ tools, using power tools, cutting/stripping wire, soldering
 - Keep others clear when heat gun is on
 - Ensure heat gun is turned off when finished
 
-### When running new steel cables for Brake-by-Cable:
-
-- Use swage tool in vice when possible
-- Clean all steel shavings when cutting cables
-- Tape/cover all sharp ends of the cable
-
 ## Test Day Procedures
 
 ### Test day safety officer
