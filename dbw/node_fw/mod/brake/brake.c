@@ -207,13 +207,13 @@ static void adc_init(void)
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
 		[CS_ADC_CHANNEL_INDEX] = {
-			.atten     = ADC_ATTEN_DB_2_5,
+			.atten     = ADC_ATTEN_DB_11,
 			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
 			.channel   = CS_ADC_CHANNEL,
 			.unit      = ADC_UNIT_1,
 		},
 		[PS_ADC_CHANNEL_INDEX] = {
-			.atten     = ADC_ATTEN_DB_2_5,
+			.atten     = ADC_ATTEN_DB_11,
 			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
 			.channel   = PS_ADC_CHANNEL,
 			.unit      = ADC_UNIT_1,
