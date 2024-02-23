@@ -24,8 +24,10 @@
 
 #define DIR_PIN GPIO_NUM_1
 #define PWM_PIN GPIO_NUM_2
+#define SLP_PIN GPIO_NUM_3
+#define FLT_PIN GPIO_NUM_4
 
-#define LIMIT_SWITCH_PIN GPIO_NUM_15
+#define LIMIT_SWITCH_PIN GPIO_NUM_5
 
 #define PWM_FREQUENCY       1000
 #define PWM_INIT_DUTY_CYCLE 0
@@ -38,7 +40,7 @@
 
 // CS is currently on ADC_UNIT_2 so this is meaningless
 #define CS_ADC_CHANNEL ADC_CHANNEL_0
-#define PS_ADC_CHANNEL ADC_CHANNEL_6
+#define PS_ADC_CHANNEL ADC_CHANNEL_7
 
 enum {
 	CS_ADC_CHANNEL_INDEX,
@@ -127,6 +129,12 @@ static void brake_init(void)
 	gpio_set_direction(DIR_PIN, GPIO_MODE_INPUT);
 	gpio_set_level(DIR_PIN, 1);
 
+	gpio_set_direction(SLP_PIN, GPIO_MODE_OUTPUT);
+	gpio_set_level(SLP_PIN, 1);
+
+	gpio_set_direction(FLT_PIN, GPIO_MODE_INPUT);
+	gpio_pullup_en(FLT_PIN);
+
 	gpio_set_direction(LIMIT_SWITCH_PIN, GPIO_MODE_INPUT);
 	gpio_pullup_en(LIMIT_SWITCH_PIN);
 
@@ -152,13 +160,17 @@ static void brake_100Hz(void)
 		CANRX_is_message_CTRL_VelocityCommand_ok();
 
 	bool lim_sw_toggled = gpio_get_level(LIMIT_SWITCH_PIN);
+	bool fault_detected = gpio_get_level(FLT_PIN);
+	// If a fault is detected, it will stop motor outputs and re-attempt them
+	// in a few milliseconds
 
 	float cmd;
 
-	if (brake_authorized && !lim_sw_toggled) {
+	if (brake_authorized && !lim_sw_toggled && !fault_detected) {
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 	} else {
+		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
