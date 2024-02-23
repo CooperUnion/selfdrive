@@ -189,8 +189,6 @@ static void ctrl_100Hz()
     brake_percent    = 0;
     throttle_percent = 0;
     setpoint_reset   = true;
-
-    printf("Pulse count 0: %d, Pulse count 1: %d\n", pulse_cnt[0], pulse_cnt[1]);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
