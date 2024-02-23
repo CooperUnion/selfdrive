@@ -25,6 +25,8 @@
 #define DIR_PIN GPIO_NUM_1
 #define PWM_PIN GPIO_NUM_2
 
+#define LIMIT_SWITCH_PIN GPIO_NUM_15
+
 #define PWM_FREQUENCY       1000
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION      10
@@ -103,6 +105,9 @@ static void brake_init(void)
 	gpio_set_direction(DIR_PIN, GPIO_MODE_INPUT);
 	gpio_set_level(DIR_PIN, 1);
 
+	gpio_set_direction(LIMIT_SWITCH_PIN, GPIO_MODE_INPUT);
+	gpio_pullup_en(LIMIT_SWITCH_PIN);
+
 	static ledc_timer_config_t pwm_timer = {
 		.speed_mode      = LEDC_LOW_SPEED_MODE,
 		.duty_resolution = PWM_RESOLUTION,
@@ -124,9 +129,11 @@ static void brake_100Hz(void)
 		CANRX_get_SUP_brakeAuthorized() &&
 		CANRX_is_message_CTRL_VelocityCommand_ok();
 
+	bool lim_sw_toggled = gpio_get_level(LIMIT_SWITCH_PIN);
+
 	float cmd;
 
-	if (brake_authorized) {
+	if (brake_authorized && !lim_sw_toggled) {
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 	} else {
