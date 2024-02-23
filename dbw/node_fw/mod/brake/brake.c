@@ -35,6 +35,9 @@
 
 #define CS_ADC_CHANNEL ADC_CHANNEL_6
 #define PS_ADC_CHANNEL ADC_CHANNEL_7
+#define CS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
+#define PS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
+
 
 enum {
 	CS_ADC_CHANNEL_INDEX,
@@ -42,18 +45,20 @@ enum {
 	ADC_CHANNELS,
 };
 
-#define SAMPLING_RATE_KHZ     80000
-#define SAMPLING_TOTAL_FRAMES 120000
+#define SAMPLING_RATE_KHZ     10000
+#define SAMPLING_TOTAL_FRAMES 15000
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
-#define FRAME_SAMPLES 80
+#define FRAME_SAMPLES 10
 #define FRAME_SIZE    (sizeof(adc_digi_output_data_t) * FRAME_SAMPLES * ADC_CHANNELS)
 #define POOL_SIZE     (FRAME_SIZE * 2)
 
-#define TASK_STACK_SIZE 8192
+#define TASK_STACK_SIZE 1024
 
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_KHZ))
+
+#define FILTER_LENGTH 5
 
 // ######      PROTOTYPES       ###### //
 
@@ -64,6 +69,7 @@ static bool adc_callback(
 	void                            *user_data);
 static void adc_task(void *arg);
 static void dump_samples(void);
+static float iir_filter(float sample);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -78,8 +84,17 @@ static ledc_channel_config_t pwm_channel = {
 
 struct dump {
 	uint16_t buf[SAMPLING_BUF_FRAMES];
+	float    filtered[SAMPLING_BUF_FRAMES];
 	size_t   read;
 	size_t   write;
+};
+
+struct filter {
+	float  b[FILTER_LENGTH];
+	float  a[FILTER_LENGTH];
+	float  x[FILTER_LENGTH];
+	float  y[FILTER_LENGTH];
+	size_t n;
 };
 
 static struct {
@@ -87,7 +102,13 @@ static struct {
 	SemaphoreHandle_t       sem;
 	TaskHandle_t            task_handle;
 	struct dump             dump[ADC_CHANNELS];
-} adc;
+	struct filter           filter;
+} adc = {
+	.filter = {
+		.b = {0.0099, -0.0398, 0.0597, -0.0398, 0.0099},
+		.a = {1.0000, -3.9888, 5.9666, -3.9667, 0.9889},
+	},
+};
 
 
 // ######    RATE FUNCTIONS     ###### //
@@ -267,13 +288,17 @@ loop:
 		const adc_digi_output_data_t * const sample = samples + i;
 
 		struct dump *dump;
+		float        resolution;
+
 		switch (sample->type2.channel) {
 			case CS_ADC_CHANNEL:
-				dump = adc.dump + CS_ADC_CHANNEL_INDEX;
+				dump       = adc.dump + CS_ADC_CHANNEL_INDEX;
+				resolution = (1 << CS_ADC_BITWIDTH) - 1;
 				break;
 
 			case PS_ADC_CHANNEL:
-				dump = adc.dump + PS_ADC_CHANNEL_INDEX;
+				dump       = adc.dump + PS_ADC_CHANNEL_INDEX;
+				resolution = (1 << PS_ADC_BITWIDTH) - 1;
 				break;
 
 			default:
@@ -286,7 +311,12 @@ loop:
 
 		start_dump = false;
 
-		dump->buf[dump->write] = sample->type2.data;
+		uint16_t raw_sample        = sample->type2.data;
+		float    normalized_sample = ((float) raw_sample) / resolution;
+
+		dump->buf[dump->write]      = raw_sample;
+		dump->filtered[dump->write] = iir_filter(normalized_sample);
+
 		dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
 	}
 
@@ -299,11 +329,11 @@ loop:
 static void dump_samples()
 {
 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		printf("--- %d ---\n", i);
+		printf("--- %d unfiltered ---\n", i);
 
 		struct dump * const dump = adc.dump + i;
 
-		uint16_t read  = dump->read;
+		uint16_t read = dump->read;
 
 		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
 			printf("%u,%d\n", j, dump->buf[read]);
@@ -314,8 +344,51 @@ static void dump_samples()
 				vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 
+		printf("--- %d unfiltered ---\n", i);
+
+		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
+			printf("%u,%f\n", j, dump->filtered[read]);
+			read = (read + 1) % SAMPLING_BUF_FRAMES;
+
+			// prevent task_wdt trips
+			if (!(j % 10000))
+				vTaskDelay(2 / portTICK_PERIOD_MS);
+		}
+
 		dump->read = SIZE_MAX;
 	}
+}
+
+static float iir_filter(float sample)
+{
+	const float * const b = adc.filter.b;
+	const float * const a = adc.filter.a;
+	const size_t        n = adc.filter.n;
+
+	float * const x = adc.filter.x;
+	float * const y = adc.filter.y;
+
+	x[n] = sample;
+
+	float output = 0.0;
+
+	for (size_t i = 0; i < FILTER_LENGTH; i++)
+		output
+			+= b[i]
+			*  x[(n - i + FILTER_LENGTH) % FILTER_LENGTH];
+
+	for (size_t i = 1; i < FILTER_LENGTH; i++)
+		output
+			-= a[i]
+			*  x[(n - i + FILTER_LENGTH) % FILTER_LENGTH];
+
+	output *= a[0];
+
+	y[n] = output;
+
+	adc.filter.n = (n + 1) % FILTER_LENGTH;
+
+	return output;
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
