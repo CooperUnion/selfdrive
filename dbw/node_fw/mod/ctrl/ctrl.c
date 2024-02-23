@@ -86,6 +86,8 @@ ember_rate_funcs_S module_rf = {
     .call_100Hz = ctrl_100Hz,
 };
 
+int count = 0;
+
 static void ctrl_init()
 {
     gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
@@ -187,6 +189,8 @@ static void ctrl_100Hz()
     brake_percent    = 0;
     throttle_percent = 0;
     setpoint_reset   = true;
+
+    printf("Pulse count 0: %d, Pulse count 1: %d\n", pulse_cnt[0], pulse_cnt[1]);
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -216,19 +220,10 @@ static void IRAM_ATTR encoder0_chan_a(void *arg)
     const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
     const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-    if (chan_a) {
-        if (chan_b) {
-            --pulse_cnt[0];
-        } else {
-            ++pulse_cnt[0];
-        }
-    } else {
-        if (chan_b) {
-            ++pulse_cnt[0];
-        } else {
-            --pulse_cnt[0];
-        }
-    }
+    if(chan_b^chan_a)
+	    ++pulse_cnt[0];
+    else
+	    --pulse_cnt[0];
 }
 
 static void IRAM_ATTR encoder0_chan_b(void *arg)
@@ -236,19 +231,10 @@ static void IRAM_ATTR encoder0_chan_b(void *arg)
     const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
     const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-    if (chan_b) {
-        if (chan_a) {
-            ++pulse_cnt[0];
-        } else {
-            --pulse_cnt[0];
-        }
-    } else {
-        if (chan_a) {
-            --pulse_cnt[0];
-        } else {
-            ++pulse_cnt[0];
-        }
-    }
+    if (!chan_b^chan_a)
+	    ++pulse_cnt[0];
+    else
+	    --pulse_cnt[0];
 }
 
 static void IRAM_ATTR encoder1_chan_a(void *arg)
@@ -256,19 +242,10 @@ static void IRAM_ATTR encoder1_chan_a(void *arg)
     const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
     const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-    if (chan_a) {
-        if (chan_b) {
-            --pulse_cnt[1];
-        } else {
-            ++pulse_cnt[1];
-        }
-    } else {
-        if (chan_b) {
-            ++pulse_cnt[1];
-        } else {
-            --pulse_cnt[1];
-        }
-    }
+    if(chan_a^chan_b)
+	    ++pulse_cnt[1];
+    else
+	    --pulse_cnt[1];
 }
 
 static void IRAM_ATTR encoder1_chan_b(void *arg)
@@ -276,19 +253,10 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
     const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
     const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-    if (chan_b) {
-        if (chan_a) {
-            ++pulse_cnt[1];
-        } else {
-            --pulse_cnt[1];
-        }
-    } else {
-        if (chan_a) {
-            --pulse_cnt[1];
-        } else {
-            ++pulse_cnt[1];
-        }
-    }
+    if(!chan_a^chan_b)
+	    ++pulse_cnt[1];
+    else
+	    --pulse_cnt[1];
 }
 
 static void velocity_control(
