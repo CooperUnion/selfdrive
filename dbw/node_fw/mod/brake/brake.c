@@ -25,8 +25,6 @@
 #define SLP_PIN GPIO_NUM_3
 #define FLT_PIN GPIO_NUM_4
 
-#define LIMIT_SWITCH_PIN GPIO_NUM_5
-
 #define PWM_FREQUENCY       10000 //10kHz
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION      10
@@ -50,19 +48,18 @@ enum {
 	ADC_CHANNELS,
 };
 
-#define SAMPLING_RATE_KHZ     10000
-#define SAMPLING_TOTAL_FRAMES 15000
-// value from 80kHz sampling rate, need to update
+#define SAMPLING_RATE_HZ      20000
+#define SAMPLING_TOTAL_FRAMES 40000 //3 seconds of data
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
 #define FRAME_SAMPLES 10
 #define FRAME_SIZE    (sizeof(adc_digi_output_data_t) * FRAME_SAMPLES * ADC_CHANNELS)
 #define POOL_SIZE     (FRAME_SIZE * 2)
 
-#define TASK_STACK_SIZE 1024
+#define TASK_STACK_SIZE 2048
 
 #define PREV_SAMPLE_DELAY_S 0.010
-#define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_KHZ))
+#define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
 #define FILTER_LENGTH 5
 
@@ -70,6 +67,10 @@ enum {
 
 static void adc_init(void);
 static bool adc_callback(
+	adc_continuous_handle_t         handle,
+	const adc_continuous_evt_data_t *cbs,
+	void                            *user_data);
+static bool overflow_callback(
 	adc_continuous_handle_t         handle,
 	const adc_continuous_evt_data_t *cbs,
 	void                            *user_data);
@@ -117,6 +118,7 @@ static struct {
 };
 
 static int MOTOR_DIR; //store direction of motor
+volatile bool overflow = false;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -125,7 +127,7 @@ static void brake_1kHz(void);
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = brake_init,
-	.call_100Hz = brake_1kHz,
+	.call_1kHz = brake_1kHz,
 };
 
 static void brake_init(void)
@@ -148,9 +150,6 @@ static void brake_init(void)
 	gpio_set_direction(FLT_PIN, GPIO_MODE_INPUT);
 	gpio_pullup_en(FLT_PIN);
 
-	gpio_set_direction(LIMIT_SWITCH_PIN, GPIO_MODE_INPUT);
-	gpio_pullup_en(LIMIT_SWITCH_PIN);
-
 	static ledc_timer_config_t pwm_timer = {
 		.speed_mode      = LEDC_LOW_SPEED_MODE,
 		.duty_resolution = PWM_RESOLUTION,
@@ -170,19 +169,15 @@ static void brake_1kHz(void)
 		CANRX_get_SUP_brakeAuthorized() &&
 		CANRX_is_message_CTRL_VelocityCommand_ok();
 
-	bool lim_sw_toggled = gpio_get_level(LIMIT_SWITCH_PIN);
 	bool fault_detected = gpio_get_level(FLT_PIN);
-	// If a fault is detected, it will stop motor outputs and re-attempt them
-	// in a few milliseconds
 
-	float cmd;
 	float cmd; //brake percent scaled to 0->1
 
-	if (brake_authorized && !lim_sw_toggled && !fault_detected) {
+	if (brake_authorized) {
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 	} else {
-		gpio_set_level(SLP_PIN, 0);
+		gpio_set_level(SLP_PIN, 0); //turns motor off
 		cmd = 0.0;
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
@@ -195,15 +190,20 @@ static void brake_1kHz(void)
 	}
 
 	//update to reflect cycles need to stall for debouce
-	if (lim_sw_count >= 2){
+	if (lim_sw_count == 2){
 		//change direction of motor
 		MOTOR_DIR = !MOTOR_DIR;
 		gpio_set_level(DIR_PIN, MOTOR_DIR);
+		lim_sw_count = 0;
 	}
 
-	//set motor PWM
-	pwm_channel.duty = CMD2DUTY(cmd);
-	ledc_channel_config(&pwm_channel);
+	//set motor PWM if motor controller not in fault
+	if (!fault_detected){
+		//set motor PWM
+		pwm_channel.duty = CMD2DUTY(cmd);
+		ledc_channel_config(&pwm_channel);
+	}
+
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -251,7 +251,7 @@ static void adc_init(void)
 		},
 	};
 	adc_continuous_config_t config = {
-		.sample_freq_hz = SAMPLING_RATE_KHZ,
+		.sample_freq_hz = SAMPLING_RATE_HZ,
 		.conv_mode      = ADC_CONV_SINGLE_UNIT_1,
 		.format         = ADC_DIGI_OUTPUT_FORMAT_TYPE2,
 		.pattern_num    = ADC_CHANNELS,
@@ -261,6 +261,7 @@ static void adc_init(void)
 
 	adc_continuous_evt_cbs_t evt_cbs = {
 		.on_conv_done = adc_callback,
+		.on_pool_ovf = overflow_callback,
 	};
 	ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(
 		adc.handle,
@@ -268,6 +269,16 @@ static void adc_init(void)
 		NULL));
 
 	ESP_ERROR_CHECK(adc_continuous_start(adc.handle));
+}
+
+static bool IRAM_ATTR overflow_callback(
+	adc_continuous_handle_t         handle,
+	const adc_continuous_evt_data_t *cbs,
+	void                            *user_data)
+{
+	overflow = true;
+
+	return true;
 }
 
 static bool IRAM_ATTR adc_callback(
@@ -286,6 +297,13 @@ loop:
 	if (xSemaphoreTake(adc.sem, portMAX_DELAY) != pdTRUE)
 	goto loop;
 
+	if (overflow){
+		printf("OVERFLOW");
+		while(1){
+			vTaskDelay(2 / portTICK_PERIOD_MS);
+		}
+	}
+
 	static uint8_t  buf[FRAME_SIZE];
 	static uint32_t size;
 
@@ -298,7 +316,10 @@ loop:
 
 	static bool latch = false;
 
-	if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
+	// if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
+
+	//changing just for testing
+	if(!latch)
 	{
 		for (size_t i = 0; i < ADC_CHANNELS; i++) {
 			struct dump * const dump = adc.dump + i;
