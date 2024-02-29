@@ -20,8 +20,6 @@
 
 // ######        DEFINES        ###### //
 
-#define CMD_MAX 1
-
 #define DIR_PIN GPIO_NUM_1
 #define PWM_PIN GPIO_NUM_2
 #define SLP_PIN GPIO_NUM_3
@@ -29,7 +27,7 @@
 
 #define LIMIT_SWITCH_PIN GPIO_NUM_5
 
-#define PWM_FREQUENCY       1000
+#define PWM_FREQUENCY       10000 //10kHz
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION      10
 
@@ -42,6 +40,10 @@
 #define CS_ADC_CHANNEL ADC_CHANNEL_0
 #define PS_ADC_CHANNEL ADC_CHANNEL_7
 
+//need to check if these gpio's are okay
+#define LIM_SW_1 GPIO_NUM_15 //too far forward
+#define LIM_SW_2 GPIO_NUM_16 //too far backward
+
 enum {
 	CS_ADC_CHANNEL_INDEX,
 	PS_ADC_CHANNEL_INDEX,
@@ -50,6 +52,7 @@ enum {
 
 #define SAMPLING_RATE_KHZ     10000
 #define SAMPLING_TOTAL_FRAMES 15000
+// value from 80kHz sampling rate, need to update
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
 #define FRAME_SAMPLES 10
@@ -113,21 +116,31 @@ static struct {
 	},
 };
 
+static int MOTOR_DIR; //store direction of motor
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void brake_init(void);
-static void brake_100Hz(void);
+static void brake_1kHz(void);
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = brake_init,
-	.call_100Hz = brake_100Hz,
+	.call_100Hz = brake_1kHz,
 };
 
 static void brake_init(void)
 {
+	//motor forward first
 	gpio_set_direction(DIR_PIN, GPIO_MODE_INPUT);
-	gpio_set_level(DIR_PIN, 1);
+	MOTOR_DIR = 1; //forwards
+	gpio_set_level(DIR_PIN, MOTOR_DIR);
+
+	//limit switches
+	//logic = low if switch pressed
+	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
+    gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
+    gpio_pullup_en(LIM_SW_1);
+    gpio_pullup_en(LIM_SW_2);
 
 	gpio_set_direction(SLP_PIN, GPIO_MODE_OUTPUT);
 	gpio_set_level(SLP_PIN, 1);
@@ -151,10 +164,8 @@ static void brake_init(void)
 	adc_init();
 }
 
-static void brake_100Hz(void)
+static void brake_1kHz(void)
 {
-	static float32_t prv_cmd;
-
 	bool brake_authorized = CANRX_is_message_SUP_Authorization_ok() &&
 		CANRX_get_SUP_brakeAuthorized() &&
 		CANRX_is_message_CTRL_VelocityCommand_ok();
@@ -165,6 +176,7 @@ static void brake_100Hz(void)
 	// in a few milliseconds
 
 	float cmd;
+	float cmd; //brake percent scaled to 0->1
 
 	if (brake_authorized && !lim_sw_toggled && !fault_detected) {
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
@@ -175,14 +187,21 @@ static void brake_100Hz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
-	if (cmd > CMD_MAX) cmd = CMD_MAX;
+	static int lim_sw_count = 0;
 
-	// low-pass filter
-	const float32_t alpha = 0.1;
-	cmd = prv_cmd + (alpha * (cmd - prv_cmd));
+	//if limit switch is pressed
+	if (!gpio_get_level(LIM_SW_1) | !gpio_get_level(LIM_SW_2)){
+		lim_sw_count++;
+	}
 
-	prv_cmd = cmd;
+	//update to reflect cycles need to stall for debouce
+	if (lim_sw_count >= 2){
+		//change direction of motor
+		MOTOR_DIR = !MOTOR_DIR;
+		gpio_set_level(DIR_PIN, MOTOR_DIR);
+	}
 
+	//set motor PWM
 	pwm_channel.duty = CMD2DUTY(cmd);
 	ledc_channel_config(&pwm_channel);
 }
