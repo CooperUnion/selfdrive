@@ -31,11 +31,8 @@
 
 #define CMD2DUTY(cmd) ((cmd) * ((1 << PWM_RESOLUTION) - 1))
 
-#define CS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
 #define PS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
 
-// CS is currently on ADC_UNIT_2 so this is meaningless
-#define CS_ADC_CHANNEL ADC_CHANNEL_0
 #define PS_ADC_CHANNEL ADC_CHANNEL_7
 
 //need to check if these gpio's are okay
@@ -43,13 +40,12 @@
 #define LIM_SW_2 GPIO_NUM_16 //too far backward
 
 enum {
-	CS_ADC_CHANNEL_INDEX,
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
 };
 
 #define SAMPLING_RATE_HZ      20000
-#define SAMPLING_TOTAL_FRAMES 40000 //3 seconds of data
+#define SAMPLING_TOTAL_FRAMES 40000
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
 #define FRAME_SAMPLES 10
@@ -132,13 +128,10 @@ ember_rate_funcs_S module_rf = {
 
 static void brake_init(void)
 {
-	//motor forward first
 	gpio_set_direction(DIR_PIN, GPIO_MODE_INPUT);
-	MOTOR_DIR = 1; //forwards
+	MOTOR_DIR = 1;
 	gpio_set_level(DIR_PIN, MOTOR_DIR);
 
-	//limit switches
-	//logic = low if switch pressed
 	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
     gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
     gpio_pullup_en(LIM_SW_1);
@@ -171,35 +164,30 @@ static void brake_1kHz(void)
 
 	bool fault_detected = gpio_get_level(FLT_PIN);
 
-	float cmd; //brake percent scaled to 0->1
+	float cmd;
 
 	if (brake_authorized) {
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 	} else {
-		gpio_set_level(SLP_PIN, 0); //turns motor off
+		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
 	static int lim_sw_count = 0;
 
-	//if limit switch is pressed
 	if (!gpio_get_level(LIM_SW_1) | !gpio_get_level(LIM_SW_2)){
 		lim_sw_count++;
 	}
 
-	//update to reflect cycles need to stall for debouce
 	if (lim_sw_count == 2){
-		//change direction of motor
 		MOTOR_DIR = !MOTOR_DIR;
 		gpio_set_level(DIR_PIN, MOTOR_DIR);
 		lim_sw_count = 0;
 	}
 
-	//set motor PWM if motor controller not in fault
 	if (!fault_detected){
-		//set motor PWM
 		pwm_channel.duty = CMD2DUTY(cmd);
 		ledc_channel_config(&pwm_channel);
 	}
@@ -237,12 +225,6 @@ static void adc_init(void)
 		&adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
-		[CS_ADC_CHANNEL_INDEX] = {
-			.atten     = ADC_ATTEN_DB_11,
-			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-			.channel   = CS_ADC_CHANNEL,
-			.unit      = ADC_UNIT_1,
-		},
 		[PS_ADC_CHANNEL_INDEX] = {
 			.atten     = ADC_ATTEN_DB_11,
 			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
@@ -344,11 +326,6 @@ loop:
 		float        resolution;
 
 		switch (sample->type2.channel) {
-			case CS_ADC_CHANNEL:
-				dump       = adc.dump + CS_ADC_CHANNEL_INDEX;
-				resolution = (1 << CS_ADC_BITWIDTH) - 1;
-				break;
-
 			case PS_ADC_CHANNEL:
 				dump       = adc.dump + PS_ADC_CHANNEL_INDEX;
 				resolution = (1 << PS_ADC_BITWIDTH) - 1;
