@@ -340,6 +340,30 @@ nodes:
             from_template: EncoderData
             id: 0x13
 
+  - LED:
+      rx:
+        - DBW_ESTOP
+        - UPD_UpdateControl_LED  # bootloader
+      messages:
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0xD7
+
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0xE7
+
+  - LEDBL:
+      rx:
+        - UPD_IsoTpTx_LED
+        - UPD_UpdateControl_LED
+      messages:
+        - IsoTpTx:
+            id: 0x601
+        - Status:
+            from_template: BlStatus
+            id: 0x602
+
   - ODRIVE:
       -rx:
         - STEER_ODriveVelocity
@@ -715,6 +739,10 @@ nodes:
         - CTRLBL_IsoTpTx
         - CTRLBL_Status
 
+        - LED_NodeStatus
+        - LEDBL_IsoTpTx
+        - LEDBL_Status
+
         - STEER_NodeStatus
         - STEERBL_IsoTpTx
         - STEERBL_Status
@@ -733,6 +761,8 @@ nodes:
             id: 0x531
         - IsoTpTx_CTRL:
             id: 0x532
+        - IsoTpTx_LED:
+            id: 0x536
         - IsoTpTx_STEER:
             id: 0x533
         - IsoTpTx_SUP:
@@ -748,6 +778,9 @@ nodes:
         - UpdateControl_CTRL:
             from_template: UpdateControl
             id: 0x5A2
+        - UpdateControl_LED:
+            from_template: UpdateControl
+            id: 0x5A6
         - UpdateControl_STEER:
             from_template: UpdateControl
             id: 0x5A3
