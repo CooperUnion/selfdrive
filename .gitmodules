@@ -1,20 +1,29 @@
 [submodule "can/cantools"]
 	path = common/cantools
 	url = ../cantools-autonomylab.git
+	ignore = dirty
+
 [submodule "dbw/ember_bl/lib/ember"]
 	path = dbw/ember_bl/lib/ember
 	url = ../ember.git
+	ignore = dirty
+
 [submodule "dbw/node_fw/ccmn_defs"]
 	path = dbw/node_fw/ccmn_defs
 	url = ../ccmn_defs.git
+	ignore = dirty
+
 [submodule "dbw/node_fw/lib/ember"]
 	path = dbw/node_fw/lib/ember
 	url = ../ember.git
+	ignore = dirty
 
 [submodule "lib/ember"]
 	path = lib/ember
 	url = ../ember.git
+	ignore = dirty
 
 [submodule "lib/esp-idf"]
 	path = lib/esp-idf
 	url = ../../espressif/esp-idf.git
+	ignore = dirty
