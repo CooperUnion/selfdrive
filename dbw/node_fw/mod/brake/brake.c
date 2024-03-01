@@ -37,7 +37,7 @@
 #define PS_ADC_UNIT ADC_UNIT_1
 
 #define LIM_SW_1 GPIO_NUM_33 //too far backward
-#define LIM_SW_2 GPIO_NUM_14 //too far forward
+#define LIM_SW_2 GPIO_NUM_34 //too far forward
 
 enum {
 	PS_ADC_CHANNEL_INDEX,
@@ -181,8 +181,9 @@ static void brake_1kHz(void)
 	}
 
 	static int lim_sw_count = 0;
+	printf("%d\n", lim_sw_count);
 
-	if (!gpio_get_level(LIM_SW_1) | !gpio_get_level(LIM_SW_2)){
+	if (gpio_get_level(LIM_SW_1) | gpio_get_level(LIM_SW_2)){
 		lim_sw_count++;
 	}
 
