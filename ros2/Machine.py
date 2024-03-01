@@ -1,16 +1,15 @@
 from statemachine import StateMachine, State
 
-class Car(StateMachine):
-    # State Machine for the Cooper Union Intelligent Ground Vehicle
-    Lane_Following = State("LF")
-    Lane_Change = State("LC")
+class CarMachine(StateMachine):
+    "State Machine for the Cooper Union Intelligent Ground Vehicle"
+    Lane_Following = State()
+    Lane_Change = State()
     # C stop is Controlled, E stop is Emergency
-    Cstop = State("CS",initial=True)
-    Estop = State("ES",final=True)
-
+    Cstop = State(initial=True)
+    Estop = State(final=True)
 
     Resume = Cstop.to(Lane_Following)
-    Obj_Avoidance = Lane_Following.to(Lane_Change)
+    Object_Avoidance = Lane_Following.to(Lane_Change)
     Stop_Trigger = Lane_Following.to(Cstop) | Lane_Change.to(Cstop)
     Emergency_Trigger =(
                         Lane_Following.to(Estop)
@@ -21,19 +20,20 @@ class Car(StateMachine):
 
 #The Lane Follow State 
     @Lane_Following.enter
-    def Follow():
+    def Follow(self):
         print("Following Lanes")
 
-
     @Cstop.enter
-    def on_CStop():
+    def on_CStop(self):
         print("Car is Stopped temporarily")
 
     @Estop.enter
-    def on_EStop():
+    def on_EStop(self):
         print("UH OH")
 
-if "__name__" == "__main__":
-    test_machin = Car()
+
+if __name__ == "__main__":
+    test_machin = CarMachine()
     img_path = "visualizer.png"
+    print(img_path)
     test_machin._graph().write_png(img_path)
