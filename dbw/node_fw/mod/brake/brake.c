@@ -34,6 +34,7 @@
 #define PS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
 
 #define PS_ADC_CHANNEL ADC_CHANNEL_7 //GPIO_8
+#define PS_ADC_UNIT ADC_UNIT_1
 
 #define LIM_SW_1 GPIO_NUM_33 //too far backward
 #define LIM_SW_2 GPIO_NUM_14 //too far forward
@@ -161,11 +162,16 @@ static void brake_1kHz(void)
 		CANRX_get_SUP_brakeAuthorized() &&
 		CANRX_is_message_CTRL_VelocityCommand_ok();
 
-	bool fault_detected = gpio_get_level(FLT_PIN);
+	bool motor_fault = !gpio_get_level(FLT_PIN);
 
 	float cmd;
 
-	if (brake_authorized) {
+	if (motor_fault) {
+		gpio_set_level(SLP_PIN, 0);
+		cmd = 0.0;
+		base_request_state(CUBER_SYS_STATE_ESTOP);
+	} else if (brake_authorized) {
+		gpio_set_level(SLP_PIN, 1);
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
 	} else {
@@ -186,10 +192,8 @@ static void brake_1kHz(void)
 		lim_sw_count = 0;
 	}
 
-	if (!fault_detected){
-		pwm_channel.duty = CMD2DUTY(cmd);
-		ledc_channel_config(&pwm_channel);
-	}
+	pwm_channel.duty = CMD2DUTY(cmd);
+	ledc_channel_config(&pwm_channel);
 
 }
 
@@ -228,7 +232,7 @@ static void adc_init(void)
 			.atten     = ADC_ATTEN_DB_11,
 			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
 			.channel   = PS_ADC_CHANNEL,
-			.unit      = ADC_UNIT_1,
+			.unit      = PS_ADC_UNIT,
 		},
 	};
 	adc_continuous_config_t config = {
@@ -310,13 +314,13 @@ loop:
 		latch = true;
 	}
 
-	const adc_digi_output_data_t *samples = (adc_digi_output_data_t*) buf;
+	adc_digi_output_data_t *samples = (adc_digi_output_data_t*) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
 
 	bool start_dump = true;
 	for (size_t i = 0; i < sample_count; i++)
 	{
-		const adc_digi_output_data_t * const sample = samples + i;
+		adc_digi_output_data_t * const sample = samples + i;
 
 		struct dump *dump;
 		float        resolution;
