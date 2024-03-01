@@ -181,13 +181,13 @@ static void brake_1kHz(void)
 	}
 
 	static int lim_sw_count = 0;
-	printf("%d\n", lim_sw_count);
+	// printf("%d\n", lim_sw_count);
 
 	if (gpio_get_level(LIM_SW_1) | gpio_get_level(LIM_SW_2)){
 		lim_sw_count++;
 	}
 
-	if (lim_sw_count == 2){
+	if (lim_sw_count == 10){
 		MOTOR_DIR = !MOTOR_DIR;
 		gpio_set_level(DIR_PIN, MOTOR_DIR);
 		lim_sw_count = 0;
