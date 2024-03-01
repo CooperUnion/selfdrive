@@ -10,6 +10,11 @@
 [submodule "dbw/node_fw/lib/ember"]
 	path = dbw/node_fw/lib/ember
 	url = ../ember.git
+
+[submodule "lib/ember"]
+	path = lib/ember
+	url = ../ember.git
+
 [submodule "lib/esp-idf"]
 	path = lib/esp-idf
 	url = ../../espressif/esp-idf.git
