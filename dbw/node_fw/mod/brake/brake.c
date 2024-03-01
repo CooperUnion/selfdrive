@@ -25,7 +25,7 @@
 #define SLP_PIN GPIO_NUM_3
 #define FLT_PIN GPIO_NUM_4
 
-#define PWM_FREQUENCY       10000 //10kHz
+#define PWM_FREQUENCY       10000
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION      10
 
@@ -33,11 +33,10 @@
 
 #define PS_ADC_BITWIDTH SOC_ADC_DIGI_MAX_BITWIDTH
 
-#define PS_ADC_CHANNEL ADC_CHANNEL_7
+#define PS_ADC_CHANNEL ADC_CHANNEL_7 //GPIO_8
 
-//need to check if these gpio's are okay
-#define LIM_SW_1 GPIO_NUM_15 //too far forward
-#define LIM_SW_2 GPIO_NUM_16 //too far backward
+#define LIM_SW_1 GPIO_NUM_33 //too far backward
+#define LIM_SW_2 GPIO_NUM_14 //too far forward
 
 enum {
 	PS_ADC_CHANNEL_INDEX,
@@ -298,10 +297,7 @@ loop:
 
 	static bool latch = false;
 
-	// if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
-
-	//changing just for testing
-	if(!latch)
+	if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
 	{
 		for (size_t i = 0; i < ADC_CHANNELS; i++) {
 			struct dump * const dump = adc.dump + i;
