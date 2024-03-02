@@ -11,6 +11,8 @@
 #include <freertos/semphr.h>
 #include <freertos/task.h>
 
+#include <sys/param.h>
+
 #include "cuber_base.h"
 #include "ember_common.h"
 #include "ember_taskglue.h"
@@ -59,6 +61,8 @@ enum {
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
 #define FILTER_LENGTH 5
+
+#define DEBOUNCE_CYCLES 100
 
 
 // ######      PROTOTYPES       ###### //
@@ -115,26 +119,27 @@ static struct {
 	},
 };
 
-static int MOTOR_DIR;
+static int motor_dir, prev_dir;
 volatile bool overflow = false;
 
 // ######    RATE FUNCTIONS     ###### //
 
 static void brake_init(void);
-static void brake_100Hz(void);
+// static void brake_100Hz(void);
 static void brake_1kHz(void);
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = brake_init,
-	.call_100Hz = brake_100Hz,
+	// .call_100Hz = brake_100Hz,
 	.call_1kHz  = brake_1kHz,
 };
 
 static void brake_init(void)
 {
 	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
-	MOTOR_DIR = 1;
-	gpio_set_level(DIR_PIN, MOTOR_DIR);
+	motor_dir = 0;
+	prev_dir = 1;
+	gpio_set_level(DIR_PIN, motor_dir);
 
 	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
     gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
@@ -161,38 +166,38 @@ static void brake_init(void)
 	adc_init();
 }
 
-static int lim_switch_buffer[10] = {0};
-static int motor_dir_buffer[10]  = {0};
+// static int lim_switch_buffer[10] = {0};
+// static int motor_dir_buffer[10]  = {0};
 
-static int delay_counter = 1001;
+static int delay_counter = 11;
 
-static void brake_100Hz(void)
-{
-	/*
-	printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
-			lim_switch_buffer[0],
-			lim_switch_buffer[1],
-			lim_switch_buffer[2],
-			lim_switch_buffer[3],
-			lim_switch_buffer[4],
-			lim_switch_buffer[5],
-			lim_switch_buffer[6],
-			lim_switch_buffer[7],
-			lim_switch_buffer[8],
-			lim_switch_buffer[9]);
-	printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
-			motor_dir_buffer[0],
-			motor_dir_buffer[1],
-			motor_dir_buffer[2],
-			motor_dir_buffer[3],
-			motor_dir_buffer[4],
-			motor_dir_buffer[5],
-			motor_dir_buffer[6],
-			motor_dir_buffer[7],
-			motor_dir_buffer[8],
-			motor_dir_buffer[9]);
-	*/
-}
+// static void brake_100Hz(void)
+// {
+// 	/*
+// 	printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
+// 			lim_switch_buffer[0],
+// 			lim_switch_buffer[1],
+// 			lim_switch_buffer[2],
+// 			lim_switch_buffer[3],
+// 			lim_switch_buffer[4],
+// 			lim_switch_buffer[5],
+// 			lim_switch_buffer[6],
+// 			lim_switch_buffer[7],
+// 			lim_switch_buffer[8],
+// 			lim_switch_buffer[9]);
+// 	printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",
+// 			motor_dir_buffer[0],
+// 			motor_dir_buffer[1],
+// 			motor_dir_buffer[2],
+// 			motor_dir_buffer[3],
+// 			motor_dir_buffer[4],
+// 			motor_dir_buffer[5],
+// 			motor_dir_buffer[6],
+// 			motor_dir_buffer[7],
+// 			motor_dir_buffer[8],
+// 			motor_dir_buffer[9]);
+// 	*/
+// }
 
 static void brake_1kHz(void)
 {
@@ -218,27 +223,25 @@ static void brake_1kHz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
-	static int buffer_ct = 0;
+	// static int buffer_ct = 0;
 
-	int lim_sw_level = gpio_get_level(LIM_SW_1) |
-					   gpio_get_level(LIM_SW_2);
+	static int prv_lim_sw_level;
+	static int lim_sw_level;
 
-	lim_switch_buffer[buffer_ct] = lim_sw_level;
-	buffer_ct++;
+	if (!delay_counter)
+		// lim_sw_level = gpio_get_level(LIM_SW_1) | gpio_get_level(LIM_SW_2);
+		lim_sw_level = gpio_get_level(LIM_SW_2);
 
-	if (buffer_ct == 9) {
-		buffer_ct = 0;
+	if (prv_lim_sw_level != lim_sw_level) {
+		delay_counter = DEBOUNCE_CYCLES;
+		motor_dir = (motor_dir + 1) % 3;
 	}
 
-	delay_counter++;
-	if (lim_sw_level && (delay_counter > 1000)) {
-		MOTOR_DIR = !MOTOR_DIR;
-		gpio_set_level(DIR_PIN, MOTOR_DIR);
-		delay_counter = 0;
-	}
-	motor_dir_buffer[buffer_ct]  = MOTOR_DIR;
+	delay_counter = MAX(delay_counter - 1, 0);
+	prv_lim_sw_level = lim_sw_level;
 
-	gpio_set_level(DIR_PIN, MOTOR_DIR);
+
+	gpio_set_level(DIR_PIN, !motor_dir);
 	pwm_channel.duty = CMD2DUTY(cmd);
 	ledc_channel_config(&pwm_channel);
 
