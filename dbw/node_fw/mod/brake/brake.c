@@ -115,7 +115,7 @@ static struct {
 	},
 };
 
-static int MOTOR_DIR; //store direction of motor
+static int MOTOR_DIR;
 volatile bool overflow = false;
 
 // ######    RATE FUNCTIONS     ###### //
