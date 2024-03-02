@@ -17,6 +17,7 @@
 
 #include "opencan_rx.h"
 #include "opencan_tx.h"
+#include "pid.h"
 
 // ######        DEFINES        ###### //
 #define ESP_INTR_FLAG_DEFAULT 0
@@ -59,6 +60,14 @@ enum {
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
 #define FILTER_LENGTH 5
+
+#define KP    1.00
+#define KI    0.00
+#define KD 	  0.00
+#define SIGMA 1.00
+
+#define PID_LOWER_LIMIT -100
+#define PID_UPPER_LIMIT  100
 
 
 // ######      PROTOTYPES       ###### //
@@ -118,6 +127,13 @@ static struct {
 static int MOTOR_DIR;
 volatile bool overflow = false;
 
+static float desired_brake_percentage;
+static float current_brake_percentage;
+static float motor_pwm; //controller output
+
+static pid_S pid;
+static bool  setpoint_reset;
+
 // ######    RATE FUNCTIONS     ###### //
 
 static void brake_init(void);
@@ -159,6 +175,8 @@ static void brake_init(void)
 	ledc_channel_config(&pwm_channel);
 
 	adc_init();
+
+	pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 }
 
 static int lim_switch_buffer[10] = {0};
@@ -466,6 +484,19 @@ static float iir_filter(float sample)
 	adc.filter.n = (n + 1) % FILTER_LENGTH;
 
 	return output;
+}
+
+//need to run as rate function ~ 100Hz?
+
+static void brake_control(
+	float desired_brake_percent,
+	float current_brake_percent){
+
+
+
+		motor_pwm = pid_step(&pid, desired_brake_percent, current_brake_percent);
+
+
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
