@@ -18,6 +18,11 @@
 	url = ../ember.git
 	ignore = dirty
 
+[submodule "lib/ccmn_defs"]
+	path = lib/ccmn_defs
+	url = ../ccmn_defs.git
+	ignore = dirty
+
 [submodule "lib/ember"]
 	path = lib/ember
 	url = ../ember.git
