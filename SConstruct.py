@@ -11,12 +11,30 @@ EnsurePythonVersion(3, 11)
 build = 'build'
 
 
+AddOption(
+    '--esp-baud',
+    default='',
+    help='serial port baud rate for flashing/reading',
+    metavar='BAUD',
+    type=str,
+)
+AddOption(
+    '--esp-port',
+    default='',
+    help='serial port device',
+    metavar='PORT',
+    type=str,
+)
+
+
 env = Environment(
     ENV={
         **uenv.ENV,
         'PATH': os.environ['PATH'],
         'TERM': os.environ.get('TERM'),
     },
+    ESPBAUD=GetOption('esp_baud'),
+    ESPPORT=GetOption('esp_port'),
     tools=[
         'default',
         'Component',
