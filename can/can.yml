@@ -190,6 +190,17 @@ nodes:
                   width: 10
                   unit: percent
                   scale: 0.1
+
+        - DBW_DataTrigger:
+            id: 0xF2
+            cycletime: 100
+
+            signals:
+              - triggerReason:
+                  description: Data Trigger reason.
+                  width: 1
+                  enumerated_values:
+                    - DUMP_ADC
   - BRAKEBL:
       rx:
         - UPD_IsoTpTx_BRAKE

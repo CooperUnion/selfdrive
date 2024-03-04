@@ -71,6 +71,9 @@ enum {
 #define PID_LOWER_LIMIT -100
 #define PID_UPPER_LIMIT  100
 
+#define PID_DEADBAND_LOWER -4.00
+#define PID_DEADBAND_UPPER  4.00
+
 // ######      PROTOTYPES       ###### //
 
 static void adc_init(void);
@@ -128,12 +131,13 @@ static struct {
 static int motor_direction;
 volatile bool overflow = false;
 
-static float desired_brake_percentage;
-static float current_brake_percentage;
-static float motor_pwm; //controller output
+// static float desired_brake_percent;
+// static float actual_brake_percent;
+// static float controller_output;
 
-static pid_S pid;
-static bool  setpoint_reset;
+// static pid_S pid;
+
+static bool data_trigger = false;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -174,6 +178,10 @@ static void brake_init(void)
 	ledc_channel_config(&pwm_channel);
 
 	adc_init();
+
+	// pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
+	// pid_set_deadbands(&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
+
 }
 
 static void brake_1kHz(void)
@@ -200,6 +208,20 @@ static void brake_1kHz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
+	// desired_brake_percent = cmd;
+	// actual_brake_percent = iir_filter(0.0); //TODO: filtered adc read scaled to 0-100
+
+	// controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
+
+	// if (controller_output < 0){
+	// 	motor_direction = 0;
+	// }
+	// else{
+	// 	motor_direction = 1;
+	// }
+
+
+	//TODO: deturmine if should SLP or other action if hit limit switch
 	if (motor_direction){
 		if (gpio_get_level(LIM_SW_2)){
 			motor_direction = 0;
@@ -300,7 +322,7 @@ static void adc_task(void *arg)
 
 loop:
 	if (xSemaphoreTake(adc.sem, portMAX_DELAY) != pdTRUE)
-	goto loop;
+		goto loop;
 
 	if (overflow){
 		while(1){
@@ -321,6 +343,7 @@ loop:
 
 	static bool latch = false;
 
+	//TODO MAKE IF RECIEVED CAN MESSAGE
 	if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
 	{
 		for (size_t i = 0; i < ADC_CHANNELS; i++) {
@@ -442,19 +465,6 @@ static float iir_filter(float sample)
 	return output;
 }
 
-//need to run as rate function ~ 100Hz?
-
-static void brake_control(
-	float desired_brake_percent,
-	float current_brake_percent){
-
-
-
-		motor_pwm = pid_step(&pid, desired_brake_percent, current_brake_percent);
-
-
-}
-
 // ######   PUBLIC FUNCTIONS    ###### //
 
 // ######         CAN TX         ###### //
@@ -466,4 +476,46 @@ void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m
 	m->BRAKE_percent
 		= (float32_t) pwm_channel.duty
 		/ ((float32_t) (1 << PWM_RESOLUTION) * 100);
+}
+
+// ######         CAN RX         ###### //
+
+/*** Message ID ***/
+#define CAN_MSG_DBW_DataTrigger_ID 0xF2
+
+/*** Signal Enums ***/
+enum CAN_DBW_triggerReason{
+	DUMP_ADC = 0,
+};
+
+/*** Message Structs ***/
+struct CAN_MessageRaw_DBW_DataTrigger{
+	/***
+	 *  description: Data Trigger reason.
+		width: 1
+	* ***/
+	_Atomic uint8_t DBW_triggerReason;
+};
+
+struct CAN_Message_DBW_DataTrigger{
+	/***
+	 *  description: Data Trigger reason.
+		width: 1
+	* ***/
+	_Atomic enum CAN_DBW_triggerReason DBW_triggerReason;
+};
+
+/*** Signal Getters ***/
+enum CAN_DBW_triggerReason CANRX_get_DBW_estopReason(void);
+uint8_t CANRX_getRaw_DBW_triggerReason(void);
+
+
+void CANRX_onRxCallback_DBW_DataTrigger(
+    const struct CAN_MessageRaw_DBW_DataTrigger * const raw,
+    const struct CAN_Message_DBW_DataTrigger * const dec)
+{
+    (void) raw;
+    (void) dec;
+
+	data_trigger = true;
 }

@@ -38,6 +38,21 @@ float pid_saturate(pid_S *pid, float u)
     return (min >= pid->limit.lower) ? min : pid->limit.lower;
 }
 
+void pid_set_deadbands(pid_S *pid, float upper, float lower){
+    pid->deadband.upper = upper;
+    pid->deadband.lower = lower;
+}
+
+float pid_deadband_compensation(pid_S *pid, float u){
+    if(u > 0.0){
+        return pid->deadband.upper + ((u / pid->limit.upper) * (pid->limit.upper - pid->deadband.upper));
+    }
+    if(u < 0.0){
+        return pid->deadband.lower + ((u/pid->limit.lower)*(pid->limit.lower - pid->deadband.lower));
+    }
+    return u;
+}
+
 void pid_set_sigma(pid_S *pid, float value)
 {
     pid->private.sigma = value;
@@ -91,5 +106,5 @@ float pid_step(pid_S *pid, float desired, float current)
     pid->private.error.position = error;
     pid->private.y0             = current;
 
-    return pid_saturate(pid, u_unsat);
+    return pid_deadband_compensation(pid, pid_saturate(pid, u_unsat));
 }

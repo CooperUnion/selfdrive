@@ -10,6 +10,11 @@ typedef struct pid {
         float lower;
         float upper;
     } limit;
+    struct{
+        float lower;
+        float upper;
+    } deadband;
+
     float sigma;
     struct {
         float ts;
@@ -34,6 +39,8 @@ void pid_init(
     float  upper_limit,
     float  sigma);
 float pid_saturate(pid_S *pid, float u);
+void pid_set_deadbands(pid_S *pid, float upper, float lower);
+float pid_deadband_compensation(pid_S *pid, float u);
 void pid_set_sigma(pid_S *pid, float value);
 void pid_set_ts(pid_S *pid, float value);
 void pid_setpoint_reset(pid_S *pid, float desired, float current);
