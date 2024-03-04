@@ -122,12 +122,10 @@ volatile bool overflow = false;
 // ######    RATE FUNCTIONS     ###### //
 
 static void brake_init(void);
-// static void brake_100Hz(void);
 static void brake_1kHz(void);
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = brake_init,
-	// .call_100Hz = brake_100Hz,
 	.call_1kHz  = brake_1kHz,
 };
 
@@ -206,6 +204,7 @@ static void brake_1kHz(void)
 
 static void adc_init(void)
 {
+	overflow = false;
 	adc.sem = xSemaphoreCreateCounting(ADC_CHANNELS, 0);
 
 	xTaskCreatePinnedToCore(
@@ -288,8 +287,8 @@ loop:
 	goto loop;
 
 	if (overflow){
-		printf("OVERFLOW");
 		while(1){
+			printf("OVERFLOW\n");
 			vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 	}
@@ -356,7 +355,7 @@ loop:
 	}
 
 	if (start_dump)
-	printf("before dump samples");
+	// printf("before dump samples");
 		dump_samples();
 
 	goto loop;
