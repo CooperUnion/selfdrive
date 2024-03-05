@@ -129,7 +129,6 @@ static struct {
 };
 
 static int motor_direction;
-static int motor_sleep;
 volatile bool overflow = false;
 
 static float desired_brake_percent;
@@ -137,8 +136,6 @@ static float actual_brake_percent;
 static float controller_output;
 
 static pid_S pid;
-
-static bool data_trigger = false;
 
 // ######    RATE FUNCTIONS     ###### //
 
@@ -199,7 +196,7 @@ static void brake_1kHz(void)
 		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
 		base_request_state(CUBER_SYS_STATE_ESTOP);
-	} else if (brake_authorized) {
+	} else if (true) {
 		gpio_set_level(SLP_PIN, 1);
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
@@ -218,9 +215,9 @@ static void brake_1kHz(void)
 
 	int current_limit_switch = motor_direction ? LIM_SW_2 : LIM_SW_1;
 
-	if (gpio_get_level(current_limit_switch)){
+	/*if (gpio_get_level(current_limit_switch)){
 		gpio_set_level(SLP_PIN, 0);
-	}
+	}*/
 
 	gpio_set_level(DIR_PIN, motor_direction);
 	pwm_channel.duty = CMD2DUTY(cmd);
@@ -453,7 +450,28 @@ static float iir_filter(float sample)
 
 // ######   PUBLIC FUNCTIONS    ###### //
 
+// ######         CAN RX         ###### //
+
+void CANRX_onRxCallback_DBW_SetBRAKEGains(
+    const struct CAN_TMessageRaw_PIDGains * const raw,
+    const struct CAN_TMessage_PIDGains * const dec)
+{
+    (void) raw;
+
+    pid.kp = dec->gainKp;
+    pid.ki = dec->gainKi;
+    pid.kd = dec->gainKd;
+}
+
 // ######         CAN TX         ###### //
+
+void CANTX_populateTemplate_BrakeGains(struct CAN_TMessage_PIDGains * const m)
+{
+    m->gainKp = pid.kp;
+    m->gainKi = pid.ki;
+    m->gainKd = pid.kd;
+}
+
 
 void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m)
 {

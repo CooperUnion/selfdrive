@@ -317,7 +317,7 @@ static void velocity_control(
 
 // ######         CAN RX         ###### //
 
-void CANRX_onRxCallback_DBW_SetVelocityGains(
+void CANRX_onRxCallback_DBW_SetCTRLVelocityGains(
     const struct CAN_TMessageRaw_PIDGains * const raw,
     const struct CAN_TMessage_PIDGains * const dec)
 {
