@@ -163,6 +163,7 @@ nodes:
         - CTRL_VelocityCommand
         - DBW_ESTOP
         - DBW_VelocityCommand
+        - DBW_SetBRAKEGains
         - SUP_Authorization
         - UPD_UpdateControl_BRAKE  # bootloader
       messages:
@@ -191,16 +192,11 @@ nodes:
                   unit: percent
                   scale: 0.1
 
-        - DBW_DataTrigger:
-            id: 0xF2
-            cycletime: 100
+        - BrakeGains:
+            from_template: PIDGains
+            id: 0x253
+            cycletime: 10
 
-            signals:
-              - triggerReason:
-                  description: Data Trigger reason.
-                  width: 1
-                  enumerated_values:
-                    - DUMP_ADC
   - BRAKEBL:
       rx:
         - UPD_IsoTpTx_BRAKE
@@ -215,7 +211,7 @@ nodes:
   - CTRL:
       rx:
         - DBW_ESTOP
-        - DBW_SetVelocityGains
+        - DBW_SetCTRLVelocityGains
         - DBW_RawVelocityCommand
         - DBW_VelocityCommand
         - UPD_UpdateControl_CTRL  # bootloader
@@ -306,9 +302,13 @@ nodes:
             from_template: DBWVelocityCommand
             id: 0x667
 
-        - SetVelocityGains:
+        - SetCTRLVelocityGains:
             from_template: PIDGains
             id: 0x777
+
+        - SetBRAKEGains:
+            from_template: PIDGains
+            id: 0x778
 
         - SteeringCommand:
             id: 0x21
