@@ -129,13 +129,14 @@ static struct {
 };
 
 static int motor_direction;
+static int motor_sleep;
 volatile bool overflow = false;
 
-// static float desired_brake_percent;
-// static float actual_brake_percent;
-// static float controller_output;
+static float desired_brake_percent;
+static float actual_brake_percent;
+static float controller_output;
 
-// static pid_S pid;
+static pid_S pid;
 
 static bool data_trigger = false;
 
@@ -179,8 +180,8 @@ static void brake_init(void)
 
 	adc_init();
 
-	// pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
-	// pid_set_deadbands(&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
+	pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
+	pid_set_deadbands(&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 
 }
 
@@ -208,29 +209,17 @@ static void brake_1kHz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
-	// desired_brake_percent = cmd;
-	// actual_brake_percent = iir_filter(0.0); //TODO: filtered adc read scaled to 0-100
+	desired_brake_percent = cmd;
+	actual_brake_percent = 0.0; //TODO: filtered adc read scaled to 0-100
 
-	// controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
+	controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
 
-	// if (controller_output < 0){
-	// 	motor_direction = 0;
-	// }
-	// else{
-	// 	motor_direction = 1;
-	// }
+	motor_direction = (controller_output < 0) ? 0 : 1;
 
+	int current_limit_switch = motor_direction ? LIM_SW_2 : LIM_SW_1;
 
-	//TODO: deturmine if should SLP or other action if hit limit switch
-	if (motor_direction){
-		if (gpio_get_level(LIM_SW_2)){
-			motor_direction = 0;
-		}
-	}
-	else{
-		if (gpio_get_level(LIM_SW_1)){
-			motor_direction = 1;
-		}
+	if (gpio_get_level(current_limit_switch)){
+		gpio_set_level(SLP_PIN, 0);
 	}
 
 	gpio_set_level(DIR_PIN, motor_direction);
@@ -326,7 +315,6 @@ loop:
 
 	if (overflow){
 		while(1){
-			printf("OVERFLOW\n");
 			vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 	}
@@ -343,7 +331,6 @@ loop:
 
 	static bool latch = false;
 
-	//TODO MAKE IF RECIEVED CAN MESSAGE
 	if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
 	{
 		for (size_t i = 0; i < ADC_CHANNELS; i++) {
@@ -394,7 +381,6 @@ loop:
 	}
 
 	if (start_dump)
-	// printf("before dump samples");
 		dump_samples();
 
 	goto loop;
@@ -418,7 +404,7 @@ static void dump_samples()
 				vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 
-		printf("--- %d unfiltered ---\n", i);
+		printf("--- %d filtered ---\n", i);
 
 		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
 			printf("%u,%f\n", j, dump->filtered[read]);
@@ -476,58 +462,4 @@ void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m
 	m->BRAKE_percent
 		= (float32_t) pwm_channel.duty
 		/ ((float32_t) (1 << PWM_RESOLUTION) * 100);
-}
-
-// ######         CAN RX         ###### //
-
-// /*** Message ID ***/
-// #define CAN_MSG_DBW_DataTrigger_ID 0xF2
-
-// /*** Signal Enums ***/
-// enum CAN_DBW_triggerReason{
-// 	DUMP_ADC = 0,
-// };
-
-// /*** Message Structs ***/
-// struct CAN_MessageRaw_DBW_DataTrigger{
-// 	/***
-// 	 *  description: Data Trigger reason.
-// 		width: 1
-// 	* ***/
-// 	_Atomic uint8_t DBW_triggerReason;
-// };
-
-// struct CAN_Message_DBW_DataTrigger{
-// 	/***
-// 	 *  description: Data Trigger reason.
-// 		width: 1
-// 	* ***/
-// 	_Atomic enum CAN_DBW_triggerReason DBW_triggerReason;
-// };
-
-// /*** Signal Getters ***/
-// enum CAN_DBW_triggerReason CANRX_get_DBW_triggerReason(void);
-// uint8_t CANRX_getRaw_DBW_triggerReason(void);
-
-// /*** RX Processing Function ***/
-
-// bool CANRX_doRx_DBW_DataTrigger(
-//     const uint8_t * data,
-//     uint_fast8_t len
-// );
-
-// /*** User RX Callback Function ***/
-// void CANRX_onRxCallback_DBW_DataTrigger(
-//     const struct CAN_MessageRaw_DBW_DataTrigger * const raw,
-//     const struct CAN_Message_DBW_DataTrigger * const dec);
-
-
-void CANRX_onRxCallback_DBW_DataTrigger(
-    const struct CAN_MessageRaw_DBW_DataTrigger * const raw,
-    const struct CAN_Message_DBW_DataTrigger * const dec)
-{
-    (void) raw;
-    (void) dec;
-
-	data_trigger = true;
 }
