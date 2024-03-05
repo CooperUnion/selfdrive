@@ -288,7 +288,7 @@ loop:
 
 	if (overflow){
 		while(1){
-			printf("OVERFLOW\n");
+			// printf("OVERFLOW\n");
 			vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 	}
