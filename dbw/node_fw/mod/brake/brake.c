@@ -480,34 +480,46 @@ void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m
 
 // ######         CAN RX         ###### //
 
-/*** Message ID ***/
-#define CAN_MSG_DBW_DataTrigger_ID 0xF2
+// /*** Message ID ***/
+// #define CAN_MSG_DBW_DataTrigger_ID 0xF2
 
-/*** Signal Enums ***/
-enum CAN_DBW_triggerReason{
-	DUMP_ADC = 0,
-};
+// /*** Signal Enums ***/
+// enum CAN_DBW_triggerReason{
+// 	DUMP_ADC = 0,
+// };
 
-/*** Message Structs ***/
-struct CAN_MessageRaw_DBW_DataTrigger{
-	/***
-	 *  description: Data Trigger reason.
-		width: 1
-	* ***/
-	_Atomic uint8_t DBW_triggerReason;
-};
+// /*** Message Structs ***/
+// struct CAN_MessageRaw_DBW_DataTrigger{
+// 	/***
+// 	 *  description: Data Trigger reason.
+// 		width: 1
+// 	* ***/
+// 	_Atomic uint8_t DBW_triggerReason;
+// };
 
-struct CAN_Message_DBW_DataTrigger{
-	/***
-	 *  description: Data Trigger reason.
-		width: 1
-	* ***/
-	_Atomic enum CAN_DBW_triggerReason DBW_triggerReason;
-};
+// struct CAN_Message_DBW_DataTrigger{
+// 	/***
+// 	 *  description: Data Trigger reason.
+// 		width: 1
+// 	* ***/
+// 	_Atomic enum CAN_DBW_triggerReason DBW_triggerReason;
+// };
 
-/*** Signal Getters ***/
-enum CAN_DBW_triggerReason CANRX_get_DBW_estopReason(void);
-uint8_t CANRX_getRaw_DBW_triggerReason(void);
+// /*** Signal Getters ***/
+// enum CAN_DBW_triggerReason CANRX_get_DBW_triggerReason(void);
+// uint8_t CANRX_getRaw_DBW_triggerReason(void);
+
+// /*** RX Processing Function ***/
+
+// bool CANRX_doRx_DBW_DataTrigger(
+//     const uint8_t * data,
+//     uint_fast8_t len
+// );
+
+// /*** User RX Callback Function ***/
+// void CANRX_onRxCallback_DBW_DataTrigger(
+//     const struct CAN_MessageRaw_DBW_DataTrigger * const raw,
+//     const struct CAN_Message_DBW_DataTrigger * const dec);
 
 
 void CANRX_onRxCallback_DBW_DataTrigger(
