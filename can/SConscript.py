@@ -3,8 +3,8 @@
 Import('env')
 
 
-dbc = env.File('can.dbc')
-network = env.File('can.yml')
+dbc = env.File('network.dbc')
+network = env.File('network.yml')
 
 dbc_emmitter = env.Command(
     'create-dbc.py',
@@ -16,7 +16,7 @@ dbc_emmitter = env.Command(
     ],
 )
 
-dbc = env.Command('can.dbc', dbc_emmitter, 'python $SOURCE')
+dbc = env.Command(dbc, dbc_emmitter, 'python $SOURCE')
 env.Alias('dbc', dbc)
 
 
