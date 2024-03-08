@@ -68,6 +68,11 @@ can = env.SConscript(
     variant_dir=f'{build}/can',
     duplicate=False,
 )
+lib = env.SConscript(
+    'lib/SConscript.py',
+    variant_dir=f'{build}/libs',
+    duplicate=False,
+)
 components = env.SConscript(
     'components/SConscript.py',
     variant_dir=f'{build}/components',
