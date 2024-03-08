@@ -49,7 +49,7 @@ enum {
 };
 
 #define SAMPLING_RATE_HZ      20000
-#define SAMPLING_TOTAL_FRAMES 40000
+#define SAMPLING_TOTAL_FRAMES 120000
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
 #define FRAME_SAMPLES 10
@@ -60,8 +60,6 @@ enum {
 
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
-
-#define FILTER_LENGTH 5
 
 #define KP    1.00
 #define KI    0.00
@@ -87,7 +85,6 @@ static bool overflow_callback(
 	void                            *user_data);
 static void adc_task(void *arg);
 static void dump_samples(void);
-static float iir_filter(float sample);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -102,17 +99,8 @@ static ledc_channel_config_t pwm_channel = {
 
 struct dump {
 	uint16_t buf[SAMPLING_BUF_FRAMES];
-	float    filtered[SAMPLING_BUF_FRAMES];
 	size_t   read;
 	size_t   write;
-};
-
-struct filter {
-	float  b[FILTER_LENGTH];
-	float  a[FILTER_LENGTH];
-	float  x[FILTER_LENGTH];
-	float  y[FILTER_LENGTH];
-	size_t n;
 };
 
 static struct {
@@ -120,20 +108,14 @@ static struct {
 	SemaphoreHandle_t       sem;
 	TaskHandle_t            task_handle;
 	struct dump             dump[ADC_CHANNELS];
-	struct filter           filter;
-} adc = {
-	.filter = {
-		.b = {0.0099, -0.0398, 0.0597, -0.0398, 0.0099},
-		.a = {1.0000, -3.9888, 5.9666, -3.9667, 0.9889},
-	},
-};
+} adc;
 
 static int motor_direction;
 volatile bool overflow = false;
 
-static float desired_brake_percent;
-static float actual_brake_percent;
-static float controller_output;
+// static float desired_brake_percent;
+// static float actual_brake_percent;
+// static float controller_output;
 
 static pid_S pid;
 
@@ -196,7 +178,7 @@ static void brake_1kHz(void)
 		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
 		base_request_state(CUBER_SYS_STATE_ESTOP);
-	} else if (true) {
+	} else if (brake_authorized) {
 		gpio_set_level(SLP_PIN, 1);
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(CUBER_SYS_STATE_DBW_ACTIVE);
@@ -206,18 +188,29 @@ static void brake_1kHz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
-	desired_brake_percent = cmd;
-	actual_brake_percent = 0.0; //TODO: filtered adc read scaled to 0-100
+	// desired_brake_percent = cmd;
+	// actual_brake_percent = 0.0; //TODO: filtered adc read scaled to 0-100
 
-	controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
+	// controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
 
-	motor_direction = (controller_output < 0) ? 0 : 1;
+	// motor_direction = (controller_output < 0) ? 0 : 1;
 
-	int current_limit_switch = motor_direction ? LIM_SW_2 : LIM_SW_1;
+	// int current_limit_switch = motor_direction ? LIM_SW_2 : LIM_SW_1;
 
 	/*if (gpio_get_level(current_limit_switch)){
 		gpio_set_level(SLP_PIN, 0);
 	}*/
+
+	if (motor_direction){
+		if (gpio_get_level(LIM_SW_2)){
+			motor_direction = 0;
+		}
+	}
+	else{
+		if (gpio_get_level(LIM_SW_1)){
+			motor_direction = 1;
+		}
+	}
 
 	gpio_set_level(DIR_PIN, motor_direction);
 	pwm_channel.duty = CMD2DUTY(cmd);
@@ -350,12 +343,10 @@ loop:
 		adc_digi_output_data_t * const sample = samples + i;
 
 		struct dump *dump;
-		float        resolution;
 
 		switch (sample->type2.channel) {
 			case PS_ADC_CHANNEL:
-				dump       = adc.dump + PS_ADC_CHANNEL_INDEX;
-				resolution = (1 << PS_ADC_BITWIDTH) - 1;
+				dump = adc.dump + PS_ADC_CHANNEL_INDEX;
 				break;
 
 			default:
@@ -368,13 +359,10 @@ loop:
 
 		start_dump = false;
 
-		uint16_t raw_sample        = sample->type2.data;
-		float    normalized_sample = ((float) raw_sample) / resolution;
+		uint16_t raw_sample = sample->type2.data;
 
-		dump->buf[dump->write]      = raw_sample;
-		dump->filtered[dump->write] = iir_filter(normalized_sample);
-
-		dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
+		dump->buf[dump->write] = raw_sample;
+		dump->write            = (dump->write + 1) % SAMPLING_BUF_FRAMES;
 	}
 
 	if (start_dump)
@@ -386,7 +374,7 @@ loop:
 static void dump_samples()
 {
 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		printf("--- %d unfiltered ---\n", i);
+		printf("--- unfiltered %d ---\n", i);
 
 		struct dump * const dump = adc.dump + i;
 
@@ -401,51 +389,8 @@ static void dump_samples()
 				vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
 
-		printf("--- %d filtered ---\n", i);
-
-		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
-			printf("%u,%f\n", j, dump->filtered[read]);
-			read = (read + 1) % SAMPLING_BUF_FRAMES;
-
-			// prevent task_wdt trips
-			if (!(j % 10000))
-				vTaskDelay(2 / portTICK_PERIOD_MS);
-		}
-
 		dump->read = SIZE_MAX;
 	}
-}
-
-static float iir_filter(float sample)
-{
-	const float * const b = adc.filter.b;
-	const float * const a = adc.filter.a;
-	const size_t        n = adc.filter.n;
-
-	float * const x = adc.filter.x;
-	float * const y = adc.filter.y;
-
-	x[n] = sample;
-
-	float output = 0.0;
-
-	for (size_t i = 0; i < FILTER_LENGTH; i++)
-		output
-			+= b[i]
-			*  x[(n - i + FILTER_LENGTH) % FILTER_LENGTH];
-
-	for (size_t i = 1; i < FILTER_LENGTH; i++)
-		output
-			-= a[i]
-			*  x[(n - i + FILTER_LENGTH) % FILTER_LENGTH];
-
-	output *= a[0];
-
-	y[n] = output;
-
-	adc.filter.n = (n + 1) % FILTER_LENGTH;
-
-	return output;
 }
 
 // ######   PUBLIC FUNCTIONS    ###### //
