@@ -22,12 +22,12 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS           600  // slightly over 5MPH
-#define ENCODER_TICKS_PER_ROTATION 4000
+#define ENCODER_MAX_TICKS           777  // slightly over 10MPH
+#define ENCODER_TICKS_PER_ROTATION  30536
 
-#define WHEEL_CIRCUMFERENCE_M 1.899156
+#define WHEEL_CIRCUMFERENCE_M 1.7954
 
-#define METERS_PER_TICK (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
+#define METERS_PER_TICK ((float) WHEEL_CIRCUMFERENCE_M / (float) ENCODER_TICKS_PER_ROTATION)
 
 #define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING      15.40
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING        -58.03
@@ -205,10 +205,10 @@ static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
 
     index = (index + 1) % AVERAGE_TICKS_SAMPLES;
 
-    int16_t ticks = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
+    int16_t ticks_10ms = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
 
-    // magic scaling factor of 10 here, no idea why
-    average_velocity = ticks * METERS_PER_TICK / 0.1;
+    // * 100 is to go from 10ms to 1s
+    average_velocity = ticks_10ms * METERS_PER_TICK * 100;
 }
 
 static void IRAM_ATTR encoder0_chan_a(void *arg)

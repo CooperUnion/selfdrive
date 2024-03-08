@@ -210,13 +210,13 @@ static void brake_1kHz(void)
 	if (motor_direction){
 		if (gpio_get_level(LIM_SW_2)){
 			gpio_set_level(SLP_PIN, 0);
-			base_request_state(CUBER_SYS_STATE_IDLE);
+			controller_output = 0.0;
 		}
 	}
 	else{
 		if (gpio_get_level(LIM_SW_1)){
 			gpio_set_level(SLP_PIN, 0);
-			base_request_state(CUBER_SYS_STATE_IDLE);
+			controller_output = 0.0;
 		}
 	}
 
