@@ -5,39 +5,35 @@ import time
 
 import cand
 
+# from ctypes import (
+#     c_int16,
+#     c_uint16,
+# )
+
+
+DESIRED_VELOCITY_MPS = 4
+
 
 class Test:
     def __init__(self, *, bus: cand.client.Bus):
         self._bus = bus
 
     def run(self, percent, duration):
-        self._bus.send('DBW_Enable', {'DBW_enable': 1})
-        self._bus.send(
-            'DBW_VelCmd',
-            {
-                'DBW_throttlePercent': min(abs(percent), 100),
-                'DBW_brakePercent': 0,
-            },
-        )
+        print('starting throttle')
+        while duration > 0:
+            self._bus.send(
+                'DBW_RawVelocityCommand',
+                {
+                    'DBW_throttlePercent': min(max(0, percent), 100),
+                    'DBW_brakePercent': 0,
+                },
+            )
 
-        time_start = time.time()
-
-        i = 0
-        while True:
-            if (time.time() - time_start) > abs(duration):
-                break
-
-            print(f"{i} {self._bus.get_data('ENCF_EncoderData')}")
-
-            i += 1
-            time.sleep(0.01)
+            time.sleep(0.005)
+            duration -= 0.005
 
     def end(self):
-        self._bus.send(
-            'DBW_VelCmd',
-            {'DBW_throttlePercent': 0, 'DBW_brakePercent': 0},
-        )
-        self._bus.send('DBW_Enable', {'DBW_enable': 0})
+        pass
 
 
 def main():
@@ -46,9 +42,9 @@ def main():
     parser.add_argument(
         '-p',
         '--percent',
-        help='value within 0 and 100',
+        help='value within 0.0 and 100.0',
         metavar='n',
-        type=int,
+        type=float,
         required=True,
     )
     parser.add_argument(
