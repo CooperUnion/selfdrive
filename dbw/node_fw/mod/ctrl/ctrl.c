@@ -15,7 +15,7 @@
 
 // ######        DEFINES        ###### //
 
-#define ENCODER0_CHAN_A  4
+#define ENCODER0_CHAN_A  4 //left
 #define ENCODER0_CHAN_B  3
 #define ENCODER1_CHAN_A 36
 #define ENCODER1_CHAN_B 35
@@ -218,15 +218,15 @@ static void IRAM_ATTR encoder0_chan_a(void *arg)
 
     if (chan_a) {
         if (chan_b) {
-            --pulse_cnt[0];
-        } else {
             ++pulse_cnt[0];
+        } else {
+            --pulse_cnt[0];
         }
     } else {
         if (chan_b) {
-            ++pulse_cnt[0];
-        } else {
             --pulse_cnt[0];
+        } else {
+            ++pulse_cnt[0];
         }
     }
 }
@@ -238,15 +238,15 @@ static void IRAM_ATTR encoder0_chan_b(void *arg)
 
     if (chan_b) {
         if (chan_a) {
-            ++pulse_cnt[0];
-        } else {
             --pulse_cnt[0];
+        } else {
+            ++pulse_cnt[0];
         }
     } else {
         if (chan_a) {
-            --pulse_cnt[0];
-        } else {
             ++pulse_cnt[0];
+        } else {
+            --pulse_cnt[0];
         }
     }
 }
