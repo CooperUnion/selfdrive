@@ -43,7 +43,7 @@
 #define LIM_SW_1 GPIO_NUM_33 //too far backward
 #define LIM_SW_2 GPIO_NUM_34 //too far forward
 
-enum {
+enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
 };
@@ -62,15 +62,19 @@ enum {
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
 #define KP    1.00
-#define KI    0.00
+#define KI    0.02
 #define KD 	  0.00
 #define SIGMA 1.00
 
 #define PID_LOWER_LIMIT -100
 #define PID_UPPER_LIMIT  100
 
-#define PID_DEADBAND_LOWER -4.00
-#define PID_DEADBAND_UPPER  4.00
+#define PID_DEADBAND_LOWER  0.00
+#define PID_DEADBAND_UPPER  0.00
+
+//max pressure reading from pressure sensor converted to ADC
+#define MAX_PRESSURE_READING 2600
+#define MIN_PRESSURE_READING 155
 
 // ######      PROTOTYPES       ###### //
 
@@ -85,6 +89,7 @@ static bool overflow_callback(
 	void                            *user_data);
 static void adc_task(void *arg);
 static void dump_samples(void);
+static uint16_t adc_reading(enum adc_channel_index channel);
 
 // ######     PRIVATE DATA      ###### //
 
@@ -113,9 +118,13 @@ static struct {
 static int motor_direction;
 volatile bool overflow = false;
 
-// static float desired_brake_percent;
-// static float actual_brake_percent;
-// static float controller_output;
+static float desired_brake;
+static float actual_brake;
+static float controller_output;
+
+static bool max_limit_switch_status;
+static bool min_limit_switch_status;
+
 
 static pid_S pid;
 
@@ -177,7 +186,7 @@ static void brake_1kHz(void)
 	if (motor_fault) {
 		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
-		base_request_state(CUBER_SYS_STATE_ESTOP);
+		// base_request_state(CUBER_SYS_STATE_ESTOP);
 	} else if (brake_authorized) {
 		gpio_set_level(SLP_PIN, 1);
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
@@ -188,33 +197,39 @@ static void brake_1kHz(void)
 		base_request_state(CUBER_SYS_STATE_IDLE);
 	}
 
-	// desired_brake_percent = cmd;
-	// actual_brake_percent = 0.0; //TODO: filtered adc read scaled to 0-100
+	desired_brake = cmd;
+	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX)) - MIN_PRESSURE_READING ) / ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
-	// controller_output = pid_step(&pid, desired_brake_percent, actual_brake_percent);
+	controller_output = pid_step(&pid, desired_brake, actual_brake);
 
-	// motor_direction = (controller_output < 0) ? 0 : 1;
+	motor_direction = (controller_output < 0) ? 0 : 1;
 
-	// int current_limit_switch = motor_direction ? LIM_SW_2 : LIM_SW_1;
-
-	/*if (gpio_get_level(current_limit_switch)){
-		gpio_set_level(SLP_PIN, 0);
-	}*/
+	max_limit_switch_status = gpio_get_level(LIM_SW_2);
+	min_limit_switch_status = gpio_get_level(LIM_SW_1);
 
 	if (motor_direction){
 		if (gpio_get_level(LIM_SW_2)){
-			motor_direction = 0;
+			gpio_set_level(SLP_PIN, 0);
+			base_request_state(CUBER_SYS_STATE_IDLE);
 		}
 	}
 	else{
 		if (gpio_get_level(LIM_SW_1)){
-			motor_direction = 1;
+			gpio_set_level(SLP_PIN, 0);
+			base_request_state(CUBER_SYS_STATE_IDLE);
 		}
 	}
 
 	gpio_set_level(DIR_PIN, motor_direction);
-	pwm_channel.duty = CMD2DUTY(cmd);
+
+	if (controller_output < 0){
+		controller_output *= -1;
+	}
+
+	pwm_channel.duty = CMD2DUTY(controller_output);
+
 	ledc_channel_config(&pwm_channel);
+
 }
 
 // ######   PRIVATE FUNCTIONS   ###### //
@@ -295,6 +310,16 @@ static bool IRAM_ATTR adc_callback(
 	return xSemaphoreGiveFromISR(adc.sem, NULL) == pdTRUE;
 }
 
+static uint16_t adc_reading(enum adc_channel_index channel)
+{
+	if ((channel < 0) && (channel >= ADC_CHANNELS))
+		return UINT16_MAX;
+
+	const struct dump * const dump = adc.dump + channel;
+
+	return dump->buf[(dump->write - 1 + SAMPLING_BUF_FRAMES) % SAMPLING_BUF_FRAMES];
+}
+
 static void adc_task(void *arg)
 {
 	(void) arg;
@@ -319,20 +344,20 @@ loop:
 	if (err != ESP_OK)
 		goto loop;
 
-	static bool latch = false;
+	// static bool latch = false;
 
-	if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
-	{
-		for (size_t i = 0; i < ADC_CHANNELS; i++) {
-			struct dump * const dump = adc.dump + i;
+	// if (!latch && (base_get_state() == CUBER_SYS_STATE_DBW_ACTIVE))
+	// {
+	// 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
+	// 		struct dump * const dump = adc.dump + i;
 
-			dump->read
-				= (dump->write - PREV_SAMPLE_SIZE)
-				% SAMPLING_BUF_FRAMES;
-		}
+	// 		dump->read
+	// 			= (dump->write - PREV_SAMPLE_SIZE)
+	// 			% SAMPLING_BUF_FRAMES;
+	// 	}
 
-		latch = true;
-	}
+	// 	latch = true;
+	// }
 
 	adc_digi_output_data_t *samples = (adc_digi_output_data_t*) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
@@ -378,7 +403,7 @@ static void dump_samples()
 
 		struct dump * const dump = adc.dump + i;
 
-		uint16_t read = dump->read;
+		size_t read = dump->read;
 
 		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
 			printf("%u,%d\n", j, dump->buf[read]);
@@ -420,9 +445,12 @@ void CANTX_populateTemplate_BrakeGains(struct CAN_TMessage_PIDGains * const m)
 
 void CANTX_populate_BRAKE_BrakeData(struct CAN_Message_BRAKE_BrakeData * const m)
 {
-	m->BRAKE_dutyCycle = pwm_channel.duty;
+	m->BRAKE_motorPercent = controller_output * 100;
 
-	m->BRAKE_percent
-		= (float32_t) pwm_channel.duty
-		/ ((float32_t) (1 << PWM_RESOLUTION) * 100);
+	m->BRAKE_pressurePercent = actual_brake * 100;
+
+	m->BRAKE_limitSwitchMax = max_limit_switch_status;
+
+	m->BRAKE_limitSwitchMin = min_limit_switch_status;
+
 }

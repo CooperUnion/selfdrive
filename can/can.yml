@@ -177,20 +177,32 @@ nodes:
 
         - BrakeData:
             id: 0x11
-            cycletime: 100
+            cycletime: 1
 
             signals:
-              - dutyCycle:
-                  description: Brake duty cycle.
-                  width: 10
-
-              - percent:
-                  description: Percentage commanded.
+              - motorPercent:
+                  description: Percentage PWM to motor, controller output.
                   # minimum: 0.0
                   # maximum: 100.0
                   width: 10
                   unit: percent
                   scale: 0.1
+
+              - pressurePercent:
+                  description: Percentage from adc reading.
+                  # minimum: 0.0
+                  # maximum: 100.0
+                  width: 10
+                  unit: percent
+                  scale: 0.1
+
+              - limitSwitchMax:
+                  description: status of forwards switch
+                  width: 1
+
+              - limitSwitchMin:
+                  description: status of backwards switch
+                  width: 1
 
         - BrakeGains:
             from_template: PIDGains

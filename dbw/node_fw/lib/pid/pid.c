@@ -43,6 +43,8 @@ void pid_set_deadbands(pid_S *pid, float upper, float lower){
     pid->deadband.lower = lower;
 }
 
+//TODO TEST THIS
+//TODO ANTIWINDUP
 float pid_deadband_compensation(pid_S *pid, float u){
     if(u > 0.0){
         return pid->deadband.upper + ((u / pid->limit.upper) * (pid->limit.upper - pid->deadband.upper));
