@@ -3,8 +3,8 @@
  * else and does not have include guards.
  */
 
-#include "ember_common.h"
-#include "ember_taskglue.h"
+#include <ember_common.h>
+#include <ember_taskglue.h>
 
 /*
  * List an extern definition for each module's struct rate_tasks.
@@ -25,7 +25,7 @@ extern ember_rate_funcs_S module_rf;
  * The functions within each rate (1Hz, 10Hz, etc) will also run in the order
  * they appear here, but it's best not to rely on that fact for program logic.
  */
-ember_rate_funcs_S* ember_task_list[] = {
+ember_rate_funcs_S *ember_task_list[] = {
     &base_rf,
     &can_rf,
     // TODO: boards crash without EEPROM

@@ -44,8 +44,15 @@ ember = esp32s3.StaticLibrary(
 esp32s3['LIBRARIES']['ember'] = ember
 
 
+node_entry = env.SConscript(
+    'node-entry/SConscript.py',
+    exports={'env': esp32s3},
+)
+
+
 lib = [
     ember,
+    node_entry,
 ]
 
 Return('lib')
