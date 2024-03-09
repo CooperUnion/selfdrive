@@ -13,13 +13,13 @@ for env in envs.values():
 
 esp32s3.AppendUnique(
     CPPDEFINES='NODE_BOARD_2V0B',
-    CPPPATH='ccmn_defs/ccmn-pins',
+    CPPPATH=esp32s3.Dir('ccmn_defs/ccmn-pins'),
 )
 
 
 esp32s3.AppendUnique(
     CPPPATH=[
-        f'ember/ember-{dir}'
+        esp32s3.Dir(f'ember/ember-{dir}')
         for dir in [
             'bltools',
             'can',
@@ -45,7 +45,7 @@ esp32s3['LIBRARIES']['ember'] = ember
 
 
 lib = [
-    'ember',
+    ember,
 ]
 
 Return('lib')
