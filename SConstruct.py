@@ -39,6 +39,7 @@ env = Environment(
         'default',
         'Component',
         'EspIdf',
+        'OpenCan',
         'Phony',
     ],
 )
