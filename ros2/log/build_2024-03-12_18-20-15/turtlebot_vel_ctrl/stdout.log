@@ -1,0 +1,36 @@
+running egg_info
+creating ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info
+writing ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/PKG-INFO
+writing dependency_links to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/dependency_links.txt
+writing entry points to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/entry_points.txt
+writing requirements to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/requires.txt
+writing top-level names to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/top_level.txt
+writing manifest file '../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/SOURCES.txt'
+reading manifest file '../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build
+creating /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib
+creating /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib/turtlebot_vel_ctrl
+copying turtlebot_vel_ctrl/__init__.py -> /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib/turtlebot_vel_ctrl
+copying turtlebot_vel_ctrl/vel_ctrl.py -> /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib/turtlebot_vel_ctrl
+running install
+running install_lib
+creating /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl
+copying /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib/turtlebot_vel_ctrl/__init__.py -> /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl
+copying /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build/lib/turtlebot_vel_ctrl/vel_ctrl.py -> /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl
+byte-compiling /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl/vel_ctrl.py to vel_ctrl.cpython-310.pyc
+running install_data
+creating /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/share/ament_index
+creating /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/share/ament_index/resource_index
+creating /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/share/ament_index/resource_index/packages
+copying resource/turtlebot_vel_ctrl -> /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/share/ament_index/resource_index/packages
+copying package.xml -> /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/share/turtlebot_vel_ctrl
+running install_egg_info
+Copying ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info to /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl-0.0.0-py3.10.egg-info
+running install_scripts
+Installing vel_ctrl script to /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/turtlebot_vel_ctrl
+writing list of installed files to '/home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/install.log'
