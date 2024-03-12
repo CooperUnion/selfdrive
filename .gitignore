@@ -10,3 +10,4 @@
 .vscode
 __pycache__
 build
+ros2/lanefollowingtest/LaneVideo.mp4
