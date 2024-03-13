@@ -1,0 +1,5 @@
+---
+
+run:
+  echo: true
+  pty: true
