@@ -24,7 +24,7 @@ static void base_init();
 static void base_10Hz();
 static void base_100Hz();
 
-static enum sys_states sys_state	     = SYS_STATE_UNDEF;
+static enum sys_states sys_state       = SYS_STATE_UNDEF;
 static enum sys_states requested_state = SYS_STATE_UNDEF;
 
 static bool wdt_trigger;

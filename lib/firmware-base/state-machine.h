@@ -12,6 +12,6 @@ enum sys_states {
 };
 
 enum sys_states base_get_state(void);
-void		      base_request_state(enum sys_states state);
+void		base_request_state(enum sys_states state);
 
 #endif	// STATE_MACHINE_H
