@@ -21,4 +21,4 @@ jobs:
         uses: ./.github/actions/checkout
 
       - name: build selfdrive
-        run: scons
+        run: scons --verbose
