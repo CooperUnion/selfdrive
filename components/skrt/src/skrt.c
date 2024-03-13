@@ -23,8 +23,8 @@
 
 #define RAD2DEG(ang) (ang * (180.0 / M_PI))
 
-static void  steer_init();
-static void  steer_100Hz();
+static void  skrt_init();
+static void  skrt_100Hz();
 static float encoder2deg(void);
 static bool  odrive_calibration_needed(void);
 
@@ -44,16 +44,16 @@ enum {
 	READY,
 	CALIBRATING,
 	NEEDS_CALIBRATION,
-} steer_state = READY;
+} skrt_state = READY;
 
 float velocity;
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= steer_init,
-    .call_100Hz = steer_100Hz,
+    .call_init	= skrt_init,
+    .call_100Hz = skrt_100Hz,
 };
 
-static void steer_init()
+static void skrt_init()
 {
 	selfdrive_pid_init(&pid,
 	    KP,
@@ -65,18 +65,18 @@ static void steer_init()
 	    0);
 }
 
-static void steer_100Hz()
+static void skrt_100Hz()
 {
 	bool calibration_needed = odrive_calibration_needed();
 
 	alarm.odrive_calibration = calibration_needed;
 
-	bool steer_authorized = CANRX_is_message_DBW_SteeringCommand_ok()
+	bool skrt_authorized = CANRX_is_message_DBW_SteeringCommand_ok()
 	    && CANRX_is_message_SOUP_Authorization_ok()
 	    && CANRX_is_message_WHL_AbsoluteEncoder_ok()
 	    && CANRX_is_node_ODRIVE_ok() && CANRX_get_SOUP_skrtAuthorized();
 
-	if (!steer_authorized) {
+	if (!skrt_authorized) {
 		base_request_state(SYS_STATE_IDLE);
 
 		velocity = 0;
@@ -94,27 +94,27 @@ static void steer_100Hz()
 	// clear errors before calibrating
 	if (calibration_needed) {
 		CANTX_doTx_SKRT_ODriveClearErrors();
-		steer_state = NEEDS_CALIBRATION;
+		skrt_state = NEEDS_CALIBRATION;
 
 		return;
 	}
 
 	// we only want to calibrate when DBW is active
-	if (steer_state == NEEDS_CALIBRATION) {
+	if (skrt_state == NEEDS_CALIBRATION) {
 		odrive_state = FULL_CALIBRATION_SEQUENCE;
 		CANTX_doTx_SKRT_ODriveRequestState();
 
-		steer_state = CALIBRATING;
+		skrt_state = CALIBRATING;
 
 		return;
 	}
 
-	if (steer_state == CALIBRATING) {
+	if (skrt_state == CALIBRATING) {
 		// TODO: ideally add a timeout to also reboot the ODrive
 		if (CANRX_get_ODRIVE_axisState() != CAN_ODRIVE_AXISSTATE_IDLE)
 			return;
 
-		steer_state = READY;
+		skrt_state = READY;
 	}
 
 	float encoder_deg = encoder2deg();
@@ -212,7 +212,7 @@ void CANTX_populate_SKRT_ODriveVelocity(
 void CANTX_populate_SKRT_SteeringData(
     struct CAN_Message_SKRT_SteeringData * const m)
 {
-	switch (steer_state) {
+	switch (skrt_state) {
 		case READY:
 			m->SKRT_state = CAN_SKRT_STATE_READY;
 			break;

@@ -46,8 +46,8 @@
 #define PID_LOWER_LIMIT -5
 #define PID_UPPER_LIMIT 5
 
-static void ctrl_init();
-static void ctrl_100Hz();
+static void om_init();
+static void om_100Hz();
 static void calculate_average_velocity(int16_t left_delta,
     int16_t				       right_delta);
 static void encoder0_chan_a(void *arg);
@@ -69,11 +69,11 @@ static selfdrive_pid_t pid;
 static bool	       setpoint_reset;
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= ctrl_init,
-    .call_100Hz = ctrl_100Hz,
+    .call_init	= om_init,
+    .call_100Hz = om_100Hz,
 };
 
-static void ctrl_init()
+static void om_init()
 {
 	gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
 	gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
@@ -102,7 +102,7 @@ static void ctrl_init()
 	    SIGMA);
 }
 
-static void ctrl_100Hz()
+static void om_100Hz()
 {
 	static uint16_t prv_pulse_cnt[2];
 

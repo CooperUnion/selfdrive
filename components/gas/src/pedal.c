@@ -1,6 +1,5 @@
 #include "pedal.h"
 
-#include "throttle.h"
 #include <driver/gpio.h>
 #include <driver/ledc.h>
 #include <ember_common.h>

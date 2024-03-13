@@ -9,4 +9,4 @@ uint32_t  current_thr_F_dutyCycle(void);
 void	  enable_pedal_output();
 void	  set_pedal_output(float32_t cmd);
 
-#endif
+#endif	// PEDAL_H

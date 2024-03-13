@@ -23,7 +23,7 @@ source = [
         ],
     )
     for src in [
-        'brake.c',
+        'bbc.c',
         *env['LIBRARIES']['firmware-base'],
     ]
 ]

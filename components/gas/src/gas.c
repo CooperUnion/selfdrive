@@ -1,4 +1,4 @@
-#include "throttle.h"
+#include "gas.h"
 
 #include "firmware-base/state-machine.h"
 #include "pedal.h"
@@ -13,12 +13,12 @@
 static bool relay_state;
 
 static void control_relay(bool cmd);
-static void throttle_init();
-static void throttle_100Hz();
+static void gas_init();
+static void gas_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= throttle_init,
-    .call_100Hz = throttle_100Hz,
+    .call_init	= gas_init,
+    .call_100Hz = gas_100Hz,
 };
 
 /*
@@ -28,7 +28,7 @@ ember_rate_funcs_S module_rf = {
  *
  * The relay is currently closed. We must set valid levels before closing it.
  */
-static void throttle_init()
+static void gas_init()
 {
 	gpio_config(&(gpio_config_t){
 	    .pin_bit_mask = BIT64(MODE_OM_PIN),
@@ -40,15 +40,15 @@ static void throttle_init()
 	enable_pedal_output();
 }
 
-static void throttle_100Hz()
+static void gas_100Hz()
 {
-	bool throttle_authorized = CANRX_is_message_SOUP_Authorization_ok()
+	bool gas_authorized = CANRX_is_message_SOUP_Authorization_ok()
 	    && CANRX_get_SOUP_gasAuthorized()
 	    && CANRX_is_message_OM_VelocityCommand_ok();
 
 	float32_t cmd;
 
-	if (throttle_authorized) {
+	if (gas_authorized) {
 		cmd = ((float32_t) CANRX_get_OM_throttlePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
@@ -56,7 +56,7 @@ static void throttle_100Hz()
 		base_request_state(SYS_STATE_IDLE);
 	}
 
-	control_relay(throttle_authorized);
+	control_relay(gas_authorized);
 	set_pedal_output(cmd);
 }
 

@@ -1,4 +1,4 @@
-#include "brake.h"
+#include "bbc.h"
 
 #include "firmware-base/state-machine.h"
 #include <driver/gpio.h>
@@ -34,31 +34,31 @@ static ledc_channel_config_t pwm_channel = {
     .duty	= PWM_INIT_DUTY_CYCLE,
 };
 
-static void brake_init();
-static void brake_100Hz();
+static void bbc_init();
+static void bbc_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= brake_init,
-    .call_100Hz = brake_100Hz,
+    .call_init	= bbc_init,
+    .call_100Hz = bbc_100Hz,
 };
 
-static void brake_init()
+static void bbc_init()
 {
 	ledc_timer_config(&pwm_timer);
 	ledc_channel_config(&pwm_channel);
 }
 
-static void brake_100Hz()
+static void bbc_100Hz()
 {
 	static float32_t prv_cmd;
 
-	bool brake_authorized = CANRX_is_message_SOUP_Authorization_ok()
+	bool bbc_authorized = CANRX_is_message_SOUP_Authorization_ok()
 	    && CANRX_get_SOUP_bbcAuthorized()
 	    && CANRX_is_message_OM_VelocityCommand_ok();
 
 	float cmd;
 
-	if (brake_authorized) {
+	if (bbc_authorized) {
 		cmd = ((float32_t) CANRX_get_OM_brakePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
