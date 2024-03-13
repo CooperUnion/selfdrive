@@ -28,7 +28,7 @@ def OpenCan(env, network, node, *, GEN_DIR=None):
 
 
 def OpenCanDbc(env, network):
-    dbc = env.File(os.path.splitext(network.path)[0] + '.dbc')
+    dbc = env.File(os.path.splitext(network.name)[0] + '.dbc')
 
     dbc_emmitter = env.Command(
         'dbc-emmitter.py',
