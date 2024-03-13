@@ -25,6 +25,12 @@ AddOption(
     metavar='PORT',
     type=str,
 )
+AddOption(
+    '--verbose',
+    action='store_true',
+    default=False,
+    help='enable verbose output',
+)
 
 
 env = Environment(
@@ -35,6 +41,7 @@ env = Environment(
     },
     ESPBAUD=GetOption('esp_baud'),
     ESPPORT=GetOption('esp_port'),
+    VERBOSE=GetOption('verbose'),
     tools=[
         'default',
         'Component',
@@ -52,6 +59,15 @@ env.AppendUnique(
         '-std=gnu17',
     ]
 )
+
+if not env['VERBOSE']:
+    commands = [
+        'AR',
+        'CC',
+        'RANLIB',
+    ]
+    for command in commands:
+        env[f'{command}COMSTR'] = f'{command} $TARGET'
 
 esp32s3 = uenv.idf(env, 'esp32s3')
 

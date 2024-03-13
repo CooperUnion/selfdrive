@@ -41,7 +41,6 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
     # lock it while we compile and link with out shared library
     actions = [
         f'exec {{LOCKFD}}> {build}/scons.lock',
-        'echo $$LOCKFD',
         'flock --exclusive $$LOCKFD',
         f'rm -f {libprebuilt}',
         f'ln -s {library.abspath} {libprebuilt}',
@@ -53,6 +52,9 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
     ]
 
     actions = ' && '.join(actions)
+
+    if not env['VERBOSE']:
+        actions = f'@echo ESP-IDF {library.path} && ' + actions
 
     out = env.Command(
         [f'{outdir}/{output}' for output in OUTPUTS], library, actions
