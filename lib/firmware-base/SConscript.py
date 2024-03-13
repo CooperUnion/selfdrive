@@ -10,6 +10,8 @@ firmware_base = [
     f'firmware-base/{src}'
     for src in [
         'app-description.c',
+        'eeprom.c',
+        'eeprom_ember.c',
         'state-machine.c',
     ]
 ]
