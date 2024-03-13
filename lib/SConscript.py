@@ -55,10 +55,18 @@ node_entry = env.SConscript(
 esp32s3['LIBRARIES']['node-entry'] = node_entry
 
 
+selfdrive = env.SConscript(
+    'selfdrive/c//SConscript.py',
+    exports={'env': esp32s3},
+)
+esp32s3['LIBRARIES']['selfdrive'] = selfdrive
+
+
 lib = [
     ember,
     firmware_base,
     node_entry,
+    selfdrive,
 ]
 
 Return('lib')
