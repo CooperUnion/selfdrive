@@ -19,7 +19,7 @@ def OpenCan(env, network, node, *, GEN_DIR=None):
         GEN_DIR = env.Dir('opencan-codegen')
 
     out = env.Command(
-        [f'{GEN_DIR.path}/{output}' for output in OUTPUTS],
+        [f'{GEN_DIR.abspath}/{output}' for output in OUTPUTS],
         network,
         f'opencan-cli codegen {network.path} {GEN_DIR.path} {node}',
     )
