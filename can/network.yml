@@ -342,7 +342,7 @@ nodes:
 
   - ODRIVE:
       -rx:
-        - STEER_ODriveVelocity
+        - SKRT_ODriveVelocity
       messages:
         - ControllerError:
             id: 0x31D
@@ -517,14 +517,14 @@ nodes:
                   description: State of the ESTOP arming.
                   width: 1
 
-  - STEER:
+  - SKRT:
       rx:
         - DBW_ESTOP
         - DBW_SteeringCommand
         - ODRIVE_Status
         - SUP_Authorization
         - WHL_AbsoluteEncoder
-        - UPD_UpdateControl_STEER
+        - UPD_UpdateControl_SKRT
       messages:
         - Alarms:
             id: 0x17
@@ -638,10 +638,10 @@ nodes:
                     - READY
                     - CALIBRATING
                     - NEEDS_CALIBRATION
-  - STEERBL:
+  - SKRTBL:
       rx:
-        - UPD_IsoTpTx_STEER
-        - UPD_UpdateControl_STEER
+        - UPD_IsoTpTx_SKRT
+        - UPD_UpdateControl_SKRT
       messages:
         - IsoTpTx:
             id: 0x507
@@ -659,8 +659,8 @@ nodes:
         - DBW_RawVelocityCommand
         - DBW_SteeringCommand
         - DBW_VelocityCommand
-        - STEER_NodeStatus
-        - STEER_SteeringData
+        - SKRT_NodeStatus
+        - SKRT_SteeringData
         - GAS_NodeStatus
         - UPD_UpdateControl_SUP  # bootloader
       messages:
@@ -715,9 +715,9 @@ nodes:
         - OMBL_IsoTpTx
         - OMBL_Status
 
-        - STEER_NodeStatus
-        - STEERBL_IsoTpTx
-        - STEERBL_Status
+        - SKRT_NodeStatus
+        - SKRTBL_IsoTpTx
+        - SKRTBL_Status
 
         - SUP_NodeStatus
         - SUPBL_IsoTpTx
@@ -733,7 +733,7 @@ nodes:
             id: 0x531
         - IsoTpTx_OM:
             id: 0x532
-        - IsoTpTx_STEER:
+        - IsoTpTx_SKRT:
             id: 0x533
         - IsoTpTx_SUP:
             id: 0x534
@@ -748,7 +748,7 @@ nodes:
         - UpdateControl_OM:
             from_template: UpdateControl
             id: 0x5A2
-        - UpdateControl_STEER:
+        - UpdateControl_SKRT:
             from_template: UpdateControl
             id: 0x5A3
         - UpdateControl_SUP:
