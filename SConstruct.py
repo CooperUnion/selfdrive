@@ -4,8 +4,8 @@ import os
 
 import env as uenv
 
-EnsureSConsVersion(4, 5, 2)
-EnsurePythonVersion(3, 11)
+EnsureSConsVersion(4, 6, 0)
+EnsurePythonVersion(3, 12)
 
 
 build = 'build'
