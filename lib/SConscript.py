@@ -28,19 +28,16 @@ esp32s3.AppendUnique(
         ]
     ],
 )
-ember = esp32s3.StaticLibrary(
-    'ember',
-    [
-        f'ember/ember-{src}'
-        for src in [
-            'bltools/ember_bltools.c',
-            'can/ember_can.c',
-            'tasking/ember_tasking.c',
-            'tasking/tasking.c',
-            'tasking/watchdog.c',
-        ]
-    ],
-)
+ember = [
+    esp32s3.File(f'ember/ember-{src}')
+    for src in [
+        'bltools/ember_bltools.c',
+        'can/ember_can.c',
+        'tasking/ember_tasking.c',
+        'tasking/tasking.c',
+        'tasking/watchdog.c',
+    ]
+]
 esp32s3['LIBRARIES']['ember'] = ember
 
 

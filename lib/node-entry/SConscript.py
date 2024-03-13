@@ -3,7 +3,7 @@
 Import('env')
 
 
-node_entry = env.StaticLibrary('node-entry', 'entry.c')
+node_entry = [env.File('entry.c')]
 
 
 Return('node_entry')
