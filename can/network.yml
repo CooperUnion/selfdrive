@@ -158,13 +158,13 @@ nodes:
             from_template: BlStatus
             id: 0x502
 
-  - BRAKE:
+  - BBC:
       rx:
         - CTRL_VelocityCommand
         - DBW_ESTOP
         - DBW_VelocityCommand
         - SUP_Authorization
-        - UPD_UpdateControl_BRAKE  # bootloader
+        - UPD_UpdateControl_BBC  # bootloader
       messages:
         - NodeInfo:
             from_template: DBWNodeInfo
@@ -190,10 +190,10 @@ nodes:
                   width: 10
                   unit: percent
                   scale: 0.1
-  - BRAKEBL:
+  - BBCBL:
       rx:
-        - UPD_IsoTpTx_BRAKE
-        - UPD_UpdateControl_BRAKE
+        - UPD_IsoTpTx_BBC
+        - UPD_UpdateControl_BBC
       messages:
         - IsoTpTx:
             id: 0x503
@@ -651,7 +651,7 @@ nodes:
 
   - SUP:
       rx:
-        - BRAKE_NodeStatus
+        - BBC_NodeStatus
         - CTRL_Alarms
         - CTRL_NodeStatus
         - CTRL_VelocityCommand
@@ -707,9 +707,9 @@ nodes:
         - BLINKBL_IsoTpTx
         - BLINKBL_Status
 
-        - BRAKE_NodeStatus
-        - BRAKEBL_IsoTpTx
-        - BRAKEBL_Status
+        - BBC_NodeStatus
+        - BBCBL_IsoTpTx
+        - BBCBL_Status
 
         - CTRL_NodeStatus
         - CTRLBL_IsoTpTx
@@ -729,7 +729,7 @@ nodes:
       messages:
         - IsoTpTx_BLINK:
             id: 0x530
-        - IsoTpTx_BRAKE:
+        - IsoTpTx_BBC:
             id: 0x531
         - IsoTpTx_CTRL:
             id: 0x532
@@ -742,7 +742,7 @@ nodes:
         - UpdateControl_BLINK:
             from_template: UpdateControl
             id: 0x5A0
-        - UpdateControl_BRAKE:
+        - UpdateControl_BBC:
             from_template: UpdateControl
             id: 0x5A1
         - UpdateControl_CTRL:
