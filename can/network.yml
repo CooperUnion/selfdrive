@@ -163,7 +163,7 @@ nodes:
         - OM_VelocityCommand
         - DBW_ESTOP
         - DBW_VelocityCommand
-        - SUP_Authorization
+        - SOUP_Authorization
         - UPD_UpdateControl_BBC  # bootloader
       messages:
         - NodeInfo:
@@ -522,7 +522,7 @@ nodes:
         - DBW_ESTOP
         - DBW_SteeringCommand
         - ODRIVE_Status
-        - SUP_Authorization
+        - SOUP_Authorization
         - WHL_AbsoluteEncoder
         - UPD_UpdateControl_SKRT
       messages:
@@ -649,7 +649,7 @@ nodes:
             from_template: BlStatus
             id: 0x508
 
-  - SUP:
+  - SOUP:
       rx:
         - BBC_NodeStatus
         - OM_Alarms
@@ -662,20 +662,20 @@ nodes:
         - SKRT_NodeStatus
         - SKRT_SteeringData
         - GAS_NodeStatus
-        - UPD_UpdateControl_SUP  # bootloader
+        - UPD_UpdateControl_SOUP  # bootloader
       messages:
         - Authorization:
             id: 0x1A
             cycletime: 10
 
             signals:
-              - brakeAuthorized:
+              - bbcAuthorized:
                   description: Brake authorization.
                   width: 1
-              - throttleAuthorized:
+              - gasAuthorized:
                   description: Throttle authorization.
                   width: 1
-              - steerAuthorized:
+              - skrtAuthorized:
                   description: Steer authorization.
                   width: 1
 
@@ -687,10 +687,10 @@ nodes:
             from_template: DBWNodeInfo
             id: 0x1C
 
-  - SUPBL:
+  - SOUPBL:
       rx:
-        - UPD_IsoTpTx_SUP
-        - UPD_UpdateControl_SUP
+        - UPD_IsoTpTx_SOUP
+        - UPD_UpdateControl_SOUP
       messages:
         - IsoTpTx:
             id: 0x509
@@ -719,9 +719,9 @@ nodes:
         - SKRTBL_IsoTpTx
         - SKRTBL_Status
 
-        - SUP_NodeStatus
-        - SUPBL_IsoTpTx
-        - SUPBL_Status
+        - SOUP_NodeStatus
+        - SOUPBL_IsoTpTx
+        - SOUPBL_Status
 
         - GAS_NodeStatus
         - GASBL_IsoTpTx
@@ -735,7 +735,7 @@ nodes:
             id: 0x532
         - IsoTpTx_SKRT:
             id: 0x533
-        - IsoTpTx_SUP:
+        - IsoTpTx_SOUP:
             id: 0x534
         - IsoTpTx_GAS:
             id: 0x535
@@ -751,7 +751,7 @@ nodes:
         - UpdateControl_SKRT:
             from_template: UpdateControl
             id: 0x5A3
-        - UpdateControl_SUP:
+        - UpdateControl_SOUP:
             from_template: UpdateControl
             id: 0x5A4
         - UpdateControl_GAS:
@@ -762,7 +762,7 @@ nodes:
       rx:
         - DBW_ESTOP
         - OM_VelocityCommand
-        - SUP_Authorization
+        - SOUP_Authorization
         - UPD_UpdateControl_GAS  # bootloader
       messages:
         - NodeInfo:

@@ -12,6 +12,7 @@ components = env.SConscript(
             'jk',
             'om',
             'skrt',
+            'soup',
         ]
     ]
 )

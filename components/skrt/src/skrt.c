@@ -72,9 +72,9 @@ static void steer_100Hz()
 	alarm.odrive_calibration = calibration_needed;
 
 	bool steer_authorized = CANRX_is_message_DBW_SteeringCommand_ok()
-	    && CANRX_is_message_SUP_Authorization_ok()
+	    && CANRX_is_message_SOUP_Authorization_ok()
 	    && CANRX_is_message_WHL_AbsoluteEncoder_ok()
-	    && CANRX_is_node_ODRIVE_ok() && CANRX_get_SUP_steerAuthorized();
+	    && CANRX_is_node_ODRIVE_ok() && CANRX_get_SOUP_skrtAuthorized();
 
 	if (!steer_authorized) {
 		base_request_state(SYS_STATE_IDLE);
