@@ -661,7 +661,7 @@ nodes:
         - DBW_VelocityCommand
         - STEER_NodeStatus
         - STEER_SteeringData
-        - THROTTLE_NodeStatus
+        - GAS_NodeStatus
         - UPD_UpdateControl_SUP  # bootloader
       messages:
         - Authorization:
@@ -723,9 +723,9 @@ nodes:
         - SUPBL_IsoTpTx
         - SUPBL_Status
 
-        - THROTTLE_NodeStatus
-        - THROTTLEBL_IsoTpTx
-        - THROTTLEBL_Status
+        - GAS_NodeStatus
+        - GASBL_IsoTpTx
+        - GASBL_Status
       messages:
         - IsoTpTx_BLINK:
             id: 0x530
@@ -737,7 +737,7 @@ nodes:
             id: 0x533
         - IsoTpTx_SUP:
             id: 0x534
-        - IsoTpTx_THROTTLE:
+        - IsoTpTx_GAS:
             id: 0x535
         - UpdateControl_BLINK:
             from_template: UpdateControl
@@ -754,16 +754,16 @@ nodes:
         - UpdateControl_SUP:
             from_template: UpdateControl
             id: 0x5A4
-        - UpdateControl_THROTTLE:
+        - UpdateControl_GAS:
             from_template: UpdateControl
             id: 0x5A5
 
-  - THROTTLE:
+  - GAS:
       rx:
         - DBW_ESTOP
         - CTRL_VelocityCommand
         - SUP_Authorization
-        - UPD_UpdateControl_THROTTLE  # bootloader
+        - UPD_UpdateControl_GAS  # bootloader
       messages:
         - NodeInfo:
             from_template: DBWNodeInfo
@@ -798,10 +798,10 @@ nodes:
                   description: Current relay state.
                   width: 1
 
-  - THROTTLEBL:
+  - GASBL:
       rx:
-        - UPD_IsoTpTx_THROTTLE
-        - UPD_UpdateControl_THROTTLE
+        - UPD_IsoTpTx_GAS
+        - UPD_UpdateControl_GAS
       messages:
         - IsoTpTx:
             id: 0x50b

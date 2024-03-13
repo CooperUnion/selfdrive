@@ -8,6 +8,7 @@ components = env.SConscript(
         f'{component}/SConscript.py'
         for component in [
             'bbc',
+            'gas',
             'jk',
         ]
     ]
