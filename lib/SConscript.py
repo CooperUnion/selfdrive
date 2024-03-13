@@ -3,12 +3,12 @@
 Import('envs')
 
 
-env = envs['env']
-esp32s3 = envs['esp32s3']
-
-
 for env in envs.values():
     env['LIBRARIES'] = {}
+
+
+env = envs['env']
+esp32s3 = envs['esp32s3']
 
 
 esp32s3.AppendUnique(
@@ -44,14 +44,23 @@ ember = esp32s3.StaticLibrary(
 esp32s3['LIBRARIES']['ember'] = ember
 
 
+firmware_base = env.SConscript(
+    'firmware-base/SConscript.py',
+    exports={'env': esp32s3},
+)
+esp32s3['LIBRARIES']['firmware-base'] = firmware_base
+
+
 node_entry = env.SConscript(
     'node-entry/SConscript.py',
     exports={'env': esp32s3},
 )
+esp32s3['LIBRARIES']['node-entry'] = node_entry
 
 
 lib = [
     ember,
+    firmware_base,
     node_entry,
 ]
 

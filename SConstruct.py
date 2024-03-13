@@ -67,16 +67,14 @@ Export('envs')
 can = env.SConscript(
     'can/SConscript.py',
     variant_dir=f'{build}/can',
-    duplicate=False,
 )
 lib = env.SConscript(
     'lib/SConscript.py',
-    variant_dir=f'{build}/libs',
+    variant_dir=f'{build}/lib',
 )
 components = env.SConscript(
     'components/SConscript.py',
     variant_dir=f'{build}/components',
-    duplicate=False,
 )
 ember_bl = env.SConscript(
     'dbw/ember_bl/SConscript.py',
