@@ -10,6 +10,7 @@ components = env.SConscript(
             'bbc',
             'gas',
             'jk',
+            'om',
         ]
     ]
 )

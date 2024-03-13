@@ -8,7 +8,7 @@
 #include <opencan_rx.h>
 #include <opencan_tx.h>
 
-#define MODE_CTRL_PIN GPIO_NUM_40
+#define MODE_OM_PIN GPIO_NUM_40
 
 static bool relay_state;
 
@@ -31,7 +31,7 @@ ember_rate_funcs_S module_rf = {
 static void throttle_init()
 {
 	gpio_config(&(gpio_config_t){
-	    .pin_bit_mask = BIT64(MODE_CTRL_PIN),
+	    .pin_bit_mask = BIT64(MODE_OM_PIN),
 	    .mode	  = GPIO_MODE_OUTPUT,
 	});
 
@@ -44,12 +44,12 @@ static void throttle_100Hz()
 {
 	bool throttle_authorized = CANRX_is_message_SUP_Authorization_ok()
 	    && CANRX_get_SUP_throttleAuthorized()
-	    && CANRX_is_message_CTRL_VelocityCommand_ok();
+	    && CANRX_is_message_OM_VelocityCommand_ok();
 
 	float32_t cmd;
 
 	if (throttle_authorized) {
-		cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
+		cmd = ((float32_t) CANRX_get_OM_throttlePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
 		cmd = 0.0;
@@ -65,7 +65,7 @@ static void throttle_100Hz()
  */
 static void control_relay(bool cmd)
 {
-	gpio_set_level(MODE_CTRL_PIN, cmd);
+	gpio_set_level(MODE_OM_PIN, cmd);
 	relay_state = cmd;
 }
 

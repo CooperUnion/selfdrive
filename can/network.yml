@@ -160,7 +160,7 @@ nodes:
 
   - BBC:
       rx:
-        - CTRL_VelocityCommand
+        - OM_VelocityCommand
         - DBW_ESTOP
         - DBW_VelocityCommand
         - SUP_Authorization
@@ -201,13 +201,13 @@ nodes:
             from_template: BlStatus
             id: 0x504
 
-  - CTRL:
+  - OM:
       rx:
         - DBW_ESTOP
         - DBW_SetVelocityGains
         - DBW_RawVelocityCommand
         - DBW_VelocityCommand
-        - UPD_UpdateControl_CTRL  # bootloader
+        - UPD_UpdateControl_OM  # bootloader
       messages:
         - Alarms:
             id: 0x22
@@ -265,10 +265,10 @@ nodes:
             from_template: DBWVelocityCommand
             id: 0x20
 
-  - CTRLBL:
+  - OMBL:
       rx:
-        - UPD_IsoTpTx_CTRL
-        - UPD_UpdateControl_CTRL
+        - UPD_IsoTpTx_OM
+        - UPD_UpdateControl_OM
       messages:
         - IsoTpTx:
             id: 0x505
@@ -652,9 +652,9 @@ nodes:
   - SUP:
       rx:
         - BBC_NodeStatus
-        - CTRL_Alarms
-        - CTRL_NodeStatus
-        - CTRL_VelocityCommand
+        - OM_Alarms
+        - OM_NodeStatus
+        - OM_VelocityCommand
         - DBW_ESTOP
         - DBW_RawVelocityCommand
         - DBW_SteeringCommand
@@ -711,9 +711,9 @@ nodes:
         - BBCBL_IsoTpTx
         - BBCBL_Status
 
-        - CTRL_NodeStatus
-        - CTRLBL_IsoTpTx
-        - CTRLBL_Status
+        - OM_NodeStatus
+        - OMBL_IsoTpTx
+        - OMBL_Status
 
         - STEER_NodeStatus
         - STEERBL_IsoTpTx
@@ -731,7 +731,7 @@ nodes:
             id: 0x530
         - IsoTpTx_BBC:
             id: 0x531
-        - IsoTpTx_CTRL:
+        - IsoTpTx_OM:
             id: 0x532
         - IsoTpTx_STEER:
             id: 0x533
@@ -745,7 +745,7 @@ nodes:
         - UpdateControl_BBC:
             from_template: UpdateControl
             id: 0x5A1
-        - UpdateControl_CTRL:
+        - UpdateControl_OM:
             from_template: UpdateControl
             id: 0x5A2
         - UpdateControl_STEER:
@@ -761,7 +761,7 @@ nodes:
   - GAS:
       rx:
         - DBW_ESTOP
-        - CTRL_VelocityCommand
+        - OM_VelocityCommand
         - SUP_Authorization
         - UPD_UpdateControl_GAS  # bootloader
       messages:
