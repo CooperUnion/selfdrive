@@ -52,14 +52,14 @@ static void bbc_100Hz()
 {
 	static float32_t prv_cmd;
 
-	bool bbc_authorized = CANRX_is_message_SOUP_Authorization_ok()
-	    && CANRX_get_SOUP_bbcAuthorized()
-	    && CANRX_is_message_OM_VelocityCommand_ok();
+	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
+	    && CANRX_get_SUP_bbcAuthorized()
+	    && CANRX_is_message_CTRL_VelocityCommand_ok();
 
 	float cmd;
 
 	if (bbc_authorized) {
-		cmd = ((float32_t) CANRX_get_OM_brakePercent()) / 100.0;
+		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
 		cmd = 0.0;

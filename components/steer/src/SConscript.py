@@ -3,7 +3,7 @@
 Import('env')
 
 
-node = 'OM'
+node = 'STEER'
 
 opencan = env.OpenCan(
     network=env['CAN']['NETWORK'],
@@ -23,7 +23,7 @@ source = [
         ],
     )
     for src in [
-        'om.c',
+        'steer.c',
         *env['LIBRARIES']['firmware-base'],
     ]
 ]
@@ -33,8 +33,8 @@ source += env['LIBRARIES']['ember']
 source += env['LIBRARIES']['node-entry']
 source += env['LIBRARIES']['selfdrive']
 
-om = env.StaticLibrary(node.lower(), source)[0]
-firmware, flash = env.EspIdf(om, 'esp32s3')
+steer = env.StaticLibrary(node.lower(), source)[0]
+firmware, flash = env.EspIdf(steer, 'esp32s3')
 
 
 Return('firmware', 'flash')

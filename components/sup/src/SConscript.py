@@ -3,7 +3,7 @@
 Import('env')
 
 
-node = 'GAS'
+node = 'SUP'
 
 opencan = env.OpenCan(
     network=env['CAN']['NETWORK'],
@@ -23,8 +23,7 @@ source = [
         ],
     )
     for src in [
-        'gas.c',
-        'pedal.c',
+        'sup.c',
         *env['LIBRARIES']['firmware-base'],
     ]
 ]
@@ -33,8 +32,8 @@ source += opencan
 source += env['LIBRARIES']['ember']
 source += env['LIBRARIES']['node-entry']
 
-gas = env.StaticLibrary(node.lower(), source)[0]
-firmware, flash = env.EspIdf(gas, 'esp32s3')
+sup = env.StaticLibrary(node.lower(), source)[0]
+firmware, flash = env.EspIdf(sup, 'esp32s3')
 
 
 Return('firmware', 'flash')

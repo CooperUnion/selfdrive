@@ -134,36 +134,12 @@ message_templates:
               - RESET
 
 nodes:
-  - BLINK:
-      rx:
-        - DBW_ESTOP
-        - UPD_UpdateControl_BLINK  # bootloader
-      messages:
-        - NodeInfo:
-            from_template: DBWNodeInfo
-            id: 0xD0
-
-        - NodeStatus:
-            from_template: DBWNodeStatus
-            id: 0xE0
-
-  - BLINKBL:
-      rx:
-        - UPD_IsoTpTx_BLINK
-        - UPD_UpdateControl_BLINK
-      messages:
-        - IsoTpTx:
-            id: 0x501
-        - Status:
-            from_template: BlStatus
-            id: 0x502
-
   - BBC:
       rx:
-        - OM_VelocityCommand
+        - CTRL_VelocityCommand
         - DBW_ESTOP
         - DBW_VelocityCommand
-        - SOUP_Authorization
+        - SUP_Authorization
         - UPD_UpdateControl_BBC  # bootloader
       messages:
         - NodeInfo:
@@ -201,13 +177,37 @@ nodes:
             from_template: BlStatus
             id: 0x504
 
-  - OM:
+  - BLINK:
       rx:
         - DBW_ESTOP
-        - DBW_SetVelocityGains
+        - UPD_UpdateControl_BLINK  # bootloader
+      messages:
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0xD0
+
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0xE0
+
+  - BLINKBL:
+      rx:
+        - UPD_IsoTpTx_BLINK
+        - UPD_UpdateControl_BLINK
+      messages:
+        - IsoTpTx:
+            id: 0x501
+        - Status:
+            from_template: BlStatus
+            id: 0x502
+
+  - CTRL:
+      rx:
+        - DBW_ESTOP
         - DBW_RawVelocityCommand
+        - DBW_SetVelocityGains
         - DBW_VelocityCommand
-        - UPD_UpdateControl_OM  # bootloader
+        - UPD_UpdateControl_CTRL  # bootloader
       messages:
         - Alarms:
             id: 0x22
@@ -265,10 +265,10 @@ nodes:
             from_template: DBWVelocityCommand
             id: 0x20
 
-  - OMBL:
+  - CTRLBL:
       rx:
-        - UPD_IsoTpTx_OM
-        - UPD_UpdateControl_OM
+        - UPD_IsoTpTx_CTRL
+        - UPD_UpdateControl_CTRL
       messages:
         - IsoTpTx:
             id: 0x505
@@ -342,7 +342,7 @@ nodes:
 
   - ODRIVE:
       -rx:
-        - SKRT_ODriveVelocity
+        - STEER_ODriveVelocity
       messages:
         - ControllerError:
             id: 0x31D
@@ -517,14 +517,14 @@ nodes:
                   description: State of the ESTOP arming.
                   width: 1
 
-  - SKRT:
+  - STEER:
       rx:
         - DBW_ESTOP
         - DBW_SteeringCommand
         - ODRIVE_Status
-        - SOUP_Authorization
+        - SUP_Authorization
+        - UPD_UpdateControl_STEER
         - WHL_AbsoluteEncoder
-        - UPD_UpdateControl_SKRT
       messages:
         - Alarms:
             id: 0x17
@@ -638,10 +638,10 @@ nodes:
                     - READY
                     - CALIBRATING
                     - NEEDS_CALIBRATION
-  - SKRTBL:
+  - STEERBL:
       rx:
-        - UPD_IsoTpTx_SKRT
-        - UPD_UpdateControl_SKRT
+        - UPD_IsoTpTx_STEER
+        - UPD_UpdateControl_STEER
       messages:
         - IsoTpTx:
             id: 0x507
@@ -649,20 +649,20 @@ nodes:
             from_template: BlStatus
             id: 0x508
 
-  - SOUP:
+  - SUP:
       rx:
         - BBC_NodeStatus
-        - OM_Alarms
-        - OM_NodeStatus
-        - OM_VelocityCommand
+        - CTRL_Alarms
+        - CTRL_NodeStatus
+        - CTRL_VelocityCommand
         - DBW_ESTOP
         - DBW_RawVelocityCommand
         - DBW_SteeringCommand
         - DBW_VelocityCommand
-        - SKRT_NodeStatus
-        - SKRT_SteeringData
-        - GAS_NodeStatus
-        - UPD_UpdateControl_SOUP  # bootloader
+        - STEER_NodeStatus
+        - STEER_SteeringData
+        - THROTTLE_NodeStatus
+        - UPD_UpdateControl_SUP  # bootloader
       messages:
         - Authorization:
             id: 0x1A
@@ -670,12 +670,12 @@ nodes:
 
             signals:
               - bbcAuthorized:
-                  description: Brake authorization.
+                  description: BBC authorization.
                   width: 1
-              - gasAuthorized:
+              - throttleAuthorized:
                   description: Throttle authorization.
                   width: 1
-              - skrtAuthorized:
+              - steerAuthorized:
                   description: Steer authorization.
                   width: 1
 
@@ -687,10 +687,10 @@ nodes:
             from_template: DBWNodeInfo
             id: 0x1C
 
-  - SOUPBL:
+  - SUPBL:
       rx:
-        - UPD_IsoTpTx_SOUP
-        - UPD_UpdateControl_SOUP
+        - UPD_IsoTpTx_SUP
+        - UPD_UpdateControl_SUP
       messages:
         - IsoTpTx:
             id: 0x509
@@ -711,33 +711,33 @@ nodes:
         - BBCBL_IsoTpTx
         - BBCBL_Status
 
-        - OM_NodeStatus
-        - OMBL_IsoTpTx
-        - OMBL_Status
+        - CTRL_NodeStatus
+        - CTRLBL_IsoTpTx
+        - CTRLBL_Status
 
-        - SKRT_NodeStatus
-        - SKRTBL_IsoTpTx
-        - SKRTBL_Status
+        - STEER_NodeStatus
+        - STEERBL_IsoTpTx
+        - STEERBL_Status
 
-        - SOUP_NodeStatus
-        - SOUPBL_IsoTpTx
-        - SOUPBL_Status
+        - SUP_NodeStatus
+        - SUPBL_IsoTpTx
+        - SUPBL_Status
 
-        - GAS_NodeStatus
-        - GASBL_IsoTpTx
-        - GASBL_Status
+        - THROTTLE_NodeStatus
+        - THROTTLEBL_IsoTpTx
+        - THROTTLEBL_Status
       messages:
         - IsoTpTx_BLINK:
             id: 0x530
         - IsoTpTx_BBC:
             id: 0x531
-        - IsoTpTx_OM:
+        - IsoTpTx_CTRL:
             id: 0x532
-        - IsoTpTx_SKRT:
+        - IsoTpTx_STEER:
             id: 0x533
-        - IsoTpTx_SOUP:
+        - IsoTpTx_SUP:
             id: 0x534
-        - IsoTpTx_GAS:
+        - IsoTpTx_THROTTLE:
             id: 0x535
         - UpdateControl_BLINK:
             from_template: UpdateControl
@@ -745,25 +745,25 @@ nodes:
         - UpdateControl_BBC:
             from_template: UpdateControl
             id: 0x5A1
-        - UpdateControl_OM:
+        - UpdateControl_CTRL:
             from_template: UpdateControl
             id: 0x5A2
-        - UpdateControl_SKRT:
+        - UpdateControl_STEER:
             from_template: UpdateControl
             id: 0x5A3
-        - UpdateControl_SOUP:
+        - UpdateControl_SUP:
             from_template: UpdateControl
             id: 0x5A4
-        - UpdateControl_GAS:
+        - UpdateControl_THROTTLE:
             from_template: UpdateControl
             id: 0x5A5
 
-  - GAS:
+  - THROTTLE:
       rx:
+        - CTRL_VelocityCommand
         - DBW_ESTOP
-        - OM_VelocityCommand
-        - SOUP_Authorization
-        - UPD_UpdateControl_GAS  # bootloader
+        - SUP_Authorization
+        - UPD_UpdateControl_THROTTLE  # bootloader
       messages:
         - NodeInfo:
             from_template: DBWNodeInfo
@@ -798,10 +798,10 @@ nodes:
                   description: Current relay state.
                   width: 1
 
-  - GASBL:
+  - THROTTLEBL:
       rx:
-        - UPD_IsoTpTx_GAS
-        - UPD_UpdateControl_GAS
+        - UPD_IsoTpTx_THROTTLE
+        - UPD_UpdateControl_THROTTLE
       messages:
         - IsoTpTx:
             id: 0x50b

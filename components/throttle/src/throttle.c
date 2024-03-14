@@ -1,4 +1,4 @@
-#include "gas.h"
+#include "throttle.h"
 
 #include "firmware-base/state-machine.h"
 #include "pedal.h"
@@ -13,12 +13,12 @@
 static bool relay_state;
 
 static void control_relay(bool cmd);
-static void gas_init();
-static void gas_100Hz();
+static void throttle_init();
+static void throttle_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= gas_init,
-    .call_100Hz = gas_100Hz,
+    .call_init	= throttle_init,
+    .call_100Hz = throttle_100Hz,
 };
 
 /*
@@ -28,7 +28,7 @@ ember_rate_funcs_S module_rf = {
  *
  * The relay is currently closed. We must set valid levels before closing it.
  */
-static void gas_init()
+static void throttle_init()
 {
 	gpio_config(&(gpio_config_t){
 	    .pin_bit_mask = BIT64(MODE_OM_PIN),
@@ -40,23 +40,23 @@ static void gas_init()
 	enable_pedal_output();
 }
 
-static void gas_100Hz()
+static void throttle_100Hz()
 {
-	bool gas_authorized = CANRX_is_message_SOUP_Authorization_ok()
-	    && CANRX_get_SOUP_gasAuthorized()
-	    && CANRX_is_message_OM_VelocityCommand_ok();
+	bool throttle_authorized = CANRX_is_message_SUP_Authorization_ok()
+	    && CANRX_get_SUP_throttleAuthorized()
+	    && CANRX_is_message_CTRL_VelocityCommand_ok();
 
 	float32_t cmd;
 
-	if (gas_authorized) {
-		cmd = ((float32_t) CANRX_get_OM_throttlePercent()) / 100.0;
+	if (throttle_authorized) {
+		cmd = ((float32_t) CANRX_get_CTRL_throttlePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
 		cmd = 0.0;
 		base_request_state(SYS_STATE_IDLE);
 	}
 
-	control_relay(gas_authorized);
+	control_relay(throttle_authorized);
 	set_pedal_output(cmd);
 }
 
@@ -69,10 +69,11 @@ static void control_relay(bool cmd)
 	relay_state = cmd;
 }
 
-void CANTX_populate_GAS_AccelData(struct CAN_Message_GAS_AccelData * const m)
+void CANTX_populate_THROTTLE_AccelData(
+    struct CAN_Message_THROTTLE_AccelData * const m)
 {
-	m->GAS_throttleADutyCycle = current_thr_A_dutyCycle();
-	m->GAS_throttleFDutyCycle = current_thr_F_dutyCycle();
-	m->GAS_percent		  = current_pedal_percent() * 100;
-	m->GAS_relayState	  = relay_state;
+	m->THROTTLE_throttleADutyCycle = current_thr_A_dutyCycle();
+	m->THROTTLE_throttleFDutyCycle = current_thr_F_dutyCycle();
+	m->THROTTLE_percent	       = current_pedal_percent() * 100;
+	m->THROTTLE_relayState	       = relay_state;
 }

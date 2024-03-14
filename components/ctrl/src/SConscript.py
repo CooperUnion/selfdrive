@@ -3,7 +3,7 @@
 Import('env')
 
 
-node = 'SKRT'
+node = 'CTRL'
 
 opencan = env.OpenCan(
     network=env['CAN']['NETWORK'],
@@ -23,7 +23,7 @@ source = [
         ],
     )
     for src in [
-        'skrt.c',
+        'ctrl.c',
         *env['LIBRARIES']['firmware-base'],
     ]
 ]
@@ -33,8 +33,8 @@ source += env['LIBRARIES']['ember']
 source += env['LIBRARIES']['node-entry']
 source += env['LIBRARIES']['selfdrive']
 
-skrt = env.StaticLibrary(node.lower(), source)[0]
-firmware, flash = env.EspIdf(skrt, 'esp32s3')
+ctrl = env.StaticLibrary(node.lower(), source)[0]
+firmware, flash = env.EspIdf(ctrl, 'esp32s3')
 
 
 Return('firmware', 'flash')

@@ -1,4 +1,4 @@
-#include "om.h"
+#include "ctrl.h"
 
 #include "firmware-base/state-machine.h"
 #include <driver/gpio.h>
@@ -46,8 +46,8 @@
 #define PID_LOWER_LIMIT -5
 #define PID_UPPER_LIMIT 5
 
-static void om_init();
-static void om_100Hz();
+static void ctrl_init();
+static void ctrl_100Hz();
 static void calculate_average_velocity(int16_t left_delta,
     int16_t				       right_delta);
 static void encoder0_chan_a(void *arg);
@@ -69,11 +69,11 @@ static selfdrive_pid_t pid;
 static bool	       setpoint_reset;
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= om_init,
-    .call_100Hz = om_100Hz,
+    .call_init	= ctrl_init,
+    .call_100Hz = ctrl_100Hz,
 };
 
-static void om_init()
+static void ctrl_init()
 {
 	gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
 	gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
@@ -102,7 +102,7 @@ static void om_init()
 	    SIGMA);
 }
 
-static void om_100Hz()
+static void ctrl_100Hz()
 {
 	static uint16_t prv_pulse_cnt[2];
 
@@ -320,17 +320,17 @@ void CANRX_onRxCallback_DBW_SetVelocityGains(
 	pid.kd = dec->gainKd;
 }
 
-void CANTX_populate_OM_Alarms(struct CAN_Message_OM_Alarms * const m)
+void CANTX_populate_CTRL_Alarms(struct CAN_Message_CTRL_Alarms * const m)
 {
-	m->OM_alarmsRaised = speed_alarm;
-	m->OM_speedAlarm   = speed_alarm;
+	m->CTRL_alarmsRaised = speed_alarm;
+	m->CTRL_speedAlarm   = speed_alarm;
 }
 
-void CANTX_populate_OM_ControllerData(
-    struct CAN_Message_OM_ControllerData * const m)
+void CANTX_populate_CTRL_ControllerData(
+    struct CAN_Message_CTRL_ControllerData * const m)
 {
-	m->OM_averageVelocity	  = average_velocity;
-	m->OM_desiredAcceleration = desired_acceleration;
+	m->CTRL_averageVelocity	    = average_velocity;
+	m->CTRL_desiredAcceleration = desired_acceleration;
 }
 
 void CANTX_populateTemplate_ControllerGains(
