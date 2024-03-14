@@ -55,7 +55,7 @@ env.AppendUnique(
         '-Wall',
         '-Wextra',
         '-Wpedantic',
-        '-g',
+        '-ggdb',
         '-std=gnu17',
     ]
 )
