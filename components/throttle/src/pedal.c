@@ -21,11 +21,11 @@ struct throttle_output {
 	float32_t high_voltage;
 };
 
-static void	init_pwm(ledc_timer_config_t pwm_timer,
-	ledc_channel_config_t		     pwm_channel);
+static void init_pwm(
+    ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel);
 static uint32_t voltage_to_duty_cycle(float32_t v);
-static uint32_t convert_throttle_command(struct throttle_output t,
-    float32_t							p);
+static uint32_t convert_throttle_command(
+    struct throttle_output t, float32_t p);
 
 static ledc_timer_config_t pwm_a_timer = {
     .speed_mode	     = LEDC_LOW_SPEED_MODE,
@@ -66,8 +66,8 @@ static float32_t current_percent;
 static uint32_t	 thr_A_dutyCycle;
 static uint32_t	 thr_F_dutyCycle;
 
-static void init_pwm(ledc_timer_config_t pwm_timer,
-    ledc_channel_config_t		 pwm_channel)
+static void init_pwm(
+    ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel)
 {
 	ledc_timer_config(&pwm_timer);
 	ledc_channel_config(&pwm_channel);
@@ -134,13 +134,11 @@ void set_pedal_output(float32_t cmd)
 
 	current_percent = cmd;
 
-	ledc_set_duty(pwm_a_timer.speed_mode,
-	    pwm_a_channel.channel,
-	    thr_A_dutyCycle);
+	ledc_set_duty(
+	    pwm_a_timer.speed_mode, pwm_a_channel.channel, thr_A_dutyCycle);
 	ledc_update_duty(pwm_a_timer.speed_mode, pwm_a_channel.channel);
 
-	ledc_set_duty(pwm_f_timer.speed_mode,
-	    pwm_f_channel.channel,
-	    thr_F_dutyCycle);
+	ledc_set_duty(
+	    pwm_f_timer.speed_mode, pwm_f_channel.channel, thr_F_dutyCycle);
 	ledc_update_duty(pwm_f_timer.speed_mode, pwm_f_channel.channel);
 }

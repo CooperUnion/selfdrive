@@ -11,7 +11,6 @@ void app_main()
 	/* begin running tasks */
 	ember_tasking_begin();
 
-	fprintf(stderr,
-	    "Hello from %.16s\n",
-	    ember_app_description.node_identity);
+	fprintf(
+	    stderr, "Hello from %.16s\n", ember_app_description.node_identity);
 }

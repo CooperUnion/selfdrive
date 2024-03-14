@@ -40,9 +40,8 @@ void  selfdrive_pid_init(selfdrive_pid_t *pid,
 float selfdrive_pid_saturate(selfdrive_pid_t *pid, float u);
 void  selfdrive_pid_set_sigma(selfdrive_pid_t *pid, float value);
 void  selfdrive_pid_set_ts(selfdrive_pid_t *pid, float value);
-void  selfdrive_pid_setpoint_reset(selfdrive_pid_t *pid,
-     float					    desired,
-     float					    current);
+void  selfdrive_pid_setpoint_reset(
+     selfdrive_pid_t *pid, float desired, float current);
 float selfdrive_pid_step(selfdrive_pid_t *pid, float desired, float current);
 
 #endif	// SELFDRIVE_PID_H

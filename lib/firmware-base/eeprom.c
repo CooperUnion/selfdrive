@@ -177,9 +177,8 @@ esp_err_t eeprom_write(uint16_t addr, const uint8_t *data, size_t len)
 		i2c_master_write(cmd, data, write_len, true);
 		i2c_master_stop(cmd);
 
-		val = i2c_master_cmd_begin(I2C_MASTER_NUM,
-		    cmd,
-		    I2C_TICK_TIMEOUT);
+		val = i2c_master_cmd_begin(
+		    I2C_MASTER_NUM, cmd, I2C_TICK_TIMEOUT);
 		i2c_cmd_link_delete(cmd);
 		if (val != ESP_OK) goto error;
 

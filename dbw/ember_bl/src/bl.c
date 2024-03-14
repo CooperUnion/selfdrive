@@ -60,8 +60,8 @@ const esp_partition_t *app_partition;
 #define CANRX_ISOTP_CALLBACK_NAME(IDENTITY) \
 	CANRX_ISOTP_CALLBACK_NAME_(IDENTITY)
 
-void CANRX_ISOTP_CALLBACK_NAME(
-    EMBER_NODE_IDENTITY)(const uint8_t * const data, const uint8_t len)
+void CANRX_ISOTP_CALLBACK_NAME(EMBER_NODE_IDENTITY)(
+    const uint8_t * const data, const uint8_t len)
 {
 	isotp_on_can_message(&isotp_link, data, len);
 }
@@ -127,9 +127,8 @@ static void bl_init(void)
 	log("*** Looking for app partition...\n");
 
 	// Find the app partition.
-	app_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP,
-	    ESP_PARTITION_SUBTYPE_APP_OTA_0,
-	    NULL);
+	app_partition = esp_partition_find_first(
+	    ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
 	if (!app_partition) {
 		log("!!! Failed to find app partition.\n");
 		set_state(BL_STATE_RESET);
@@ -163,13 +162,8 @@ static void bl_init(void)
 	    sizeof(isotp_rx_buf));
 
 	static TaskHandle_t bl_loop_handle;
-	xTaskCreatePinnedToCore(bl_loop,
-	    "BL_LOOP",
-	    8192,
-	    NULL,
-	    3,
-	    &bl_loop_handle,
-	    1);
+	xTaskCreatePinnedToCore(
+	    bl_loop, "BL_LOOP", 8192, NULL, 3, &bl_loop_handle, 1);
 }
 
 #define ESP_CHECKED(call)                                                        \
@@ -276,9 +270,8 @@ static void bl_step(void)
 		case BL_STATE_COMMIT_CHUNK:
 			// Let's write it in.
 			log("--> Committing chunk %d...\n", current_chunk);
-			ESP_CHECKED(esp_ota_write(ota_handle,
-			    isotp_chunk_data,
-			    this_chunk_size));
+			ESP_CHECKED(esp_ota_write(
+			    ota_handle, isotp_chunk_data, this_chunk_size));
 
 			if (bytes_so_far < update_size) {
 				current_chunk++;
@@ -401,9 +394,8 @@ static bool app_desc_ok(const uint8_t * const chunk_data)
 	memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
 
 	// check ember_magic
-	const bool ember_magic_matches = !strncmp(EMBER_MAGIC,
-	    new_app_desc.ember_magic,
-	    sizeof(EMBER_MAGIC));
+	const bool ember_magic_matches = !strncmp(
+	    EMBER_MAGIC, new_app_desc.ember_magic, sizeof(EMBER_MAGIC));
 
 	if (!ember_magic_matches) {
 		_Static_assert(sizeof(EMBER_MAGIC) == 8,

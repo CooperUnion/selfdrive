@@ -48,14 +48,14 @@
 
 static void ctrl_init();
 static void ctrl_100Hz();
-static void calculate_average_velocity(int16_t left_delta,
-    int16_t				       right_delta);
+static void calculate_average_velocity(
+    int16_t left_delta, int16_t right_delta);
 static void encoder0_chan_a(void *arg);
 static void encoder0_chan_b(void *arg);
 static void encoder1_chan_a(void *arg);
 static void encoder1_chan_b(void *arg);
-static void velocity_control(float desired_velocity,
-    float			   desired_acceleration);
+static void velocity_control(
+    float desired_velocity, float desired_acceleration);
 
 static volatile uint16_t pulse_cnt[2];
 static bool		 speed_alarm;
@@ -92,14 +92,8 @@ static void ctrl_init()
 	gpio_isr_handler_add(ENCODER1_CHAN_A, encoder1_chan_a, NULL);
 	gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
 
-	selfdrive_pid_init(&pid,
-	    KP,
-	    KI,
-	    KD,
-	    0.01,
-	    PID_LOWER_LIMIT,
-	    PID_UPPER_LIMIT,
-	    SIGMA);
+	selfdrive_pid_init(
+	    &pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 }
 
 static void ctrl_100Hz()
@@ -157,15 +151,13 @@ static void ctrl_100Hz()
 		float desired_velocity = CANRX_get_DBW_linearVelocity();
 
 		if (setpoint_reset) {
-			selfdrive_pid_setpoint_reset(&pid,
-			    desired_velocity,
-			    current_velocity);
+			selfdrive_pid_setpoint_reset(
+			    &pid, desired_velocity, current_velocity);
 			setpoint_reset = false;
 		}
 
-		desired_acceleration = selfdrive_pid_step(&pid,
-		    desired_velocity,
-		    current_velocity);
+		desired_acceleration = selfdrive_pid_step(
+		    &pid, desired_velocity, current_velocity);
 
 		velocity_control(desired_velocity, desired_acceleration);
 
@@ -287,8 +279,8 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 	}
 }
 
-static void velocity_control(float desired_velocity,
-    float			   desired_acceleration)
+static void velocity_control(
+    float desired_velocity, float desired_acceleration)
 {
 	// we'd like to stop, or so i hope
 	if (!desired_velocity) {

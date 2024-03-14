@@ -55,14 +55,8 @@ ember_rate_funcs_S module_rf = {
 
 static void steer_init()
 {
-	selfdrive_pid_init(&pid,
-	    KP,
-	    0,
-	    0,
-	    TS,
-	    PID_LOWER_LIMIT,
-	    PID_UPPER_LIMIT,
-	    0);
+	selfdrive_pid_init(
+	    &pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
 }
 
 static void steer_100Hz()
@@ -123,14 +117,12 @@ static void steer_100Hz()
 		odrive_state = CLOSED_LOOP_CONTROL;
 		CANTX_doTx_STEER_ODriveRequestState();
 
-		selfdrive_pid_setpoint_reset(&pid,
-		    CANRX_get_DBW_steeringAngle(),
-		    encoder_deg);
+		selfdrive_pid_setpoint_reset(
+		    &pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
 	}
 
-	velocity = selfdrive_pid_step(&pid,
-	    RAD2DEG(CANRX_get_DBW_steeringAngle()),
-	    encoder_deg);
+	velocity = selfdrive_pid_step(
+	    &pid, RAD2DEG(CANRX_get_DBW_steeringAngle()), encoder_deg);
 }
 
 static float encoder2deg(void)
@@ -166,8 +158,8 @@ void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 	m->STEER_odriveCalibrationAlarm = alarm.odrive_calibration;
 }
 
-void CANTX_populate_STEER_ODriveClearErrors(uint8_t * const data,
-    uint8_t * const					    len)
+void CANTX_populate_STEER_ODriveClearErrors(
+    uint8_t * const data, uint8_t * const len)
 {
 	(void) data;
 	(void) len;

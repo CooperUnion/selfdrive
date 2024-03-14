@@ -51,9 +51,8 @@ void selfdrive_pid_set_ts(selfdrive_pid_t *pid, float value)
 	    / (2 * pid->private.sigma + pid->private.ts);
 }
 
-void selfdrive_pid_setpoint_reset(selfdrive_pid_t *pid,
-    float					   desired,
-    float					   current)
+void selfdrive_pid_setpoint_reset(
+    selfdrive_pid_t *pid, float desired, float current)
 {
 	pid->private.integrate	    = 0.0;
 	pid->private.error.position = desired - current;
