@@ -177,30 +177,6 @@ nodes:
             from_template: BlStatus
             id: 0x504
 
-  - BLINK:
-      rx:
-        - DBW_ESTOP
-        - UPD_UpdateControl_BLINK  # bootloader
-      messages:
-        - NodeInfo:
-            from_template: DBWNodeInfo
-            id: 0xD0
-
-        - NodeStatus:
-            from_template: DBWNodeStatus
-            id: 0xE0
-
-  - BLINKBL:
-      rx:
-        - UPD_IsoTpTx_BLINK
-        - UPD_UpdateControl_BLINK
-      messages:
-        - IsoTpTx:
-            id: 0x501
-        - Status:
-            from_template: BlStatus
-            id: 0x502
-
   - CTRL:
       rx:
         - DBW_ESTOP
@@ -323,22 +299,6 @@ nodes:
                   scale: 0.1
                   width: 10
                   # TODO: determine realistic bounds
-
-  - ENCF:
-      rx:
-        - DBW_ESTOP
-      messages:
-        - NodeInfo:
-            from_template: DBWNodeInfo
-            id: 0xD3
-
-        - NodeStatus:
-            from_template: DBWNodeStatus
-            id: 0xE3
-
-        - EncoderData:
-            from_template: EncoderData
-            id: 0x13
 
   - ODRIVE:
       -rx:
@@ -486,35 +446,6 @@ nodes:
               - trajectoryDone:
                   description: Trajectory done.
                   start_bit: 63
-                  width: 1
-
-  - PB:
-      rx:
-        - DBW_ESTOP
-      messages:
-        - NodeInfo:
-            from_template: DBWNodeInfo
-            id: 0xD5
-
-        - NodeStatus:
-            from_template: DBWNodeStatus
-            id: 0xE5
-
-        - ParkingBrakeData:
-            id: 0x15
-            cycletime: 100
-
-            signals:
-              - pbSet:
-                  description: State of the parking brake.
-                  width: 1
-
-              - magnetEnergized:
-                  description: State of the parking brake magnet.
-                  width: 1
-
-              - armedESTOP:
-                  description: State of the ESTOP arming.
                   width: 1
 
   - STEER:
@@ -703,10 +634,6 @@ nodes:
 
   - UPD:
       rx:
-        - BLINK_NodeStatus
-        - BLINKBL_IsoTpTx
-        - BLINKBL_Status
-
         - BBC_NodeStatus
         - BBCBL_IsoTpTx
         - BBCBL_Status
@@ -727,8 +654,6 @@ nodes:
         - THROTTLEBL_IsoTpTx
         - THROTTLEBL_Status
       messages:
-        - IsoTpTx_BLINK:
-            id: 0x530
         - IsoTpTx_BBC:
             id: 0x531
         - IsoTpTx_CTRL:
@@ -739,9 +664,6 @@ nodes:
             id: 0x534
         - IsoTpTx_THROTTLE:
             id: 0x535
-        - UpdateControl_BLINK:
-            from_template: UpdateControl
-            id: 0x5A0
         - UpdateControl_BBC:
             from_template: UpdateControl
             id: 0x5A1
