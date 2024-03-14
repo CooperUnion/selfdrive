@@ -39,9 +39,13 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
 
     # since the esp-idf build is shared resource we need to
     # lock it while we compile and link with out shared library
+    # we also need to remove the generated elfs for when the
+    # timestamp isn't old enough for competing threads
     actions = [
         f'exec {{LOCKFD}}> {build}/scons.lock',
         'flock --exclusive $$LOCKFD',
+        f'rm -f {build}/bootloader/bootloader.elf',
+        f'rm -f {build}/firmware.elf',
         f'rm -f {libprebuilt}',
         f'ln -s {library.abspath} {libprebuilt}',
         f'ninja -C {build}',
