@@ -68,6 +68,12 @@ static float desired_acceleration;
 static selfdrive_pid_t pid;
 static bool	       setpoint_reset;
 
+enum encoder_index {
+	ENCODER_LEFT,
+	ENCODER_RIGHT,
+	ENCODERS_TOTAL,
+};
+
 ember_rate_funcs_S module_rf = {
     .call_init	= ctrl_init,
     .call_100Hz = ctrl_100Hz,
@@ -98,23 +104,27 @@ static void ctrl_init()
 
 static void ctrl_100Hz()
 {
-	static uint16_t prv_pulse_cnt[2];
+	static uint16_t prv_pulse_cnt[ENCODERS_TOTAL];
 
-	const uint16_t cur_pulse_cnt[2] = {pulse_cnt[0], pulse_cnt[1]};
+	const uint16_t cur_pulse_cnt[ENCODERS_TOTAL]
+	    = {pulse_cnt[ENCODER_LEFT], pulse_cnt[ENCODER_RIGHT]};
 
-	const int16_t left_delta  = cur_pulse_cnt[0] - prv_pulse_cnt[0];
-	const int16_t right_delta = cur_pulse_cnt[1] - prv_pulse_cnt[1];
+	int16_t deltas[ENCODERS_TOTAL];
 
-	prv_pulse_cnt[0] = cur_pulse_cnt[0];
-	prv_pulse_cnt[1] = cur_pulse_cnt[1];
+	for (size_t i = ENCODER_LEFT; i < ENCODERS_TOTAL; i++)
+		deltas[i] = cur_pulse_cnt[i] - prv_pulse_cnt[i];
 
-	calculate_average_velocity(left_delta, right_delta);
+	prv_pulse_cnt[ENCODER_LEFT]  = cur_pulse_cnt[ENCODER_LEFT];
+	prv_pulse_cnt[ENCODER_RIGHT] = cur_pulse_cnt[ENCODER_RIGHT];
+
+	calculate_average_velocity(
+	    deltas[ENCODER_LEFT], deltas[ENCODER_RIGHT]);
 
 	// check if we're over the speed limit and
 	// go into the ESTOP state if that's the case
 	if ((base_get_state() == SYS_STATE_DBW_ACTIVE)
-	    && ((ABS(left_delta) >= ENCODER_MAX_TICKS)
-		|| (ABS(right_delta) >= ENCODER_MAX_TICKS))) {
+	    && ((ABS(deltas[ENCODER_LEFT]) >= ENCODER_MAX_TICKS)
+		|| (ABS(deltas[ENCODER_RIGHT]) >= ENCODER_MAX_TICKS))) {
 		brake_percent	 = 0;
 		throttle_percent = 0;
 
@@ -198,7 +208,7 @@ static void IRAM_ATTR encoder0_chan_a(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-	(chan_a ^ chan_b) ? --pulse_cnt[0] : ++pulse_cnt[0];
+	pulse_cnt[ENCODER_LEFT] += (chan_a ^ chan_b) ? -1 : 1;
 }
 
 static void IRAM_ATTR encoder0_chan_b(void *arg)
@@ -208,7 +218,7 @@ static void IRAM_ATTR encoder0_chan_b(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-	(!chan_a ^ chan_b) ? --pulse_cnt[0] : ++pulse_cnt[0];
+	pulse_cnt[ENCODER_LEFT] += (!chan_a ^ chan_b) ? -1 : 1;
 }
 
 static void IRAM_ATTR encoder1_chan_a(void *arg)
@@ -218,7 +228,7 @@ static void IRAM_ATTR encoder1_chan_a(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-	(chan_a ^ chan_b) ? ++pulse_cnt[1] : --pulse_cnt[1];
+	pulse_cnt[ENCODER_RIGHT] += (chan_a ^ chan_b) ? 1 : -1;
 }
 
 static void IRAM_ATTR encoder1_chan_b(void *arg)
@@ -228,7 +238,7 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-	(!chan_a ^ chan_b) ? ++pulse_cnt[1] : --pulse_cnt[1];
+	pulse_cnt[ENCODER_RIGHT] += (!chan_a ^ chan_b) ? 1 : -1;
 }
 
 static void velocity_control(
