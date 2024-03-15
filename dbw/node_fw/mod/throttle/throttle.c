@@ -68,7 +68,7 @@ static void throttle_100Hz()
         base_request_state(CUBER_SYS_STATE_IDLE);
     }
 
-    control_relay(throttle_authorized);
+    control_relay(throttle_authorized && cmd);
     set_pedal_output(cmd);
 }
 

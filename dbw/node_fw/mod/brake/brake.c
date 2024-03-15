@@ -61,16 +61,17 @@ enum adc_channel_index {
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
-#define KP    1.00
-#define KI    0.02
+#define KP    5.00
+#define KI    0.05
 #define KD 	  0.00
 #define SIGMA 1.00
+#define TS    0.01
 
-#define PID_LOWER_LIMIT -100
-#define PID_UPPER_LIMIT  100
+#define PID_LOWER_LIMIT -1
+#define PID_UPPER_LIMIT  1
 
-#define PID_DEADBAND_LOWER  0.00
-#define PID_DEADBAND_UPPER  0.00
+#define PID_DEADBAND_LOWER   0.05
+#define PID_DEADBAND_UPPER  -0.05
 
 //max pressure reading from pressure sensor converted to ADC
 #define MAX_PRESSURE_READING 2600
@@ -168,7 +169,7 @@ static void brake_init(void)
 
 	adc_init();
 
-	pid_init(&pid, KP, KI, KD, 0.01, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
+	pid_init(&pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 	pid_set_deadbands(&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 
 }
@@ -183,10 +184,14 @@ static void brake_1kHz(void)
 
 	float cmd;
 
+	// if not active setpoint reset
+	if (base_get_state() != CUBER_SYS_STATE_DBW_ACTIVE){
+		pid_setpoint_reset(&pid, (((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0), actual_brake);
+	}
+
 	if (motor_fault) {
 		gpio_set_level(SLP_PIN, 0);
 		cmd = 0.0;
-		// base_request_state(CUBER_SYS_STATE_ESTOP);
 	} else if (brake_authorized) {
 		gpio_set_level(SLP_PIN, 1);
 		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
@@ -199,6 +204,8 @@ static void brake_1kHz(void)
 
 	desired_brake = cmd;
 	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX)) - MIN_PRESSURE_READING ) / ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
+
+	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
 
 	controller_output = pid_step(&pid, desired_brake, actual_brake);
 

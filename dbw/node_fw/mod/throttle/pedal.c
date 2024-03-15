@@ -59,8 +59,8 @@ struct throttle_output {
     float32_t high_voltage;
 };
 
-static const struct throttle_output thr_A = {1.89f, 4.19f};
-static const struct throttle_output thr_F = {0.94f, 2.1f};
+static const struct throttle_output thr_A = {1.73f, 4.19f};
+static const struct throttle_output thr_F = {0.93f, 2.10f};
 
 static float32_t current_percent;
 static uint32_t thr_A_dutyCycle;
