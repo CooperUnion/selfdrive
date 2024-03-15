@@ -54,12 +54,12 @@ def scons_env_gen(c):
         with open(f'{build}/compile_commands.json') as f:
             compile_commands = json.load(f)
 
-        main_c = f'{src}/main/main.c'
-        main = list(
-            filter(lambda x: x['file'].endswith(main_c), compile_commands)
+        empty_c = f'{src}/main/empty.c'
+        empty = list(
+            filter(lambda x: x['file'].endswith(empty_c), compile_commands)
         )[0]
 
-        flags = shlex.split(main['command'])
+        flags = shlex.split(empty['command'])
 
         def startswith(x):
             return lambda y: y.startswith(x)
