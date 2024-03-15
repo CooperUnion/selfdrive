@@ -223,6 +223,9 @@ instructions and system setup information on the repo's <a href="https://github.
 process of migrating over to this layout. Sorry for the time being.</p>
 </blockquote>
 <pre><code>selfdrive/
++-- can/
+|   +-- network.yml
+|
 +-- docs/
 |
 +-- components/
@@ -242,8 +245,6 @@ process of migrating over to this layout. Sorry for the time being.</p>
 |   |
 |   +-- ...
 |
-+-- can.yml
-|
 +-- ...
 </code></pre>
 <p>There's quite a bit to unpack here, so let's get to it!</p>
@@ -260,6 +261,10 @@ quick list of relevant documentation to read.</p>
 of this directory highly depend on the component language(s) and use
 case. It is best to see existing components to get a feel for it.</p>
 <p>Finally, <code>component.toml</code> contains metadata related to the component.</p>
+<h3 id="can"><a class="header" href="#can"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/can"><code>can/</code></a></a></h3>
+<p><a href="https://github.com/CooperUnion/selfdrive/tree/dev/can"><code>can/</code></a> describes the CAN networks of our projects. Here, you'll find
+definitions for networks, messages, and signals for <a href="https://github.com/opencan">OpenCAN</a> to
+process.</p>
 <h3 id="docs"><a class="header" href="#docs"><a href="https://github.com/CooperUnion/selfdrive/tree/dev/docs"><code>docs/</code></a></a></h3>
 <p>The <a href="contributing.html#directory-structure">contributing guidelines</a> cover the structure for documentation. You
 may notice that it closely follows the structure of <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>
@@ -274,10 +279,6 @@ you're curious.</p>
 various components. Like a component, each project has a <code>docs/</code>
 directory with symlinks to relevant documentation and a <code>project.toml</code>
 with related metadata.</p>
-<h3 id="canyml"><a class="header" href="#canyml"><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a></a></h3>
-<p><a href="https://github.com/CooperUnion/selfdrive/blob/dev/can.yml"><code>can.yml</code></a> describes the CAN networks of our projects. Here, you'll
-find definitions for networks, messages, and signals for <a href="https://github.com/opencan">OpenCAN</a> to
-process.</p>
 <h3 id="what-about-everything-else"><a class="header" href="#what-about-everything-else">What About Everything Else?</a></h3>
 <p>It'd be impractical to cover every last file and directory in
 <a href="https://github.com/CooperUnion/selfdrive"><code>selfdrive</code></a>. Unfortunately, there's no shortcut to knowing where you
