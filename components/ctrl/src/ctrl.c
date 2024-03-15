@@ -11,7 +11,7 @@
 #include <opencan_tx.h>
 #include <selfdrive/pid.h>
 
-#define ENCODER0_CHAN_A 4
+#define ENCODER0_CHAN_A 4  // 0 is left 1 is right
 #define ENCODER0_CHAN_B 3
 #define ENCODER1_CHAN_A 36
 #define ENCODER1_CHAN_B 35
@@ -198,19 +198,7 @@ static void IRAM_ATTR encoder0_chan_a(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-	if (chan_a) {
-		if (chan_b) {
-			--pulse_cnt[0];
-		} else {
-			++pulse_cnt[0];
-		}
-	} else {
-		if (chan_b) {
-			++pulse_cnt[0];
-		} else {
-			--pulse_cnt[0];
-		}
-	}
+	(chan_a ^ chan_b) ? --pulse_cnt[0] : ++pulse_cnt[0];
 }
 
 static void IRAM_ATTR encoder0_chan_b(void *arg)
@@ -220,19 +208,7 @@ static void IRAM_ATTR encoder0_chan_b(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
 
-	if (chan_b) {
-		if (chan_a) {
-			++pulse_cnt[0];
-		} else {
-			--pulse_cnt[0];
-		}
-	} else {
-		if (chan_a) {
-			--pulse_cnt[0];
-		} else {
-			++pulse_cnt[0];
-		}
-	}
+	(!chan_a ^ chan_b) ? --pulse_cnt[0] : ++pulse_cnt[0];
 }
 
 static void IRAM_ATTR encoder1_chan_a(void *arg)
@@ -242,19 +218,7 @@ static void IRAM_ATTR encoder1_chan_a(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-	if (chan_a) {
-		if (chan_b) {
-			--pulse_cnt[1];
-		} else {
-			++pulse_cnt[1];
-		}
-	} else {
-		if (chan_b) {
-			++pulse_cnt[1];
-		} else {
-			--pulse_cnt[1];
-		}
-	}
+	(chan_a ^ chan_b) ? ++pulse_cnt[1] : --pulse_cnt[1];
 }
 
 static void IRAM_ATTR encoder1_chan_b(void *arg)
@@ -264,19 +228,7 @@ static void IRAM_ATTR encoder1_chan_b(void *arg)
 	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
 	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
 
-	if (chan_b) {
-		if (chan_a) {
-			++pulse_cnt[1];
-		} else {
-			--pulse_cnt[1];
-		}
-	} else {
-		if (chan_a) {
-			--pulse_cnt[1];
-		} else {
-			++pulse_cnt[1];
-		}
-	}
+	(!chan_a ^ chan_b) ? ++pulse_cnt[1] : --pulse_cnt[1];
 }
 
 static void velocity_control(
