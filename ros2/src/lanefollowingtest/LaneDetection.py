@@ -223,41 +223,41 @@ class Lane_Follower(Node):
         success_l, image_l = vidcap_left.read()
         success_r, image_r = vidcap_right.read()
         images = [(image_l, "Left"), (image_r, "Right")]
+        if not(success_l and success_r):
+            return        
+        for image in images:
+            frame = cv2.resize(image[0], (640, 480))
+            # I might've cooked with this list comprehension
+            (cv2.circle(frame,point,5,(0,0,255),-1) for point in (bl,tl,br,tr))
+            transformed_frame = cv2.warpPerspective(
+                frame, matrix, (640, 480))
+            # Object Detection
+            # Image Thresholding
+            hsv_transformed_frame = cv2.cvtColor(
+                transformed_frame, cv2.COLOR_BGR2HSV)
+            mask = cv2.inRange(hsv_transformed_frame, lower, upper)
+            if image[1] == "Left":
+                self._left_follower.set_binwarp(binwarp=mask)
+            else:
+                self._right_follower.set_binwarp(binwarp=mask)
 
-        if success_l and success_r:
-            for image in images:
-                frame = cv2.resize(image[0], (640, 480))
-                # I might've cooked with this list comprehension
-                (cv2.circle(frame,point,5,(0,0,255),-1) for point in (bl,tl,br,tr))
-                transformed_frame = cv2.warpPerspective(
-                    frame, matrix, (640, 480))
-                # Object Detection
-                # Image Thresholding
-                hsv_transformed_frame = cv2.cvtColor(
-                    transformed_frame, cv2.COLOR_BGR2HSV)
-                mask = cv2.inRange(hsv_transformed_frame, lower, upper)
-                if image[1] == "Left":
-                    self._left_follower.set_binwarp(binwarp=mask)
-                else:
-                    self._right_follower.set_binwarp(binwarp=mask)
-
-            result_left = self._left_follower.Plot_Line()
-            result_right = self._right_follower.Plot_Line()
-            if (result_left is not None and result_right is not None):
-                pos = self.measure_position_meters()
-                print(pos)
-                msg_out = Float64()
-                msg_out.data = pos
-                self.camData_publisher.publish(msg_out)
-                cv2.imshow("Result Left", result_left)
-                cv2.imshow("Result Right", result_right)
-                msg_out = Float64()
-                msg_out.data = pos
-                self.camData_publisher.publish(msg_out)  # Publish the error
-            cv2.imshow("Original", frame)
-            cv2.imshow("Bird's Eye View", transformed_frame)
-            if cv2.waitKey(10) == 27:
-                pass
+        result_left = self._left_follower.Plot_Line()
+        result_right = self._right_follower.Plot_Line()
+        if (result_left is not None and result_right is not None):
+            pos = self.measure_position_meters()
+            print(pos)
+            msg_out = Float64()
+            msg_out.data = pos
+            self.camData_publisher.publish(msg_out)
+            cv2.imshow("Result Left", result_left)
+            cv2.imshow("Result Right", result_right)
+            msg_out = Float64()
+            msg_out.data = pos
+            self.camData_publisher.publish(msg_out)  # Publish the error
+        cv2.imshow("Original", frame)
+        cv2.imshow("Bird's Eye View", transformed_frame)
+        if cv2.waitKey(10) == 27:
+            return
 
 
 
