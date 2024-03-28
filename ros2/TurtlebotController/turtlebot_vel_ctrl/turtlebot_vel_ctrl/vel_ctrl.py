@@ -26,18 +26,30 @@ class TurtleBot4VelCtrlNode(Node):
     def camData_callback(self,msg_in):
         msg_out = Twist()
 
-        k = 1.0
-        err_z = msg_in.data
+        # no camera data is found. set velocity to zero
+        if msg_in.data < -999.0:
+            msg_out.linear.x = 0.0
+            msg_out.linear.y = 0.0
+            msg_out.linear.z = 0.0
 
-        ang_input = err_z * k
+            msg_out.angular.x = 0.0
+            msg_out.angular.y = 0.0
+            msg_out.angular.z = 0.0
 
-        msg_out.linear.x = 0.1 #define constant speed
-        msg_out.linear.y = 0.0
-        msg_out.linear.z = 0.0
+        #1 or both lanes are detected and error is send as usual
+        else:
+            k = 1.0
+            err_z = msg_in.data
 
-        msg_out.angular.x = 0.0
-        msg_out.angular.y = 0.0
-        msg_out.angular.z = ang_input
+            ang_input = err_z * k
+
+            msg_out.linear.x = 0.1 #define constant speed
+            msg_out.linear.y = 0.0
+            msg_out.linear.z = 0.0
+
+            msg_out.angular.x = 0.0
+            msg_out.angular.y = 0.0
+            msg_out.angular.z = ang_input
 
         self.vel_publisher.publish(msg_out)
     
