@@ -2,8 +2,6 @@ import streamlit as st
 from streamlit import runtime
 from streamlit.web import cli as stcli
 import sys
-import cv2
-
 
 def runner():
     st.header("Welcome to the IGVC Homepage!")
