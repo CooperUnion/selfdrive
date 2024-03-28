@@ -13,14 +13,18 @@ import numpy as np
 
 # Inputs from both cameras
 vidcap_left = cv2.VideoCapture("/dev/video0")
-vidcap_right = cv2.VideoCapture("/dev/video2")
-
+vidcap_left.set(3,640)
+vidcap_left.set(4,480)
+vidcap_right = cv2.VideoCapture("/dev/video4")
+vidcap_right.set(3,640)
+vidcap_right.set(4,480)
 
 def nothing(x):
     pass
 
 
 class Individual_Follower():
+
     def __init__(self):
         self._fit = None
         self._binary_warped = None
@@ -71,7 +75,7 @@ class Individual_Follower():
                 current = np.int32(np.mean(nonzerox[good_inds]))
 
         # Concatenate the arrays of indices
-        if (lane_inds.size() > 0):
+        if (len(lane_inds) > 0):
             lane_inds = np.concatenate(lane_inds)
 
         # Extract line pixel positions
@@ -181,25 +185,33 @@ class Lane_Follower(Node):
         # The car is assumed to be placed in the center of the picture
         # If the deviation is negative, the car is on the felt hand side of the center of the lane
         veh_pos = (
-            (self._binary_warped.shape[1]//2) - center_lanes_x_pos) * xm_per_pix
+            (self._left_follower._binary_warped.shape[1]//2) - center_lanes_x_pos) * xm_per_pix
         return veh_pos / 100
 
     def timer_callback(self):
         # TODO: Move these out into a separate calibrator class that saves values  to a .csv
         # THESE SHOULD NOT BE GENERATE ON EVERY TIMER CALLBACK, BAD DESIGN (ON MY PART)
-        cv2.namedWindow("Trackbars")
-        cv2.createTrackbar("L - H", "Trackbars", 0, 255, nothing)
-        cv2.createTrackbar("L - S", "Trackbars", 0, 255, nothing)
-        cv2.createTrackbar("L - V", "Trackbars", 200, 255, nothing)
-        cv2.createTrackbar("U - H", "Trackbars", 255, 255, nothing)
-        cv2.createTrackbar("U - S", "Trackbars", 50, 255, nothing)
-        cv2.createTrackbar("U - V", "Trackbars", 255, 255, nothing)
-        l_h = cv2.getTrackbarPos("L - H", "Trackbars")
-        l_s = cv2.getTrackbarPos("L - S", "Trackbars")
-        l_v = cv2.getTrackbarPos("L - V", "Trackbars")
-        u_h = cv2.getTrackbarPos("U - H", "Trackbars")
-        u_s = cv2.getTrackbarPos("U - S", "Trackbars")
-        u_v = cv2.getTrackbarPos("U - V", "Trackbars")
+        # cv2.namedWindow("Trackbars")
+        # cv2.createTrackbar("L - H", "Trackbars", 0, 255, nothing)
+        # cv2.createTrackbar("L - S", "Trackbars", 0, 255, nothing)
+        # cv2.createTrackbar("L - V", "Trackbars", 200, 255, nothing)
+        # cv2.createTrackbar("U - H", "Trackbars", 255, 255, nothing)
+        # cv2.createTrackbar("U - S", "Trackbars", 50, 255, nothing)
+        # cv2.createTrackbar("U - V", "Trackbars", 255, 255, nothing)
+        # l_h = cv2.getTrackbarPos("L - H", "Trackbars")
+        # l_s = cv2.getTrackbarPos("L - S", "Trackbars")
+        # l_v = cv2.getTrackbarPos("L - V", "Trackbars")
+        # u_h = cv2.getTrackbarPos("U - H", "Trackbars")
+        # u_s = cv2.getTrackbarPos("U - S", "Trackbars")
+        # u_v = cv2.getTrackbarPos("U - V", "Trackbars")
+        l_h = 0
+        l_s = 0
+        l_v = 200
+
+        u_h = 255
+        u_s = 50
+        u_v = 255
+
         lower = np.array([l_h, l_s, l_v])
         upper = np.array([u_h, u_s, u_v])
         # ## Choosing points for perspective transformation
@@ -226,7 +238,8 @@ class Lane_Follower(Node):
         if not(success_l and success_r):
             return        
         for image in images:
-            frame = cv2.resize(image[0], (640, 480))
+            frame = image[0]
+            # frame = cv2.resize(image[0], (640, 480))
             # I might've cooked with this list comprehension
             (cv2.circle(frame,point,5,(0,0,255),-1) for point in (bl,tl,br,tr))
             transformed_frame = cv2.warpPerspective(
@@ -240,6 +253,8 @@ class Lane_Follower(Node):
                 self._left_follower.set_binwarp(binwarp=mask)
             else:
                 self._right_follower.set_binwarp(binwarp=mask)
+            cv2.imshow("Original" + image[1], frame)
+            cv2.imshow("Bird's Eye View" + image[1], transformed_frame)
 
         result_left = self._left_follower.Plot_Line()
         result_right = self._right_follower.Plot_Line()
@@ -254,8 +269,7 @@ class Lane_Follower(Node):
             msg_out = Float64()
             msg_out.data = pos
             self.camData_publisher.publish(msg_out)  # Publish the error
-        cv2.imshow("Original", frame)
-        cv2.imshow("Bird's Eye View", transformed_frame)
+        
         if cv2.waitKey(10) == 27:
             return
 
