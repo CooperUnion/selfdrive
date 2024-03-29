@@ -1,8 +1,6 @@
 
 # from irobot_create_msgs.msg import WheelTicks, WheelTicks
-from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
-
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -169,6 +167,7 @@ class Lane_Follower(Node):
             Float64, '/cam_data', 10)
         
         #GUI Controller Initializer
+        #/raw_left, /raw_right, /tf_left, /tf_right, /sliding_left, /sliding_right
         if Lane_Follower.GUI:
             self._bridge = CvBridge()
             image_labels = ("raw_left", "raw_right", "tf_left", "tf_right", "sliding_left", "sliding_right")
@@ -193,7 +192,7 @@ class Lane_Follower(Node):
 
             if(Lane_Follower.GUI):
                 self.img_publish("sliding_left", left)               
-                cv2.imshow("Result Left", left)
+            cv2.imshow("Result Left", left)
 
         if right is not None:
             right_fit = self._right_follower._fit
@@ -201,7 +200,7 @@ class Lane_Follower(Node):
                 right_fit[1]*y_max + right_fit[2]
             if(Lane_Follower.GUI):
                 self.img_publish("sliding_right", right)
-                cv2.imshow("Result Right", right)
+            cv2.imshow("Result Right", right)
 
         center_lanes_x_pos = (left_x_pos + right_x_pos)//2
         # Calculate the deviation between the center of the lane and the center of the picture
@@ -244,8 +243,8 @@ class Lane_Follower(Node):
             if(Lane_Follower.GUI):
                 self.img_publish("raw_" +image[1],frame)
                 self.img_publish("tf_" + image[1],transformed_frame)            
-                cv2.imshow("Original " + image[1], frame)
-                cv2.imshow("Bird's Eye View " + image[1], transformed_frame)
+            cv2.imshow("Original " + image[1], frame)
+            cv2.imshow("Bird's Eye View " + image[1], transformed_frame)
 
         result_left = self._left_follower.Plot_Line()
         result_right = self._right_follower.Plot_Line()

@@ -11,6 +11,7 @@ def runner():
         "Streamlit supports fast reloads, just refresh the python script to get going!")
     st.write("Docs are here: https://docs.streamlit.io/library/api-reference")
     st.write("This is also extremely relevant: https://stackoverflow.com/questions/67382181/how-to-use-streamlit-in-ros")
+    st.write("For Siann: You should love yourself, now!")
 
 
 

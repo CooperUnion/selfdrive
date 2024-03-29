@@ -5,7 +5,6 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from cv_bridge import CvBridge
-import typing
 
 IMG_CATEGORIES = ["raw","tf","sliding"]
 
@@ -17,6 +16,7 @@ class Image_Handler(Node):
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
         image_labels = ("raw_left", "raw_right", "tf_left", "tf_right", "sliding_left", "sliding_right")
+        #Multithread the subscribers to separate rosnodes.
         self._subscribers = (self.create_subscription(Image, "/" + label, lambda msg: self.camData_callback(msg,label),qos_profile_sensor_data) for label in image_labels)
 
 
@@ -25,21 +25,14 @@ class Image_Handler(Node):
 
 
     def camData_callback(self, msg_in,label):
-        print("Put image from %s" % label)
+        st.write("Put image from %s" % label)
         img = self._bridge.imgmsg_to_cv2(msg_in)
-        self.render_imgs(img,label)
+        self.render_imgs(img,label.split('_')[0])
 
     def render_imgs(self,img,label):
         #Specifies which camera the image is from
-        which_cam = 0
         if img is not None:
-            type, cam_label = label.split("_")
-            match cam_label:
-                case "left":
-                    which_cam = 0
-                case "right":
-                    which_cam = 1
-            tab_dict[type][cam_label].image(cv2.cvtColor(self._img,cv2.COLOR_BGR2RGB),channels="RGB")
+            tab_dict[label].image(cv2.cvtColor(self._img,cv2.COLOR_BGR2RGB),channels="RGB")
 
 
 
@@ -60,7 +53,7 @@ if __name__ == "__main__":
     st.write(
         "This should render all of the images related to Lane Detection, and relevant parameters.")
     render = st.checkbox("Display Camera Output")
-    tabs = st.tabs(IMG_CATEGORIES)
+    tabs = st.tabs(IMG_CATEGORIES)        
     imgs_w_places = tuple(zip(tabs, [tab.columns(2) for tab in tabs]))
     #Dictionary 
     tab_dict = dict(zip(IMG_CATEGORIES,imgs_w_places))
