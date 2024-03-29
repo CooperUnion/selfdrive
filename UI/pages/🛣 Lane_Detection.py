@@ -7,36 +7,42 @@ from rclpy.qos import qos_profile_sensor_data
 from cv_bridge import CvBridge
 import typing
 
+IMG_CATEGORIES = ["raw","tf","sliding"]
+
 class Image_Handler(Node):
 
     def __init__(self):
-        self._tabs = None
-        self._img = None
+        self._tab_dict = None
         self._frame_containers = None
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
-        self.camData_subscriber = self.create_subscription(
-            Image,
-            '/camera/image',
-            self.camData_callback,
-            qos_profile_sensor_data)
+        image_labels = ("raw_left", "raw_right", "tf_left", "tf_right", "sliding_left", "sliding_right")
+        self._subscribers = (self.create_subscription(Image, "/" + label, lambda msg: self.camData_callback(msg,label),qos_profile_sensor_data) for label in image_labels)
+
 
     def tabs(self,tabs):
-        self._tabs = tabs
-        # SRC is cv2.VideoCapture FOR NOW: Will need to be tweaked in the future to rossify
-        self._frame_containers = [tab.empty() for tab in self._tabs]
+        self._tab_dict = tabs
 
 
-    def camData_callback(self, msg_in):
-        raw = msg_in
-        self._img = self._bridge.imgmsg_to_cv2(raw)
-        self.render_imgs()
+    def camData_callback(self, msg_in,label):
+        print("Put image from %s" % label)
+        img = self._bridge.imgmsg_to_cv2(msg_in)
+        self.render_imgs(img,label)
 
-    def render_imgs(self):
-        # SRC is cv2.VideoCapture FOR NOW: Will need to be tweaked in the future to rossify
-        if self._img is not None:
-            for frame_container in self._frame_containers:
-                frame_container.image(cv2.cvtColor(self._img,cv2.COLOR_BGR2RGB),channels="RGB")
+    def render_imgs(self,img,label):
+        #Specifies which camera the image is from
+        which_cam = 0
+        if img is not None:
+            type, cam_label = label.split("_")
+            match cam_label:
+                case "left":
+                    which_cam = 0
+                case "right":
+                    which_cam = 1
+            tab_dict[type][cam_label].image(cv2.cvtColor(self._img,cv2.COLOR_BGR2RGB),channels="RGB")
+
+
+
 
 @st.cache_resource
 def image_instantiator():
@@ -53,12 +59,15 @@ if __name__ == "__main__":
         page_icon="🛣")
     st.write(
         "This should render all of the images related to Lane Detection, and relevant parameters.")
-    render = st.checkbox("Display Parameters")
-    tabs = st.tabs(["Original", "HSV", "Sliding Windows"])
+    render = st.checkbox("Display Camera Output")
+    tabs = st.tabs(IMG_CATEGORIES)
+    imgs_w_places = tuple(zip(tabs, [tab.columns(2) for tab in tabs]))
+    #Dictionary 
+    tab_dict = dict(zip(IMG_CATEGORIES,imgs_w_places))
 
-    if not render:
+    if render:
         ros_node = image_instantiator()
-        ros_node.tabs(tabs)
+        ros_node.tabs(tab_dict)
         rclpy.spin(ros_node)
         ros_node.destroy_node()
         rclpy.shutdown()
@@ -66,3 +75,5 @@ if __name__ == "__main__":
 
     # I Don't even know if we'll want this, but it's a nice to have anyway
     Restart = st.button("ESTOP", type="primary")
+
+
