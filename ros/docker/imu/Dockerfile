@@ -13,7 +13,6 @@ RUN apt-get update && apt install -y \
     python3-pip --fix-missing 
 
 run apt-get install -y ros-noetic-imu-tools 
-# (cloned package locally instead)
 
 RUN apt update && apt install -y curl
 
