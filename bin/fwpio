@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cd "$REPO_ROOT/dbw/node_fw" || exit 1
-
-exec pio "$@"

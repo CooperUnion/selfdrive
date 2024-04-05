@@ -1,8 +1,0 @@
-{
-  "name": "cuber-ctrl",
-  "version": "rolling",
-  "description": "Controls DBW node",
-  "build": {
-    "libLDFMode": "deep"
-  }
-}

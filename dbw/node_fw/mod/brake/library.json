@@ -1,8 +1,0 @@
-{
-  "name": "cuber-brake",
-  "version": "rolling",
-  "description": "Brake DBW node",
-  "build": {
-    "libLDFMode": "deep"
-  }
-}

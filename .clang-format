@@ -1,0 +1,109 @@
+---
+
+AlignAfterOpenBracket: DontAlign
+AlignArrayOfStructures: Right
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AlignCompound: true
+  PadOperators: true
+
+AlignConsecutiveBitFields:
+  Enabled: true
+  AlignCompound: true
+  PadOperators: true
+
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AlignCompound: true
+  PadOperators: true
+
+AlignConsecutiveMacros:
+  Enabled: true
+  AlignCompound: true
+  PadOperators: true
+
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+
+AlignEscapedNewlines: Left
+AlignOperands: DontAlign
+AlignTrailingComments: Always
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: Both
+
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterControlStatement: MultiLine
+  AfterEnum: false
+  AfterFunction: true
+  AfterStruct: false
+  AfterUnion: false
+  BeforeElse: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Linux
+BreakBeforeInlineASMColon: Always
+BreakBeforeTernaryOperators: true
+BreakStringLiterals: false
+ColumnLimit: 79
+IncludeBlocks: Regroup
+
+IncludeCategories:
+  - Regex: <[[:alnum:].]+>
+    Priority: 2
+  - Regex: .*
+    Priority: 1
+
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentGotoLabels: false
+IndentPPDirectives: None
+IndentWidth: 8
+IndentWrappedFunctionNames: false
+InsertBraces: false
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtEOF: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+Language: Cpp
+LineEnding: LF
+MaxEmptyLinesToKeep: 2
+PPIndentWidth: 0
+QualifierAlignment: Left
+ReflowComments: true
+RemoveParentheses: Leave
+RemoveSemicolon: true
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseSensitive
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAroundPointerQualifiers: Both
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: true
+SpacesBeforeTrailingComments: 2
+
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+TabWidth: 8
+UseTab: Always

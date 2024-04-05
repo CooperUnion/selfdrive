@@ -1,22 +1,20 @@
 # ruff: noqa: F821
 
-Import('env')
+Import('envs')
 
 
-dbc = env.File('can.dbc')
-network = env.File('can.yml')
+network = 'network.yml'
 
-dbc_emmitter = env.Command(
-    'create-dbc.py',
-    network,
-    [
-        'opencan-cli compose $SOURCE --dump-python > $TARGET',
-        # what a crime
-        f'sed -i -e s%opencan\\.dbc%{dbc.path}%g $TARGET',
-    ],
-)
+for env in envs.values():
+    env['CAN'] = {}
+    env['CAN']['NETWORK'] = env.File(network)
 
-dbc = env.Command('can.dbc', dbc_emmitter, 'python $SOURCE')
+
+env = envs['env']
+
+
+network = env.File(network)
+dbc = env.OpenCanDbc(network)
 env.Alias('dbc', dbc)
 
 

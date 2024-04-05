@@ -22,6 +22,7 @@ OUTPUTS = [
     'flash_project_args',
     'flasher_args.json',
     'ldgen_libraries',
+    'ota_data_initial.bin',
     'partition-table-flash_args',
     'prefix_map_gdbinit',
     'x509_crt_bundle.S',
@@ -38,10 +39,13 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
 
     # since the esp-idf build is shared resource we need to
     # lock it while we compile and link with out shared library
+    # we also need to remove the generated elfs for when the
+    # timestamp isn't old enough for competing threads
     actions = [
         f'exec {{LOCKFD}}> {build}/scons.lock',
-        'echo $$LOCKFD',
         'flock --exclusive $$LOCKFD',
+        f'rm -f {build}/bootloader/bootloader.elf',
+        f'rm -f {build}/firmware.elf',
         f'rm -f {libprebuilt}',
         f'ln -s {library.abspath} {libprebuilt}',
         f'ninja -C {build}',
@@ -53,19 +57,56 @@ def EspIdf(env, library, target, *, outdir='esp-idf'):
 
     actions = ' && '.join(actions)
 
+    if not env['VERBOSE']:
+        actions = f'@echo ESP-IDF {library.path} && ' + actions
+
     out = env.Command(
         [f'{outdir}/{output}' for output in OUTPUTS], library, actions
     )
+
+    flash = EspTool(
+        env=env,
+        dir=outdir,
+        chip=target,
+        args=['write_flash', '@flash_args'],
+    )
+    env.Depends(flash, out)
+
+    return out, flash
+
+
+def EspTool(env, dir, chip, args):
+    esptool_args = [f'--chip {chip}']
+
+    if port := env['ESPPORT']:
+        esptool_args += [f'--port {port}']
+
+    if baud := env['ESPBAUD']:
+        esptool_args += [f'--baud {baud}']
+
+    esptool_args += args
+
+    esptool_args = ' '.join(esptool_args)
+
+    actions = [
+        f'cd {dir}',
+        f'esptool.py {esptool_args}',
+    ]
+
+    actions = ' && '.join(actions)
+
+    out = env.Phony(f'{dir}:flash', actions)
 
     return out
 
 
 def generate(env):
-    if env.Detect('EspIdf'):
+    if env.Detect('EspIdf') and env.Detect('EspTool'):
         return
 
     env.AddMethod(EspIdf, 'EspIdf')
+    env.AddMethod(EspTool, 'EspTool')
 
 
 def exists(env):
-    return env.Detect('EspIdf')
+    return env.Detect('EspIdf') and env.Detect('EspTool')
