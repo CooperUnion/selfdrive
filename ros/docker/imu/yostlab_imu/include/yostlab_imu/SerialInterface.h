@@ -1,7 +1,7 @@
 #pragma once
 
 #include <malloc.h>
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 #include <serial/serial.h>
 
 using namespace serial;
@@ -15,11 +15,15 @@ private:
 
 public:
   
-  SerialInterface(ros::NodeHandle& serial_nh_):
+  // SerialInterface(ros::NodeHandle& serial_nh_):
+  SerialInterface(rclcpp::Node::SharedPtr node_):
+
     log_zone_("[ SerialInterface ] ")
   {
-    serial_nh_.param<int>("BAUD_RATE",baud_,115200);
-    serial_nh_.param<std::string>("SERIAL_PORT",port_,"/dev/ttyACM0");
+    this->node_->declare_parameter("BAUD_RATE", rclcpp::PARAMETER_INTEGER, baud_, 115200);
+    this->node_->declare_parameter("SERIAL_PORT", rclcpp::PARAMETER_STRING, port_, "/dev/ttyACM0");
+    // node_.param<int>("BAUD_RATE",baud_,115200);
+    // node_.param<std::string>("SERIAL_PORT",port_,"/dev/ttyACM0");
   }
 
   const int& getBaudRate() { return baud_; }
@@ -31,7 +35,8 @@ public:
     {
       if(connection_port->isOpen())
       {
-        ROS_INFO_STREAM(this->log_zone_ << " Closing the Serial Port");
+        // ROS_INFO_STREAM(this->log_zone_ << " Closing the Serial Port");
+        RCLCPP_INFO_STREAM(this->log_zone_, " Closing the Serial Port");
         connection_port->close();
       }
     }
@@ -47,16 +52,20 @@ public:
     } catch(IOException &e) {
 
       std::string ioerror = e.what();
-      ROS_ERROR_STREAM(this->log_zone_ << "Unable to connect port: " << port_.c_str());
-      ROS_ERROR_STREAM(this->log_zone_ << "Is the serial port open? : "  << ioerror.c_str());
+      // ROS_ERROR_STREAM(this->log_zone_ << "Unable to connect port: " << port_.c_str());
+      // ROS_ERROR_STREAM(this->log_zone_ << "Is the serial port open? : "  << ioerror.c_str());
+      RCLCPP_ERROR_STREAM(this->log_zone_, "Unable to connect port: " << port_.c_str());
+      RCLCPP_ERROR_STREAM(this->log_zone_, "Is the serial port open? : "  << ioerror.c_str());
 
     }
 
     if(connection_port && connection_port->isOpen())
     {
 
-      ROS_INFO_STREAM(this->log_zone_ << "Connection Established with Port: " << port_.c_str()
-                      << " with baudrate: " << baud_);
+      // ROS_INFO_STREAM(this->log_zone_ << "Connection Established with Port: " << port_.c_str()
+      //                 << " with baudrate: " << baud_);
+      RCLCPP_INFO_STREAM(this->log_zone_, "Connection Established with Port: " << port_.c_str()
+                         << " with baudrate: " << baud_);
 
     }
   }
@@ -65,7 +74,8 @@ public:
   {
       size_t written_ = this->connection_port->write(buf, len_);
       if ( written_ != len_)
-         ROS_WARN_STREAM(this->log_zone_ << "Len: " << len_  << " Written: " << written_);
+        //  ROS_WARN_STREAM(this->log_zone_ << "Len: " << len_  << " Written: " << written_);
+         RCLCPP_WARN_STREAM(this->log_zone_, "Len: " << len_  << " Written: " << written_);
   }
 
   virtual inline void SerialWriteString(const std::string& str)
@@ -80,7 +90,8 @@ public:
        {
          size_t byte_ = this->connection_port->read(&buffer, 1);
          if(( byte_  != 1))
-           ROS_WARN_STREAM(this->log_zone_ << "Unable to read");
+          //  ROS_WARN_STREAM(this->log_zone_ << "Unable to read");
+           RCLCPP_WARN_STREAM(this->log_zone_, "Unable to read");
        }
        return buffer;
   }
@@ -98,7 +109,8 @@ public:
        {
          size_t byte_ = this->connection_port->read(buffer, number_of_bytes);
          if(( byte_  != number_of_bytes))
-           ROS_WARN_STREAM(this->log_zone_ << "Unable to read");
+          //  ROS_WARN_STREAM(this->log_zone_ << "Unable to read");
+           RCLCPP_WARN_STREAM(this->log_zone_, "Unable to read");
        }
        return buffer;
   }

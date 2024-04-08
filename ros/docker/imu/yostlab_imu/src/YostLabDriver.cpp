@@ -2,13 +2,16 @@
 #include <tf/tf.h>
 
 
-YostLabDriver::YostLabDriver(ros::NodeHandle& nh_, ros::NodeHandle& priv_nh_):
-  SerialInterface(priv_nh_),
-  yostlab_priv_nh_(priv_nh_),
-  yostlab_nh_(nh_)
+// YostLabDriver::YostLabDriver(ros::NodeHandle& nh_, ros::NodeHandle& priv_nh_):
+YostLabDriver::YostLabDriver(rclcpp::Node::SharedPtr node_):
+  SerialInterface(node_),
+  // yostlab_priv_nh_(priv_nh_),
+  // yostlab_nh_(nh_)
+  node_(node_)
 {
   this->SerialConnect();
-  this->imu_pub_ = this->yostlab_nh_.advertise<sensor_msgs::Imu>("/imu", 10);
+  auto imu_pub_ = this->node_->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
+  // auto imu_pub_ = node_->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 }
 
 
@@ -24,7 +27,8 @@ const std::string YostLabDriver::getSoftwareVersion()
 {
   this->SerialWriteString(GET_FIRMWARE_VERSION_STRING);
   const std::string buf = this->SerialReadLine();
-  ROS_INFO_STREAM(this->logger << "Software version: " << buf);
+  // ROS_INFO_STREAM(this->logger << "Software version: " << buf);
+  RCLCPP_INFO_STREAM(this->logger, "Software version: " << buf);
   return buf;
 }
 
@@ -49,7 +53,8 @@ const std::string YostLabDriver::getEulerDecomp()
   else
     return "Unknown";
   }();
-  ROS_INFO_STREAM(this->logger << "Euler Decomposition: " << ret_buf << ", buf is: " << buf);
+  // ROS_INFO_STREAM(this->logger << "Euler Decomposition: " << ret_buf << ", buf is: " << buf);
+  RCLCPP_INFO_STREAM(this->logger, "Euler Decomposition: " << ret_buf << ", buf is: " << buf);
   return ret_buf;
 }
 
@@ -74,15 +79,17 @@ const std::string YostLabDriver::getAxisDirection()
   else
     return "Unknown";
   }();
-  ROS_INFO_STREAM(this->logger << "Axis Direction: " << ret_buf << ", buf is: " << buf);
+  // ROS_INFO_STREAM(this->logger << "Axis Direction: " << ret_buf << ", buf is: " << buf);
+  RCLCPP_INFO_STREAM(this->logger, "Axis Direction: " << ret_buf << ", buf is: " << buf);
   return ret_buf;
 }
 
 void YostLabDriver::startGyroCalibration(void)
 {
-  ROS_INFO_STREAM(this->logger << "Starting Auto Gyro Calibration");
+  // ROS_INFO_STREAM(this->logger << "Starting Auto Gyro Calibration");
+  RCLCPP_INFO_STREAM(this->logger, "Starting Auto Gyro Calibration");
   this->SerialWriteString(BEGIN_GYRO_AUTO_CALIB);
-  ros::Duration(5.0).sleep();
+  rclcpp::Duration(5.0).sleep();
 }
 
 void YostLabDriver::setMIMode(bool on)
@@ -106,7 +113,8 @@ const std::string YostLabDriver::getCalibMode()
   else
     return "Unknown";
   }();
-  ROS_INFO_STREAM(this->logger << "Calibration Mode: " << ret_buf << ", buf is: " << buf);
+  // ROS_INFO_STREAM(this->logger << "Calibration Mode: " << ret_buf << ", buf is: " << buf);
+  RCLCPP_INFO_STREAM(this->logger, "Calibration Mode: " << ret_buf << ", buf is: " << buf);
   return ret_buf;
 }
 
@@ -123,7 +131,8 @@ const std::string YostLabDriver::getMIMode()
   else
     return "Unknown";
   }();
-  ROS_INFO_STREAM(this->logger << "MI Mode: " << ret_buf << ", buf is: " << buf);
+  // ROS_INFO_STREAM(this->logger << "MI Mode: " << ret_buf << ", buf is: " << buf);
+  RCLCPP_INFO_STREAM(this->logger, "MI Mode: " << ret_buf << ", buf is: " << buf);
   return ret_buf;
 }
 
@@ -142,11 +151,11 @@ void YostLabDriver::run()
   this->SerialWriteString(TARE_WITH_CURRENT_QUATERNION);
   this->SerialWriteString(SET_STREAMING_TIMING_100_MS);
   this->SerialWriteString(START_STREAMING);
-  ros::Rate loop_rate(20);
+  rclcpp::Rate loop_rate(20);
   int line_num_ = 0;
-  sensor_msgs::Imu imu_msg_;
+  sensor_msgs::msg::Imu imu_msg_;
   std::vector<double> parsed_val_;
-  while(ros::ok())
+  while(rclcpp::ok())
   {
     while( this->Available() > 0 )
     {
@@ -165,7 +174,7 @@ void YostLabDriver::run()
       if(line_num_ == 3)
       {
         line_num_ = 0;
-        imu_msg_.header.stamp    = ros::Time::now();
+        imu_msg_.header.stamp    = rclcpp::Time::now();
         imu_msg_.header.frame_id = "imu_link";
         imu_msg_.orientation.x = parsed_val_[0];
         imu_msg_.orientation.y = parsed_val_[1];
@@ -191,7 +200,7 @@ void YostLabDriver::run()
 
     }
     loop_rate.sleep();
-    ros::spinOnce();
+    rclcpp::spin_some(); // node pointer
   }
 }
 

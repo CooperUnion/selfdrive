@@ -1,13 +1,15 @@
 #pragma once
-#include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
+#include "rclcpp/rclcpp.hpp"
+#include <sensor_msgs/msg/Imu.hpp>
 #include <yostlab_imu/SerialInterface.h>
+
 // This is the  basic ros-based device driver of IMU
 class YostLabDriver: SerialInterface
 {
 public:
   //! constructor and destructor
-  YostLabDriver(ros::NodeHandle& nh_, ros::NodeHandle& priv_nh_);
+  // YostLabDriver(ros::NodeHandle& nh_, ros::NodeHandle& priv_nh_);
+  YostLabDriver(rclcpp::Node::SharedPtr node);
   ~YostLabDriver();
   //!
   //! \brief run: runs system
@@ -53,9 +55,12 @@ public:
   void setMIMode(bool on);
 private:
   //! Node Handlers
-  ros::NodeHandle yostlab_nh_;
-  ros::NodeHandle yostlab_priv_nh_;
-  ros::Publisher imu_pub_;
+  // ros::NodeHandle yostlab_nh_;
+  // ros::NodeHandle yostlab_priv_nh_;
+  rclcpp::Node::shared_ptr<rclcpp::Node> node_;
+  // ros::Publisher imu_pub_;
+  // auto imu_pub_ = node_->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
+
   //! Orientation Commands
   static constexpr auto GET_TARED_ORIENTATION_AS_QUATERNION        = ":0\n";
   static constexpr auto GET_TARED_ORIENTATION_AS_EULER_ANGLES      = ":1\n";
