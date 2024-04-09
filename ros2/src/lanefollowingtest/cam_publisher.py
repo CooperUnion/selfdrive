@@ -6,7 +6,6 @@ import cv2
 
 
 class WebcamImagePublisher(Node):
-
     def __init__(self):
         super().__init__('webcam_image_publisher')
         self.logger = self.get_logger()
@@ -28,6 +27,11 @@ class WebcamImagePublisher(Node):
         # Create image publisher
         self.image_pub = self.create_publisher(
             Image, '/camera/image', 10)  # Adjust queue size if needed
+        
+                # Create image publisher
+        self.hsv_pub = self.create_publisher(
+            Image, '/camera/image_hsv', 10)  # Adjust queue size if needed
+
 
         # Timer to capture and publish images
         self.timer = self.create_timer(
@@ -42,14 +46,13 @@ class WebcamImagePublisher(Node):
             self.logger.warn("Failed to capture image!")
             return
 
-        # Optionally resize the image (comment out if not needed)
-        # resized_image = cv2.resize(cv_image, (width, height))
-
         # Convert OpenCV image to ROS image message
-        ros_image = self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
-        print("published")
+        raw_image = self.bridge.cv2_to_imgmsg(cv_image, encoding="passthrough")
+        hsv_img = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+        hsv_image = self.bridge.cv2_to_imgmsg(hsv_img, encoding="passthrough")
         # Publish the image
-        self.image_pub.publish(ros_image)
+        self.image_pub.publish(raw_image)
+        self.hsv_pub.publish(hsv_image)
 
 
 def main():

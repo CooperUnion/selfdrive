@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
-
+import LaneDetection as LD
 
 # Inputs from both cameras
 vidcap_left = cv2.VideoCapture("/dev/video0")
