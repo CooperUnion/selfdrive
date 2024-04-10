@@ -1,0 +1,25 @@
+[0.469s] Invoking command in '/home/eeadmin/rosworkspaces/sm_send_vel_ws/src/send_vel_sm_package': PYTHONPATH=/home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/prefix_override:/home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/send_vel_sm_package build --build-base /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/build install --record /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/install.log --single-version-externally-managed install_data
+[0.638s] running egg_info
+[0.638s] writing ../../build/send_vel_sm_package/send_vel_sm_package.egg-info/PKG-INFO
+[0.639s] writing dependency_links to ../../build/send_vel_sm_package/send_vel_sm_package.egg-info/dependency_links.txt
+[0.639s] writing entry points to ../../build/send_vel_sm_package/send_vel_sm_package.egg-info/entry_points.txt
+[0.639s] writing requirements to ../../build/send_vel_sm_package/send_vel_sm_package.egg-info/requires.txt
+[0.639s] writing top-level names to ../../build/send_vel_sm_package/send_vel_sm_package.egg-info/top_level.txt
+[0.640s] reading manifest file '../../build/send_vel_sm_package/send_vel_sm_package.egg-info/SOURCES.txt'
+[0.640s] adding license file 'LICENSE'
+[0.641s] writing manifest file '../../build/send_vel_sm_package/send_vel_sm_package.egg-info/SOURCES.txt'
+[0.641s] running build
+[0.641s] running build_py
+[0.641s] copying send_vel_sm_package/send_vel_sm_node.py -> /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/build/lib/send_vel_sm_package
+[0.641s] running install
+[0.642s] running install_lib
+[0.642s] copying /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/build/lib/send_vel_sm_package/send_vel_sm_node.py -> /home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages/send_vel_sm_package
+[0.642s] byte-compiling /home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages/send_vel_sm_package/send_vel_sm_node.py to send_vel_sm_node.cpython-310.pyc
+[0.643s] running install_data
+[0.643s] running install_egg_info
+[0.644s] removing '/home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages/send_vel_sm_package-0.0.0-py3.10.egg-info' (and everything under it)
+[0.644s] Copying ../../build/send_vel_sm_package/send_vel_sm_package.egg-info to /home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages/send_vel_sm_package-0.0.0-py3.10.egg-info
+[0.645s] running install_scripts
+[0.659s] Installing send_vel_sm_node script to /home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/send_vel_sm_package
+[0.660s] writing list of installed files to '/home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/install.log'
+[0.676s] Invoked command in '/home/eeadmin/rosworkspaces/sm_send_vel_ws/src/send_vel_sm_package' returned '0': PYTHONPATH=/home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/prefix_override:/home/eeadmin/rosworkspaces/sm_send_vel_ws/install/send_vel_sm_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/send_vel_sm_package build --build-base /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/build install --record /home/eeadmin/rosworkspaces/sm_send_vel_ws/build/send_vel_sm_package/install.log --single-version-externally-managed install_data

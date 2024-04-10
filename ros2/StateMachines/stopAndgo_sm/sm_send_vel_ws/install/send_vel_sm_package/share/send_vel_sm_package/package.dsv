@@ -1,0 +1,6 @@
+source;share/send_vel_sm_package/hook/pythonpath.ps1
+source;share/send_vel_sm_package/hook/pythonpath.dsv
+source;share/send_vel_sm_package/hook/pythonpath.sh
+source;share/send_vel_sm_package/hook/ament_prefix_path.ps1
+source;share/send_vel_sm_package/hook/ament_prefix_path.dsv
+source;share/send_vel_sm_package/hook/ament_prefix_path.sh
