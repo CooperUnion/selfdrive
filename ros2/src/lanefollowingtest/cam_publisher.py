@@ -11,7 +11,7 @@ class WebcamImagePublisher(Node):
         self.logger = self.get_logger()
 
         # Set desired frame rate (may need adjustment based on hardware)
-        self.frame_rate = 60
+        self.frame_rate = 30
 
         # Initialize OpenCV video capture object
         self.cap = cv2.VideoCapture("/dev/video0")  # 0 for default webcam
@@ -26,11 +26,11 @@ class WebcamImagePublisher(Node):
 
         # Create image publisher
         self.image_pub = self.create_publisher(
-            Image, '/camera/image', 10)  # Adjust queue size if needed
+            Image, '/camera/image', 5)  # Adjust queue size if needed
         
-                # Create image publisher
+        #         # Create image publisher
         self.hsv_pub = self.create_publisher(
-            Image, '/camera/image_hsv', 10)  # Adjust queue size if needed
+            Image, '/camera/image_hsv', 5)  # Adjust queue size if needed
 
 
         # Timer to capture and publish images
@@ -45,14 +45,15 @@ class WebcamImagePublisher(Node):
         if not ret:
             self.logger.warn("Failed to capture image!")
             return
-
+        raw_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+        raw_image = cv2.resize(raw_image, (640,480))
+        raw_image_msg = self.bridge.cv2_to_imgmsg(raw_image, "bgr8")
         # Convert OpenCV image to ROS image message
-        raw_image = self.bridge.cv2_to_imgmsg(cv_image, encoding="passthrough")
-        hsv_img = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        hsv_image = self.bridge.cv2_to_imgmsg(hsv_img, encoding="passthrough")
-        # Publish the image
-        self.image_pub.publish(raw_image)
-        self.hsv_pub.publish(hsv_image)
+        hsv_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2HSV)
+        hsv_image_msg = self.bridge.cv2_to_imgmsg(hsv_image, encoding="passthrough")
+        # # Publish the image
+        self.image_pub.publish(raw_image_msg)
+        self.hsv_pub.publish(hsv_image_msg)
 
 
 def main():
