@@ -1,0 +1,6 @@
+source;share/dist_to_obj_package/hook/pythonpath.ps1
+source;share/dist_to_obj_package/hook/pythonpath.dsv
+source;share/dist_to_obj_package/hook/pythonpath.sh
+source;share/dist_to_obj_package/hook/ament_prefix_path.ps1
+source;share/dist_to_obj_package/hook/ament_prefix_path.dsv
+source;share/dist_to_obj_package/hook/ament_prefix_path.sh
