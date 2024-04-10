@@ -30,7 +30,7 @@ class Test:
             self._bus.send(
                 'DBW_RawVelocityCommand',
                 {
-                    'DBW_throttlePercent': 70,
+                    'DBW_throttlePercent': 50,
                     'DBW_brakePercent': 0,
                 },
             )
@@ -50,7 +50,19 @@ class Test:
             duration -= 0.005
 
     def end(self):
-        pass
+        print('end')
+        duration = 2
+        while duration > 0:
+            self._bus.send(
+                'DBW_RawVelocityCommand',
+                {
+                    'DBW_throttlePercent': 0,
+                    'DBW_brakePercent': 0,
+                },
+            )
+
+            time.sleep(0.005)
+            duration -= 0.005
 
 
 def main():
