@@ -11,8 +11,8 @@
 #include <opencan_tx.h>
 #include <selfdrive/pid.h>
 
-#define ENCODER0_CHAN_A 4
-#define ENCODER0_CHAN_B 3
+#define ENCODER0_CHAN_A 3
+#define ENCODER0_CHAN_B 4
 #define ENCODER1_CHAN_A 36
 #define ENCODER1_CHAN_B 35
 
