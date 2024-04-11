@@ -48,6 +48,7 @@ env = Environment(
         'EspIdf',
         'OpenCan',
         'Phony',
+        'Project',
     ],
 )
 env.AppendUnique(
