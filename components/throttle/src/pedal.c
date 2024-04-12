@@ -22,41 +22,41 @@ struct throttle_output {
 };
 
 static void init_pwm(
-    ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel);
+	ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel);
 static uint32_t voltage_to_duty_cycle(float32_t v);
 static uint32_t convert_throttle_command(
-    struct throttle_output t, float32_t p);
+	struct throttle_output t, float32_t p);
 
 static ledc_timer_config_t pwm_a_timer = {
-    .speed_mode	     = LEDC_LOW_SPEED_MODE,
-    .duty_resolution = PWM_RESOLUTION,
-    .timer_num	     = LEDC_TIMER_0,
-    .freq_hz	     = PWM_FREQUENCY,
+	.speed_mode	 = LEDC_LOW_SPEED_MODE,
+	.duty_resolution = PWM_RESOLUTION,
+	.timer_num	 = LEDC_TIMER_0,
+	.freq_hz	 = PWM_FREQUENCY,
 };
 
 static ledc_channel_config_t pwm_a_channel = {
-    .gpio_num	= GPIO_PWM_A,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .channel	= LEDC_CHANNEL_0,
-    .intr_type	= LEDC_INTR_DISABLE,
-    .timer_sel	= LEDC_TIMER_0,
-    .duty	= PWM_INIT_DUTY_CYCLE,
+	.gpio_num   = GPIO_PWM_A,
+	.speed_mode = LEDC_LOW_SPEED_MODE,
+	.channel    = LEDC_CHANNEL_0,
+	.intr_type  = LEDC_INTR_DISABLE,
+	.timer_sel  = LEDC_TIMER_0,
+	.duty	    = PWM_INIT_DUTY_CYCLE,
 };
 
 static ledc_timer_config_t pwm_f_timer = {
-    .speed_mode	     = LEDC_LOW_SPEED_MODE,
-    .duty_resolution = PWM_RESOLUTION,
-    .timer_num	     = LEDC_TIMER_0,
-    .freq_hz	     = PWM_FREQUENCY,
+	.speed_mode	 = LEDC_LOW_SPEED_MODE,
+	.duty_resolution = PWM_RESOLUTION,
+	.timer_num	 = LEDC_TIMER_0,
+	.freq_hz	 = PWM_FREQUENCY,
 };
 
 static ledc_channel_config_t pwm_f_channel = {
-    .gpio_num	= GPIO_PWM_F,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .channel	= LEDC_CHANNEL_1,
-    .intr_type	= LEDC_INTR_DISABLE,
-    .timer_sel	= LEDC_TIMER_0,
-    .duty	= PWM_INIT_DUTY_CYCLE,
+	.gpio_num   = GPIO_PWM_F,
+	.speed_mode = LEDC_LOW_SPEED_MODE,
+	.channel    = LEDC_CHANNEL_1,
+	.intr_type  = LEDC_INTR_DISABLE,
+	.timer_sel  = LEDC_TIMER_0,
+	.duty	    = PWM_INIT_DUTY_CYCLE,
 };
 
 static const struct throttle_output thr_A = {1.89f, 4.19f};
@@ -67,7 +67,7 @@ static uint32_t	 thr_A_dutyCycle;
 static uint32_t	 thr_F_dutyCycle;
 
 static void init_pwm(
-    ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel)
+	ledc_timer_config_t pwm_timer, ledc_channel_config_t pwm_channel)
 {
 	ledc_timer_config(&pwm_timer);
 	ledc_channel_config(&pwm_channel);
@@ -92,7 +92,7 @@ static uint32_t convert_throttle_command(struct throttle_output t, float32_t p)
 	}
 
 	const float32_t voltage
-	    = t.low_voltage + (p * (t.high_voltage - t.low_voltage));
+		= t.low_voltage + (p * (t.high_voltage - t.low_voltage));
 
 	return voltage_to_duty_cycle(voltage);
 }
@@ -134,11 +134,13 @@ void set_pedal_output(float32_t cmd)
 
 	current_percent = cmd;
 
-	ledc_set_duty(
-	    pwm_a_timer.speed_mode, pwm_a_channel.channel, thr_A_dutyCycle);
+	ledc_set_duty(pwm_a_timer.speed_mode,
+		pwm_a_channel.channel,
+		thr_A_dutyCycle);
 	ledc_update_duty(pwm_a_timer.speed_mode, pwm_a_channel.channel);
 
-	ledc_set_duty(
-	    pwm_f_timer.speed_mode, pwm_f_channel.channel, thr_F_dutyCycle);
+	ledc_set_duty(pwm_f_timer.speed_mode,
+		pwm_f_channel.channel,
+		thr_F_dutyCycle);
 	ledc_update_duty(pwm_f_timer.speed_mode, pwm_f_channel.channel);
 }

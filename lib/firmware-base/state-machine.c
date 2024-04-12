@@ -37,9 +37,9 @@ temperature_sensor_handle_t temp_sensor = NULL;
 #endif
 
 ember_rate_funcs_S base_rf = {
-    .call_init	= base_init,
-    .call_10Hz	= base_10Hz,
-    .call_100Hz = base_100Hz,
+	.call_init  = base_init,
+	.call_10Hz  = base_10Hz,
+	.call_100Hz = base_100Hz,
 };
 
 static void base_init()
@@ -47,8 +47,8 @@ static void base_init()
 	base_request_state(SYS_STATE_IDLE);
 
 	gpio_config(&(gpio_config_t){
-	    .pin_bit_mask = BIT64(LED1_PIN) | BIT64(LED2_PIN),
-	    .mode	  = GPIO_MODE_OUTPUT,
+		.pin_bit_mask = BIT64(LED1_PIN) | BIT64(LED2_PIN),
+		.mode	      = GPIO_MODE_OUTPUT,
 	});
 
 	gpio_set_level(LED1_PIN, 0);
@@ -57,7 +57,7 @@ static void base_init()
 
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
 	temperature_sensor_config_t temp_sensor_config
-	    = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-30, 50);
+		= TEMPERATURE_SENSOR_CONFIG_DEFAULT(-30, 50);
 	temperature_sensor_install(&temp_sensor_config, &temp_sensor);
 	temperature_sensor_enable(temp_sensor);
 #endif
@@ -73,7 +73,7 @@ static void base_10Hz()
 	portDISABLE_INTERRUPTS();
 	{
 		if (CANRX_is_node_UPD_ok()
-		    && CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
+			&& CANRX_getRaw_UPD_currentIsoTpChunk() == 0U) {
 			if (sys_state != SYS_STATE_DBW_ACTIVE) {
 				/* It's update time. No going back; we will
 				 * reboot. */
@@ -98,7 +98,7 @@ static void base_100Hz()
 	if (sys_state == SYS_STATE_ESTOP) return;
 
 	if (sys_state == SYS_STATE_IDLE
-	    && requested_state == SYS_STATE_DBW_ACTIVE) {
+		&& requested_state == SYS_STATE_DBW_ACTIVE) {
 		sys_state = requested_state;
 		return;
 	}
@@ -184,8 +184,8 @@ void ember_can_callback_notify_lost_can(void)
 }
 
 void CANRX_onRxCallback_DBW_ESTOP(
-    const struct CAN_MessageRaw_DBW_ESTOP * const raw,
-    const struct CAN_Message_DBW_ESTOP * const	  dec)
+	const struct CAN_MessageRaw_DBW_ESTOP * const raw,
+	const struct CAN_Message_DBW_ESTOP * const    dec)
 {
 	(void) raw;
 	(void) dec;
@@ -194,7 +194,7 @@ void CANRX_onRxCallback_DBW_ESTOP(
 }
 
 void CANTX_populateTemplate_NodeStatus(
-    struct CAN_TMessage_DBWNodeStatus * const m)
+	struct CAN_TMessage_DBWNodeStatus * const m)
 {
 	switch (sys_state) {
 		case SYS_STATE_UNDEF:
@@ -233,48 +233,48 @@ void CANTX_populateTemplate_NodeStatus(
 	switch (requested_state) {
 		case SYS_STATE_UNDEF:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_UNDEF;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_UNDEF;
 			break;
 
 		case SYS_STATE_INIT:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_INIT;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_INIT;
 			break;
 
 		case SYS_STATE_IDLE:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_IDLE;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_IDLE;
 			break;
 
 		case SYS_STATE_DBW_ACTIVE:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_ACTIVE;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_ACTIVE;
 			break;
 
 		case SYS_STATE_LOST_CAN:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_LOST_CAN;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_LOST_CAN;
 			break;
 
 		case SYS_STATE_BAD:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_BAD;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_BAD;
 			break;
 
 		case SYS_STATE_ESTOP:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_ESTOP;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_ESTOP;
 			break;
 
 		default:
 			m->requestedSysStatus
-			    = CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_UNDEF;
+				= CAN_T_DBWNODESTATUS_REQUESTEDSYSSTATUS_UNDEF;
 			break;
 	}
 
 #if CONFIG_SOC_TEMP_SENSOR_SUPPORTED
 	if (temperature_sensor_get_celsius(temp_sensor, &tsens_value)
-	    != ESP_OK)
+		!= ESP_OK)
 		tsens_value = 0.0;
 	m->temperature = tsens_value;
 #else
@@ -287,19 +287,19 @@ void CANTX_populateTemplate_NodeStatus(
 	switch (reset_reason) {
 		case POWERON_RESET:
 			m->resetReason
-			    = CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
+				= CAN_T_DBWNODESTATUS_RESETREASON_POWERON;
 			break;
 		case RTC_SW_CPU_RESET:
 			m->resetReason
-			    = CAN_T_DBWNODESTATUS_RESETREASON_SW_RESET;
+				= CAN_T_DBWNODESTATUS_RESETREASON_SW_RESET;
 			break;
 		case RTCWDT_RTC_RESET:
 			m->resetReason
-			    = CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
+				= CAN_T_DBWNODESTATUS_RESETREASON_WATCHDOG_RESET;
 			break;
 		default:
 			m->resetReason
-			    = CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
+				= CAN_T_DBWNODESTATUS_RESETREASON_UNKNOWN;
 			break;
 	}
 

@@ -27,7 +27,7 @@ class GazeboCamControl : public SystemPlugin
 
       private:
 	void reconfig(igvc_self_drive_gazebo_plugins::GazeboCamConfig &config,
-	    uint32_t						       level);
+		uint32_t					       level);
 	void Update();
 	void lookAtRobot(const rendering::VisualPtr &camera_target);
 
@@ -36,7 +36,7 @@ class GazeboCamControl : public SystemPlugin
 	ros::AsyncSpinner		 *async_;
 	ros::NodeHandle			 *n_;
 	boost::shared_ptr<dynamic_reconfigure::Server<
-	    igvc_self_drive_gazebo_plugins::GazeboCamConfig>>
+		igvc_self_drive_gazebo_plugins::GazeboCamConfig>>
 							srv_;
 	igvc_self_drive_gazebo_plugins::GazeboCamConfig cfg_;
 #if GAZEBO_MAJOR_VERSION >= 9

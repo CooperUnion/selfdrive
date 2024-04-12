@@ -19,27 +19,27 @@
 #define CMD2DUTY(cmd) ((cmd) * ((1 << PWM_RESOLUTION) - 1))
 
 static ledc_timer_config_t pwm_timer = {
-    .speed_mode	     = LEDC_LOW_SPEED_MODE,
-    .duty_resolution = PWM_RESOLUTION,
-    .timer_num	     = LEDC_TIMER_0,
-    .freq_hz	     = PWM_FREQUENCY,
+	.speed_mode	 = LEDC_LOW_SPEED_MODE,
+	.duty_resolution = PWM_RESOLUTION,
+	.timer_num	 = LEDC_TIMER_0,
+	.freq_hz	 = PWM_FREQUENCY,
 };
 
 static ledc_channel_config_t pwm_channel = {
-    .gpio_num	= PWM_PIN,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .channel	= LEDC_CHANNEL_0,
-    .intr_type	= LEDC_INTR_DISABLE,
-    .timer_sel	= LEDC_TIMER_0,
-    .duty	= PWM_INIT_DUTY_CYCLE,
+	.gpio_num   = PWM_PIN,
+	.speed_mode = LEDC_LOW_SPEED_MODE,
+	.channel    = LEDC_CHANNEL_0,
+	.intr_type  = LEDC_INTR_DISABLE,
+	.timer_sel  = LEDC_TIMER_0,
+	.duty	    = PWM_INIT_DUTY_CYCLE,
 };
 
 static void bbc_init();
 static void bbc_100Hz();
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= bbc_init,
-    .call_100Hz = bbc_100Hz,
+	.call_init  = bbc_init,
+	.call_100Hz = bbc_100Hz,
 };
 
 static void bbc_init()
@@ -53,8 +53,8 @@ static void bbc_100Hz()
 	static float32_t prv_cmd;
 
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
-	    && CANRX_get_SUP_bbcAuthorized()
-	    && CANRX_is_message_CTRL_VelocityCommand_ok();
+		&& CANRX_get_SUP_bbcAuthorized()
+		&& CANRX_is_message_CTRL_VelocityCommand_ok();
 
 	float cmd;
 
@@ -83,5 +83,5 @@ void CANTX_populate_BBC_BrakeData(struct CAN_Message_BBC_BrakeData * const m)
 	m->BBC_dutyCycle = pwm_channel.duty;
 
 	m->BBC_percent = (float32_t) pwm_channel.duty
-	    / (float32_t) (1 << PWM_RESOLUTION) * 100;
+		/ (float32_t) (1 << PWM_RESOLUTION) * 100;
 }
