@@ -60,6 +60,13 @@ env.AppendUnique(
         '-std=gnu17',
     ]
 )
+env.AppendUnique(
+    PDFLATEXFLAGS=[
+        '--halt-on-error',
+        '--shell-escape',
+    ]
+)
+env.Replace(PDFLATEX='lualatex')
 
 if not env['VERBOSE']:
     commands = [
