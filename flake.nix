@@ -39,6 +39,7 @@
             pkgs.mdbook
             pkgs.ninja
             pkgs.nixpkgs-fmt
+            pkgs.texliveFull
             pkgs.zlib
             python
             pythonPackages.invoke
