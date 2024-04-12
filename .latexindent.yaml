@@ -1,5 +1,7 @@
 ---
 
+onlyOneBackUp: 1
+
 defaultIndent: '  '
 removeTrailingWhitespace: 1
 
