@@ -36,7 +36,10 @@ def runner():
                 I'm detailing all immediate tasks here: Please allocate amongst yourselves.   
                 I have taken the liberty of building a bespoke ros2 publisher and subscriber system (was not trivial), that should provide a solid framework.   
                 However, it will get extremely tedious to build a proper UI if you don't exploit some of the advantages of python.   
-                Read about list comprehension and get good.    
+                Read about list comprehension and get good.    ''')
+    st.divider()
+    st.header("Tasks")
+    st.markdown( '''
                 #1: Connecting all datastreams from the lane_detection algorithm into here.
                 Everything that is cv.imshow() is rendered in that, in a clean and effective manner.      
                 #2: Parametrizing all constants in that: anything that had a slider should be here, and it should be published.   

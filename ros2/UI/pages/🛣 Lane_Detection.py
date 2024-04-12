@@ -16,31 +16,30 @@ class Image_Handler(Node):
         self._frame_containers = None
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
+
         self.imgData_subscriber = self.create_subscription(
             Image,
             '/camera/image',
-            self.camData_callback,
+            lambda msg: self.camData_callback(msg,(self._frame_containers[0][0], self._frame_containers[0][1])),
             qos_profile_sensor_data)
+
         self.hsvData_subscriber = self.create_subscription(
             Image,
             '/camera/image_hsv',
-            self.hsvData_callback,
+            lambda msg: self.camData_callback(msg,(self._frame_containers[1][0], self._frame_containers[1][1])),
             qos_profile_sensor_data)
 
     def tabs(self, tabs):
         self._tabs = tabs
-        # SRC is cv2.VideoCapture FOR NOW: Will need to be tweaked in the future to rossify
-        self._frame_containers = [tab.empty() for tab in self._tabs]
+        self._frame_containers = [(tab.empty(),tab.empty()) for tab in self._tabs]
 
-    def camData_callback(self, msg_in):
+    #self._frame_containers[] is a container corresponding to one of the tabs: You can create
+    def camData_callback(self, msg_in,args):
         raw = msg_in
         img = self._bridge.imgmsg_to_cv2(raw)
-        self._frame_containers[0].image(img)
+        args[0].image(img)
+        args[1].image(img)
 
-    def hsvData_callback(self, msg_in):
-        raw = msg_in
-        img = self._bridge.imgmsg_to_cv2(raw)
-        self._frame_containers[1].image(img)
 
 #This class is your publisher: Flesh it out and integrate accordingly
 class Publisher(Node):
@@ -72,8 +71,8 @@ if __name__ == "__main__":
         "This should render all of the images related to Lane Detection, and relevant parameters.")
     tabs = st.tabs(["Original", "HSV", "Sliding Windows"])
 
-
     #This hunk initializes the ROS2 nodes without breaking anything :)
+    #Should not need to be tuoched
     if "sub_node" not in st.session_state:
         try:
             rclpy.init()
@@ -87,15 +86,16 @@ if __name__ == "__main__":
     if "pub_node" not in st.session_state:            
             st.session_state["pub_node"] = Publisher()
 
-
-    st.button("Ros Topic Publisher Demo!",on_click=demo_publish)
-   # As this is an infinite loop, it should only be run at the end of the file.
+#This should also not need to be modified
     if render:
         while (True):
-            try:
+            try:                
                 rclpy.spin_once(st.session_state['sub_node'])
                 time.sleep(0.01)
             except:
                 st.warning(
                     "Something went wrong, perhaps tabs were clicked too quickly? Try restarting.")
                 break
+    else:
+            st.button("Ros Topic Publisher Demo!",on_click=demo_publish)
+
