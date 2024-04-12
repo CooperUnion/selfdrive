@@ -1,0 +1,26 @@
+\usepackage{graphicx}
+
+\usepackage{hyperref}
+\hypersetup{
+  hidelinks,
+  pdfinfo = {
+      Title    = IGVC Design Report,
+      Author   = The Cooper Union for the Advancement of Science and Art,
+      Subject  = Autonomous Vehicles,
+      Keywords = {IGVC},
+    },
+}
+\usepackage{csquotes}
+\usepackage{bookmark}
+
+\journalinfo{\emph{\enquote{It had to be done}}}
+
+\NewDocumentCommand{\member}{mm}{
+  \author{#1 \href{mailto:#2@cooper.edu}{\texttt{<#2@cooper.edu>}}}
+  \affiliation{The Cooper Union for the Advancement of Science and Art}
+}
+\NewDocumentCommand{\memberSpecial}{mmm}{
+  \author{#1 \href{mailto:#2@cooper.edu}{\texttt{<#2@cooper.edu>}}}
+  \altaffiliation{#3}
+  \affiliation{The Cooper Union for the Advancement of Science and Art}
+}

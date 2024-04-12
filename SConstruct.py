@@ -105,3 +105,7 @@ ember_bl = env.SConscript(
     variant_dir=f'{build}/dbw/ember_bl',
     duplicate=False,
 )
+projects = env.SConscript(
+    'projects/SConscript.py',
+    variant_dir=f'{build}/projects',
+)
