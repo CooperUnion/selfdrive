@@ -1,0 +1,25 @@
+[0.790s] Invoking command in '/home/eeadmin/rosworkspaces/controlled_stop_ws/src/controlled_stop_pkg': PYTHONPATH=/home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/prefix_override:/home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/controlled_stop_pkg build --build-base /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/build install --record /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/install.log --single-version-externally-managed install_data
+[1.061s] running egg_info
+[1.061s] writing ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/PKG-INFO
+[1.062s] writing dependency_links to ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/dependency_links.txt
+[1.062s] writing entry points to ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/entry_points.txt
+[1.062s] writing requirements to ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/requires.txt
+[1.062s] writing top-level names to ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/top_level.txt
+[1.064s] reading manifest file '../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/SOURCES.txt'
+[1.064s] adding license file 'LICENSE'
+[1.065s] writing manifest file '../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info/SOURCES.txt'
+[1.066s] running build
+[1.066s] running build_py
+[1.066s] copying controlled_stop_pkg/controlled_stop_node.py -> /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/build/lib/controlled_stop_pkg
+[1.066s] running install
+[1.067s] running install_lib
+[1.068s] copying /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/build/lib/controlled_stop_pkg/controlled_stop_node.py -> /home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages/controlled_stop_pkg
+[1.069s] byte-compiling /home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages/controlled_stop_pkg/controlled_stop_node.py to controlled_stop_node.cpython-310.pyc
+[1.070s] running install_data
+[1.070s] running install_egg_info
+[1.071s] removing '/home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages/controlled_stop_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[1.072s] Copying ../../build/controlled_stop_pkg/controlled_stop_pkg.egg-info to /home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages/controlled_stop_pkg-0.0.0-py3.10.egg-info
+[1.073s] running install_scripts
+[1.100s] Installing controlled_stop_node script to /home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/controlled_stop_pkg
+[1.100s] writing list of installed files to '/home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/install.log'
+[1.142s] Invoked command in '/home/eeadmin/rosworkspaces/controlled_stop_ws/src/controlled_stop_pkg' returned '0': PYTHONPATH=/home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/prefix_override:/home/eeadmin/rosworkspaces/controlled_stop_ws/install/controlled_stop_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/controlled_stop_pkg build --build-base /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/build install --record /home/eeadmin/rosworkspaces/controlled_stop_ws/build/controlled_stop_pkg/install.log --single-version-externally-managed install_data
