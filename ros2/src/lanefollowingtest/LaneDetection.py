@@ -7,6 +7,7 @@ from rclpy.node import Node
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
+import streamlit as st
 
 
 # Inputs from both cameras
@@ -141,6 +142,39 @@ tl = (66, 304)
 br = (635, 344)
 tr = (595, 308)
 # Aplying perspective transformation
+pts1 = np.float32([tl, bl, tr, br])
+pts2 = np.float32([[0, 0], [0, 480], [640, 0], [640, 480]])
+# Matrix to warp the image for birdseye window
+matrix = cv2.getPerspectiveTransform(pts1, pts2)
+
+
+#sliders for constant values
+#lower HSV slider
+l_h = st.slider('lower_hue', min_value=0, max_value=255, value=0)
+l_s = st.slider('lower_saturation', min_value = 0, max_value=255, value=0)
+l_v = st.slider('lower_saturation', min_value = 0, max_value=255, value=200)
+
+#upper HSV slider
+l_h = st.slider('upper_hue', min_value=0, max_value=255, value=255)
+l_s = st.slider('upper_saturation', min_value = 0, max_value=255, value=50)
+l_v = st.slider('upper_saturation', min_value = 0, max_value=255, value=255)
+
+#coordinate input widget
+bl_x = st.number_input('bl_x', min_value = 0, None, 12)
+bl_y = st.number_input('bl_y', min_value = 0, None, 355)
+tl_x = st.number_input('tl_x', min_value = 0, None, 66)
+tl_y = st.number_input('tl_y', min_value = 0, None, 304)
+br_x = st.number_input('br_x', min_value = 0, None, 635)
+br_y = st.number_input('br_y', min_value = 0, None, 344)
+tr_x = st.number_input('tr_x', min_value = 0, None,595)
+tr_y = st.number_input('tr_y', min_value = 0, None,308)
+
+bl = (bl_x, bl_y)
+tl = (tl_x, tl_y)
+br = (br_x, br_y)
+tr = (tr_x, tr_y)
+
+#applying perspective transformation
 pts1 = np.float32([tl, bl, tr, br])
 pts2 = np.float32([[0, 0], [0, 480], [640, 0], [640, 480]])
 # Matrix to warp the image for birdseye window
