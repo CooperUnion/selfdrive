@@ -17,7 +17,7 @@ class Image_Handler(Node):
 
     def __init__(self, containers):
         self.reference_img = None
-        self.topics = ["/raw_left", "/raw_right", "/tf_left",
+        self.topics = ["/camera/image", "/raw_right", "/tf_left",
                        "/tf_right", "/sliding_left", "/sliding_right"]
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
@@ -81,7 +81,6 @@ def render_handler(context):
                 frame_containers.append(st.empty())
         # This hunk initializes the ROS2 nodes without breaking anything :)
         # Should not need to be tuoched
-        st.write(len(frame_containers))
         handler = get_publisher(frame_containers)
         while (True):
             # try:
@@ -186,7 +185,7 @@ def input_handler(context):
             cols[2].image(mask, "Left Mask Preview")
     # TODO: Make this button publish the custom ROS2 Message :)
         st.button("Publish!", on_click=demo_publish)
-        #TODO: Make this ubtton do soemthign
+        #TODO: Make this button do soemthing (Read and write to file)
         st.button("RESET TO DEFAULT")
 
 @st.cache_resource 
