@@ -2,8 +2,9 @@ import streamlit as st
 from streamlit import runtime
 from streamlit.web import cli as stcli
 import sys
+from ui_generics import *
 
-
+@st.cache_data #
 def runner():
     st.header("Welcome to the IGVC Homepage!")
     st.markdown('''
@@ -21,7 +22,7 @@ def runner():
              
              #1. We need a way to render all of the openCV data we have: This is stuff like the lane or object detection.   
 
-             #2. We need a way to tune  parameters in an easy way, without refreshing every single page for small little tweaks.    
+             #2. We need a way to tune  parameters in an easy way, without refreshing every single page for small little tweaks. 
 
              #3. We need to be able to control the state machines on the car: Each of the function tests is effectively it's own state machine.
              We need to be able to control which test we're in, and visualize any important data in a direct manner. 
@@ -48,17 +49,13 @@ def runner():
                 Debugging systems, sensor messages (E.g IMU, CAN) should all live here.   
 
                 ''')
-    st.warning("FIRST PRIORITY: https://docs.streamlit.io/develop/api-reference/widgets/st.page_link CHANGE THE PAGES SO NO MORE EMOJIS")
 
 
 # This allows the system to run without being in a dedicated streamlit session:
 if __name__ == "__main__":
     if runtime.exists():
-        st.set_page_config(
-            page_title="IGVC Homepage",
-            page_icon="🚗")
-        st.sidebar.success("Select a System above.")
+        sidebar()
         runner()
     else:
-        sys.argv = ["streamlit", "run", sys.argv[0]]
+        sys.argv = ["streamlit", "run", "--client.showSidebarNavigation=False" ,sys.argv[0]]
         sys.exit(stcli.main())
