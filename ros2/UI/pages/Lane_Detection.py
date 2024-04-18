@@ -17,7 +17,7 @@ class Image_Handler(Node):
 
     def __init__(self, containers):
         self.reference_img = None
-        self.topics = ["/camera/image", "/raw_right", "/tf_left",
+        self.topics = ["raw_left", "/raw_right", "/tf_left",
                        "/tf_right", "/sliding_left", "/sliding_right"]
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
@@ -83,13 +83,9 @@ def render_handler(context):
         # Should not need to be tuoched
         handler = get_publisher(frame_containers)
         while (True):
-            # try:
-                rclpy.spin_once(handler)
-                time.sleep(.01)
-            # except:
-            #     with st.empty():
-            #         st.warning("Something went wrong, unrender & rerender, close all other tabs.")
-            #         break
+            rclpy.spin_once(handler)
+            time.sleep(.01)
+
 def demo_publish():
     publisher = get_publisher()
     msg = String()
