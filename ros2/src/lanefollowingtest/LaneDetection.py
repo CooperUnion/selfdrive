@@ -175,9 +175,8 @@ class Lane_Follower(Node):
 
     def img_publish(self, label, img_raw):
         if (self.GUI):
-            new_img = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
             self._publishers[label].publish(
-                self._bridge.cv2_to_imgmsg(new_img, encoding="passthrough"))
+                self._bridge.cv2_to_imgmsg(img_raw, encoding="passthrough"))
 
     def measure_position_meters(self, left, right):
         left_x_pos = 0
