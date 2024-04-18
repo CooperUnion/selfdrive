@@ -17,7 +17,7 @@ class Image_Handler(Node):
 
     def __init__(self, containers):
         self.reference_img = None
-        self.topics = ["/camera/image", "/raw_right", "/tf_left",
+        self.topics = ["/raw_left", "/raw_right", "/tf_left",
                        "/tf_right", "/sliding_left", "/sliding_right"]
         super().__init__('Streamlit_Image_Handler')
         self._bridge = CvBridge()
