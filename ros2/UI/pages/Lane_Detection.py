@@ -50,7 +50,9 @@ class Image_Handler(Node):
             st.image(img)
 
     def lane_state_callback(self, msg):
-        st.write(msg.data)
+        pass
+        # container = st.empty()
+        # container.write(msg.data)
 
 
 # This class is your publisher: Flesh it out and integrate accordingly
@@ -84,7 +86,6 @@ def render_handler(context):
         handler = get_publisher(frame_containers)
         while (True):
             rclpy.spin_once(handler)
-            time.sleep(.01)
 
 def demo_publish():
     publisher = get_publisher()
@@ -96,11 +97,11 @@ def demo_publish():
 
 def get_from_prior(labels, defaults):
     defaults = np.resize(defaults, len(labels))
-    for i in range(len(labels)):
-        if labels[i] not in st.session_state:
-            st.session_state[labels[i]] = defaults[i]
-        else:
-            defaults[i] = st.session_state[labels[i]]
+    # for i in range(len(labels)):
+    #     if labels[i] not in st.session_state:
+    #         st.session_state[labels[i]] = defaults[i]
+    #     else:
+    #         defaults[i] = st.session_state[labels[i]]
     return defaults
 
 
@@ -112,6 +113,11 @@ def input_gen(func, labels, lowers, uppers, vals):
         func_list.append(func(
             labels[i], lowers[i], uppers[i], vals[i]))
     return func_list
+
+def clear_session_state(*labels):
+    for labelset in labels:
+        for label in labelset:
+            del st.session_state[label]
 
 
 def input_handler(context):
@@ -129,7 +135,6 @@ def input_handler(context):
             L_labels = ["Lower Hue", "Lower Saturation", "Lower Value"]
             default_vals = [0, 0, 200]
             default_vals = get_from_prior(L_labels, default_vals)
-
             l_h, l_s, l_v = input_gen(l.slider, L_labels, [0], [255], default_vals)
             U_labels = ["Upper Hue", "Upper Saturation", "Upper Value"]
             default_vals = [255, 50, 255]
@@ -144,13 +149,13 @@ def input_handler(context):
             default_vals = [12, 66, 635, 595]
             default_vals = get_from_prior(x_labels, default_vals)
             bl_x, tl_x, br_x, tr_x = input_gen(
-                x.number_input, x_labels, [0], [640], default_vals)
+                x.slider, x_labels, [0], [640], default_vals)
             y_labels = ["Bottom Left y", "Top Left y",
                         "Bottom Right y", "Top Right y"]
             default_vals = [355, 304, 344, 308]
             default_vals = get_from_prior(y_labels, default_vals)
             bl_y,  tl_y, br_y, tr_y = input_gen(
-                y.number_input, y_labels, [0], [480], default_vals)
+                y.slider, y_labels, [0], [480], default_vals)
 
         # This is souced from LaneDetection
         bl = (bl_x, bl_y)
@@ -180,9 +185,8 @@ def input_handler(context):
             cols[1].image(transformed_left, "Left Birds Eye View Preview")
             cols[2].image(mask, "Left Mask Preview")
     # TODO: Make this button publish the custom ROS2 Message :)
+    #TODO: Make this button do soemthing (Read and write to file)
         st.button("Publish!", on_click=demo_publish)
-        #TODO: Make this button do soemthing (Read and write to file)
-        st.button("RESET TO DEFAULT")
 
 @st.cache_resource 
 def get_publisher(_tabs):
@@ -204,8 +208,6 @@ if __name__ == "__main__":
         page_title="Lane Detection",
         page_icon="🛣")
     sidebar()
-
-    time.sleep(0.1)
     st.write(
         "This page is designed to control the lane detection functionality, and allow for quick edits to the algorithm.")
     render = st.checkbox("Render Video Feed",value=True)
