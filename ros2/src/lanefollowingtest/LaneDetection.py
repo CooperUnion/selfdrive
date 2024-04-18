@@ -7,13 +7,13 @@ from rclpy.node import Node
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
-
+from std_msgs.msg import String
 
 # Inputs from both cameras
-vidcap_left = cv2.VideoCapture("/dev/video0")
+vidcap_left = cv2.VideoCapture("/dev/video3")
 vidcap_left.set(3, 640)
 vidcap_left.set(4, 480)
-vidcap_right = cv2.VideoCapture("/dev/video2")
+vidcap_right = cv2.VideoCapture("/dev/video1")
 vidcap_right.set(3, 640)
 vidcap_right.set(4, 480)
 
@@ -165,6 +165,7 @@ class Lane_Follower(Node):
         # Publisher for error from the lane lines relative to the camera FOV
         self.camData_publisher = self.create_publisher(
             Float64, '/cam_data', 10)
+        self.lane_pubs = self.create_publisher(String, "lane_state",10)
         if Lane_Follower.GUI:
             self._bridge = CvBridge()
             image_labels = ("raw_left", "raw_right", "tf_left",
@@ -174,9 +175,9 @@ class Lane_Follower(Node):
 
     def img_publish(self, label, img_raw):
         if (self.GUI):
+            new_img = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
             self._publishers[label].publish(
-                self._bridge.cv2_to_imgmsg(img_raw, encoding="passthrough"))
-#        cv2.imshow(label, img_raw)
+                self._bridge.cv2_to_imgmsg(new_img, encoding="passthrough"))
 
     def measure_position_meters(self, left, right):
         left_x_pos = 0
@@ -214,16 +215,16 @@ class Lane_Follower(Node):
     def determine_lane_size(self, img):
         # Taking in both warped images, determine which lane line is the longer one, and ergo the "solid line"
         # This may struggle on turns, but might work depending: Will need to characterize
-        gray = cv2.split(img)[3]
         # TODO, parametrize all constants here for tweaking in the U.I
-        edges = cv2.Canny(gray, 50, 150)
+        edges = cv2.Canny(img, 50, 150)
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100,
-                                minLineLength=100, MaxLineGap=5)
+                                minLineLength=100, maxLineGap=5)
         m_length = 0
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            length = (x1 - x2) ^ 2 + (y1-y2) ^ 2
-            m_length = max(m_length, length)
+        if(lines is not None):        
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                length = (x1 - x2) ^ 2 + (y1-y2) ^ 2
+                m_length = max(m_length, length)
         return m_length
 
     def timer_callback(self):
@@ -267,9 +268,14 @@ class Lane_Follower(Node):
             print(pos)
             msg_out.data = pos
             self.camData_publisher.publish(msg_out)
-            if(left_buffer > right_buffer and left_buffer > 0):
+            msg = String()
+            if(left_buffer > right_buffer):
+                msg.data = "In Left lane"
+                self.lane_pubs.publish(msg)
                 self._Left_Lane = True
-            elif (right_buffer > 0):
+            elif (right_buffer > left_buffer):
+                msg.data = "In Right lane"
+                self.lane_pubs.publish(msg)
                 self._Left_Lane = False
         else:
             TOLERANCE = 100
