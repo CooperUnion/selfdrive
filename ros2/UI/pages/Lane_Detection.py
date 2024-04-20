@@ -9,6 +9,8 @@ import time
 from std_msgs.msg import String
 import numpy as np
 from ui_generics import *
+import ros2_numpy as rnp
+from geometry_msgs.msg import Transform
 
 # This class currently subscribes to some topics in cam_publisher, which I used to test. Please rewrite for lane Detection.
 
@@ -24,7 +26,7 @@ class Image_Handler(Node):
         self.containers = containers
         self.lane_state_pub = self.create_subscription(
             String, "lane_state", self.lane_state_callback, qos_profile_sensor_data)
-        
+
         self._left_subscriber = self.create_subscription(
             Image, self.topics[0], lambda msg: self.camData_callback(msg, self.containers[0], img_to_repl="THIS"), qos_profile_sensor_data)
         self._right_subscriber = self.create_subscription(
@@ -58,11 +60,18 @@ class Image_Handler(Node):
 # This class is your publisher: Flesh it out and integrate accordingly
 class Publisher(Node):
     def __init__(self):
+        self.data = None
         super().__init__('Streamlit_Button_Publisher')
         self.logger = self.get_logger()
+        self.image_pub= self.create_publisher(
+        Image, 'streamlit/lane_data', 10)
         self.button_pub = self.create_publisher(
-            String, '/streamlit/button', 10)
+            String, '/streamlit/button', 10) 
 
+def demo_publish(msg):
+    publisher = get_publisher()
+    publisher.image_pub.publish(msg)
+    st.success("Message Published!", icon="✅")
 
 def render_handler(context):
     rclpy.try_shutdown()
@@ -83,16 +92,15 @@ def render_handler(context):
                 frame_containers.append(st.empty())
         # This hunk initializes the ROS2 nodes without breaking anything :)
         # Should not need to be tuoched
-        handler = get_publisher(frame_containers)
+        handler = get_subscriber(frame_containers)
         while (True):
-            rclpy.spin_once(handler)
-
-def demo_publish():
-    publisher = get_publisher()
-    msg = String()
-    msg.data = "Streamlit Button!"
-    publisher.button_pub.publish(msg)
-    st.success("Message Published!", icon="✅")
+            try:
+                rclpy.spin_once(handler)
+            except:
+                rclpy.try_shutdown()
+                st.warning(
+                    "Generator already spinning. Try flipping the Render Switch")
+                break
 
 
 def get_from_prior(labels, defaults):
@@ -114,6 +122,7 @@ def input_gen(func, labels, lowers, uppers, vals):
             labels[i], lowers[i], uppers[i], vals[i]))
     return func_list
 
+
 def clear_session_state(*labels):
     for labelset in labels:
         for label in labelset:
@@ -121,8 +130,6 @@ def clear_session_state(*labels):
 
 
 def input_handler(context):
-    rclpy.try_shutdown()
-    rclpy.init()
     with context:
         # handles all output
         # We use get_from_prior to ensure that, even if the render checkbox was flipped, data persists
@@ -135,12 +142,18 @@ def input_handler(context):
             L_labels = ["Lower Hue", "Lower Saturation", "Lower Value"]
             default_vals = [0, 0, 200]
             default_vals = get_from_prior(L_labels, default_vals)
-            l_h, l_s, l_v = input_gen(l.slider, L_labels, [0], [255], default_vals)
+            lower_hsvs = input_gen(
+                l.slider, L_labels, [0], [255], default_vals)
+            #Extending array to size 4x1, for numpy casting
+            lower_hsvs.append(0)
             U_labels = ["Upper Hue", "Upper Saturation", "Upper Value"]
             default_vals = [255, 50, 255]
             default_vals = get_from_prior(U_labels, default_vals)
             # upper HSV slider
-            u_h, u_s, u_v = input_gen(h.slider, U_labels, [0], [255], default_vals)
+            upper_hsvs = input_gen(
+                h.slider, U_labels, [0], [255], default_vals)
+            #Extending array to size 4x1, for numpy casting
+            upper_hsvs.append(0.0)
         # Coordinate input widget
         with tabs[1]:
             x, y = st.columns(2)
@@ -169,11 +182,14 @@ def input_handler(context):
         # This is what we're really looking for, and what we might want to consider returning as a custom ros message...
         # https://github.com/Box-Robotics/ros2_numpy
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
-        lower = np.array([l_h, l_s, l_v])
-        upper = np.array([u_h, u_s, u_v])
-
-        pub = get_publisher(None)
-        img = pub.reference_img
+        hsv = np.array((lower_hsvs,upper_hsvs))
+        pts1 = pts1.transpose()
+        data = np.concatenate((pts1,hsv))
+        #Encoding as a 16 bit image, for efficiency whilst also not requiring our own msg type
+        msg = rnp.msgify(Image, data.astype(np.uint16),encoding="mono16")
+        # np.set_printoptions(threshold=100)
+        sub = get_subscriber(None)
+        img = sub.reference_img
 
         if img is not None:
             cols = st.columns(3)
@@ -181,23 +197,29 @@ def input_handler(context):
             transformed_left = cv2.warpPerspective(img, matrix, (640, 480))
             hsv_transformed_left = cv2.cvtColor(
                 transformed_left, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv_transformed_left, lower, upper)
+            mask = cv2.inRange(hsv_transformed_left, hsv[:][0], hsv[:][1])
             cols[1].image(transformed_left, "Left Birds Eye View Preview")
             cols[2].image(mask, "Left Mask Preview")
     # TODO: Make this button publish the custom ROS2 Message :)
-    #TODO: Make this button do soemthing (Read and write to file)
-        st.button("Publish!", on_click=demo_publish)
+    # TODO: Make this button do soemthing (Read and write to file)
+        if(st.button("Publish")):
+            try:
+                demo_publish(msg)
+            except:
+                rclpy.try_shutdown()
+                rclpy.init()
+                demo_publish(msg)
 
-@st.cache_resource 
-def get_publisher(_tabs):
+@st.cache_resource
+def get_subscriber(_tabs):
     handler = Image_Handler(_tabs)
     return handler
 
+
 @st.cache_resource
-def get_subscriber():
+def get_publisher():
     handler = Publisher()
     return handler
-    
 
 
 # See ../../ros2/src/lanefollowingtest/LaneDetection.py
@@ -210,9 +232,9 @@ if __name__ == "__main__":
     sidebar()
     st.write(
         "This page is designed to control the lane detection functionality, and allow for quick edits to the algorithm.")
-    render = st.checkbox("Render Video Feed",value=True)
+    render = st.checkbox("Render Video Feed", value=True)
     display_holder = st.container()
-    if render:
-        render_handler(display_holder)
-    else:
+    if not render:
         input_handler(display_holder)
+    else:
+        render_handler(display_holder)
