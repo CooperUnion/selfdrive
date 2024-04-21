@@ -53,6 +53,7 @@ def runner():
                 Debugging systems, sensor messages (E.g IMU, CAN) should all live here.   
 
                 ''')
+    st.success('''#4 Made button that succesfully runs a script when given path''')
 
 
 # This allows the system to run without being in a dedicated streamlit session:
