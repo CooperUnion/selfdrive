@@ -10,12 +10,14 @@ import numpy as np
 from std_msgs.msg import String
 
 # Inputs from both cameras
-vidcap_left = cv2.VideoCapture("/dev/video3")
+vidcap_left = cv2.VideoCapture("/dev/video2")
 vidcap_left.set(3, 640)
 vidcap_left.set(4, 480)
-vidcap_right = cv2.VideoCapture("/dev/video1")
+vidcap_left.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+vidcap_right = cv2.VideoCapture("/dev/video4")
 vidcap_right.set(3, 640)
 vidcap_right.set(4, 480)
+vidcap_right.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 
 # These are constants
@@ -159,7 +161,7 @@ class Lane_Follower(Node):
         self._Left_Lane = False
 
 
-        timer_period = 0.01  # seconds
+        timer_period = 0.016  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Publisher for error from the lane lines relative to the camera FOV

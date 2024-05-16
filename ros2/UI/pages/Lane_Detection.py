@@ -233,8 +233,8 @@ if __name__ == "__main__":
     st.write(
         "This page is designed to control the lane detection functionality, and allow for quick edits to the algorithm.")
     render = st.checkbox("Render Video Feed", value=True)
-    display_holder = st.container()
+    controller = st.container()
     if not render:
-        input_handler(display_holder)
+        input_handler(controller)
     else:
-        render_handler(display_holder)
+        render_handler(controller)
