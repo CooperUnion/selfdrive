@@ -19,10 +19,10 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define DIR_PIN GPIO_NUM_1
-#define PWM_PIN GPIO_NUM_2
+#define DIR_PIN GPIO_NUM_5
+#define PWM_PIN GPIO_NUM_4
 #define SLP_PIN GPIO_NUM_3
-#define FLT_PIN GPIO_NUM_4
+#define FLT_PIN GPIO_NUM_2
 
 #define PWM_FREQUENCY	    10000
 #define PWM_INIT_DUTY_CYCLE 0
@@ -35,8 +35,8 @@
 #define PS_ADC_CHANNEL ADC_CHANNEL_7  // GPIO_8
 #define PS_ADC_UNIT    ADC_UNIT_1
 
-#define LIM_SW_1 GPIO_NUM_33  // too far backward
-#define LIM_SW_2 GPIO_NUM_34  // too far forward
+#define LIM_SW_1 GPIO_NUM_37  // too far backward
+#define LIM_SW_2 GPIO_NUM_40  // too far forward
 
 enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
