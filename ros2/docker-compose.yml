@@ -13,7 +13,8 @@ services:
     volumes:
         - /tmp/.X11-unix:/tmp/.X11-unix
         - ./encoder_odom/src:/root/ros_ws/encoder_odom/src
-        - /dev/ttyACM0:/dev/ttyACM0
+        - ./imu/src:/root/ros_ws/imu/src
+        # - /dev/ttyACM0:/dev/ttyACM0
 
   techbus:
     build: ./techbus
