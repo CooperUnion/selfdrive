@@ -9,7 +9,7 @@ import numpy as np
 
 
 # Inputs from both cameras
-vidcap_left = cv2.VideoCapture("/dev/video0")
+vidcap_left = cv2.VideoCapture("/dev/video3")
 vidcap_left.set(3, 640)
 vidcap_left.set(4, 480)
 vidcap_right = cv2.VideoCapture("/dev/video2")
@@ -106,7 +106,7 @@ class Individual_Follower():
         # And recast the x and y points into usable format for cv2.fillPoly()
         line_window1 = np.array(
             [np.transpose(np.vstack([fitx-margin, ploty]))])
-        line_window2 = np.array([np.flipud(np.transpose(np.vstack([fitx+margin,
+        line_window2 = np.array([(np.transpose(np.vstack([fitx+margin,
                                                                    ploty])))])
         line_pts = np.hstack((line_window1, line_window2))
 
@@ -135,10 +135,10 @@ lower = np.array([l_h, l_s, l_v])
 upper = np.array([u_h, u_s, u_v])
 
 # Coordinates for the 4 alignment points: again, should be handled by the UI
-bl = (12, 355)
-tl = (66, 304)
-br = (635, 344)
-tr = (595, 308)
+bl = (12, 472)
+tl = (90, 8)
+br = (499, 475)
+tr = (435, 24)
 # Aplying perspective transformation
 pts1 = np.float32([tl, bl, tr, br])
 pts2 = np.float32([[0, 0], [0, 480], [640, 0], [640, 480]])
@@ -157,7 +157,8 @@ class Lane_Follower(Node):
         # Determine which lane we're in: Left lane means the right image is dashed
         self._Left_Lane = False
 
-
+        ###The ratio from  pixels to inches
+        conversion = 6.625
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
@@ -228,6 +229,7 @@ class Lane_Follower(Node):
     def timer_callback(self):
         success_l, image_l = vidcap_left.read()
         success_r, image_r = vidcap_right.read()
+        image_r = cv2.flip(image_r,0)
         images = [(image_l, "left"), (image_r, "right")]
         left_buffer = -1
         right_buffer = -1
@@ -241,8 +243,8 @@ class Lane_Follower(Node):
             for point in (bl, tl, br, tr):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
-            transformed_frame = cv2.warpPerspective(
-                frame, matrix, (640, 480))
+            transformed_frame = cv2.rotate(cv2.warpPerspective(
+                frame, matrix, (640, 480)), cv2.ROTATE_90_CLOCKWISE)
             # Object Detection
             # Image Thresholding
             hsv_transformed_frame = cv2.cvtColor(
