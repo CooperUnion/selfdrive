@@ -11,7 +11,7 @@ import numpy as np
 from ui_generics import *
 import ros2_numpy as rnp
 from geometry_msgs.msg import Transform
-
+from streamlit_image_coordinates import streamlit_image_coordinates as st_images
 # This class currently subscribes to some topics in cam_publisher, which I used to test. Please rewrite for lane Detection.
 
 
@@ -192,14 +192,16 @@ def input_handler(context):
         img = sub.reference_img
 
         if img is not None:
-            cols = st.columns(3)
-            cols[0].image(img, "Left reference image for transformation")
+            pixel_values_ref = st_images(img) 
+            st.write(pixel_values_ref)
             transformed_left = cv2.warpPerspective(img, matrix, (640, 480))
             hsv_transformed_left = cv2.cvtColor(
                 transformed_left, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_transformed_left, hsv[:][0], hsv[:][1])
-            cols[1].image(transformed_left, "Left Birds Eye View Preview")
-            cols[2].image(mask, "Left Mask Preview")
+            transformed_vales = st_images(transformed_left)
+            st.write(transformed_vales)
+            # # st.image(mask, "Left Mask Preview")
+            # st.write(values)
     # TODO: Make this button publish the custom ROS2 Message :)
     # TODO: Make this button do soemthing (Read and write to file)
         if(st.button("Publish")):
