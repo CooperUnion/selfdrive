@@ -1,0 +1,16 @@
+version: '3'
+
+services: 
+  ros2_master:
+    build: ./
+    container_name: ros2_master
+    tty: true
+    privileged: true
+    environment:
+        - DISPLAY=$DISPLAY
+        - QT_X11_NO_MITSHM=1
+    network_mode: host
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - ./:/root/humble_dev_ws/
+        - /dev/ttyACM0:/dev/ttyACM0
