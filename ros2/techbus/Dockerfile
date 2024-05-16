@@ -4,19 +4,16 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /root/ros_ws
 
+RUN apt-get update && apt-get install -y python3.9 python3-venv python3-pip --fix-missing
+
 RUN apt update && apt upgrade -y
 
 RUN apt install -y \
     cmake \
     curl \
-    ros-humble-imu-tools \
     iputils-ping\
     libglu1-mesa-dev \
     nano \
-    python3-pip \
-    python3-pydantic \
-    python3-tf2-ros \
-    python3-tf-conversions \
     ros-dev-tools \
     ruby-dev \
     rviz \
@@ -36,6 +33,16 @@ RUN wget https://github.com/openrr/urdf-viz/releases/download/v0.38.2/urdf-viz-x
 RUN apt autoremove -y \
     && apt clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m venv .venv
+RUN source .venv/bin/activate
+RUN python3 -m pip install opencan-cand numpy msgpack cantools
+
+RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+
+RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+RUN apt-get update && apt-get install -qy redis-stack-server
 
 RUN echo "export DISABLE_AUTO_TITLE=true" >> /root/.bashrc
 RUN echo 'LC_NUMERIC="en_US.UTF-8"' >> /root/.bashrc
