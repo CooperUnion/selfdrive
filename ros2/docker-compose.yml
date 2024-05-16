@@ -12,5 +12,5 @@ services:
     network_mode: host
     volumes:
         - /tmp/.X11-unix:/tmp/.X11-unix
-        - ./:/root/humble_dev_ws/
+        - ./encoder_odom:/root/ros_ws/encoder_odom
         - /dev/ttyACM0:/dev/ttyACM0

@@ -1,6 +1,6 @@
 FROM osrf/ros:humble-desktop-full
 
-WORKDIR /root/humble_dev_ws
+WORKDIR /root/ros_ws
 
 RUN sudo apt-get update && apt-get install -y \
     cmake \
@@ -11,6 +11,8 @@ RUN sudo apt-get update && apt-get install -y \
     nano \
     python3-pip \
     python3-pydantic \
+    python3-tf2-ros \
+    python3-tf-conversions \
     ros-dev-tools \
     ruby-dev \
     rviz \
