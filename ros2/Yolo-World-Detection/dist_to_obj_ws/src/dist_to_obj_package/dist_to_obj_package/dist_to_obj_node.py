@@ -3,7 +3,7 @@ from std_msgs.msg import Float64
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-from .object_detection_submodule.object_detection import ObjectDetection
+from object_detection_submodule.object_detection import ObjectDetection
 import cv2
 import sys
  
