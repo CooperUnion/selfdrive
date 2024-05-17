@@ -3,6 +3,7 @@
 #include "firmware-base/state-machine.h"
 #include <driver/gpio.h>
 #include <driver/ledc.h>
+#include <dsps_biquad.h>
 #include <ember_common.h>
 #include <ember_taskglue.h>
 #include <esp_adc/adc_cali.h>
@@ -44,7 +45,7 @@ enum adc_channel_index {
 };
 
 #define SAMPLING_RATE_HZ      20000
-#define SAMPLING_TOTAL_FRAMES 120000
+#define SAMPLING_TOTAL_FRAMES 40000
 #define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
 
 #define FRAME_SAMPLES 10
@@ -74,6 +75,9 @@ enum adc_channel_index {
 #define MAX_PRESSURE_READING 2230
 #define MIN_PRESSURE_READING 215
 
+#define FILTER_LENGTH  2
+#define FILTER_BUFFERS 2
+
 static void	bbc_init(void);
 static void	bbc_100Hz(void);
 static void	adc_init(void);
@@ -83,14 +87,33 @@ static bool	adc_callback(adc_continuous_handle_t handle,
 static uint16_t adc_reading(enum adc_channel_index channel);
 static void	adc_task(void *arg);
 static void	dump_samples(void);
+static void	iir_filter(float buf[]);
 static bool	overflow_callback(adc_continuous_handle_t handle,
 	    const adc_continuous_evt_data_t		 *cbs,
 	    void					 *user_data);
 
 struct dump {
 	uint16_t buf[SAMPLING_BUF_FRAMES];
+	float	 filtered[SAMPLING_BUF_FRAMES];
 	size_t	 read;
 	size_t	 write;
+};
+
+struct filter {
+	float sos[FILTER_LENGTH][5];
+	float w[2];
+	float g;
+};
+
+struct buffer {
+	float data[FRAME_SAMPLES];
+};
+
+static ledc_timer_config_t pwm_timer = {
+	.speed_mode	 = LEDC_LOW_SPEED_MODE,
+	.duty_resolution = PWM_RESOLUTION,
+	.timer_num	 = LEDC_TIMER_0,
+	.freq_hz	 = PWM_FREQUENCY,
 };
 
 static ledc_channel_config_t pwm_channel = {
@@ -107,7 +130,19 @@ static struct {
 	SemaphoreHandle_t	sem;
 	TaskHandle_t		task_handle;
 	struct dump		dump[ADC_CHANNELS];
-} adc;
+	struct filter		filter;
+	float			buffers[FILTER_BUFFERS][FRAME_SAMPLES];
+	size_t			buffer_index;
+	float		       *buffer;
+
+
+} adc = {
+	.filter	      = {.sos = {{1.0000, 1.0000, 0, -0.9959, 0},
+				 {1.0000, -1.9999, 1.0000, -1.9966, 0.9966}},
+			 .w      = {0, 0},
+			 .g      = 3.7640e-04},
+	.buffer_index = 0
+};
 
 static int    motor_direction;
 volatile bool overflow;
@@ -345,15 +380,21 @@ loop:
 	adc_digi_output_data_t *samples = (adc_digi_output_data_t *) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
 
-	bool start_dump = true;
+
+	float *curr_buf = adc.buffers[adc.buffer_index];
+
+	bool	     start_dump = true;
+	struct dump *dump	= NULL;
+
 	for (size_t i = 0; i < sample_count; i++) {
 		adc_digi_output_data_t * const sample = samples + i;
 
-		struct dump *dump;
+		float resolution;
 
 		switch (sample->type2.channel) {
 			case PS_ADC_CHANNEL:
-				dump = adc.dump + PS_ADC_CHANNEL_INDEX;
+				dump	   = adc.dump + PS_ADC_CHANNEL_INDEX;
+				resolution = (1 << PS_ADC_BITWIDTH) - 1;
 				break;
 
 			default:
@@ -365,11 +406,22 @@ loop:
 
 		start_dump = false;
 
-		uint16_t raw_sample = sample->type2.data;
+		uint16_t raw_sample	   = sample->type2.data;
+		float	 normalized_sample = ((float) raw_sample) / resolution;
 
-		dump->buf[dump->write] = raw_sample;
-		dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
+		curr_buf[i] = normalized_sample;
 	}
+
+	iir_filter(curr_buf);
+
+	if (dump) {
+		for (size_t i = 0; i < sample_count; i++) {
+			dump->filtered[dump->write] = curr_buf[i];
+			dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
+		}
+	}
+
+	adc.buffer_index = (adc.buffer_index + 1) % FILTER_BUFFERS;
 
 	if (start_dump) dump_samples();
 
@@ -394,6 +446,21 @@ static void dump_samples()
 		}
 
 		dump->read = SIZE_MAX;
+	}
+}
+
+static void iir_filter(float buf[])
+{
+	float(*sos)[5] = adc.filter.sos;
+	const float g  = adc.filter.g;
+	float	   *w  = adc.filter.w;
+
+	for (size_t i = 0; i < FILTER_LENGTH; i++) {
+		dsps_biquad_f32(buf, buf, FILTER_LENGTH, sos[i], w);
+	}
+
+	for (size_t i = 0; i < FRAME_SAMPLES; i++) {
+		buf[i] *= g;
 	}
 }
 
@@ -437,4 +504,7 @@ void CANTX_populate_BBC_BrakeData(struct CAN_Message_BBC_BrakeData * const m)
 	m->BBC_limitSwitchMax = max_limit_switch_status;
 
 	m->BBC_limitSwitchMin = min_limit_switch_status;
+
+	m->BBC_motorPercent = (float32_t) pwm_channel.duty
+		/ (float32_t) (1 << PWM_RESOLUTION) * 100;
 }
