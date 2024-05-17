@@ -5,7 +5,7 @@ from moviepy.editor import VideoFileClip
 from queue import Queue
 import os
 import glob
-from whitepxlClass import WhitePixelDetector
+from ros2.src.lanefollowingtest.testing_scripts.whitepxlClass import WhitePixelDetector
 
 
 

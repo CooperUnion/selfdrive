@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
-from whitepxlClass import WhitePixelDetector
+from ros2.src.lanefollowingtest.testing_scripts.whitepxlClass import WhitePixelDetector
 
 
 GRADIENT_THRESH = (20, 100)
