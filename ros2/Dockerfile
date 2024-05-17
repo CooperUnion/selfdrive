@@ -9,7 +9,6 @@ RUN apt update && apt upgrade -y
 RUN apt install -y \
     cmake \
     curl \
-    ros-humble-imu-tools \
     iputils-ping\
     libglu1-mesa-dev \
     nano \
@@ -18,6 +17,8 @@ RUN apt install -y \
     python3-tf2-ros \
     python3-tf-conversions \
     ros-dev-tools \
+    ros-humble-robot-localization \
+    ros-humble-imu-tools \
     ruby-dev \
     rviz \
     tmux \
