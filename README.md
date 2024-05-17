@@ -77,12 +77,12 @@ $ direnv allow
 If everything worked, you should be able to run [SCons] successfully:
 
 ```sh
-$ scons
+$ scons --help
 ```
 
 ## Copyright & Licensing
 
-Copyright (C) 2021--2023 Autonomy Lab
+Copyright (C) 2021--2024 Autonomy Lab
 
 Distributed under the [GPLv3] only.
 

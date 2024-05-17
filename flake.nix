@@ -21,6 +21,8 @@
           overlays = [ (import rust-overlay) ];
         };
 
+        llvm = pkgs.llvmPackages_17;
+
         python = pkgs.python312;
         pythonPackages = pkgs.python312Packages;
 
@@ -31,11 +33,13 @@
       {
         devShells.default = pkgs.mkShell {
           packages = [
+            llvm.clang-unwrapped
             pkgs.act
             pkgs.cmake
             pkgs.mdbook
             pkgs.ninja
             pkgs.nixpkgs-fmt
+            pkgs.texliveFull
             pkgs.zlib
             python
             pythonPackages.invoke

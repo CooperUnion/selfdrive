@@ -24,15 +24,29 @@ def Component(env, target, config):
 
     name = config['metadata']['name']
 
-    return env.Alias(f'component:{name}', target, '')
+    env['COMPONENTS'][name] = {
+        'subtargets': {},
+        'target': target,
+    }
+
+    return env.Alias(f'component:{name}', target, ''), name
+
+
+def ComponentSubtarget(env, component, subtarget, target):
+    env['COMPONENTS'][component]['subtargets'][subtarget] = target
+
+    return env.Alias(f'component:{component}:{subtarget}', target, '')
 
 
 def generate(env):
-    if env.Detect('Component'):
+    if env.Detect('Component') and env.Detect('ComponentSubtarget'):
         return
 
     env.AddMethod(Component, 'Component')
+    env.AddMethod(ComponentSubtarget, 'ComponentSubtarget')
+
+    env['COMPONENTS'] = {}
 
 
 def exists(env):
-    return env.Detect('Component')
+    return env.Detect('Component') and env.Detect('ComponentSubtarget')

@@ -1,0 +1,24 @@
+---
+
+name: build
+
+# yamllint disable-line rule:truthy
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout `selfdrive`
+        uses: ./.github/actions/checkout
+
+      - name: build selfdrive
+        run: scons --verbose

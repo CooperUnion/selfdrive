@@ -53,10 +53,13 @@ def idf(env, target: str):
     with open(PATHS[f'IDF_BUILD_SCONS_{target.upper()}']) as f:
         idf = json.load(f)
 
+    # we do this to supress warnings out of our control
+    includes = [f'-isystem{include}' for include in idf['includes']]
+
     env.AppendUnique(
-        CPPPATH=idf['includes'],
         CPPDEFINES=idf['defines'],
-        CCFLAGS=idf['options']
+        CCFLAGS=includes
+        + idf['options']
         + idf['optimization']
         + idf['debug']
         + idf['march']

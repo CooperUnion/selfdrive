@@ -4,11 +4,33 @@ import os
 
 import env as uenv
 
-EnsureSConsVersion(4, 5, 2)
-EnsurePythonVersion(3, 11)
+EnsureSConsVersion(4, 7, 0)
+EnsurePythonVersion(3, 12)
 
 
 build = 'build'
+
+
+AddOption(
+    '--esp-baud',
+    default='',
+    help='serial port baud rate for flashing/reading',
+    metavar='BAUD',
+    type=str,
+)
+AddOption(
+    '--esp-port',
+    default='',
+    help='serial port device',
+    metavar='PORT',
+    type=str,
+)
+AddOption(
+    '--verbose',
+    action='store_true',
+    default=False,
+    help='enable verbose output',
+)
 
 
 env = Environment(
@@ -17,11 +39,16 @@ env = Environment(
         'PATH': os.environ['PATH'],
         'TERM': os.environ.get('TERM'),
     },
+    ESPBAUD=GetOption('esp_baud'),
+    ESPPORT=GetOption('esp_port'),
+    VERBOSE=GetOption('verbose'),
     tools=[
         'default',
         'Component',
         'EspIdf',
+        'OpenCan',
         'Phony',
+        'Project',
     ],
 )
 env.AppendUnique(
@@ -29,10 +56,26 @@ env.AppendUnique(
         '-Wall',
         '-Wextra',
         '-Wpedantic',
-        '-g',
+        '-ggdb',
         '-std=gnu17',
     ]
 )
+env.AppendUnique(
+    PDFLATEXFLAGS=[
+        '--halt-on-error',
+        '--shell-escape',
+    ]
+)
+env.Replace(PDFLATEX='lualatex')
+
+if not env['VERBOSE']:
+    commands = [
+        'AR',
+        'CC',
+        'RANLIB',
+    ]
+    for command in commands:
+        env[f'{command}COMSTR'] = f'{command} $TARGET'
 
 esp32s3 = uenv.idf(env, 'esp32s3')
 
@@ -48,20 +91,21 @@ Export('envs')
 can = env.SConscript(
     'can/SConscript.py',
     variant_dir=f'{build}/can',
-    duplicate=False,
+)
+lib = env.SConscript(
+    'lib/SConscript.py',
+    variant_dir=f'{build}/lib',
 )
 components = env.SConscript(
     'components/SConscript.py',
     variant_dir=f'{build}/components',
-    duplicate=False,
 )
 ember_bl = env.SConscript(
     'dbw/ember_bl/SConscript.py',
     variant_dir=f'{build}/dbw/ember_bl',
     duplicate=False,
 )
-node_fw = env.SConscript(
-    'dbw/node_fw/SConscript.py',
-    variant_dir=f'{build}/dbw/node_fw',
-    duplicate=False,
+projects = env.SConscript(
+    'projects/SConscript.py',
+    variant_dir=f'{build}/projects',
 )

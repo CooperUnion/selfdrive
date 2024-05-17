@@ -1,8 +1,0 @@
-{
-  "name": "cuber-sup",
-  "version": "rolling",
-  "description": "Supervisor DBW node",
-  "build": {
-    "libLDFMode": "deep"
-  }
-}
