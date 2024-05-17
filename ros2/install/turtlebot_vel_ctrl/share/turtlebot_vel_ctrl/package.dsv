@@ -1,0 +1,6 @@
+source;share/turtlebot_vel_ctrl/hook/pythonpath.ps1
+source;share/turtlebot_vel_ctrl/hook/pythonpath.dsv
+source;share/turtlebot_vel_ctrl/hook/pythonpath.sh
+source;share/turtlebot_vel_ctrl/hook/ament_prefix_path.ps1
+source;share/turtlebot_vel_ctrl/hook/ament_prefix_path.dsv
+source;share/turtlebot_vel_ctrl/hook/ament_prefix_path.sh

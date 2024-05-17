@@ -11,4 +11,13 @@
 .vscode
 __pycache__
 build
+ros2/lanefollowingtest/LaneVideo.mp4
+log/COLCON_IGNORE
+log/latest
+log/latest_version-check
+log/version-check_2024-03-28_13-31-27/logger_all.log
+ros2/log/latest_build
+ros2/log/build_2024-03-28_13-35-11/logger_all.log
+ros2/log/build_2024-03-28_13-39-36/logger_all.log
+ros2/log/latest_build
 indent.log

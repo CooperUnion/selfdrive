@@ -1,0 +1,24 @@
+[0.561s] Invoking command in '/home/eeadmin/selfdrive/ros2/src/turtlebot_vel_ctrl': PYTHONPATH=/home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/prefix_override:/home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/turtlebot_vel_ctrl build --build-base /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build install --record /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/install.log --single-version-externally-managed
+[0.745s] running egg_info
+[0.745s] writing ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/PKG-INFO
+[0.745s] writing dependency_links to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/dependency_links.txt
+[0.745s] writing entry points to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/entry_points.txt
+[0.745s] writing requirements to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/requires.txt
+[0.746s] writing top-level names to ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/top_level.txt
+[0.747s] reading manifest file '../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/SOURCES.txt'
+[0.747s] adding license file 'LICENSE'
+[0.747s] writing manifest file '../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info/SOURCES.txt'
+[0.748s] running build
+[0.748s] running build_py
+[0.748s] running install
+[0.748s] /usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+[0.748s]   warnings.warn(
+[0.748s] running install_lib
+[0.749s] running install_data
+[0.749s] running install_egg_info
+[0.750s] removing '/home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl-0.0.0-py3.10.egg-info' (and everything under it)
+[0.751s] Copying ../../build/turtlebot_vel_ctrl/turtlebot_vel_ctrl.egg-info to /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages/turtlebot_vel_ctrl-0.0.0-py3.10.egg-info
+[0.751s] running install_scripts
+[0.769s] Installing vel_ctrl script to /home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/turtlebot_vel_ctrl
+[0.769s] writing list of installed files to '/home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/install.log'
+[0.801s] Invoked command in '/home/eeadmin/selfdrive/ros2/src/turtlebot_vel_ctrl' returned '0': PYTHONPATH=/home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/prefix_override:/home/eeadmin/selfdrive/ros2/install/turtlebot_vel_ctrl/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/turtlebot_vel_ctrl build --build-base /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/build install --record /home/eeadmin/selfdrive/ros2/build/turtlebot_vel_ctrl/install.log --single-version-externally-managed
