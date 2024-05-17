@@ -14,6 +14,8 @@ services:
         - /tmp/.X11-unix:/tmp/.X11-unix
         - ./encoder_odom/src:/root/ros_ws/encoder_odom/src
         - ./imu/src:/root/ros_ws/imu/src
+        - ./sensor_fusion/src/move:/root/ros_ws/ekf_package
+        - ./cmd/src:/root/ros_ws/cmd/src
         # - /dev/ttyACM0:/dev/ttyACM0
 
   techbus:

@@ -22,6 +22,7 @@ class LaneFollow(Node):
         self.odom_subscription = self.create_subscription(
             Odometry,
             '/encoder_odom',    # Temporary until we can replace with filtered odometry message
+            # '/odometry/filtered' 
             self.odom_callback,
             10
         )
