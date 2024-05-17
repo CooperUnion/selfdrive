@@ -104,6 +104,7 @@ class ObjectDetection():
             self.detections = sv.Detections.from_ultralytics(results[0])
             lane_bounds = self.determine_in_lane()
             obj_center_pos = self.distance_to_objects()
+            #TODO:Confirm this won't break anything. 
             if(lane_bounds[0] < obj_center_pos < lane_bounds[1]):
                 return obj_center_pos[1]
             return -1

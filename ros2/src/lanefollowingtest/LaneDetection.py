@@ -307,7 +307,6 @@ class Lane_Follower(Node):
             if (self._tolerance > TOLERANCE):
                 crosstrack.data = 1000.0
                 self.crosstrack_pub.publish(crosstrack)
-
         if cv2.waitKey(10) == 27:
             return
 
