@@ -34,20 +34,20 @@ void eeprom_init()
 	EEPROM_WP(true);
 
 	i2c_config_t conf = {
-	    .mode	      = I2C_MODE_MASTER,
-	    .sda_io_num	      = EEPROM_SDA_GPIO,
-	    .scl_io_num	      = EEPROM_SCL_GPIO,
-	    .sda_pullup_en    = GPIO_PULLUP_DISABLE,
-	    .scl_pullup_en    = GPIO_PULLUP_DISABLE,
-	    .master.clk_speed = I2C_MASTER_FREQ_HZ,
+		.mode		  = I2C_MODE_MASTER,
+		.sda_io_num	  = EEPROM_SDA_GPIO,
+		.scl_io_num	  = EEPROM_SCL_GPIO,
+		.sda_pullup_en	  = GPIO_PULLUP_DISABLE,
+		.scl_pullup_en	  = GPIO_PULLUP_DISABLE,
+		.master.clk_speed = I2C_MASTER_FREQ_HZ,
 	};
 
 	i2c_param_config(I2C_MASTER_NUM, &conf);
 	i2c_driver_install(I2C_MASTER_NUM,
-	    I2C_MODE_MASTER,
-	    I2C_MASTER_RX_BUF,
-	    I2C_MASTER_TX_BUF,
-	    I2C_ESP_INTR_FLAGS);
+		I2C_MODE_MASTER,
+		I2C_MASTER_RX_BUF,
+		I2C_MASTER_TX_BUF,
+		I2C_ESP_INTR_FLAGS);
 
 	// we want to know where we are in EEPROM
 	// in case of an immediate address read
@@ -178,7 +178,7 @@ esp_err_t eeprom_write(uint16_t addr, const uint8_t *data, size_t len)
 		i2c_master_stop(cmd);
 
 		val = i2c_master_cmd_begin(
-		    I2C_MASTER_NUM, cmd, I2C_TICK_TIMEOUT);
+			I2C_MASTER_NUM, cmd, I2C_TICK_TIMEOUT);
 		i2c_cmd_link_delete(cmd);
 		if (val != ESP_OK) goto error;
 

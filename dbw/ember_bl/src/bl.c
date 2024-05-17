@@ -61,7 +61,7 @@ const esp_partition_t *app_partition;
 	CANRX_ISOTP_CALLBACK_NAME_(IDENTITY)
 
 void CANRX_ISOTP_CALLBACK_NAME(EMBER_NODE_IDENTITY)(
-    const uint8_t * const data, const uint8_t len)
+	const uint8_t * const data, const uint8_t len)
 {
 	isotp_on_can_message(&isotp_link, data, len);
 }
@@ -113,8 +113,8 @@ static void bl_step(void);
 static void bl_loop(void *unused);
 
 const ember_rate_funcs_S bl_rf = {
-    .call_init = bl_init,
-    // .call_1kHz = bl_1kHz,
+	.call_init = bl_init,
+	// .call_1kHz = bl_1kHz,
 };
 
 static void bl_init(void)
@@ -123,12 +123,12 @@ static void bl_init(void)
 
 	log("^^^ EMBER BOOTLOADER v0.1.0 ^^^\n");
 	log("--> This bootloader image's node identity is: %s\n",
-	    ember_app_description.node_identity);
+		ember_app_description.node_identity);
 	log("*** Looking for app partition...\n");
 
 	// Find the app partition.
 	app_partition = esp_partition_find_first(
-	    ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+		ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
 	if (!app_partition) {
 		log("!!! Failed to find app partition.\n");
 		set_state(BL_STATE_RESET);
@@ -140,14 +140,14 @@ static void bl_init(void)
 
 		esp_ota_img_states_t app_state;
 
-		const esp_err_t ret
-		    = esp_ota_get_state_partition(app_partition, &app_state);
+		const esp_err_t ret = esp_ota_get_state_partition(
+			app_partition, &app_state);
 
 		if (ret == ESP_OK) {
 			log("*** App is in state %d\n.", app_state);
 		} else {
 			log("!!! Couldn't get app partition state: %s\n",
-			    esp_err_to_name(ret));
+				esp_err_to_name(ret));
 		}
 	}
 
@@ -155,15 +155,15 @@ static void bl_init(void)
 #define CANRX_ISOTP_TX_ID(IDENTITY)  CANRX_ISOTP_TX_ID_(IDENTITY)
 
 	isotp_init_link(&isotp_link,
-	    CANRX_ISOTP_TX_ID(EMBER_NODE_IDENTITY),
-	    isotp_tx_buf,
-	    sizeof(isotp_tx_buf),
-	    isotp_rx_buf,
-	    sizeof(isotp_rx_buf));
+		CANRX_ISOTP_TX_ID(EMBER_NODE_IDENTITY),
+		isotp_tx_buf,
+		sizeof(isotp_tx_buf),
+		isotp_rx_buf,
+		sizeof(isotp_rx_buf));
 
 	static TaskHandle_t bl_loop_handle;
 	xTaskCreatePinnedToCore(
-	    bl_loop, "BL_LOOP", 8192, NULL, 3, &bl_loop_handle, 1);
+		bl_loop, "BL_LOOP", 8192, NULL, 3, &bl_loop_handle, 1);
 }
 
 #define ESP_CHECKED(call)                                                        \
@@ -171,9 +171,9 @@ static void bl_init(void)
 		const esp_err_t err = (call);                                    \
 		if (err != ESP_OK) {                                             \
 			log("!!! Got error in checked op `%s` (err = %d, %s)\n", \
-			    #call,                                               \
-			    err,                                                 \
-			    esp_err_to_name(err));                               \
+				#call,                                           \
+				err,                                             \
+				esp_err_to_name(err));                           \
 			next_state = BL_STATE_FAULT;                             \
 			break;                                                   \
 		}                                                                \
@@ -193,7 +193,7 @@ static void bl_step(void)
 
 		case BL_STATE_AWAIT_TRIGGER:
 			if (CANRX_is_node_UPD_ok()
-			    && CANRX_get_UPD_currentIsoTpChunk() == 0U) {
+				&& CANRX_get_UPD_currentIsoTpChunk() == 0U) {
 				log("--> UPD is present; update triggered.\n");
 
 				// Note the total number of bytes
@@ -201,8 +201,8 @@ static void bl_step(void)
 
 				// Begin OTA update
 				ESP_CHECKED(esp_ota_begin(app_partition,
-				    OTA_SIZE_UNKNOWN,
-				    &ota_handle));
+					OTA_SIZE_UNKNOWN,
+					&ota_handle));
 
 				next_state = BL_STATE_RECV_CHUNK;
 			} else if (time_in_state() > 1500U) {
@@ -217,16 +217,16 @@ static void bl_step(void)
 
 			static uint16_t this_chunk_size;
 			const int	isotp_ret = isotp_receive(&isotp_link,
-				  isotp_chunk_data,
-				  sizeof(isotp_chunk_data),
-				  &this_chunk_size);
+				      isotp_chunk_data,
+				      sizeof(isotp_chunk_data),
+				      &this_chunk_size);
 
 			static uint16_t current_chunk;
 			if (isotp_ret == ISOTP_RET_OK) {
 				log("--> Got new ISOTP full message with size %" PRIu16
 				    ": %" PRIu16 "\n",
-				    this_chunk_size,
-				    current_chunk);
+					this_chunk_size,
+					current_chunk);
 			}
 			/**********************/
 
@@ -234,12 +234,12 @@ static void bl_step(void)
 				// Does our chunk count match the UPD chunk
 				// count?
 				uint16_t upd_chunk
-				    = CANRX_get_UPD_currentIsoTpChunk();
+					= CANRX_get_UPD_currentIsoTpChunk();
 				if (upd_chunk != current_chunk) {
 					log("!!! Chunk count mismatch: UPD is on chunk %" PRIu16
 					    " and we're on %" PRIu16 "\n",
-					    upd_chunk,
-					    current_chunk);
+						upd_chunk,
+						current_chunk);
 					next_state = BL_STATE_FAULT;
 				}
 
@@ -251,7 +251,8 @@ static void bl_step(void)
 					next_state = BL_STATE_COMMIT_CHUNK;
 				}
 			} else if (time_in_state()
-			    > 1500U) {	// expected chunk but didn't get one
+				> 1500U) {  // expected chunk but didn't get
+					    // one
 				log("!!! Expected isotp chunk but didn't get one.\n");
 				next_state = BL_STATE_FAULT;
 			}
@@ -270,8 +271,9 @@ static void bl_step(void)
 		case BL_STATE_COMMIT_CHUNK:
 			// Let's write it in.
 			log("--> Committing chunk %d...\n", current_chunk);
-			ESP_CHECKED(esp_ota_write(
-			    ota_handle, isotp_chunk_data, this_chunk_size));
+			ESP_CHECKED(esp_ota_write(ota_handle,
+				isotp_chunk_data,
+				this_chunk_size));
 
 			if (bytes_so_far < update_size) {
 				current_chunk++;
@@ -282,8 +284,8 @@ static void bl_step(void)
 				log("Got more update data than expected: we got %" PRIu32
 				    " total bytes so far,"
 				    " but expected %" PRIu32 " total.\n",
-				    bytes_so_far,
-				    update_size);
+					bytes_so_far,
+					update_size);
 				next_state = BL_STATE_FAULT;
 			}
 			break;
@@ -386,22 +388,22 @@ static bool app_desc_ok(const uint8_t * const chunk_data)
 {
 	// get the app description out of the first chunk
 	const void * const new_app_desc_addr =
-	    // see ember_app_desc.h
-	    chunk_data + sizeof(esp_image_header_t)
-	    + sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t);
+		// see ember_app_desc.h
+		chunk_data + sizeof(esp_image_header_t)
+		+ sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t);
 
 	ember_app_desc_v1_t new_app_desc;
 	memcpy(&new_app_desc, new_app_desc_addr, sizeof(new_app_desc));
 
 	// check ember_magic
 	const bool ember_magic_matches = !strncmp(
-	    EMBER_MAGIC, new_app_desc.ember_magic, sizeof(EMBER_MAGIC));
+		EMBER_MAGIC, new_app_desc.ember_magic, sizeof(EMBER_MAGIC));
 
 	if (!ember_magic_matches) {
 		_Static_assert(sizeof(EMBER_MAGIC) == 8,
-		    "Need EMBER_MAGIC to be 8 chars for log below");
+			"Need EMBER_MAGIC to be 8 chars for log below");
 		log("!!! Invalid ember_magic for new app's ember_app_desc: \"%.8s\".\n",
-		    new_app_desc.ember_magic);
+			new_app_desc.ember_magic);
 		return false;
 	}
 
@@ -409,22 +411,22 @@ static bool app_desc_ok(const uint8_t * const chunk_data)
 	if (new_app_desc.app_desc_version != EMBER_APP_DESC_VERSION) {
 		log("!!! Unexpected version %" PRIu16 " (expected %" PRIu16
 		    ") for new app's app_desc_version.\n",
-		    new_app_desc.app_desc_version,
-		    EMBER_APP_DESC_VERSION);
+			new_app_desc.app_desc_version,
+			EMBER_APP_DESC_VERSION);
 		return false;
 	}
 
 	// check that node_identity matches ours
 	const bool identities_match
-	    = !strncmp(ember_app_description.node_identity,
-		new_app_desc.node_identity,
-		sizeof(ember_app_description.node_identity));
+		= !strncmp(ember_app_description.node_identity,
+			new_app_desc.node_identity,
+			sizeof(ember_app_description.node_identity));
 
 	if (identities_match) {
 		log("--> Identity of new app matches bootloader. Proceeding.\n");
 	} else {
 		log("--> Identity of new app (\"%.16s\") does not match bootloader!\n",
-		    new_app_desc.node_identity);
+			new_app_desc.node_identity);
 		return false;
 	}
 
@@ -444,8 +446,8 @@ void isotp_user_debug(const char *message, ...)
 }
 
 int isotp_user_send_can(const uint32_t arbitration_id,
-    const uint8_t * const	       data,
-    const uint8_t		       size)
+	const uint8_t * const	       data,
+	const uint8_t		       size)
 {
 	CAN_callback_enqueue_tx_message(data, size, arbitration_id);
 
