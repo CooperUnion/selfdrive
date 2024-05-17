@@ -27,7 +27,7 @@ RUN apt install -y \
     vim 
 
 RUN pip3 install setuptools==58.2.0
-RUN pip3 install python-statemachine pyserial
+RUN pip3 install python-statemachine pyserial numpy matplotlib scipy
 
 RUN wget https://github.com/openrr/urdf-viz/releases/download/v0.38.2/urdf-viz-x86_64-unknown-linux-gnu.tar.gz && \
     tar -xvzf urdf-viz-x86_64-unknown-linux-gnu.tar.gz -C /usr/local/bin/ && \

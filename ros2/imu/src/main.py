@@ -10,7 +10,12 @@ class YostPublisher(Node):
     def __init__(self):
         super().__init__('yost_publisher')
         self.imu_driver = Y3SpaceDriver(115200,6)
-        self.publisher = self.create_publisher(Imu, '/yost_imu', 10)
+
+        self.publisher = self.create_publisher(
+            Imu,
+            '/yost_imu',
+            10)
+        
         timer_period = 0.0001  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.imu_driver.prepare()

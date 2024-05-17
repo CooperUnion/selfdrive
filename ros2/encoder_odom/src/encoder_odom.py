@@ -54,7 +54,7 @@ class EncoderOdom(Node):
         self.enc_res = 1024
         self.scale = 64
         self.tick_distance = self.circumference / (self.enc_res*self.scale)
-        self.wheel_spacing = 1.27 
+        self.wheel_spacing = 1.27 # Unsure if this is wheel base or track width
 
         self.left_ticks = 0.0
         self.prev_left_ticks = 0.0
