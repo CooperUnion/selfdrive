@@ -1,12 +1,9 @@
-
 # from irobot_create_msgs.msg import WheelTicks, WheelTicks
-from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
-
+from sensor_msgs.msg import Image
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
-
+from cv_bridge import CvBridge
 import cv2
 import numpy as np
 
@@ -150,6 +147,7 @@ matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
 
 class Lane_Follower(Node):
+    GUI = True
 
     def __init__(self):
         super().__init__('lane_detection_node')
@@ -250,7 +248,7 @@ class Lane_Follower(Node):
             hsv_transformed_frame = cv2.cvtColor(
                 transformed_frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_transformed_frame, lower, upper)
-            if image[1] == "Left":
+            if image[1] == "left":
                 self._left_follower.set_binwarp(binwarp=mask)
                 left_buffer = self.determine_lane_size(mask)
             else:
