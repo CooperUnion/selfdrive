@@ -18,16 +18,6 @@ vidcap_right.set(3, 640)
 vidcap_right.set(4, 480)
 
 
-# These are constants
-nwindows = 9
-# Set the width of the windows +/- margin
-margin = 100
-# Set minimum number of pixels found to recenter window
-minpix = 20
-
-xm_per_pix = 1  # meters per pixel in x dimension
-
-
 def nothing(x):
     pass
 
@@ -35,6 +25,7 @@ def nothing(x):
 class Individual_Follower():
 
     def __init__(self):
+
         self._fit = None
         self._binary_warped = None
 
@@ -42,6 +33,14 @@ class Individual_Follower():
         self._binary_warped = binwarp
 
     def Plot_Line(self, smoothen=False, prevFrameCount=6):
+        # Number of windows for sliding windows
+        nwindows = 9
+        # Set the width of the windows +/- margin
+        margin = 100
+        # Set minimum number of pixels found to recenter window
+        minpix = 20
+        xm_per_pix = 1  # meters per pixel in x dimension
+
         histogram = np.sum(
             self._binary_warped[self._binary_warped.shape[0]//2:, :], axis=0)
         # Create an output image to draw on and  visualize the result
