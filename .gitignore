@@ -11,8 +11,4 @@
 .vscode
 __pycache__
 build
-<<<<<<< HEAD
 indent.log
-=======
-ros2/lanefollowingtest/LaneVideo.mp4
->>>>>>> eb5d0c1c (modified Lanedetection to be more stable)
