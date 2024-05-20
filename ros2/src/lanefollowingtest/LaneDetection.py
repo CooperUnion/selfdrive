@@ -9,14 +9,6 @@ import cv2
 import numpy as np
 from std_msgs.msg import String
 
-# Inputs from both cameras
-vidcap_left = cv2.VideoCapture("/dev/video0")
-vidcap_left.set(3, 640)
-vidcap_left.set(4, 480)
-vidcap_right = cv2.VideoCapture("/dev/video1")
-vidcap_right.set(3, 640)
-vidcap_right.set(4, 480)
-
 
 def nothing(x):
     pass
@@ -29,6 +21,7 @@ class Individual_Follower():
         self._fit = None
         self._binary_warped = None
 
+    @property
     def set_binwarp(self, binwarp):
         self._binary_warped = binwarp
 
@@ -39,8 +32,7 @@ class Individual_Follower():
         margin = 100
         # Set minimum number of pixels found to recenter window
         minpix = 20
-        xm_per_pix = 1  # meters per pixel in x dimension
-
+        
         histogram = np.sum(
             self._binary_warped[self._binary_warped.shape[0]//2:, :], axis=0)
         # Create an output image to draw on and  visualize the result
@@ -110,7 +102,7 @@ class Individual_Follower():
                                                           ploty])))])
         line_pts = np.hstack((line_window1, line_window2))
 
-        # Draw the lane onto the warped blank image
+        # Draw the lane onto the warped blank imleft_bufferage
         cv2.fillPoly(window_img, np.int_([line_pts]), (0, 255, 0))
         line_pts = np.array(
             [np.transpose(np.vstack([fitx, ploty]))], dtype=np.int32)
@@ -122,52 +114,66 @@ class Individual_Follower():
         return result
 
 
-# These are constants for the timer callback: Should be modified by UI
-l_h = 0
-l_s = 0
-l_v = 200
-
-u_h = 255
-u_s = 50
-u_v = 255
-
-lower = np.array([l_h, l_s, l_v])
-upper = np.array([u_h, u_s, u_v])
-
-# Coordinates for the 4 alignment points: again, should be handled by the UI
-bl = (12, 472)
-tl = (90, 8)
-br = (499, 475)
-tr = (435, 24)
-# Aplying perspective transformation
-pts1 = np.float32([tl, bl, tr, br])
-pts2 = np.float32([[0, 0], [0, 480], [640, 0], [640, 480]])
-# Matrix to warp the image for birdseye window
-matrix = cv2.getPerspectiveTransform(pts1, pts2)
-
 
 class Lane_Follower(Node):
     GUI = True
+    # These are upper HSV & lower HSV bounds, respectively
+    (l_h, l_s, l_v) = (0,0,200)
+    (u_h, u_s, u_v) = (255,0,255)
+
+    LOWER = np.array([l_h, l_s, l_v])
+    UPPER = np.array([u_h, u_s, u_v])
+
+    # Coordinates for the 4 alignment points: again, should be handled by the UI
+    bl = (12, 472)
+    tl = (90, 8)
+    br = (499, 475)
+    tr = (435, 24)
+    # Aplying perspective transformation
+    pts1 = np.float32([tl, bl, tr, br])
+    pts2 = np.float32([[0, 0], [0, 480], [640, 0], [640, 480]])
+
+    # Matrix to warp the image for birdseye window
+    UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
+
+    LANE_TOLERANCE = 10
+
+    #This is the lane follower Cstop/Estop trigger from crosstrack: 
+    #Effectively, it's an error beyond what our system is capable of returning, and we should trigger an Estop in the state machine if this value is ever read.
+    MISSING_IMAGE_TOLERANCE = 100
+    OVERFLOW = 1000
+    FORMAT = (640, 480)
+
+    PIXELS_TO_METERS = 6.625
+
 
     def __init__(self):
         super().__init__('lane_detection_node')
+
+        # Inputs from both cameras
+        vidcap_right = cv2.VideoCapture("/dev/video1")
+        vidcap_left = cv2.VideoCapture("/dev/video0")
+        #Setting the format for the images: we use 640 x 480 
+        vidcap_left.set(3, Lane_Follower.format[0])
+        vidcap_left.set(4,  Lane_Follower.format[1])
+        vidcap_right.set(3,  Lane_Follower.format[0])
+        vidcap_right.set(4,  Lane_Follower.format[1])
+
+        self._Left_Lane = False
         self._tolerance = 0
         self._left_follower = Individual_Follower()
         self._right_follower = Individual_Follower()
         # Determine which lane we're in: Left lane means the right image is dashed
-        self._Left_Lane = False
 
-        # The ratio from  pixels to inches
-        conversion = 6.625
+
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Publisher for error from the lane lines relative to the camera FOV
-        self.crosstrack_pub = self.create_publisher(
-            Float64, 'cross_track', 10)
-
+        #10 refers to the number of published references: standard value 
+        self.crosstrack_pub = self.create_publisher(Float64, 'cross_track', 10)
         self.lane_pubs = self.create_publisher(String, "lane_state", 10)
-        self.heading_pub = self.create_publisher(Float64, "heading")
+        self.heading_pub = self.create_publisher(Float64, "heading", 10)
 
         if Lane_Follower.GUI:
             self._bridge = CvBridge()
@@ -182,6 +188,7 @@ class Lane_Follower(Node):
                 self._bridge.cv2_to_imgmsg(img_raw, encoding="passthrough"))
 
     def measure_position_meters(self, left, right):
+
         left_x_pos = 0
         right_x_pos = 0
 
@@ -199,26 +206,23 @@ class Lane_Follower(Node):
             right_fit = self._right_follower._fit
             right_x_pos = right_fit[0]*y_max**2 + \
                 right_fit[1]*y_max + right_fit[2]
-            self.img_publish("sliding_right", right)
+            self.img_publish("sliding_right", right)            
 
         center_lanes_x_pos = (left_x_pos + right_x_pos)//2
         # Calculate the deviation between the center of the lane and the center of the picture
         # The car is assumed to be placed in the center of the picture
         # If the deviation is negative, the car is on the left hand side of the center of the lane
         veh_pos = (
-            (self._left_follower._binary_warped.shape[1]//2) - center_lanes_x_pos) * xm_per_pix
+            (self._left_follower._binary_warped.shape[1]//2) - center_lanes_x_pos) * Lane_Follower.PIXELS_TO_METERS
 
-        if (left is None):
-            veh_pos += 91
-        elif (right is None):
-            veh_pos -= 91
-        return veh_pos / 100
+        return veh_pos
 
     def determine_lane(self, img):
-        # Taking in both warped images, determine which lane line is the longer one, and ergo the "solid line"
+        # Taking in both warped images, determine which lane line is the longer one, and ergo the "solid line",
+        #Based on that line, return the heading.
         # This may struggle on turns, but might work depending: Will need to characterize
         # If this needs to be modified, can be converted to a contour size detection instead. That code exsits in Yolo_World_Detection already.
-        # TODO, parametrize all constants here for tweaking in the U.I
+
         edges = cv2.Canny(img, 50, 150)
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100,
                                 minLineLength=100, maxLineGap=5)
@@ -235,8 +239,8 @@ class Lane_Follower(Node):
         return m_length, math.degrees(heading)
 
     def timer_callback(self):
-        success_l, image_l = vidcap_left.read()
-        success_r, image_r = vidcap_right.read()
+        success_l, image_l = self.vidcap_left.read()
+        success_r, image_r = self.vidcap_right.read()
         image_r = cv2.flip(image_r, 0)
         images = [(image_l, "left"), (image_r, "right")]
         left_buffer = -1
@@ -248,16 +252,16 @@ class Lane_Follower(Node):
 
         for image in images:
             frame = image[0]
-            for point in (bl, tl, br, tr):
+            for point in (Lane_Follower.bl, Lane_Follower.tl, Lane_Follower.br, Lane_Follower.tr):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
             transformed_frame = cv2.rotate(cv2.warpPerspective(
-                frame, matrix, (640, 480)), cv2.ROTATE_90_CLOCKWISE)
+                frame, Lane_Follower.UNWRAP, Lane_Follower.FORMAT), cv2.ROTATE_90_CLOCKWISE)
             # Object Detection
             # Image Thresholding
             hsv_transformed_frame = cv2.cvtColor(
                 transformed_frame, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv_transformed_frame, lower, upper)
+            mask = cv2.inRange(hsv_transformed_frame, Lane_Follower.lower, Lane_Follower.upper)
             if image[1] == "left":
                 self._left_follower.set_binwarp(binwarp=mask)
                 left_buffer, left_heading = self.determine_lane(mask)
@@ -279,35 +283,30 @@ class Lane_Follower(Node):
             self.crosstrack_pub.publish(crosstrack)
             msg = String()
             # Checking if the difference is substantial enough to warrant a change
-            if (left_buffer - right_buffer > 10):
+            if (left_buffer - right_buffer > Lane_Follower.LANE_TOLERANCE):
                 msg.data = "In Left lane"
                 self.lane_pubs.publish(msg)
                 self._Left_Lane = True
 
-            elif (right_buffer - left_buffer > 10):
+            elif (right_buffer - left_buffer > Lane_Follower.LANE_TOLERANCE):
                 msg.data = "In Right lane"
                 self.lane_pubs.publish(msg)
                 self._Left_Lane = False
 
-            heading_out = Float64()
-            if (self._Left_Lane):
-                heading_out.data = left_heading
-            else:
-                heading_out.data = right_heading
-            self.heading_pub()
+            #Heading message
+            heading = Float64()
+            heading.data = left_heading if self._Left_Lane else right_heading
+            self.heading_pub(heading)
 
     # This is our way of handling a loss of data from both cameras
     # TODO: Incorporate this with Stanley as our error parameter.
+
         else:
             TOLERANCE = 100
             self._tolerance += 1
             if (self._tolerance > TOLERANCE):
-                crosstrack.data = 1000.0
+                crosstrack.data = Lane_Follower.OVERFLOW
                 self.crosstrack_pub.publish(crosstrack)
-
-        if cv2.waitKey(10) == 27:
-            return
-
 
 def main(args=None):
     rclpy.init(args=args)  # Initialize ROS2 program

@@ -13,12 +13,9 @@ while True:
             cv2.imshow("right",right[1])
         # time.sleep(.007)
 
-    
         left = vidcap_left.read()
         if(left[0]):
             cv2.imshow("left", left[1])
-
-
 
         if cv2.waitKey(10) == 27:
             break
