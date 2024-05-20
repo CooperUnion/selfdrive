@@ -1,5 +1,5 @@
-
 # from irobot_create_msgs.msg import WheelTicks, WheelTicks
+import math
 from std_msgs.msg import Float64
 from sensor_msgs.msg import Image
 import rclpy
@@ -10,12 +10,13 @@ import numpy as np
 from std_msgs.msg import String
 
 # Inputs from both cameras
-vidcap_left = cv2.VideoCapture("/dev/video3")
+vidcap_left = cv2.VideoCapture("/dev/video0")
 vidcap_left.set(3, 640)
 vidcap_left.set(4, 480)
-vidcap_right = cv2.VideoCapture("/dev/video2")
-vidcap_right.set(3, 640)
-vidcap_right.set(4, 480)
+vidcap_right = vidcap_left
+# vidcap_right = cv2.VideoCapture("/dev/video1")
+# vidcap_right.set(3, 640)
+# vidcap_right.set(4, 480)
 
 
 # These are constants
@@ -108,7 +109,7 @@ class Individual_Follower():
         line_window1 = np.array(
             [np.transpose(np.vstack([fitx-margin, ploty]))])
         line_window2 = np.array([(np.transpose(np.vstack([fitx+margin,
-                                                                   ploty])))])
+                                                          ploty])))])
         line_pts = np.hstack((line_window1, line_window2))
 
         # Draw the lane onto the warped blank image
@@ -158,15 +159,18 @@ class Lane_Follower(Node):
         # Determine which lane we're in: Left lane means the right image is dashed
         self._Left_Lane = False
 
-        ###The ratio from  pixels to inches
+        # The ratio from  pixels to inches
         conversion = 6.625
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Publisher for error from the lane lines relative to the camera FOV
-        self.camData_publisher = self.create_publisher(
-            Float64, '/cam_data', 10)
-        self.lane_pubs = self.create_publisher(String, "lane_state",10)
+        self.crosstrack_pub = self.create_publisher(
+            Float64, 'cross_track', 10)
+
+        self.lane_pubs = self.create_publisher(String, "lane_state", 10)
+        self.heading_pub = self.create_publisher(Float64, "heading")
+
         if Lane_Follower.GUI:
             self._bridge = CvBridge()
             image_labels = ("raw_left", "raw_right", "tf_left",
@@ -212,35 +216,40 @@ class Lane_Follower(Node):
             veh_pos -= 91
         return veh_pos / 100
 
-    def determine_lane_size(self, img):
+    def determine_lane(self, img):
         # Taking in both warped images, determine which lane line is the longer one, and ergo the "solid line"
         # This may struggle on turns, but might work depending: Will need to characterize
+        # If this needs to be modified, can be converted to a contour size detection instead. That code exsits in Yolo_World_Detection already.
         # TODO, parametrize all constants here for tweaking in the U.I
         edges = cv2.Canny(img, 50, 150)
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100,
                                 minLineLength=100, maxLineGap=5)
         m_length = 0
-        if(lines is not None):        
+        heading = 0
+        if (lines is not None):
             for line in lines:
                 x1, y1, x2, y2 = line[0]
                 length = (x1 - x2) ^ 2 + (y1-y2) ^ 2
                 m_length = max(m_length, length)
-        return m_length
+                if (m_length) == length:
+                    cos_theta = math.sqrt(length)/((y1-y2))
+                    heading = math.acos(cos_theta)
+        return m_length, math.degrees(heading)
 
     def timer_callback(self):
         success_l, image_l = vidcap_left.read()
         success_r, image_r = vidcap_right.read()
-        image_r = cv2.flip(image_r,0)
+        image_r = cv2.flip(image_r, 0)
         images = [(image_l, "left"), (image_r, "right")]
         left_buffer = -1
         right_buffer = -1
+        left_heading = -1
+        right_heading = -1
         if not (success_l and success_r):
             return
 
         for image in images:
             frame = image[0]
-            # frame = cv2.resize(image[0], (640, 480))
-            # I might've cooked with this list comprehension
             for point in (bl, tl, br, tr):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
@@ -253,37 +262,50 @@ class Lane_Follower(Node):
             mask = cv2.inRange(hsv_transformed_frame, lower, upper)
             if image[1] == "left":
                 self._left_follower.set_binwarp(binwarp=mask)
-                left_buffer = self.determine_lane_size(mask)
+                left_buffer, left_heading = self.determine_lane(mask)
             else:
                 self._right_follower.set_binwarp(binwarp=mask)
-                right_buffer = self.determine_lane_size(mask)
+                right_buffer, right_heading = self.determine_lane(mask)
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
         result_left = self._left_follower.Plot_Line()
         result_right = self._right_follower.Plot_Line()
-        msg_out = Float64()
+        crosstrack = Float64()
+
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if (result_left is not None or result_right is not None):
             pos = self.measure_position_meters(result_left, result_right)
             print(pos)
-            msg_out.data = pos
-            self.camData_publisher.publish(msg_out)
+            crosstrack.data = pos
+            self.crosstrack_pub.publish(crosstrack)
             msg = String()
-            if(left_buffer > right_buffer):
+            # Checking if the difference is substantial enough to warrant a change
+            if (left_buffer - right_buffer > 10):
                 msg.data = "In Left lane"
                 self.lane_pubs.publish(msg)
                 self._Left_Lane = True
-            elif (right_buffer > left_buffer):
+
+            elif (right_buffer - left_buffer > 10):
                 msg.data = "In Right lane"
                 self.lane_pubs.publish(msg)
                 self._Left_Lane = False
+
+            heading_out = Float64()
+            if (self._Left_Lane):
+                heading_out.data = left_heading
+            else:
+                heading_out.data = right_heading
+            self.heading_pub()
+
+    # This is our way of handling a loss of data from both cameras
+    # TODO: Incorporate this with Stanley as our error parameter.
         else:
             TOLERANCE = 100
             self._tolerance += 1
             if (self._tolerance > TOLERANCE):
-                msg_out.data = 1000.0
-                self.camData_publisher.publish(msg_out)
+                crosstrack.data = 1000.0
+                self.crosstrack_pub.publish(crosstrack)
 
         if cv2.waitKey(10) == 27:
             return
