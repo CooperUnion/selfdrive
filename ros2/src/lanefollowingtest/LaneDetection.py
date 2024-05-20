@@ -13,10 +13,9 @@ from std_msgs.msg import String
 vidcap_left = cv2.VideoCapture("/dev/video0")
 vidcap_left.set(3, 640)
 vidcap_left.set(4, 480)
-vidcap_right = vidcap_left
-# vidcap_right = cv2.VideoCapture("/dev/video1")
-# vidcap_right.set(3, 640)
-# vidcap_right.set(4, 480)
+vidcap_right = cv2.VideoCapture("/dev/video1")
+vidcap_right.set(3, 640)
+vidcap_right.set(4, 480)
 
 
 # These are constants
