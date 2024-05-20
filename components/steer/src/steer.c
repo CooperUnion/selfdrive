@@ -134,7 +134,9 @@ static float encoder2deg(void)
 	int16_t ticks
 	    = ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
 
-	float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
+	// left angles are positive
+	float deg
+	    = -1 * (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
 	return deg;
 }
