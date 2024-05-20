@@ -4,6 +4,8 @@ from rclpy.node import Node
 from controller.stanley import StanleyController, coterminal_angle
 from controller.clothoid_path_planner import generate_clothoid_path
 
+from tf_transformations import euler_from_quaternion
+
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry, Path
 from std_msgs.msg import Float32MultiArray
@@ -65,18 +67,36 @@ class LaneChange(Node):
 
         # Path Info
         self.n_points = 99  # Arbitrary number of waypoints
-        self.max_dist = 1  # max distance from goal point set in meters
+        self.max_dist = 5  # FIX max distance from goal point set in meters
         self.pathx = np.zeros(self.n_points)
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
 
+        self.init = 0
+
     def odom_callback(self, msg):
         self.xpos = msg.pose.pose.position.x
         self.ypos = msg.pose.pose.position.y
-        self.yaw = msg.pose.pose.orientation.z
+
+        quaternion = (
+            msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y,
+            msg.pose.pose.orientation.z,
+            msg.pose.pose.orientation.w,
+        )
+        euler = euler_from_quaternion(quaternion)
+
+        self.yaw = euler[2]
         self.vel = msg.twist.twist.linear.x
 
-        self.get_logger().info('Received: "%s"' % self.msg)
+        if self.init == 0:
+            relative_x = 10
+            relative_y = 0
+            end_yaw = 0
+            self.create_path(relative_x, relative_y, end_yaw)
+            self.init = 1
+
+        # self.get_logger().info('Received: "%s"' % msg)
 
     def create_path(self, relative_x, relative_y, end_yaw):
         # wheelbase = 1.27  # double check measurement
@@ -102,9 +122,14 @@ class LaneChange(Node):
         )
         self.pathyaw = calculate_yaw(self.pathx, self.pathy, start_yaw)
 
+        print(f"xpos: {self.xpos}, start_x: {self.pathx[0]}")
+        print(f"yaw: {self.yaw}, start_yaw: {self.pathyaw[0]}")
+
     def follow_path_callback(self):
 
-        stanley = StanleyController(self.pathx, self.pathy, self.pathyaw)
+        stanley = StanleyController(
+            self.pathx, self.pathy, self.pathyaw, self.max_dist
+        )
         cmd = Float32MultiArray()
 
         # while np.hypot(self.pathx[-1]-self.xpos, self.pathy[-1]-self.ypos) > self.max_dist:
@@ -112,7 +137,10 @@ class LaneChange(Node):
         [steer_next, vel_next] = stanley.curvature(
             self.xpos, self.ypos, self.yaw, self.vel
         )
-        cmd.data = [steer_next, vel_next]
+        cmd.data = [
+            steer_next,
+            vel_next,
+        ]  # Ensure signs are correct based on right hand rule
         print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
         # self.cmd_publisher.publish(cmd)
 
@@ -152,11 +180,6 @@ def main(args=None):
     rclpy.init(args=args)
 
     lane_change = LaneChange()
-
-    relative_x = 5
-    relative_y = 2
-    end_yaw = 0
-    lane_change.create_path(relative_x, relative_y, end_yaw)
 
     rclpy.spin(lane_change)
 
