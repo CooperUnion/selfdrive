@@ -8,7 +8,6 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 from std_msgs.msg import String
-from numpy.polynomial import Polynomial
 
 
 def nothing(x):
@@ -34,12 +33,14 @@ class Individual_Follower:
         minpix = 20
 
         histogram = np.sum(
-            self._binary_warped[self._binary_warped.shape[0] // 2:, :], axis=0
+            self._binary_warped[self._binary_warped.shape[0] // 2 :, :], axis=0
         )
         # Create an output image to draw on and visualize the result
         out_img = (
-            np.dstack((self._binary_warped, self._binary_warped,
-                      self._binary_warped)) * 255
+            np.dstack(
+                (self._binary_warped, self._binary_warped, self._binary_warped)
+            )
+            * 255
         )
         base = np.argmax(histogram[:])
 
@@ -53,8 +54,8 @@ class Individual_Follower:
         nonzerox = np.array(nonzero[1])
         current = base
 
-        # Used for calculating the number of "empty windows". 
-        #Relevant for our lane determination: the more empty windows, the more likely this is the dashed line
+        # Used for calculating the number of "empty windows".
+        # Relevant for our lane determination: the more empty windows, the more likely this is the dashed line
         empty_windows = 0
         # Step through the windows one by one
         for window in range(nwindows):
@@ -98,14 +99,14 @@ class Individual_Follower:
 
         # Fit a second order polynomial to each
         if x_pos.any() and y_pos.any():
-            self._fit = Polynomial.fit(y_pos, x_pos, 2)
+            self._fit = np.polyfit(y_pos, x_pos, 2)
         else:
-            return None, empty_windows
+            return None, empty_windows, 0
 
         ploty = np.linspace(
             0, self._binary_warped.shape[0] - 1, self._binary_warped.shape[0]
-        )        
-        fitx = self._fit[0] * ploty**2 + self._fit[1] * ploty + self._fit[2]
+        )
+        fitx = np.polyval(self._fit, ploty)
         out_img[nonzeroy[lane_inds], nonzerox[lane_inds]] = [255, 0, 0]
 
         nonzero = self._binary_warped.nonzero()
@@ -132,24 +133,25 @@ class Individual_Follower:
         cv2.polylines(
             out_img, line_pts, isClosed=False, color=(0, 255, 255), thickness=3
         )
-        #Evaluating heading error:
+        # Evaluating heading error:
 
-        #This is the first window coordinates
-        x1 = self._binary_warped.shape[0] - (nwindows) * window_height
-        #This is the second window coordinates
-        x2 = self._binary_warped.shape[0] - (nwindows+1) * window_height
-        y1 = np.polyval(x1,self._fit)
-        y2= np.polyval(x2,self._fit)
-        
-        heading = math.atan((y2-y1)/(x2-x1))
+        # This is the first window coordinates
+        y1 = self._binary_warped.shape[0] - (nwindows) * window_height
+        # This is the second window coordinates
+        y2 = self._binary_warped.shape[0] - (nwindows + 1) * window_height
+        # Returns polynomial values at a point
+        x1 = np.polyval(self._fit, y1)
+        x2 = np.polyval(self._fit, y2)
+
+        heading = math.atan((x2 - x1) / (y2 - y1)) * 180 / (math.pi)
         result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
-        return result, empty_windows,heading
+        return result, empty_windows, heading
 
 
 class Lane_Follower(Node):
     GUI = True
     # These are upper HSV & lower HSV bounds, respectively
-    (l_h, l_s, l_v) = (0, 0, 220)
+    (l_h, l_s, l_v) = (0, 0, 180)
     (u_h, u_s, u_v) = (255, 255, 255)
 
     LOWER = np.array([l_h, l_s, l_v])
@@ -181,7 +183,7 @@ class Lane_Follower(Node):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_right = cv2.VideoCapture("/dev/video0")
+        self.vidcap_right = cv2.VideoCapture("/dev/video4")
         self.vidcap_left = cv2.VideoCapture("/dev/video2")
         # Setting the format for the images: we use 640 x 480
         self.vidcap_left.set(3, Lane_Follower.FORMAT[0])
@@ -189,7 +191,7 @@ class Lane_Follower(Node):
         self.vidcap_right.set(3, Lane_Follower.FORMAT[0])
         self.vidcap_right.set(4, Lane_Follower.FORMAT[1])
 
-        self._Left_Lane = False
+        self._Left_Lane = True
         self._tolerance = 0
         self._left_follower = Individual_Follower()
         self._right_follower = Individual_Follower()
@@ -213,6 +215,8 @@ class Lane_Follower(Node):
                 "tf_right",
                 "sliding_left",
                 "sliding_right",
+                "mask_left",
+                "mask_right",
             )
             self._publishers = {
                 label: self.create_publisher(Image, "/" + label, 10)
@@ -236,16 +240,15 @@ class Lane_Follower(Node):
         # Will be the same for left side & right sidmath.acos the bottom of the image
         if left is not None:
             left_fit = self._left_follower._fit
-            left_x_pos = (
-                left_fit[0] * y_max**2 + left_fit[1] * y_max + left_fit[2]
-            )
+            # This is the first window coordinates
+            left_x_pos = np.polyval(
+                left_fit, y_max
+            )  # This is the second window coordinates
             self.img_publish("sliding_left", left)
 
         if right is not None:
             right_fit = self._right_follower._fit
-            right_x_pos = (
-                right_fit[0] * y_max**2 + right_fit[1] * y_max + right_fit[2]
-            )
+            right_x_pos = np.polyval(right_fit, y_max)
             self.img_publish("sliding_right", right)
 
         center_lanes_x_pos = (left_x_pos + right_x_pos) // 2
@@ -258,40 +261,6 @@ class Lane_Follower(Node):
         ) / Lane_Follower.PIXELS_TO_METERS
 
         return veh_pos
-
-    # def determine_lane(self, img, label):
-    #     # Taking in both warped images, determine which lane line is the longer one, and ergo the "solid line",
-    #     # Based on that line, return the heading.
-
-    #     edges = cv2.Canny(img, 50, 150)
-    #     lines = cv2.HoughLinesP(
-    #         edges, 1, np.pi / 180, 100, minLineLength=50, maxLineGap=5
-    #     )
-    #     m_length = 0
-    #     heading = 0
-    #     maxs = [0, 0, 0, 0]
-    #     if lines is not None:
-    #         for line in lines:
-    #             x1, y1, x2, y2 = line[0]
-    #             length = (x1 - x2) ^ 2 + (y1 - y2) ^ 2
-    #             m_length = max(m_length, length)
-    #             if (m_length) == length:
-    #                 maxs[0] = x1
-    #                 maxs[1] = y1
-    #                 maxs[2] = x2
-    #                 maxs[3] = y2
-    #                 cos_theta = math.sqrt(length) / ((y1 - y2))
-    #                 heading = math.acos(cos_theta)
-    #         img_disp = cv2.line(
-    #             img,
-    #             (maxs[0], maxs[1]),
-    #             (maxs[2], maxs[3]),
-    #             (0, 0, 255),
-    #             thickness=10,
-    #         )
-    #         cv2.imshow("LANE DETERMINATION" + label, img_disp)
-
-    #     return m_length, math.degrees(heading)
 
     def timer_callback(self):
         success_l, image_l = self.vidcap_left.read()
@@ -327,7 +296,8 @@ class Lane_Follower(Node):
             mask = cv2.inRange(
                 hsv_transformed_frame, Lane_Follower.LOWER, Lane_Follower.UPPER
             )
-            # cv2.imshow("MASKED IMAGE" + image[1],mask)
+            self.img_publish("mask_" + image[1], mask)
+
             if image[1] == "left":
                 self._left_follower.set_binwarp(mask)
             else:
@@ -336,30 +306,37 @@ class Lane_Follower(Node):
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
-        result_left, empty_left,left_heading = self._left_follower.Plot_Line()
-        result_right, empty_right, right_heading = self._right_follower.Plot_Line()
+        result_left, empty_left, left_heading = self._left_follower.Plot_Line()
+        result_right, empty_right, right_heading = (
+            self._right_follower.Plot_Line()
+        )
         crosstrack = Float64()
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
             heading = Float64()
             pos = self.measure_position_meters(result_left, result_right)
-            print(pos)
+            print("LEFT ERROR IS: " + str(empty_left))
+            print("RIGHT ERROR IS: " + str(empty_right))
             crosstrack.data = pos
 
             self.crosstrack_pub.publish(crosstrack)
-            self._Left_Lane = True if empty_left < empty_right else self._Left_Lane
-            self._Left_Lane = False if empty_left > empty_right else self._Left_Lane
+            self._Left_Lane = (
+                True if empty_left < empty_right else self._Left_Lane
+            )
+            self._Left_Lane = (
+                False if empty_left > empty_right else self._Left_Lane
+            )
 
             heading = Float64()
             Lane = String()
-            if(self._Left_Lane):
-                Lane.msg = "In Left Lane"
-                heading.data = left_heading 
-            else:
-                Lane.msg = "In Right Lane"
-                heading.data = right_heading 
 
-            
+            if self._Left_Lane:
+                Lane.data = "In Left Lane"
+                heading.data = left_heading
+            else:
+                Lane.data = "In Right Lane"
+                heading.data = right_heading
+
             self.lane_pub.publish(Lane)
             self.heading_pub.publish(heading)
 
