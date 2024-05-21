@@ -1,0 +1,10 @@
+build/
+devel/
+docker/*/cand/
+docker/*/cantools/
+docker/*/igvcutils/
+install/
+log/
+*/*/build
+*/*/install
+*/*/log
