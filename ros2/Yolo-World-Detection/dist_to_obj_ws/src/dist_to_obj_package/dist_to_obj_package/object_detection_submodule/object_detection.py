@@ -3,6 +3,7 @@ import cv2
 from ultralytics import YOLO
 import supervision as sv
 import math
+from ..ocr_submodule.ocr import OCR
  
 class ObjectDetection():
  
@@ -27,9 +28,7 @@ class ObjectDetection():
             exit()
         self.runtime = sl.RuntimeParameters()
         # self.runtime.enable_fill_mode
-        
- 
- 
+
     def _display(self):
         bounding_box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator(text_position=sv.Position.TOP_CENTER)
@@ -42,28 +41,39 @@ class ObjectDetection():
         self.annotated_frame = label_annotator.annotate(
             scene=bounding_box_img,
             detections=self.detections
-        )        
+        )       
 
-        for detection in self.detections:
+        if not(len(self.detections) == 0):  
+            for detection in self.detections:
+                bbox = detection[0]
+                dist = self.distance_to_objects(bbox)
+                self.obj_name = self.model.names[detection[3]]
 
-            bbox = detection[0]
 
+                if "sign" in self.ocr.output:
+                    self.obj_name = self.ocr.output
+                else:
+                    self.obj_name = self.model.names[detection[3]]
+                    
 
-            dist = self.distance_to_objects(bbox)
+                distance_text = f"Distance: {dist:.2f} meters"
+                confidence_text = f"Confidence: {detection[2]:.2f}"
+                combined_text = f"{distance_text}\n{confidence_text}"
+
+                
+
+                # Add the combined text to the annotated frame
+                cv2.putText(self.annotated_frame, combined_text, (int(bbox[0]), int(bbox[1] - 10)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                
+        # this should be the default output when no detections occur 
+        else:
+            self.distance = math.nan
+            self.obj_name = "No Object"
+            self.center_x = -1.00
+            self.center_y = -1.00
+
             
-
-            self.obj_name = self.model.names[detection[3]]
-            
-
-            
-            distance_text = f"Distance: {dist:.2f} meters"
-            confidence_text = f"Confidence: {detection[2]:.2f}"
-            combined_text = f"{distance_text}\n{confidence_text}"
-            
-
-            # Add the combined text to the annotated frame
-            cv2.putText(self.annotated_frame, combined_text, (int(bbox[0]), int(bbox[1] - 10)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
  
         cv2.imshow("IMAGE", self.annotated_frame)       
 
@@ -98,6 +108,9 @@ class ObjectDetection():
 
         except IndexError: 
             self.distance = math.nan
+            self.obj_name = "No Object"
+            self.center_x = -1
+            self.center_y = -1
 
         return self.distance
     
@@ -110,6 +123,8 @@ class ObjectDetection():
         # win_name = "Camera Control"
         self.model=YOLO('best.pt')
         self.model.to('cpu')
+
+        self.ocr = OCR()
         
         # self.model.set_classes(["person"])
 
@@ -130,9 +145,9 @@ class ObjectDetection():
             self.cam.retrieve_image(self.image_left_tmp, sl.VIEW.LEFT)
             image_net = self.image_left_tmp.get_data()
             self.img = cv2.cvtColor(image_net, cv2.COLOR_RGBA2RGB)
+            self.ocr(self.img)
             cvPoint = self.point_cloud.get_data()
-
-
+            
             center = self.img.shape
             x = center[1]/2 
             y = center[0]/2
@@ -147,6 +162,7 @@ class ObjectDetection():
 
 
             self.detections = sv.Detections.from_ultralytics(results[0])
+            
 
         # else:
         #     print("Error during capture : ", err)
