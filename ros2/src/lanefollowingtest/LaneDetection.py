@@ -22,7 +22,7 @@ class Individual_Follower:
         self._fit = None
         self._binary_warped = None
 
-    def set_binwarp(self, binwarp):
+    def set_binwarp(self, binwarp: np.ndarray):
         self._binary_warped = binwarp
 
     def Plot_Line(self, smoothen=False, prevFrameCount=6):
@@ -100,7 +100,7 @@ class Individual_Follower:
         if x_pos.any() and y_pos.any():
             self._fit = Polynomial.fit(y_pos, x_pos, 2)
         else:
-            return None, None
+            return None, empty_windows
 
         ploty = np.linspace(
             0, self._binary_warped.shape[0] - 1, self._binary_warped.shape[0]
@@ -124,7 +124,7 @@ class Individual_Follower:
         line_pts = np.hstack((line_window1, line_window2))
 
         # Draw the lane onto the warped blank imleft_bufferage
-        cv2.fillPoly(window_img, np.int_([line_pts]), (0, 255, 0))
+        cv2.fillPoly(window_img, np.int_([line_pts]), color=(0, 255, 0))
         line_pts = np.array(
             [np.transpose(np.vstack([fitx, ploty]))], dtype=np.int32
         )
@@ -132,9 +132,18 @@ class Individual_Follower:
         cv2.polylines(
             out_img, line_pts, isClosed=False, color=(0, 255, 255), thickness=3
         )
+        #Evaluating heading error:
 
+        #This is the first window coordinates
+        x1 = self._binary_warped.shape[0] - (nwindows) * window_height
+        #This is the second window coordinates
+        x2 = self._binary_warped.shape[0] - (nwindows+1) * window_height
+        y1 = np.polyval(x1,self._fit)
+        y2= np.polyval(x2,self._fit)
+        
+        heading = math.atan((y2-y1)/(x2-x1))
         result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
-        return result, empty_windows
+        return result, empty_windows,heading
 
 
 class Lane_Follower(Node):
@@ -192,7 +201,7 @@ class Lane_Follower(Node):
         # Publisher for error from the lane lines relative to the camera FOV
         # 10 refers to the number of published references: standard value
         self.crosstrack_pub = self.create_publisher(Float64, 'cross_track', 10)
-        self.lane_pubs = self.create_publisher(String, "lane_state", 10)
+        self.lane_pub = self.create_publisher(String, "lane_state", 10)
         self.heading_pub = self.create_publisher(Float64, "heading", 10)
 
         if Lane_Follower.GUI:
@@ -222,10 +231,9 @@ class Lane_Follower(Node):
         left_x_pos = 0
         right_x_pos = 0
 
-        # Will be the same for left side & right side
         y_max = self._left_follower._binary_warped.shape[0]
 
-        # Calculate left and right line positions at the bottom of the image
+        # Will be the same for left side & right sidmath.acos the bottom of the image
         if left is not None:
             left_fit = self._left_follower._fit
             left_x_pos = (
@@ -290,8 +298,6 @@ class Lane_Follower(Node):
         success_r, image_r = self.vidcap_right.read()
         image_r = cv2.flip(image_r, 0)
         images = [(image_l, "left"), (image_r, "right")]
-        left_buffer = -1
-        right_buffer = -1
         left_heading = -1
         right_heading = -1
         if not (success_l and success_r):
@@ -324,33 +330,37 @@ class Lane_Follower(Node):
             # cv2.imshow("MASKED IMAGE" + image[1],mask)
             if image[1] == "left":
                 self._left_follower.set_binwarp(mask)
-                left_buffer, left_heading = self.determine_lane(mask, "left")
             else:
                 self._right_follower.set_binwarp(mask)
-                right_buffer, right_heading = self.determine_lane(
-                    mask, "right"
-                )
+
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
-        result_left, empty_left = self._left_follower.Plot_Line()
-        result_right, empty_right = self._right_follower.Plot_Line()
+        result_left, empty_left,left_heading = self._left_follower.Plot_Line()
+        result_right, empty_right, right_heading = self._right_follower.Plot_Line()
         crosstrack = Float64()
-        heading = Float64()
-
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
+            heading = Float64()
             pos = self.measure_position_meters(result_left, result_right)
             print(pos)
             crosstrack.data = pos
-            self.crosstrack_pub.publish(crosstrack)
 
+            self.crosstrack_pub.publish(crosstrack)
             self._Left_Lane = True if empty_left < empty_right else self._Left_Lane
             self._Left_Lane = False if empty_left > empty_right else self._Left_Lane
 
-            # Heading message
             heading = Float64()
-            heading.data = left_heading if self._Left_Lane else right_heading
+            Lane = String()
+            if(self._Left_Lane):
+                Lane.msg = "In Left Lane"
+                heading.data = left_heading 
+            else:
+                Lane.msg = "In Right Lane"
+                heading.data = right_heading 
+
+            
+            self.lane_pub.publish(Lane)
             self.heading_pub.publish(heading)
 
         else:
