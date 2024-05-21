@@ -10,18 +10,21 @@ import cv2
 import sys
 from cv_bridge import CvBridge
 from yolo_interfaces.msg import Yolo
- 
+
+
 class Dist_To_Object(Node):
-    def __init__(self,model):
+    def __init__(self, model):
         super().__init__('dist_to_obj_node')
         self._bridge = CvBridge()
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.img_publisher = self.create_publisher(Image, "/obj_detection_img", 10)
-        self.distToObj_publisher = self.create_publisher(Yolo, '/dist_to_obj',10)
+        self.img_publisher = self.create_publisher(
+            Image, "/obj_detection_img", 10)
+        self.distToObj_publisher = self.create_publisher(
+            Yolo, '/dist_to_obj', 10)
         self.model = model
         self.model.init_model()
- 
+
     def timer_callback(self):
         msg = Yolo()
 
@@ -38,10 +41,9 @@ class Dist_To_Object(Node):
 
         # Run object detection
         self.model.objectDetection()
-        image  = self.model.annotated_frame
+        image = self.model.annotated_frame
         image = self._bridge.cv2_to_imgmsg(image, encoding="passthrough")
         self.img_publisher.publish(image)
-
 
         msg.dist = self.model.distance
         msg.name = self.model.obj_name
@@ -56,7 +58,6 @@ class Dist_To_Object(Node):
         self.get_logger().info('Name to object: %s \n' % msg.name)
         self.get_logger().info("\n ----------------------------------------------\n")
 
-        
 
 def main(args=None):
     # rclpy.init(args=args)  # Initialize ROS2 program
@@ -73,6 +74,7 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
- 
+
+
 if __name__ == '__main__':
     main()
