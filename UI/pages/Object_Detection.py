@@ -29,9 +29,9 @@ if __name__ == "__main__":
 if 'button' not in st.session_state:
     st.session_state.button = False
 
+
 def click_button():
     st.session_state.button = not st.session_state.button
-    
 
 
 st.button('Object Detection', type="primary", on_click=click_button)
@@ -41,9 +41,8 @@ if st.session_state.button:
     os.chdir('../../Yolo-World-Detection/dist_to_obj_ws')
     call('colcon build', shell=True)
     call('ls -a', shell=True)
-    time.sleep(0.05) #making it wait just in case it requires it to make the package
+    # making it wait just in case it requires it to make the package
+    time.sleep(0.05)
     call("source install/setup.bash", shell=True)
-    time.sleep(0.05) #same as above
+    time.sleep(0.05)  # same as above
     call("ros2 run dist_to_obj_package dist_to_obj_node", shell=True)
-
-

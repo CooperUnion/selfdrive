@@ -39,12 +39,12 @@ def runner():
                 Read about list comprehension and get good.    ''')
     st.divider()
     st.header("Tasks")
-    st.success( '''
+    st.success('''
                 #1: Connecting all datastreams from the lane_detection algorithm into here.''')
-    st.success( '''
+    st.success('''
                 #1.5: Lane detection algorithm data stored into an Image(makeshift array for same purpose), and able to be transferred to ROS.''')
     st.warning(
-                '''      
+        '''      
                 #2: Parametrizing all constants in that: anything that had a slider should be here, and it should be published.   ''')
     st.markdown('''
                 #3: Beautifying, and building more tabs & systems so this is the only interface we need with the car. 
