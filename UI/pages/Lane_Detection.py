@@ -1,5 +1,4 @@
 import streamlit as st
-import cv2
 from sensor_msgs.msg import Image
 import rclpy
 from rclpy.node import Node
