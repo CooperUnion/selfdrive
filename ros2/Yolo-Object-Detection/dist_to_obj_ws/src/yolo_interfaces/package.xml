@@ -4,8 +4,7 @@
   <name>yolo_interfaces</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="vaibhav.hariani@gmail.com">eeadmin</maintainer>
-  <license>Apache-2.0</license>
+  <maintainer email="isaiah.rivera@cooper.edu">Isaiah Rivera</maintainer>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
