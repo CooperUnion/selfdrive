@@ -9,11 +9,6 @@ import cv2
 import numpy as np
 from std_msgs.msg import String
 
-
-def nothing(x):
-    pass
-
-
 class Individual_Follower:
 
     def __init__(self):
