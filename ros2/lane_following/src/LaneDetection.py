@@ -21,8 +21,7 @@ class Individual_Follower:
         self._fit = None
         self._binary_warped = None
 
-    @property
-    def set_binwarp(self, binwarp):
+    def set_binwarp(self, binwarp: np.ndarray):
         self._binary_warped = binwarp
 
     def Plot_Line(self, smoothen=False, prevFrameCount=6):
@@ -36,7 +35,7 @@ class Individual_Follower:
         histogram = np.sum(
             self._binary_warped[self._binary_warped.shape[0] // 2 :, :], axis=0
         )
-        # Create an output image to draw on and  visualize the result
+        # Create an output image to draw on and visualize the result
         out_img = (
             np.dstack(
                 (self._binary_warped, self._binary_warped, self._binary_warped)
@@ -75,17 +74,20 @@ class Individual_Follower:
                 (0, 255, 0),
                 2,
             )
-            # Identify the nonzero pixels in x and y within the window
+            # Identify the nonzero pixels in x and y within the window: inclusive of lower bounds
             good_inds = (
                 (nonzeroy >= win_y_low)
                 & (nonzeroy < win_y_high)
                 & (nonzerox >= win_x_low)
                 & (nonzerox < win_x_high)
             ).nonzero()[0]
+
             # Append these indices to the lists
             lane_inds.append(good_inds)
             if len(good_inds) > minpix:
                 current = np.int32(np.mean(nonzerox[good_inds]))
+            else:
+                empty_windows += 1
 
         # Concatenate the arrays of indices
         if len(lane_inds) > 0:
@@ -123,7 +125,7 @@ class Individual_Follower:
         line_pts = np.hstack((line_window1, line_window2))
 
         # Draw the lane onto the warped blank imleft_bufferage
-        cv2.fillPoly(window_img, np.int_([line_pts]), (0, 255, 0))
+        cv2.fillPoly(window_img, np.int_([line_pts]), color=(0, 255, 0))
         line_pts = np.array(
             [np.transpose(np.vstack([fitx, ploty]))], dtype=np.int32
         )
@@ -201,7 +203,7 @@ class Lane_Follower(Node):
         # Publisher for error from the lane lines relative to the camera FOV
         # 10 refers to the number of published references: standard value
         self.crosstrack_pub = self.create_publisher(Float64, 'cross_track', 10)
-        self.lane_pubs = self.create_publisher(String, "lane_state", 10)
+        self.lane_pub = self.create_publisher(String, "lane_state", 10)
         self.heading_pub = self.create_publisher(Float64, "heading", 10)
 
         if Lane_Follower.GUI:
@@ -233,10 +235,9 @@ class Lane_Follower(Node):
         left_x_pos = 0
         right_x_pos = 0
 
-        # Will be the same for left side & right side
         y_max = self._left_follower._binary_warped.shape[0]
 
-        # Calculate left and right line positions at the bottom of the image
+        # Will be the same for left side & right sidmath.acos the bottom of the image
         if left is not None:
             left_fit = self._left_follower._fit
             # This is the first window coordinates
@@ -266,8 +267,6 @@ class Lane_Follower(Node):
         success_r, image_r = self.vidcap_right.read()
         image_r = cv2.flip(image_r, 0)
         images = [(image_l, "left"), (image_r, "right")]
-        left_buffer = -1
-        right_buffer = -1
         left_heading = -1
         right_heading = -1
         if not (success_l and success_r):
@@ -301,12 +300,9 @@ class Lane_Follower(Node):
 
             if image[1] == "left":
                 self._left_follower.set_binwarp(mask)
-                left_buffer, left_heading = self.determine_lane(mask, "left")
             else:
                 self._right_follower.set_binwarp(mask)
-                right_buffer, right_heading = self.determine_lane(
-                    mask, "right"
-                )
+
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
@@ -315,13 +311,14 @@ class Lane_Follower(Node):
             self._right_follower.Plot_Line()
         )
         crosstrack = Float64()
-
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
+            heading = Float64()
             pos = self.measure_position_meters(result_left, result_right)
             print("LEFT ERROR IS: " + str(empty_left))
             print("RIGHT ERROR IS: " + str(empty_right))
             crosstrack.data = pos
+
             self.crosstrack_pub.publish(crosstrack)
             self._Left_Lane = (
                 True if empty_left < empty_right else self._Left_Lane
@@ -342,11 +339,6 @@ class Lane_Follower(Node):
 
             self.lane_pub.publish(Lane)
             self.heading_pub.publish(heading)
-
-            # This is our way of handling a loss of data from both cameras
-            # TODO: Incorporate this with Stanley as our error parameter.
-            if cv2.waitKey(10) == 27:
-                return
 
         else:
             TOLERANCE = 100
