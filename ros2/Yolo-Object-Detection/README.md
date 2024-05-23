@@ -30,4 +30,4 @@ Sometimes this error will pop up when trying to start object detection:
 NO GPU DETECTED
 ```
 
-While it doesn't happen often in the even that it does starting the computer fixes it. 
+While it doesn't happen often in the even that it does restarting the computer fixes it. 
