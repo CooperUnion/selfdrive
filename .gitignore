@@ -1,3 +1,4 @@
+*.bak
 *.egg-info
 .cargo
 .direnv

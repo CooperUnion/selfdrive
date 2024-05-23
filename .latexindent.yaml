@@ -1,0 +1,12 @@
+---
+
+onlyOneBackUp: 1
+
+defaultIndent: '  '
+removeTrailingWhitespace: 1
+
+modifyLineBreaks:
+  preserveBlankLines: 1
+  condenseMultipleBlankLinesInto: 1
+  textWrapOptions:
+    columns: 72
