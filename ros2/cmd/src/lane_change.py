@@ -3,14 +3,14 @@ from rclpy.node import Node
 
 from controller.stanley import StanleyController, coterminal_angle
 from controller.clothoid_path_planner import generate_clothoid_path
-
-from tf_transformations import euler_from_quaternion
+from odom_sub import OdomSubscriber
 
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry, Path
+from nav_msgs.msg import Path
 from std_msgs.msg import Float32MultiArray
 
 import math
+import time
 import numpy as np
 from collections import namedtuple
 
@@ -31,15 +31,8 @@ def calculate_yaw(pathx, pathy, start_yaw):
 
 
 class LaneChange(Node):
-    def __init__(self):
+    def __init__(self, odom_sub):
         super().__init__('lane_change_node')
-
-        self.odom_subscription = self.create_subscription(
-            Odometry,
-            '/encoder_odom',  # Temporary until we can replace with filtered odometry message
-            self.odom_callback,
-            10,
-        )
 
         self.path_publisher = self.create_publisher(
             Path, '/lane_change_path', 10
@@ -49,21 +42,7 @@ class LaneChange(Node):
             Float32MultiArray, '/cmd_stanley', 10
         )
 
-        timer_period = 0.01  # seconds
-        self.lane_timer = self.create_timer(
-            timer_period, self.follow_path_callback
-        )
-
-        timer_period = 1
-        self.path_timer = self.create_timer(
-            timer_period, self.publish_lane_callback
-        )
-
-        # Car Info
-        self.xpos = 0.0
-        self.ypos = 0.0
-        self.yaw = 0.0
-        self.vel = 0.0
+        self.odom_sub = odom_sub
 
         # Path Info
         self.n_points = 99  # Arbitrary number of waypoints
@@ -72,44 +51,18 @@ class LaneChange(Node):
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
 
-        self.init = 0
-
-    def odom_callback(self, msg):
-        self.xpos = msg.pose.pose.position.x
-        self.ypos = msg.pose.pose.position.y
-
-        quaternion = (
-            msg.pose.pose.orientation.x,
-            msg.pose.pose.orientation.y,
-            msg.pose.pose.orientation.z,
-            msg.pose.pose.orientation.w,
-        )
-        euler = euler_from_quaternion(quaternion)
-
-        self.yaw = euler[2]
-        self.vel = msg.twist.twist.linear.x
-
-        if self.init == 0:
-            relative_x = 10
-            relative_y = 0
-            end_yaw = 0
-            self.create_path(relative_x, relative_y, end_yaw)
-            self.init = 1
-
-        # self.get_logger().info('Received: "%s"' % msg)
 
     def create_path(self, relative_x, relative_y, end_yaw):
-        # wheelbase = 1.27  # double check measurement
-        # lead_dist = math.copysign(wheelbase / 2, self.vel)
 
-        start_x = self.xpos
-        start_y = self.ypos
-        start_yaw = self.yaw
+        start_x = self.odom_sub.xpos
+        start_y = self.odom_sub.ypos
+        # Unsure about lead_axle, this position is relative to encoders
+        start_yaw = self.odom_sub.yaw
         end_x = start_x + relative_x
         end_y = start_y + relative_y
 
         # correct for backwards paths -- yaw refers to the yaw of the car
-        if self.vel < 0:
+        if self.odom_sub.vel < 0:
             start_yaw = coterminal_angle(start_yaw + math.pi)
             end_yaw = coterminal_angle(end_yaw + math.pi)
 
@@ -122,36 +75,7 @@ class LaneChange(Node):
         )
         self.pathyaw = calculate_yaw(self.pathx, self.pathy, start_yaw)
 
-        print(f"xpos: {self.xpos}, start_x: {self.pathx[0]}")
-        print(f"yaw: {self.yaw}, start_yaw: {self.pathyaw[0]}")
-
-    def follow_path_callback(self):
-
-        stanley = StanleyController(
-            self.pathx, self.pathy, self.pathyaw, self.max_dist
-        )
-        cmd = Float32MultiArray()
-
-        # while np.hypot(self.pathx[-1]-self.xpos, self.pathy[-1]-self.ypos) > self.max_dist:
-        # may want to set target velocity for stanley curvature rather than actual velocity
-        [steer_next, vel_next] = stanley.curvature(
-            self.xpos, self.ypos, self.yaw, self.vel
-        )
-        cmd.data = [
-            steer_next,
-            vel_next,
-        ]  # Ensure signs are correct based on right hand rule
-        print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
-        # self.cmd_publisher.publish(cmd)
-
-        # time.sleep(.05)
-
-        ### Find a way to cancel path when stanley loop is finished
-        # maybe publish path message at the end with all 0's when the path is complete
-
-    def publish_lane_callback(self):
-
-        # publish path message
+        # publish path topic
         path_msg = Path()
 
         path_msg.header.frame_id = "map"
@@ -173,15 +97,46 @@ class LaneChange(Node):
             path_msg.poses.append(pose)
 
         self.path_publisher.publish(path_msg)
-        # self.get_logger().info('Publishing: "%s"' % path_msg)
+
+
+    def follow_path(self):
+
+        stanley = StanleyController(
+            self.pathx, self.pathy, self.pathyaw, self.max_dist
+        )
+        cmd = Float32MultiArray()
+
+        while np.hypot(self.pathx[-1]-self.odom_sub.xpos, self.pathy[-1]-self.odom_sub.ypos) > self.max_dist:
+        # may want to set target velocity for stanley curvature rather than actual velocity
+            [steer_next, vel_next] = stanley.curvature(
+                self.odom_sub.xpos, self.odom_sub.ypos, self.odom_sub.yaw, self.odom_sub.vel
+            )
+            cmd.data = [
+                steer_next,
+                vel_next,
+            ]  # Ensure signs are correct based on right hand rule
+            print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
+            # self.cmd_publisher.publish(cmd)
+
+            time.sleep(.05)
+
+        ### Find a way to cancel path when stanley loop is finished
+        # maybe publish path message at the end with all 0's when the path is complete
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    lane_change = LaneChange()
+    odom_sub = OdomSubscriber()
+    lane_change = LaneChange(odom_sub)
 
-    rclpy.spin(lane_change)
+    relative_x = 5
+    relative_y = 0
+    end_yaw = 0
+
+    lane_change.create_path(relative_x, relative_y, end_yaw)
+
+    lane_change.follow_path()
 
     lane_change.destroy_node()
     rclpy.shutdown()

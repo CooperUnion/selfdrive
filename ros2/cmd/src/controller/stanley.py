@@ -32,7 +32,7 @@ class NearestWaypoint:
 # Tune k_stanley parameter based on testing 
 # double check wheelbase in meters
 class StanleyController:
-	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=1.35, k_stanley=.5, logger=None):
+	def __init__(self, cx, cy, cyaw, tolerance=.1, wheelbase=1.75, k_stanley=.5, logger=None):
 		self.cx = cx
 		self.cy = cy
 		self.cyaw = cyaw
