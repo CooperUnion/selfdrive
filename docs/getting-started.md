@@ -51,6 +51,9 @@ instructions and system setup information on the repo's [`README.md`].
 
 ```
 selfdrive/
++-- can/
+|   +-- network.yml
+|
 +-- docs/
 |
 +-- components/
@@ -69,8 +72,6 @@ selfdrive/
 |   |   +-- project.toml
 |   |
 |   +-- ...
-|
-+-- can.yml
 |
 +-- ...
 ```
@@ -95,6 +96,12 @@ case. It is best to see existing components to get a feel for it.
 
 Finally, `component.toml` contains metadata related to the component.
 
+### [`can/`]
+
+[`can/`] describes the CAN networks of our projects. Here, you'll find
+definitions for networks, messages, and signals for [OpenCAN] to
+process.
+
 ### [`docs/`]
 
 The [contributing guidelines] cover the structure for documentation. You
@@ -114,12 +121,6 @@ The [`projects/`] directory contains projects that are composed of
 various components. Like a component, each project has a `docs/`
 directory with symlinks to relevant documentation and a `project.toml`
 with related metadata.
-
-### [`can.yml`]
-
-[`can.yml`] describes the CAN networks of our projects. Here, you'll
-find definitions for networks, messages, and signals for [OpenCAN] to
-process.
 
 ### What About Everything Else?
 
@@ -157,7 +158,7 @@ lectures; however, understand they do nothing but benefit you!
 [shell tools and scripting]: https://missing.csail.mit.edu/2020/shell-tools/
 [symlinks]: https://en.wikipedia.org/wiki/Symbolic_link
 [version control (git)]: https://missing.csail.mit.edu/2020/version-control/
-[`can.yml`]: https://github.com/CooperUnion/selfdrive/blob/dev/can.yml
+[`can/`]: https://github.com/CooperUnion/selfdrive/tree/dev/can
 [`components/`]: https://github.com/CooperUnion/selfdrive/tree/dev/components
 [`docs/`]: https://github.com/CooperUnion/selfdrive/tree/dev/docs
 [`fd`]: https://github.com/sharkdp/fd

@@ -1,0 +1,40 @@
+version: '3'
+
+services: 
+  ros2_master:
+    build: ./
+    container_name: ros2_master
+    tty: true
+    privileged: true
+    environment:
+        - DISPLAY=$DISPLAY
+        - QT_X11_NO_MITSHM=1
+    network_mode: host
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - ./encoder_odom/src:/root/ros_ws/encoder_odom/src
+        - ./imu/src:/root/ros_ws/imu/src
+        - ./sensor_fusion/src/move:/root/ros_ws/ekf_package
+        - ./cmd/src:/root/ros_ws/cmd/src
+        # - /dev/ttyACM0:/dev/ttyACM0
+
+  techbus:
+    build: ./techbus
+    container_name: techbus
+    tty: true
+    privileged: true
+    environment:
+        - DISPLAY=$DISPLAY
+        - QT_X11_NO_MITSHM=1
+    network_mode: host
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - ./techbus/src:/root/ros_ws/techbus/src
+        - /dev/ttyACM0:/dev/ttyACM0
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
