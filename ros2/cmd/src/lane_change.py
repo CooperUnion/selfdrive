@@ -50,6 +50,8 @@ class LaneChange(Node):
         self.pathx = np.zeros(self.n_points)
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
+        
+        self.stanley = StanleyController(max_dist=self.max_dist)
 
     def create_path(self, relative_x, relative_y, end_yaw):
 
@@ -100,9 +102,6 @@ class LaneChange(Node):
 
     def follow_path(self):
 
-        stanley = StanleyController(
-            self.pathx, self.pathy, self.pathyaw, self.max_dist
-        )
         cmd = Float32MultiArray()
 
         while (
@@ -113,15 +112,18 @@ class LaneChange(Node):
             > self.max_dist
         ):
             # may want to set target velocity for stanley curvature rather than actual velocity
-            [steer_next, vel_next] = stanley.curvature(
+            steer_cmd = self.stanley.follow_path(
                 self.odom_sub.xpos,
                 self.odom_sub.ypos,
                 self.odom_sub.yaw,
                 self.odom_sub.vel,
+                self.pathx,
+                self.pathy,
+                self.pathyaw
             )
             cmd.data = [
-                steer_next,
-                vel_next,
+                steer_cmd,
+                self.odom_sub.vel,
             ]  # Ensure signs are correct based on right hand rule
             # print(f"xpos: {self.odom_sub.xpos}, ypos: {self.odom_sub.ypos}")
             # print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
