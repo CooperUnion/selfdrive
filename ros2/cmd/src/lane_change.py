@@ -46,16 +46,16 @@ class LaneChange(Node):
 
         # Path Info
         self.n_points = 99  # Arbitrary number of waypoints
-        self.max_dist = 5  # FIX max distance from goal point set in meters
+        self.max_dist = 0.1  # FIX max distance from goal point set in meters
         self.pathx = np.zeros(self.n_points)
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
-
 
     def create_path(self, relative_x, relative_y, end_yaw):
 
         start_x = self.odom_sub.xpos
         start_y = self.odom_sub.ypos
+        print(f'start_x: {start_x}, start_y: {start_y}')
         # Unsure about lead_axle, this position is relative to encoders
         start_yaw = self.odom_sub.yaw
         end_x = start_x + relative_x
@@ -98,7 +98,6 @@ class LaneChange(Node):
 
         self.path_publisher.publish(path_msg)
 
-
     def follow_path(self):
 
         stanley = StanleyController(
@@ -106,19 +105,29 @@ class LaneChange(Node):
         )
         cmd = Float32MultiArray()
 
-        while np.hypot(self.pathx[-1]-self.odom_sub.xpos, self.pathy[-1]-self.odom_sub.ypos) > self.max_dist:
-        # may want to set target velocity for stanley curvature rather than actual velocity
+        while (
+            np.hypot(
+                self.pathx[-1] - self.odom_sub.xpos,
+                self.pathy[-1] - self.odom_sub.ypos,
+            )
+            > self.max_dist
+        ):
+            # may want to set target velocity for stanley curvature rather than actual velocity
             [steer_next, vel_next] = stanley.curvature(
-                self.odom_sub.xpos, self.odom_sub.ypos, self.odom_sub.yaw, self.odom_sub.vel
+                self.odom_sub.xpos,
+                self.odom_sub.ypos,
+                self.odom_sub.yaw,
+                self.odom_sub.vel,
             )
             cmd.data = [
                 steer_next,
                 vel_next,
             ]  # Ensure signs are correct based on right hand rule
-            print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
+            # print(f"xpos: {self.odom_sub.xpos}, ypos: {self.odom_sub.ypos}")
+            # print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
             # self.cmd_publisher.publish(cmd)
 
-            time.sleep(.05)
+            time.sleep(0.05)
 
         ### Find a way to cancel path when stanley loop is finished
         # maybe publish path message at the end with all 0's when the path is complete

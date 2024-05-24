@@ -37,8 +37,8 @@ tmux send-keys Enter
 tmux select-pane -t 2
 tmux split-window -v
 init
-tmux send-keys 'python3 cmd/src/main.py'
-tmux send-keys Enter
+# tmux send-keys 'python3 cmd/src/main.py'
+# tmux send-keys Enter
 
 ##### ADD NEW TMUX WINDOW FOR THE UI #####
 # tmux new-window -n 'UI'
