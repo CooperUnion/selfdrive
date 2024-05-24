@@ -198,6 +198,8 @@ class Lane_Follower(Node):
                 main_msg.LEFTLANE = False
                 main_msg.HE = right_heading
                 main_msg.SLOPE = right_slope
+            #The slope calculation is returned in meters, must be adjusted.
+            main_msg.SLOPE = main_msg.SLOPE / Lane_Follower.PIXELS_TO_METERS
 
         else:
             self._tolerance += 1
