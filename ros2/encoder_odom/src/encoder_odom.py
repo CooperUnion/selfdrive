@@ -101,11 +101,11 @@ class EncoderOdom(Node):
         # self.delta_left = float(c_int16(self.left_ticks - self.prev_left_ticks).value) * self.tick_distance
         # self.delta_right = float(c_int16(self.right_ticks - self.prev_right_ticks).value) * self.tick_distance
 
-        # Account for encoder overflow in the forward direction
-        # Probably want to add velocity to the conidtion to determine overflow in either direction
+        # Account for encoder overflow
+        # TODO: add modulo artihmetic to account for overflow delta
         if (
-            self.left_ticks < self.prev_left_ticks
-            or self.right_ticks < self.prev_right_ticks
+            abs(self.left_ticks - self.prev_left_ticks) > 30000
+            or abs(self.right_ticks - self.prev_right_ticks) > 30000
         ):
             self.prev_left_ticks = self.left_ticks
             self.prev_right_ticks = self.right_ticks
