@@ -23,7 +23,12 @@ def main(args=None):
     executor.add_node(lane_change)
     executor.add_node(lane_change.odom_sub)
 
-    executor.spin_once()
+    # xxx: TODO: Need to add proper initialization sequence, for now spinning the executor to make sure transform topics are all proper before
+    # calling create_path function
+    for i in range(
+        100
+    ):  # Do this to make sure transform broadcaster is properly initalized
+        executor.spin_once()
 
     executor_thread = Thread(target=executor.spin, daemon=True)
     executor_thread.start()

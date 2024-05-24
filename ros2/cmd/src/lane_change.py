@@ -78,12 +78,12 @@ class LaneChange(Node):
         # publish path topic
         path_msg = Path()
 
-        path_msg.header.frame_id = "map"
+        path_msg.header.frame_id = "world"
 
         for i in range(self.n_points - 1):
             pose = PoseStamped()
 
-            pose.header.frame_id = "map"
+            pose.header.frame_id = "world"
 
             pose.pose.position.x = self.pathx[i]
             pose.pose.position.y = self.pathy[i]

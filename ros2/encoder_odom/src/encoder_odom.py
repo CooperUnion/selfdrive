@@ -56,6 +56,18 @@ class EncoderOdom(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         self.tf_broadcaster2 = TransformBroadcaster(self)
 
+        # t = TransformStamped()
+        # t.header.stamp = self.get_clock().now().to_msg()
+        # t.header.frame_id = 'world'
+        # t.child_frame_id = 'rear_wheel_center'
+        # self.tf_broadcaster.sendTransform(t)
+
+        # t = TransformStamped()
+        # t.header.stamp = self.get_clock().now().to_msg()
+        # t.header.frame_id = 'rear_wheel_center'
+        # t.child_frame_id = 'front_wheel_center'
+        # self.tf_broadcaster.sendTransform(t)
+
         self.time_now = 0.0
         self.time_prev = 0.0
 
@@ -198,6 +210,7 @@ class EncoderOdom(Node):
 
         print(f"xpos: {self.x}, ypos: {self.y}, yaw: {self.th}")
         print(f"xvel: {self.vx}, w: {self.w}")
+        # print(f"TFSTAMPED: {self.trans}")
         # self.get_logger().info('Publishing: "%s"' % odom_msg)
 
 
