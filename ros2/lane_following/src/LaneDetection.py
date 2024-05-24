@@ -189,17 +189,16 @@ class Lane_Follower(Node):
             self._Left_Lane = (
                 False if empty_left > empty_right else self._Left_Lane
             )
+            #The slope calculations are returned in meters, must be adjusted.
+            main_msg.LEFTSLOPE = left_slope / Lane_Follower.PIXELS_TO_METERS
+            main_msg.RIGHTSLOPE = right_slope / Lane_Follower.PIXELS_TO_METERS
 
             if self._Left_Lane:
                 main_msg.LEFTLANE = True
                 main_msg.HE = left_heading
-                main_msg.SLOPE = left_slope
             else:
                 main_msg.LEFTLANE = False
                 main_msg.HE = right_heading
-                main_msg.SLOPE = right_slope
-            #The slope calculation is returned in meters, must be adjusted.
-            main_msg.SLOPE = main_msg.SLOPE / Lane_Follower.PIXELS_TO_METERS
 
         else:
             self._tolerance += 1
