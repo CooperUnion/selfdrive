@@ -5,35 +5,39 @@ import rclpy
 from rclpy.node import Node
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Quaternion, TransformStamped
 from std_msgs.msg import UInt16MultiArray
+
+from tf_transformations import quaternion_from_euler
+
+from tf2_ros import TransformBroadcaster
 
 
 ### Might need to add tf2 for publishing transfrom from encoder_odom frame to world frame
 
 
-def Euler2Quaternion(phi=0, theta=0, psi=0):
-    """
-    Converts an euler angle attitude to a quaternian attitude
-    :param euler: Euler angle attitude in a np.matrix(phi, theta, psi)
-    :return: Quaternian attitude in np.array(e0, e1, e2, e3)
-    """
-    orientation_msg = Quaternion()
+# def Euler2Quaternion(phi=0, theta=0, psi=0):
+#     """
+#     Converts an euler angle attitude to a quaternian attitude
+#     :param euler: Euler angle attitude in a np.matrix(phi, theta, psi)
+#     :return: Quaternian attitude in np.array(e0, e1, e2, e3)
+#     """
+#     orientation_msg = Quaternion()
 
-    orientation_msg.x = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
-        phi / 2.0
-    ) + np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
-    orientation_msg.y = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.sin(
-        phi / 2.0
-    ) - np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.cos(phi / 2.0)
-    orientation_msg.z = np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.cos(
-        phi / 2.0
-    ) + np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.sin(phi / 2.0)
-    orientation_msg.w = np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
-        phi / 2.0
-    ) - np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
+#     orientation_msg.x = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
+#         phi / 2.0
+#     ) + np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
+#     orientation_msg.y = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.sin(
+#         phi / 2.0
+#     ) - np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.cos(phi / 2.0)
+#     orientation_msg.z = np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.cos(
+#         phi / 2.0
+#     ) + np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.sin(phi / 2.0)
+#     orientation_msg.w = np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
+#         phi / 2.0
+#     ) - np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
 
-    return orientation_msg
+#     return orientation_msg
 
 
 class EncoderOdom(Node):
@@ -48,6 +52,9 @@ class EncoderOdom(Node):
         self.odometry_publisher = self.create_publisher(
             Odometry, '/encoder_odom', 10
         )
+
+        self.tf_broadcaster = TransformBroadcaster(self)
+        self.tf_broadcaster2 = TransformBroadcaster(self)
 
         self.time_now = 0.0
         self.time_prev = 0.0
@@ -146,12 +153,16 @@ class EncoderOdom(Node):
         odom_msg = Odometry()
 
         # odom_msg.header.frame_id = "encoder_odom"
-        odom_msg.header.frame_id = "map"
+        odom_msg.header.frame_id = "world"
+        odom_msg.child_frame_id = "rear_wheel_center"
 
         odom_msg.pose.pose.position.x = self.x
         odom_msg.pose.pose.position.y = self.y
         odom_msg.pose.pose.position.z = 0.0
-        odom_msg.pose.pose.orientation = Euler2Quaternion(phi=self.th)
+        q = quaternion_from_euler(0.0, 0.0, self.th)
+        odom_msg.pose.pose.orientation = Quaternion(
+            x=q[0], y=q[1], z=q[2], w=q[3]
+        )
 
         odom_msg.twist.twist.linear.x = self.vx
         odom_msg.twist.twist.linear.y = self.vy
@@ -162,6 +173,29 @@ class EncoderOdom(Node):
         odom_msg.twist.twist.angular.z = self.w
 
         self.odometry_publisher.publish(odom_msg)
+
+        # Make a transform message to broadcast
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'world'
+        t.child_frame_id = 'rear_wheel_center'
+        t.transform.translation.x = self.x
+        t.transform.translation.y = self.y
+        t.transform.translation.z = 0.0
+        # breakpoint()
+        q = quaternion_from_euler(0.0, 0.0, self.th)
+        t.transform.rotation = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
+        t2 = TransformStamped()
+        t2.header.stamp = self.get_clock().now().to_msg()
+        t2.header.frame_id = 'rear_wheel_center'
+        t2.child_frame_id = 'front_wheel_center'
+        t2.transform.translation.x = 1.75
+        t2.transform.translation.y = 0.0
+        t2.transform.translation.z = 0.0
+        # t2.transform.rotation = Euler2Quaternion(phi=self.th)
+        self.tf_broadcaster.sendTransform(t)
+        self.tf_broadcaster2.sendTransform(t2)
+
         print(f"xpos: {self.x}, ypos: {self.y}, yaw: {self.th}")
         print(f"xvel: {self.vx}, w: {self.w}")
         # self.get_logger().info('Publishing: "%s"' % odom_msg)
