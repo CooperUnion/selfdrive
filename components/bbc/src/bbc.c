@@ -131,7 +131,7 @@ static void bbc_init(void)
 {
 	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
 	motor_direction = 1;
-	gpio_set_level(DIR_PIN, motor_direction);
+	gpio_set_level(DIR_PIN, !motor_direction);
 
 	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
 	gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
@@ -219,7 +219,7 @@ static void bbc_1kHz(void)
 		}
 	}
 
-	gpio_set_level(DIR_PIN, motor_direction);
+	gpio_set_level(DIR_PIN, !motor_direction);
 
 	if (controller_output < 0) {
 		controller_output *= -1;
