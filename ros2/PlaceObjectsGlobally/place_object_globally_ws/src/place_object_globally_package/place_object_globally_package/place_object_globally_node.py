@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose, PoseWithCovariance
+from std_msgs.msg import Float32MultiArray
 
 
 class ObjGlobalLocation(Node):
@@ -19,12 +20,10 @@ class ObjGlobalLocation(Node):
 
         # Subscribe to get information on the vehicle and object positions
         self.obj_information_subscription = self.create_subscription(
-            Yolo,
-            'dist_at_obj',
+            Float32MultiArray,
+            'obj_pointcloud',
             self.obj_information_callback,
             10)
-        
-        self.obj_information_subscription
         
         self.vehicle_position_subscription = self.create_subscription(
             Odometry,
@@ -35,14 +34,14 @@ class ObjGlobalLocation(Node):
         self.vehicle_position_subscription
 
         # Publish the object's location wrt to where we started 
-        self.object_global_location_publisher = self.create_publisher(Pose, '/pose', 10) # want to change to pose with covar in the future
+        self.object_global_location_publisher = self.create_publisher(PoseWithCovariance, '/obj_location', 10) # want to change to pose with covar in the future
 
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def obj_information_callback(self,msg):
-        self.obj_x = msg.x
-        self.obj_y = msg.y
+        self.obj_x = msg.data[0]
+        self.obj_y = msg.data[1]
 
     def vehicle_position_callback(self,msg):
         self.vehicle_x = msg.pose.pose.position.x
@@ -59,13 +58,28 @@ class ObjGlobalLocation(Node):
                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0,]
         
-        obj_location.pose.position.x = self.vehicle_x + self.obj_x
-        obj_location.pose.position.y = self.vehicle_y + self.obj_y
-        obj_location.pose.position.z = 0.0
 
-        obj_location.pose.orientation.x = 0.0
-        obj_location.pose.orientation.y = 0.0
-        obj_location.pose.orientation.z = 0.0
-        obj_location.pose.orientation.w = 0.0
+        if not any(value is None for value in [self.vehicle_x, self.vehicle_y, self.obj_x, self.obj_y]):
+            obj_location.pose.position.x = self.vehicle_x + self.obj_x
+            obj_location.pose.position.y = self.vehicle_y + self.obj_y
+            obj_location.pose.position.z = 0.0
 
-        self.object_global_location_publisher.publish(obj_location)
+            obj_location.pose.orientation.x = 0.0
+            obj_location.pose.orientation.y = 0.0
+            obj_location.pose.orientation.z = 0.0
+            obj_location.pose.orientation.w = 0.0
+
+            self.object_global_location_publisher.publish(obj_location)
+        else:
+            print("vehicle xy or object xy are None. Waiting...")
+
+def main(args=None):
+
+    rclpy.init(args=args)  # Initialize ROS2 program
+    node = ObjGlobalLocation()  # Instantiate Node
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+ 
+if __name__ == '__main__':
+    main()
