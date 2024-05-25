@@ -57,6 +57,8 @@ enum adc_channel_index {
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
+
+// TODO: TUNE INNER LOOP
 #define KP    5.00
 #define KI    0.05
 #define KD    0.00
@@ -69,6 +71,7 @@ enum adc_channel_index {
 #define PID_DEADBAND_LOWER 0.05
 #define PID_DEADBAND_UPPER -0.05
 
+// TODO: CHECK THESE VALUES AGAIN
 #define MAX_PRESSURE_READING 2600
 #define MIN_PRESSURE_READING 155
 
@@ -170,7 +173,6 @@ static void bbc_1kHz(void)
 
 	float cmd;
 
-	// if not active setpoint reset
 	if (base_get_state() != SYS_STATE_DBW_ACTIVE) {
 		selfdrive_pid_setpoint_reset(&pid,
 		    (((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
