@@ -31,7 +31,18 @@ class ObjectDetection():
         self.runtime = sl.RuntimeParameters()
         # self.runtime.enable_fill_mode
 
-    def display(self):
+    def init_model(self):
+        image_size = self.cam.get_camera_information().camera_configuration.resolution
+ 
+        self.image_left_tmp = sl.Mat(self.cam.get_camera_information().camera_configuration.resolution.width, self.cam.get_camera_information().camera_configuration.resolution.height, sl.MAT_TYPE.U8_C4)
+        self.point_cloud = sl.Mat(self.cam.get_camera_information().camera_configuration.resolution.width, self.cam.get_camera_information().camera_configuration.resolution.height, sl.MAT_TYPE.U8_C4)
+
+        self.model=YOLO('best.pt')
+        self.model.to('cpu')
+
+        self.ocr = OCR()
+
+    def object_bounding_box(self):
         bounding_box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator(text_position=sv.Position.TOP_CENTER)
  
@@ -102,16 +113,7 @@ class ObjectDetection():
 
         return self.distance
     
-    def init_model(self):
-        image_size = self.cam.get_camera_information().camera_configuration.resolution
- 
-        self.image_left_tmp = sl.Mat(self.cam.get_camera_information().camera_configuration.resolution.width, self.cam.get_camera_information().camera_configuration.resolution.height, sl.MAT_TYPE.U8_C4)
-        self.point_cloud = sl.Mat(self.cam.get_camera_information().camera_configuration.resolution.width, self.cam.get_camera_information().camera_configuration.resolution.height, sl.MAT_TYPE.U8_C4)
 
-        self.model=YOLO('best.pt')
-        self.model.to('cpu')
-
-        self.ocr = OCR()
 
     def close_cam(self):
         cv2.destroyAllWindows()
@@ -139,4 +141,4 @@ class ObjectDetection():
             # self.img = self.img[int(y):int(y+t), int(x):int(x+t)]
             results = self.model.predict(self.img)
             self.detections = sv.Detections.from_ultralytics(results[0])
-            self.display()
+            self.object_bounding_box()

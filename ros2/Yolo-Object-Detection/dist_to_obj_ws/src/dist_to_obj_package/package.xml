@@ -5,7 +5,8 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="isaiah.rivera@cooper.edu">Isaiah Rivera</maintainer>
-  <exec_depend>yolo_interfaces</exec_depend>
+  <license>Apache-2.0</license>
+  <!-- <exec_depend>yolo_interfaces</exec_depend> -->
 
 
   <export>
