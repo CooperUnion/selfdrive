@@ -134,6 +134,12 @@ class Interface(Node):
 
 def main(args=None):
 
+    '''
+    Note: This is not what the final main will look like.
+    I think we might have to use a multi-threaded executor
+    
+    '''
+
     # Initialize odom Subscriber,Lane Change and Lane Follow Nodes 
     odom_sub = OdomSubscriber()
     lane_change = LaneChange(odom_sub)
