@@ -26,6 +26,7 @@
 #define METERS_PER_TICK \
 	((float) WHEEL_CIRCUMFERENCE_M / (float) ENCODER_TICKS_PER_ROTATION)
 
+// XXX: TODO ~ REPLACE WITH 2024 MAPPINGS
 #define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING	    15.40
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING	    -58.03
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET -11.33
@@ -39,6 +40,7 @@
 
 #define AVERAGE_TICKS_SAMPLES 4
 
+// XXX: TODO ~ TUNE GAINS FOR NEW MAPPINGS
 #define KP    3.00
 #define KI    0.30
 #define KD    1.35
@@ -286,6 +288,7 @@ static void velocity_control(
 {
 	// we'd like to stop, or so i hope
 	if (!desired_velocity) {
+		// XXX: TODO, DETURMINE IF SHOULD INCREASE PERCENTAGE OR NOT
 		brake_percent	 = 50;
 		throttle_percent = 0;
 
