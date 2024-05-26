@@ -12,3 +12,6 @@
 __pycache__
 build
 indent.log
+install
+log
+build
