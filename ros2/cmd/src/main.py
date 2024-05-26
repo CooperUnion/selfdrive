@@ -15,8 +15,8 @@ def main(args=None):
     odom_sub = OdomSubscriber()
     lane_change = LaneChange(odom_sub)
 
-    relative_x = 5
-    relative_y = 5
+    relative_x = 10
+    relative_y = 10
     end_yaw = 0
 
     executor = rclpy.executors.MultiThreadedExecutor()

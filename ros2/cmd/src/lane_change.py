@@ -46,12 +46,17 @@ class LaneChange(Node):
 
         # Path Info
         self.n_points = 99  # Arbitrary number of waypoints
-        self.max_dist = 0.1  # FIX max distance from goal point set in meters
+        self.max_dist_to_goal = 0.5  # Tune magic number
+        self.max_dist_to_path = (
+            1.5  # FIX max distance from goal point set in meters
+        )
         self.pathx = np.zeros(self.n_points)
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
-        
-        self.stanley = StanleyController(max_dist=self.max_dist)
+
+        self.stanley = StanleyController(
+            max_dist_to_path=self.max_dist_to_path
+        )
 
     def create_path(self, relative_x, relative_y, end_yaw):
 
@@ -109,27 +114,30 @@ class LaneChange(Node):
                 self.pathx[-1] - self.odom_sub.xpos,
                 self.pathy[-1] - self.odom_sub.ypos,
             )
-            > self.max_dist
+            > self.max_dist_to_goal
         ):
             # may want to set target velocity for stanley curvature rather than actual velocity
             steer_cmd = self.stanley.follow_path(
                 self.odom_sub.xpos,
                 self.odom_sub.ypos,
                 self.odom_sub.yaw,
-                self.odom_sub.vel,
+                # self.odom_sub.vel,
+                2.235,  # comment this out when you want to use the actual velocity
                 self.pathx,
                 self.pathy,
-                self.pathyaw
+                self.pathyaw,
             )
             cmd.data = [
                 steer_cmd,
                 self.odom_sub.vel,
-            ]  # Ensure signs are correct based on right hand rule
-            # print(f"xpos: {self.odom_sub.xpos}, ypos: {self.odom_sub.ypos}")
-            # print(f"Steering Command: {steer_next}, Velocity Command: {vel_next}")
+            ]
+
+            # Uncomment when yiou actually want to drivbe
             # self.cmd_publisher.publish(cmd)
 
             time.sleep(0.05)
+
+        print("End of path reached")
 
         ### Find a way to cancel path when stanley loop is finished
         # maybe publish path message at the end with all 0's when the path is complete
@@ -142,7 +150,7 @@ def main(args=None):
     lane_change = LaneChange(odom_sub)
 
     relative_x = 5
-    relative_y = 0
+    relative_y = 5
     end_yaw = 0
 
     lane_change.create_path(relative_x, relative_y, end_yaw)
