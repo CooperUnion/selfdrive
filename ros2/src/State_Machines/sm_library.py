@@ -1,6 +1,6 @@
 from statemachine import StateMachine, State
 
-class MegaStateMachine(StateMachine):
+class Car_Machine(StateMachine):
     "State Machine for the Cooper Union Intelligent Ground Vehicle"
     # C stop is Controlled, E stop is Emergency
     Cstop = State("CS",initial=True)
@@ -37,6 +37,6 @@ class MegaStateMachine(StateMachine):
 
 
 if __name__ == "__main__":
-    test_machine = MegaStateMachine()
-    img_path = "diagram.png"
+    test_machine = Car_Machine()
+    img_path = "./model_diagrams/main_SM.png"
     test_machine._graph().write_png(img_path)
