@@ -1,13 +1,9 @@
-# from irobot_create_msgs.msg import WheelTicks, WheelTicks
-import math
-from std_msgs.msg import Float64
 from sensor_msgs.msg import Image
 import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
-from std_msgs.msg import String
 from igvc_msgs.msg import StanleyInput
 from Individual_Follower import Individual_Follower
 
@@ -48,8 +44,8 @@ class Lane_Follower(Node):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_right = cv2.VideoCapture("/dev/video4")
-        self.vidcap_left = cv2.VideoCapture("/dev/video2")
+        self.vidcap_left = cv2.VideoCapture("/dev/video4")
+        self.vidcap_right = cv2.VideoCapture("/dev/video2")
         # Setting the format for the images: we use 640 x 480
         self.vidcap_left.set(3, Lane_Follower.FORMAT[0])
         self.vidcap_left.set(4, Lane_Follower.FORMAT[1])
@@ -72,7 +68,8 @@ class Lane_Follower(Node):
         # self.heading_pub = self.create_publisher(Float64, "heading", 10)
 
         self.lane_error_pub = self.create_publisher(
-            StanleyInput, "stanley_data", 10)
+            StanleyInput, "stanley_data", 10
+        )
 
         if Lane_Follower.GUI:
             self._bridge = CvBridge()
@@ -175,13 +172,18 @@ class Lane_Follower(Node):
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
-        result_left, empty_left, left_heading, left_slope = self._left_follower.Plot_Line()
-        result_right, empty_right, right_heading, right_slope = self._right_follower.Plot_Line()
+        result_left, empty_left, left_heading, left_slope = (
+            self._left_follower.Plot_Line()
+        )
+        result_right, empty_right, right_heading, right_slope = (
+            self._right_follower.Plot_Line()
+        )
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
             crosstrack = self.measure_position_meters(
-                result_left, result_right)
-            main_msg.CE = crosstrack
+                result_left, result_right
+            )
+            main_msg.cte = crosstrack
 
             self._Left_Lane = (
                 True if empty_left < empty_right else self._Left_Lane
@@ -189,21 +191,21 @@ class Lane_Follower(Node):
             self._Left_Lane = (
                 False if empty_left > empty_right else self._Left_Lane
             )
-            #The slope calculations are returned in meters, must be adjusted.
-            main_msg.LEFTSLOPE = left_slope / Lane_Follower.PIXELS_TO_METERS
-            main_msg.RIGHTSLOPE = right_slope / Lane_Follower.PIXELS_TO_METERS
+            # The slope calculations are returned in meters, must be adjusted.
+            main_msg.leftslope = left_slope / Lane_Follower.PIXELS_TO_METERS
+            main_msg.rightslope = right_slope / Lane_Follower.PIXELS_TO_METERS
 
             if self._Left_Lane:
-                main_msg.LEFTLANE = True
-                main_msg.HE = left_heading
+                main_msg.leftlane = True
+                main_msg.he = left_heading
             else:
-                main_msg.LEFTLANE = False
-                main_msg.HE = right_heading
+                main_msg.leftlane = False
+                main_msg.he = right_heading
 
         else:
             self._tolerance += 1
             if self._tolerance > Lane_Follower.TOLERANCE:
-                main_msg.ERROR = True
+                main_msg.error = True
 
         self.lane_error_pub.publish(main_msg)
 

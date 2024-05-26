@@ -1,6 +1,6 @@
-float32 CTE = 0.0
-float32 HE = 0.0
-bool LEFTLANE = False
-bool ERROR = False
-bool LEFTSLOPE = 0
-bool RIGHTSLOPE = 0
+float32 cte 0.0
+float32 he  0.0
+bool leftlane  False
+bool error False
+float32 leftslope  0.0
+float32 rightslope  0.0
