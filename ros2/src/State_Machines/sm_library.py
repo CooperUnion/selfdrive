@@ -1,6 +1,6 @@
 from statemachine import StateMachine, State
 
-class LaneChangeSM(StateMachine):
+class MegaStateMachine(StateMachine):
     "State Machine for the Cooper Union Intelligent Ground Vehicle"
     # C stop is Controlled, E stop is Emergency
     Cstop = State("CS",initial=True)
@@ -37,6 +37,6 @@ class LaneChangeSM(StateMachine):
 
 
 if __name__ == "__main__":
-    test_machine = LaneChangeSM()
+    test_machine = MegaStateMachine()
     img_path = "diagram.png"
     test_machine._graph().write_png(img_path)
