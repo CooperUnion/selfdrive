@@ -6,9 +6,8 @@ class Function_Test_4():
     # State transistion logic
     def function_test(self):
         barrel_counter = 0
-        while barrel_counter < 2:
-
-            self.interface.car_SM.Resume()
+        self.interface.car_SM.Resume()
+        while barrel_counter < 2:            
             if(self.interface.Object_Detection(cared_objects=["Barrel"])):
                 self.interface.car_SM.Obj_Avoidance()
                 barrel += 1

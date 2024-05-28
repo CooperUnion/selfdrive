@@ -44,5 +44,4 @@ class CarSM(StateMachine):
 
 if __name__ == "__main__":
     car_sm = CarSM()
-    img_path = "./diagrams/reference_SM.png"
-    car_sm._graph().write_png(img_path)
+    car_sm._graph().write_png(car_sm.IMG_PATH)
