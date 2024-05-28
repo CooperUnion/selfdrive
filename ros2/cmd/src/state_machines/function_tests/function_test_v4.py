@@ -1,7 +1,3 @@
-
-import time
-
-
 class Function_Test_4():
     def __init__(self, interface):
         self.interface = interface
