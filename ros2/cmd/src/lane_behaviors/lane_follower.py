@@ -6,7 +6,6 @@ from controller.stanley import StanleyController, coterminal_angle
 from odom_sub import OdomSubscriber
 
 from sensor_msgs.msg import Image
-from std_msgs.msg import Float32MultiArray
 
 from cv_bridge import CvBridge
 import cv2
@@ -77,11 +76,6 @@ class LaneFollower(Node):
             max_dist_to_path=self.max_dist_to_path
         )
 
-        # Stanley command publisher
-        self.cmd_publisher = self.create_publisher(
-            Float32MultiArray, '/cmd_stanley', 10
-        )
-
         if LaneFollower.GUI:
             self._bridge = CvBridge()
             image_labels = (
@@ -140,7 +134,6 @@ class LaneFollower(Node):
 
     # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
     def follow_lane(self):
-        cmd = Float32MultiArray()
 
         steer_cmd = self.stanley.get_steering_cmd(
             self.heading_error,
@@ -149,16 +142,12 @@ class LaneFollower(Node):
             2.235,  # comment this out when you want to use the actual velocity
         )
 
-        cmd.data = [
-            steer_cmd,
-            # self.odom_sub.vel,
-            2.235,  # Unsure if the velocity command should always be the target
-        ]
-
-        # Uncomment when you actually want to drive
-        # self.cmd_publisher.publish(cmd)
+        # vel_cmd = self.odom_sub.vel
+        vel_cmd = 2.235 # Unsure if the velocity command should always be the target
 
         time.sleep(0.05)    # Generate command at 20Hz 
+
+        return steer_cmd, vel_cmd
 
     def timer_callback(self):
         success_l, image_l = self.vidcap_left.read()
