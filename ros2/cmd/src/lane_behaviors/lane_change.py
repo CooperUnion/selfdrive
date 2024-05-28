@@ -1,9 +1,14 @@
 import rclpy
 from rclpy.node import Node
 
-from controller.stanley import StanleyController, coterminal_angle
-from controller.clothoid_path_planner import generate_clothoid_path
-from odom_sub import OdomSubscriber
+from lane_behaviors.controller.stanley import (
+    StanleyController,
+    coterminal_angle,
+)
+from lane_behaviors.controller.clothoid_path_planner import (
+    generate_clothoid_path,
+)
+from lane_behaviors.odom_sub import OdomSubscriber
 
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
@@ -137,7 +142,7 @@ class LaneChange(Node):
             # Uncomment when you actually want to drive
             # self.cmd_publisher.publish(cmd)
 
-            time.sleep(0.05)    # Generate command at 20Hz
+            time.sleep(0.05)  # Generate command at 20Hz
 
         print("End of path reached")
 

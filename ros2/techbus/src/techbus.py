@@ -86,21 +86,26 @@ class CANtouROS(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    try:
+        rclpy.init(args=args)
 
-    roustoucan = ROStouCAN()
-    cantouros = CANtouROS()
+        roustoucan = ROStouCAN()
+        cantouros = CANtouROS()
 
-    executor = rclpy.executors.MultiThreadedExecutor()
-    executor.add_node(roustoucan)
-    executor.add_node(cantouros)
+        executor = rclpy.executors.MultiThreadedExecutor()
+        executor.add_node(roustoucan)
+        executor.add_node(cantouros)
 
-    executor.spin()
+        executor.spin()
 
-    roustoucan.destroy_node()
-    cantouros.destroy_node()
-
-    rclpy.shutdown()
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    finally:
+        print("Starting shutdown")
+        roustoucan.destroy_node()
+        cantouros.destroy_node()
+        rclpy.try_shutdown()
+        print("Finished shutdown")
 
 
 if __name__ == '__main__':

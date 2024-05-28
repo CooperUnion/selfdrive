@@ -13,33 +13,6 @@ from tf_transformations import quaternion_from_euler
 from tf2_ros import TransformBroadcaster
 
 
-### Might need to add tf2 for publishing transfrom from encoder_odom frame to world frame
-
-
-# def Euler2Quaternion(phi=0, theta=0, psi=0):
-#     """
-#     Converts an euler angle attitude to a quaternian attitude
-#     :param euler: Euler angle attitude in a np.matrix(phi, theta, psi)
-#     :return: Quaternian attitude in np.array(e0, e1, e2, e3)
-#     """
-#     orientation_msg = Quaternion()
-
-#     orientation_msg.x = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
-#         phi / 2.0
-#     ) + np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
-#     orientation_msg.y = np.cos(psi / 2.0) * np.cos(theta / 2.0) * np.sin(
-#         phi / 2.0
-#     ) - np.sin(psi / 2.0) * np.sin(theta / 2.0) * np.cos(phi / 2.0)
-#     orientation_msg.z = np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.cos(
-#         phi / 2.0
-#     ) + np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.sin(phi / 2.0)
-#     orientation_msg.w = np.sin(psi / 2.0) * np.cos(theta / 2.0) * np.cos(
-#         phi / 2.0
-#     ) - np.cos(psi / 2.0) * np.sin(theta / 2.0) * np.sin(phi / 2.0)
-
-#     return orientation_msg
-
-
 class EncoderOdom(Node):
     def __init__(self):
         super().__init__('Encoder_Odometry_Node')
@@ -215,14 +188,20 @@ class EncoderOdom(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    try:
+        rclpy.init(args=args)
 
-    encoder_odom = EncoderOdom()
+        encoder_odom = EncoderOdom()
 
-    rclpy.spin(encoder_odom)
+        rclpy.spin(encoder_odom)
 
-    encoder_odom.destroy_node()
-    rclpy.shutdown()
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    finally:
+        print("Starting shutdown")
+        encoder_odom.destroy_node()
+        rclpy.try_shutdown()
+        print("Finished shutdown")
 
 
 if __name__ == '__main__':

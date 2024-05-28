@@ -1,9 +1,8 @@
 import rclpy
 from rclpy.node import Node
 
-from individual_follower import Individual_Follower
-from controller.stanley import StanleyController, coterminal_angle
-from odom_sub import OdomSubscriber
+from lane_behaviors.individual_follower import Individual_Follower
+from lane_behaviors.controller.stanley import StanleyController
 
 from sensor_msgs.msg import Image
 
@@ -143,9 +142,11 @@ class LaneFollower(Node):
         )
 
         # vel_cmd = self.odom_sub.vel
-        vel_cmd = 2.235 # Unsure if the velocity command should always be the target
+        vel_cmd = (
+            2.235  # Unsure if the velocity command should always be the target
+        )
 
-        time.sleep(0.05)    # Generate command at 20Hz 
+        time.sleep(0.05)  # Generate command at 20Hz
 
         return steer_cmd, vel_cmd
 
