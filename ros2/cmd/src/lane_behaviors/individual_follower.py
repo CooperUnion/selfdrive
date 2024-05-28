@@ -133,6 +133,6 @@ class Individual_Follower:
 
         slope = (x2 - x1) / (y2 - y1)
 
-        heading = math.atan((x2 - x1) / (y2 - y1)) * 180 / (math.pi)
+        heading = math.atan((x2 - x1) / (y2 - y1))  # Radians
         result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
         return result, empty_windows, heading, slope

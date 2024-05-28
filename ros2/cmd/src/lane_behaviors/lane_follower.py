@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 
+# from lane_behaviors.odom_sub import OdomSubscriber
 from lane_behaviors.individual_follower import Individual_Follower
 from lane_behaviors.controller.stanley import StanleyController
 
@@ -48,8 +49,8 @@ class LaneFollower(Node):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_left = cv2.VideoCapture("/dev/video4")
-        self.vidcap_right = cv2.VideoCapture("/dev/video2")
+        self.vidcap_left = cv2.VideoCapture("/dev/video2")
+        self.vidcap_right = cv2.VideoCapture("/dev/video4")
         # Setting the format for the images: we use 640 x 480
         self.vidcap_left.set(3, LaneFollower.FORMAT[0])
         self.vidcap_left.set(4, LaneFollower.FORMAT[1])
@@ -66,14 +67,12 @@ class LaneFollower(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Parameters for Stanley Controller
-        self.heading_error = None
-        self.cross_track_error = None
+        self.heading_error = 0.0
+        self.cross_track_error = 0.0
         self.empty_error = False  # Flag used to signal invalid cross track error to transititon to ESTOP
 
         self.odom_sub = odom_sub
-        self.stanley = StanleyController(
-            max_dist_to_path=self.max_dist_to_path
-        )
+        self.stanley = StanleyController()
 
         if LaneFollower.GUI:
             self._bridge = CvBridge()
@@ -132,7 +131,7 @@ class LaneFollower(Node):
         return veh_pos
 
     # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
-    def follow_lane(self):
+    def follow_lane(self, period=0.05):
 
         steer_cmd = self.stanley.get_steering_cmd(
             self.heading_error,
@@ -146,14 +145,17 @@ class LaneFollower(Node):
             2.235  # Unsure if the velocity command should always be the target
         )
 
-        time.sleep(0.05)  # Generate command at 20Hz
+        time.sleep(period)  # Generate command at 20Hz
 
         return steer_cmd, vel_cmd
 
     def timer_callback(self):
         success_l, image_l = self.vidcap_left.read()
         success_r, image_r = self.vidcap_right.read()
-        image_r = cv2.flip(image_r, 0)
+
+        # success_r, image_r = self.vidcap_right.read()
+        # image_l = cv2.flip(image_l, 0)
+        # Removing right image for testing only left camera
         images = [(image_l, "left"), (image_r, "right")]
         left_heading = -1
         right_heading = -1
@@ -223,15 +225,14 @@ class LaneFollower(Node):
             # The slope calculations are returned in meters, must be adjusted.
             # main_msg.leftslope = left_slope / LaneFollower.PIXELS_TO_METERS
             # main_msg.rightslope = right_slope / LaneFollower.PIXELS_TO_METERS
-
             if self._Left_Lane:
                 self.heading_error = left_heading
-            #     main_msg.leftlane = True
-            #     main_msg.he = left_heading
+                # main_msg.leftlane = True
+                # main_msg.he = left_heading
             else:
                 self.heading_error = right_heading
-            #     main_msg.leftlane = False
-            #     main_msg.he = right_heading
+                # main_msg.leftlane = False
+                # main_msg.he = right_heading
 
         else:
             self._tolerance += 1

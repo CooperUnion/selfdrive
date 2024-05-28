@@ -27,8 +27,11 @@ def main(args=None):
         executor_thread = Thread(target=executor.spin, daemon=True)
         executor_thread.start()
 
-        for i in range(600):
-            lane_follow.follow_lane()  # Each command takes 0.05s so this loop will take 30s
+        n = 20
+        while True:
+            lane_follow.follow_lane(
+                1 / n
+            )  # Each command takes 0.05s so this loop will take 30s
 
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
         pass
