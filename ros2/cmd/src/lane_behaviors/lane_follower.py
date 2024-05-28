@@ -145,7 +145,7 @@ class LaneFollower(Node):
             2.235  # Unsure if the velocity command should always be the target
         )
 
-        time.sleep(period)  # Generate command at 20Hz
+        time.sleep(period)
 
         return steer_cmd, vel_cmd
 

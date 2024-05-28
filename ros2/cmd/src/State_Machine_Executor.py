@@ -1,13 +1,16 @@
 import rclpy
 from threading import Thread
 
+from state_machines.function_tests.function_test_v4 import Function_Test_4 as FunctionTest
+
+#This is one of two lines that needs to be changed every time
+from State_Machine_Interface import Interface as SM_Interface
 from lane_behaviors.odom_sub import OdomSubscriber
 from lane_behaviors.lane_change import LaneChange
 from lane_behaviors.lane_follower import LaneFollower
-from state_machine.function_test_v4 import FunctionTest
-
 
 def main(args=None):
+
     try:
         rclpy.init(args=args)
 
@@ -17,10 +20,13 @@ def main(args=None):
         odom_sub = OdomSubscriber()
         lane_change = LaneChange(odom_sub, max_dist_to_goal, max_dist_to_path)
         lane_follow = LaneFollower(odom_sub)
-        function_test = FunctionTest(lane_change, lane_follow)
+
+        #Change this to specify which function test to run
+        Interface = SM_Interface("Function Test V4",lane_change,lane_follow)
+        function_test = FunctionTest(Interface)
 
         executor = rclpy.executors.MultiThreadedExecutor()
-        executor.add_node(function_test)
+        executor.add_node(Interface)
         executor.add_node(lane_change)
         executor.add_node(lane_follow)
         executor.add_node(odom_sub)
@@ -34,13 +40,12 @@ def main(args=None):
 
         executor_thread = Thread(target=executor.spin, daemon=True)
         executor_thread.start()
-
         function_test.function_test()
 
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
-        pass
-    finally:
         print("Starting shutdown")
+
+        function_test.interface.EStop()
         function_test.destroy_node()
         lane_change.destroy_node()
         lane_follow.destroy_node()
