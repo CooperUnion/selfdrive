@@ -4,7 +4,7 @@ from statemachine import StateMachine, State
 class CarSM(StateMachine):
     "State Machine for the Cooper Union Intelligent Ground Vehicle"
     
-    IMG_PATH = "/home/autonomylab/selfdrive/ros2/cmd/src/state_machine/diagrams/live_SM.png"
+    IMG_PATH = "/home/eeadmin/selfdrive/live_SM.png"
     
     # C stop is Controlled, E stop is Emergency
     Cstop = State("CS", initial=True)
@@ -23,25 +23,25 @@ class CarSM(StateMachine):
     # The Lane Follow State
     @Lane_Following.enter
     def Follow(self):
-        self.write_png(CarSM.IMG_PATH)
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Following lane lines")
 
     @Cstop.enter
     def on_CStop(self):
-        self.write_png(CarSM.IMG_PATH)
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Executing a controlled stop")
 
     @Estop.enter
     def on_EStop(self):
-        self.write_png(CarSM.IMG_PATH)
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Executing an emergency stop")
 
     @Lane_Change.enter
     def on_Lane_change(self):
-        self.write_png(CarSM.IMG_PATH)
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Changing lanes")
 
 
 if __name__ == "__main__":
     car_sm = CarSM()
-    car_sm._graph().write_png(car_sm.IMG_PATH)
+    car_sm.Resume()
