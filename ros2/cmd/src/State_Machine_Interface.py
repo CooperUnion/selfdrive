@@ -99,6 +99,7 @@ class Interface(Node):
         # Can change the equal to to see if the string has name of object in it 
 
         # need to define this condition 
+        
         if(True):
             self.prev_object_history_length = len(self.object_history)
             object_destription = (self.object_name,self.object_position_x,self.object_position_y)
