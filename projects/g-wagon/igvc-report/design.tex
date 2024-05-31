@@ -102,4 +102,70 @@ enclosure is weatherproof.
 
 \subsection{Electrical}
 
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=\textwidth]{electric-system.png}
+  \caption{Electric system diagram.}
+\end{figure}
+
+We distribute power from the 48V DC pack through circuit breakers,
+fuses, under-voltage protection, and DC-to-DC converters to various
+sensors, CCMNs, and our car computer. We daisy-chain all CCMNs with
+Cat6A cables that supply 12V DC power and our car's CAN Bus. The boards
+have voltage regulators, buck converters, and e-fuses for safe
+operation and reverse polarity protection.
+
+\subsubsection{Power Distribution System}
+
+Four 12V DC, 120Ah AGM batteries connected in series power the car and
+the electronic stack above. This setup yields us 5.8kWh, which lets the
+car run for approximately six hours without needing to charge.
+
+The DC motor controller (a Pololu G2 High-Power Motor Controller) draws
+a lot of in-rush current when activated to drive the DC motor. To
+prevent our DC motor controller from drawing too much current from the
+DC-to-DC converters (causing their overcurrent protection to trip),
+we've connected them to a battery charger, which charges a 12V battery
+connected to our DC motor controller. We've also added a fast-burn 7A
+fuse to the system to prevent damage if the motor stalls for an
+extended period of time.
+
+\subsubsection{Electronics Suite}
+
+We connect a CCMN to an actuator, defining its node identity by its
+expansion hat (if present). Each node interfaces with its actuator,
+listening to control inputs over CAN and broadcasting senor values of
+CAN. Webcams and our ZED2i are connected directly to our car computer.
+
+\begin{itemize}
+  \item \textbf{Accelerator:} sends two voltage signals directly to the throttle through relays to allow manual overrides.
+  \item \textbf{BBC:} interfaces with a DC motor via a motor controller to perform pressure control and filters the pressure sensor before feeding it to the built-in ADC of the ESP32S3.
+  \item \textbf{Encoders:} gets encoder ticks through level shifters.
+  \item \textbf{Protoboard:} a generic expansion board for prototyping new expansion boards.
+\end{itemize}
+
+\subsubsection{Safety Devices}
+
+Safety devices fall into two categories: mechanical/electrical devices
+and software.
+
+We use mechanical switches for e-stop buttons around the car to cut
+power to our low-voltage system, effectively disabling all autonomous
+aspects of our vehicle. Additionally, we've installed circuit breakers
+around the car so that all systems have to be explicitly enabled by a
+user, with the plus of adding over-current protection.
+
+On the electrical side, we have ATC fuses in line with each device.
+We've also added under-voltage protection to our 48V battery pack to
+ensure its voltage does not fall below 40V and cause permanent damage.
+Finally, each CCMN has a Schottky diode e-fuse on its input to allow
+boards to survive accidental reverse input.
+
+On the software side, we have a supervisor CCMN that ensures we never
+latch in our vehicle's autonomous mode. This node inspects CAN messages
+and, if all checks pass, can authorize other nodes on the CAN network
+for autonomous control. This authorization has a TTL on the scale of
+tens of milliseconds, meaning if any check fails, unauthorized
+components of the system will exit autonomous control.
+
 \subsection{Software}
