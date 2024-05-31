@@ -62,15 +62,17 @@ class Interface(Node):
         # self.cmd_publisher.publish(cmd)
 
     def Lane_Change_Action(self,args=None):
-        # TODO: add function to calculate relative position for path
-        relative_x = 3  # replace this with subscriber data from obj detection
-        relative_y = 0  # replace this with subscriber data from obj detection
-        end_yaw = 0
+        if args == None:
+            raise No_Lane_Change_Data
+        else:
+            # TODO: add function to calculate relative position for path
+            relative_x = args[0] # replace this with subscriber data from obj detection
+            relative_y = args[1] # replace this with subscriber data from obj detection
+            end_yaw = 0 # We should never be sending an end yaw of more than zero
 
-        self.lane_change.create_path(relative_x, relative_y, end_yaw)
-
-        # TODO: add error checking for lane change to estop transitions
-        self.lane_change.follow_path()
+            self.lane_change.create_path(relative_x, relative_y, end_yaw)
+            # TODO: add error checking for lane change to estop transitions
+            self.lane_change.follow_path()
 
     def Cstop_Action(self, args=None):
         cmd = Float32MultiArray()
@@ -126,6 +128,8 @@ class Interface(Node):
                          }
         function_dict[self.car_sm.state](args=args)
 
-
 class State_Machine_Failure(Exception):
+    pass
+
+class No_Lane_Change_Data(Exception):
     pass
