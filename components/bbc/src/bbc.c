@@ -35,16 +35,10 @@
 #define PS_ADC_CHANNEL ADC_CHANNEL_7  // GPIO_8
 #define PS_ADC_UNIT    ADC_UNIT_1
 
-<<<<<<< Updated upstream
-#define LIM_SW_1 GPIO_NUM_37  // too far backward
-#define LIM_SW_2 GPIO_NUM_40  // too far forward
-    == == ==
-    =
 #define LIM_SW_1 GPIO_NUM_33  // too far backward
 #define LIM_SW_2 GPIO_NUM_34  // too far forward
-	>>>>>>> Stashed changes
 
-    enum adc_channel_index {
+enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
 };
@@ -63,18 +57,11 @@
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
-<<<<<<< Updated upstream
-
 // TODO: TUNE INNER LOOP
 #define KP 5.00
 #define KI 0.05
 #define KD 0.00
-    == == ==
-    =
-#define KP 5.00
-#define KI 0.05
-#define KD 0.00
-	>>>>>>> Stashed changes
+
 #define SIGMA 1.00
 #define TS    0.01
 
@@ -88,8 +75,7 @@
 #define MAX_PRESSURE_READING 2600
 #define MIN_PRESSURE_READING 155
 
-    static void
-		bbc_init(void);
+static void	bbc_init(void);
 static void	bbc_1kHz(void);
 static void	adc_init(void);
 static bool	adc_callback(adc_continuous_handle_t handle,
@@ -142,19 +128,11 @@ ember_rate_funcs_S module_rf = {
     .call_1kHz = bbc_1kHz,
 };
 
-<<<<<<< Updated upstream
 static void bbc_init(void)
 {
 	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
 	motor_direction = 1;
 	gpio_set_level(DIR_PIN, !motor_direction);
-=======
-static void bbc_init(void)
-{
-	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
-	motor_direction = 1;
-	gpio_set_level(DIR_PIN, motor_direction);
->>>>>>> Stashed changes
 
 	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
 	gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
