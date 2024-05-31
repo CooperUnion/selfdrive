@@ -3,6 +3,9 @@ from statemachine import StateMachine, State
 
 class CarSM(StateMachine):
     "State Machine for the Cooper Union Intelligent Ground Vehicle"
+    
+    IMG_PATH = "/home/eeadmin/selfdrive/live_SM.png"
+    
     # C stop is Controlled, E stop is Emergency
     Cstop = State("CS", initial=True)
     Lane_Following = State("LF")
@@ -20,22 +23,25 @@ class CarSM(StateMachine):
     # The Lane Follow State
     @Lane_Following.enter
     def Follow(self):
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Following lane lines")
 
     @Cstop.enter
     def on_CStop(self):
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Executing a controlled stop")
 
     @Estop.enter
     def on_EStop(self):
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Executing an emergency stop")
 
     @Lane_Change.enter
     def on_Lane_change(self):
+        self._graph().write_png(CarSM.IMG_PATH)
         print("Changing lanes")
 
 
 if __name__ == "__main__":
     car_sm = CarSM()
-    img_path = "./diagrams/reference_SM.png"
-    car_sm._graph().write_png(img_path)
+    car_sm.Resume()

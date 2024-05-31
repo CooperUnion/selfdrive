@@ -71,6 +71,10 @@ class LaneFollower(Node):
         self.cross_track_error = 0.0
         self.empty_error = False  # Flag used to signal invalid cross track error to transititon to ESTOP
 
+        #Parameters for determining if object lies in lane or not.
+        self.left_slope = 0.0
+        self.right_slope = 0.0
+
         self.odom_sub = odom_sub
         self.stanley = StanleyController()
 
@@ -145,7 +149,7 @@ class LaneFollower(Node):
             2.235  # Unsure if the velocity command should always be the target
         )
 
-        time.sleep(period)  # Generate command at 20Hz
+        time.sleep(period)
 
         return steer_cmd, vel_cmd
 
@@ -201,13 +205,13 @@ class LaneFollower(Node):
             result_left,
             empty_left,
             left_heading,
-            left_slope,
+            self.left_slope,
         ) = self._left_follower.Plot_Line()
         (
             result_right,
             empty_right,
             right_heading,
-            right_slope,
+            self.right_slope,
         ) = self._right_follower.Plot_Line()
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
