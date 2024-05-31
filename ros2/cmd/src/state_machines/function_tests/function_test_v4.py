@@ -1,3 +1,7 @@
+#Test FV4. Obstacle detection. Lane Changing (goes straight, detects obstacle, and changes lanes)
+
+threshold_distance = 4.572
+
 class Function_Test_4():
     def __init__(self, interface):
         self.interface = interface
@@ -8,7 +12,7 @@ class Function_Test_4():
         barrel_counter = 0
         self.interface.car_SM.Resume()
         while barrel_counter < 2:            
-            if(self.interface.Object_Detection(cared_objects=["Barrel"],)):
+            if(self.interface.Object_Detection(threshold_distance, cared_objects=["Barrel"],)):
                 self.interface.car_SM.Obj_Avoidance()
                 barrel += 1
             self.interface.Run()

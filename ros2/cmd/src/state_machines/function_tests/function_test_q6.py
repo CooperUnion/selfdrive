@@ -1,8 +1,8 @@
-#Test Q.5 Left Turn
+#Test Q.6 Right Turn
 
 distance_threshold = 1.524
 
-class Function_Test_Q5():
+class Function_Test_Q6():
     def __init__(self, interface):
         self.interface = interface
 
@@ -11,8 +11,8 @@ class Function_Test_Q5():
         barrel_counter = 0
         self.interface.car_SM.Resume()
         while barrel_counter < 1:            
-            if(self.interface.Object_Detection(distance_threshold, cared_objects=["White Line"])):
-                #making a left turn
+            if(self.interface.Object_Detection(cared_objects=["White Line"],)):
+                #making a right turn
                 self.interface.car_SM.Obj_Avoidance()
                 barrel_counter += 1
             self.interface.Run()
