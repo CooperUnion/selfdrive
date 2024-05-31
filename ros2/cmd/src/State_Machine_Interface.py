@@ -63,7 +63,7 @@ class Interface(Node):
 
     def Lane_Change_Action(self,args=None):
         if args == None:
-            raise No_Lane_Change_Data
+            self.Estop_Action(error="No Lane Data Provided")
         else:
             # TODO: add function to calculate relative position for path
             relative_x = args[0] # replace this with subscriber data from obj detection
