@@ -1,8 +1,9 @@
+import datetime
 from rclpy.node import Node
 
 from std_msgs.msg import Float32MultiArray, String
-from geometry_msgs.msg import Pose, PoseWithCovariance
-
+from geometry_msgs.msg import PoseWithCovariance
+import time
 from state_machines import car_sm
 
 
@@ -89,18 +90,32 @@ class Interface(Node):
             end_yaw = (
                 0  # We should never be sending an end yaw of more than zero
             )
-
             self.lane_change.create_path(relative_x, relative_y, end_yaw)
             # TODO: add error checking for lane change to estop transitions
             self.lane_change.follow_path()
 
     def Cstop_Action(self, args=None):
+        #We need to parametrize this, slope in m/s^2
+        slope = 5
+        if args is not None:
+            #THIS SHOULD ONLY COME FROM CSTOP
+            slope = args[0]
+
+        current_speed = self.lane_follow.odom_sub.vel
         cmd = Float32MultiArray()
-        cmd.data = [
+        initial = datetime.now()
+        #Catching any precision errors & I'm not entirely sure how odom velocity is calculated
+        #In other words, lazy programming. TODO: Determine appropriate bounds:)
+        while current_speed > 0.05:
+            current_speed = self.lane_follow.odom_sub.vel
+            current_time = datetime.now()
+            difference = (initial-current_time).total_seconds()
+            cmd.data = [
             0.0,
-            0.0,
-        ]
-        self.cmd_publisher.publish(cmd)
+            current_speed-(slope*difference),
+            ]   #Allows us to keep slope @ set time
+            initial = current_time
+            self.cmd_publisher.publish(cmd)
 
     def Estop_Action(self, error="Entered Error State", args=None):
         print("ESTOP REACHED")
