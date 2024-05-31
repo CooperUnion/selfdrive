@@ -36,8 +36,8 @@
 #define PS_ADC_CHANNEL ADC_CHANNEL_7  // GPIO_8
 #define PS_ADC_UNIT    ADC_UNIT_1
 
-#define LIM_SW_1 GPIO_NUM_37  // too far backward
-#define LIM_SW_2 GPIO_NUM_40  // too far forward
+#define LIM_SW_MIN GPIO_NUM_37	// too far backward
+#define LIM_SW_MAX GPIO_NUM_40	// too far forward
 
 enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
@@ -167,11 +167,11 @@ static void bbc_init(void)
 	motor_direction = 1;
 	gpio_set_level(DIR_PIN, !motor_direction);
 
-	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
-	gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
+	gpio_set_direction(LIM_SW_MIN, GPIO_MODE_INPUT);
+	gpio_set_direction(LIM_SW_MAX, GPIO_MODE_INPUT);
 
-	gpio_pullup_en(LIM_SW_1);
-	gpio_pullup_en(LIM_SW_2);
+	gpio_pullup_en(LIM_SW_MIN);
+	gpio_pullup_en(LIM_SW_MAX);
 
 	gpio_set_direction(SLP_PIN, GPIO_MODE_OUTPUT);
 	gpio_set_level(SLP_PIN, 1);
@@ -238,16 +238,16 @@ static void bbc_100Hz(void)
 
 	motor_direction = (controller_output < 0) ? 0 : 1;
 
-	max_limit_switch_status = gpio_get_level(LIM_SW_2);
-	min_limit_switch_status = gpio_get_level(LIM_SW_1);
+	min_limit_switch_status = gpio_get_level(LIM_SW_MIN);
+	max_limit_switch_status = gpio_get_level(LIM_SW_MAX);
 
 	if (motor_direction) {
-		if (gpio_get_level(LIM_SW_2)) {
+		if (gpio_get_level(LIM_SW_MAX)) {
 			gpio_set_level(SLP_PIN, 0);
 			controller_output = 0.0;
 		}
 	} else {
-		if (gpio_get_level(LIM_SW_1)) {
+		if (gpio_get_level(LIM_SW_MIN)) {
 			gpio_set_level(SLP_PIN, 0);
 			controller_output = 0.0;
 		}
