@@ -1,1 +1,51 @@
 \section{Background}
+
+\subsection{Organization}
+
+The team follows a vertically integrated structure, divided into three
+disciplines consisting of three to five student groups, each led by a
+subteam lead who facilitates weekly meetings. The subteams correspond
+to abstract systems on the car: Hardware (Electrical + Mechanical),
+Firmware, and Algorithms. In addition to weekly subteam meetings, we
+hold weekly team meetings to keep everyone in the loop of new
+developments and bi-weekly sprint meetings to establish tasks for our
+bi-weekly test days.
+
+The hardware subteam designs and assembles all expansion hats for the
+Cooper Common Microcontroller Nodes (CCMNs), a custom
+\texttt{\#coopermade} breakout board around the ESP32S3
+microcontroller, to facilitate the needs of the Firmware subteam. In
+addition to PCBs, the subteam is responsible for maintaining the power
+distribution system of the car and designing mechanical components to
+retrofit our vehicle.
+
+Our Firmware subteam writes all our safety critical actuation code and
+custom tooling to supplement software development. They aim to write
+modular firmware, allowing for the fast extension of CCMNs attached to
+hardware hats to specific hardware applications.
+
+The algorithms subteam handles the perception and navigation of our
+car. They create \& tune controllers, detect objects, perform
+localization based on camera and encoder data, and generate paths given
+all our component outputs.
+
+\subsection{Design Assumptions \& Design Process}
+
+Our design process revolves around ensuring our systems are safe and
+easy to test in the cramped surroundings of the East Village in
+downtown Manhattan. We try to make our systems as modular as possible
+by breaking down every Autonomy Lab project into its various
+components, allowing for overlap between different projects we may take
+on. We host all our work in a publically available in a Git monorepo,
+which is licensed under copyleft licenses to ensure free access to our
+work to everyone. Maintaining a Git monorepo allows for easy
+collaboration on components, simplifies code review, and lets us
+accurately track changes to our work.
+
+Due to Cooper's small size, it's easy for us to keep tabs on one
+another to ensure things get done, but outside of meetings, we also
+communicate using a Cooper-hosted instance of Matrix. We also believe
+that maintaining good documentation is essential to avoid amassing
+technical debt, so we keep a mix of public-facing documentation in our
+monorepo and institution-specific documentation that does not make
+sense to share outside Cooper.
