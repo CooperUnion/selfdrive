@@ -53,7 +53,7 @@ enum adc_channel_index {
 	(sizeof(adc_digi_output_data_t) * FRAME_SAMPLES * ADC_CHANNELS)
 #define POOL_SIZE (FRAME_SIZE * 2)
 
-#define TASK_STACK_SIZE 2048
+#define ADC_TASK_STACK_SIZE 2048
 
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
@@ -271,7 +271,7 @@ static void adc_init(void)
 
 	xTaskCreatePinnedToCore(adc_task,
 		"adc_task",
-		TASK_STACK_SIZE,
+		ADC_TASK_STACK_SIZE,
 		0,
 		1,
 		&adc.task_handle,
