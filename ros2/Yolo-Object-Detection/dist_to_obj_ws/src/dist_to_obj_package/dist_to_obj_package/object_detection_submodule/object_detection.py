@@ -43,7 +43,9 @@ class ObjectDetection():
         self.ocr = OCR()
 
     def object_bounding_box(self):
-        bounding_box_annotator = sv.BoundingBoxAnnotator()
+        bounding_box_annotator = sv.BoxAnnotator()
+        
+        
         label_annotator = sv.LabelAnnotator(text_position=sv.Position.TOP_CENTER)
  
         bounding_box_img  = bounding_box_annotator.annotate(
