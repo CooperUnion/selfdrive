@@ -33,7 +33,7 @@ class LaneFollower(Node):
 
     # Matrix to warp the image for birdseye window
     UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
-    ##Kernel for blurring & removing "salt and pepper" noise
+    # Kernel for blurring & removing "salt and pepper" noise
     KERNEL = 11
     LANE_TOLERANCE = 10
 
@@ -70,7 +70,8 @@ class LaneFollower(Node):
         # Parameters for Stanley Controller
         self.heading_error = 0.0
         self.cross_track_error = 0.0
-        self.empty_error = False  # Flag used to signal invalid cross track error to transititon to ESTOP
+        # Flag used to signal invalid cross track error to transititon to ESTOP
+        self.empty_error = False
 
         # Parameters for determining if object lies in lane or not.
         self.left_slope = 0.0
@@ -142,13 +143,10 @@ class LaneFollower(Node):
             self.heading_error,
             self.cross_track_error,
             # self.odom_sub.vel,
-            2.235,  # comment this out when you want to use the actual velocity
-        )
+            2.235)  # comment this out when you want to use the actual velocity
 
         # vel_cmd = self.odom_sub.vel
-        vel_cmd = (
-            2.235  # Unsure if the velocity command should always be the target
-        )
+        vel_cmd = 2.235  # Unsure if the velocity command should always be the target
 
         time.sleep(period)
 
@@ -158,7 +156,7 @@ class LaneFollower(Node):
         success_l, image_l = self.vidcap_left.read()
         success_r, image_r = self.vidcap_right.read()
 
-        #Left image is inverted
+        # Left image is inverted
         image_l = cv2.rotate(image_l, cv2.ROTATE_180)
 
         # success_r, image_r = self.vidcap_right.read()
@@ -173,20 +171,16 @@ class LaneFollower(Node):
 
         for image in images:
             frame = image[0]
-            for point in (
-                LaneFollower.bl,
-                LaneFollower.tl,
-                LaneFollower.br,
-                LaneFollower.tr,
-            ):
+            for point in (LaneFollower.bl,
+                          LaneFollower.tl,
+                          LaneFollower.br,
+                          LaneFollower.tr):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
             transformed_frame = cv2.rotate(
                 cv2.warpPerspective(
-                    frame, LaneFollower.UNWARP, LaneFollower.FORMAT
-                ),
-                cv2.ROTATE_90_CLOCKWISE,
-            )
+                    frame, LaneFollower.UNWARP, LaneFollower.FORMAT),
+                cv2.ROTATE_90_CLOCKWISE)
             # Object Detection
             # Image Thresholding
 
