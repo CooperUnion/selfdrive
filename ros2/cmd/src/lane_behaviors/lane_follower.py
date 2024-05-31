@@ -49,8 +49,8 @@ class LaneFollower(Node):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_left = cv2.VideoCapture("/dev/video2")
-        self.vidcap_right = cv2.VideoCapture("/dev/video4")
+        self.vidcap_left = cv2.VideoCapture("/dev/video0")
+        self.vidcap_right = cv2.VideoCapture("/dev/video2")
         # Setting the format for the images: we use 640 x 480
         self.vidcap_left.set(3, LaneFollower.FORMAT[0])
         self.vidcap_left.set(4, LaneFollower.FORMAT[1])
@@ -71,7 +71,7 @@ class LaneFollower(Node):
         self.cross_track_error = 0.0
         self.empty_error = False  # Flag used to signal invalid cross track error to transititon to ESTOP
 
-        #Parameters for determining if object lies in lane or not.
+        # Parameters for determining if object lies in lane or not.
         self.left_slope = 0.0
         self.right_slope = 0.0
 

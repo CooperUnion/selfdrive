@@ -3,9 +3,9 @@ from statemachine import StateMachine, State
 
 class CarSM(StateMachine):
     "State Machine for the Cooper Union Intelligent Ground Vehicle"
-    
-    IMG_PATH = "/home/eeadmin/selfdrive/live_SM.png"
-    
+
+    IMG_PATH = "/home/autonomylab/selfdrive/live_SM.png"
+
     # C stop is Controlled, E stop is Emergency
     Cstop = State("CS", initial=True)
     Lane_Following = State("LF")

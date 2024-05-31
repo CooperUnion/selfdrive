@@ -11,7 +11,8 @@ class Interface(Node):
         super().__init__(function_test_label)
 
         self.cmd_publisher = self.create_publisher(
-            Float32MultiArray, '/cmd_stanley', 10)
+            Float32MultiArray, '/cmd_stanley', 10
+        )
 
         self.lane_change = lane_change
         self.lane_follow = lane_follow
@@ -27,14 +28,23 @@ class Interface(Node):
 
         # We want the name of the object and how far it is (distance)
         self.object_name_subscription = self.create_subscription(
-            String, '/obj_name', self.object_name_callback, 10)
+            String, '/obj_name', self.object_name_callback, 10
+        )
         self.object_distance_subscription = self.create_subscription(
-            Float32MultiArray, '/obj_pointcloud', self.object_distance_callback, 10)
+            Float32MultiArray,
+            '/obj_pointcloud',
+            self.object_distance_callback,
+            10,
+        )
 
         # Here we want the object's location realtive to the origin (starting point)
         self.object_location_subscription = self.create_subscription(
-            PoseWithCovariance, '/obj_location', self.object_location_callback, 10)
-        
+            PoseWithCovariance,
+            '/obj_location',
+            self.object_location_callback,
+            10,
+        )
+
     def object_name_callback(self, msg):
         self.object_name = msg.data
 
@@ -46,29 +56,39 @@ class Interface(Node):
         self.object_distance = msg.data[2]
 
     def Lane_Follow_Action(self, args=None):
-        cmd = Float32MultiArray()
+        try:
+            cmd = Float32MultiArray()
 
-        if self.lane_follow.empty_error == True:
-            self.car_sm.Emergency_Trigger()
-            self.Run()  # ESTOP if we lose the lane lines in our vision
-        # Each command takes 0.05s so this will take 30 seconds
-        [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1/20)
+            if self.lane_follow.empty_error == True:
+                self.car_sm.Emergency_Trigger()
+                self.Run()  # ESTOP if we lose the lane lines in our vision
+            # Each command takes 0.05s so this will take 30 seconds
+            [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 20)
 
-        # Publish Lane Following command
-        cmd.data = [
-            steer_cmd,
-            vel_cmd,
-        ]
+            # Publish Lane Following command
+            cmd.data = [
+                steer_cmd,
+                vel_cmd,
+            ]
+            self.cmd_publisher.publish(cmd)
+        except:
+            self.Estop_Action()
         # self.cmd_publisher.publish(cmd)
 
-    def Lane_Change_Action(self,args=None):
+    def Lane_Change_Action(self, args=None):
         if args == None:
             self.Estop_Action(error="No Lane Data Provided")
         else:
             # TODO: add function to calculate relative position for path
-            relative_x = args[0] # replace this with subscriber data from obj detection
-            relative_y = args[1] # replace this with subscriber data from obj detection
-            end_yaw = 0 # We should never be sending an end yaw of more than zero
+            relative_x = args[
+                0
+            ]  # replace this with subscriber data from obj detection
+            relative_y = args[
+                1
+            ]  # replace this with subscriber data from obj detection
+            end_yaw = (
+                0  # We should never be sending an end yaw of more than zero
+            )
 
             self.lane_change.create_path(relative_x, relative_y, end_yaw)
             # TODO: add error checking for lane change to estop transitions
@@ -77,12 +97,13 @@ class Interface(Node):
     def Cstop_Action(self, args=None):
         cmd = Float32MultiArray()
         cmd.data = [
-            0,
-            0,
+            0.0,
+            0.0,
         ]
         self.cmd_publisher.publish(cmd)
 
     def Estop_Action(self, error="Entered Error State", args=None):
+        print("ESTOP REACHED")
         self.Cstop_Action()
         # TODO: Send Estop Message to DBW
         raise State_Machine_Failure(error)
@@ -100,13 +121,18 @@ class Interface(Node):
         # Can change the equal to to see if the string has name of object in it
 
         # need to define this condition
-        if (True):
+        if True:
             self.prev_object_history_length = len(self.object_history)
             object_destription = (
-                self.object_name, self.object_position_x, self.object_position_y)
+                self.object_name,
+                self.object_position_x,
+                self.object_position_y,
+            )
             self.object_history.append(object_destription)
 
-    def Object_Detection(self, distance_threshold, object_list=[], check_in_lane=False):
+    def Object_Detection(
+        self, distance_threshold, object_list=[], check_in_lane=False
+    ):
 
         # if the name is what we expected
         # is it in our lane (add after)
@@ -115,21 +141,29 @@ class Interface(Node):
 
         self.Unique_Object()
 
-        if ((object_list[self.obj_list_index] == self.object_name) and (self.object_distance <= distance_threshold) and (len(self.object_history) > self.prev_object_history_length)):
+        if (
+            (object_list[self.obj_list_index] == self.object_name)
+            and (self.object_distance <= distance_threshold)
+            and (len(self.object_history) > self.prev_object_history_length)
+        ):
             return True
+
         else:
             return False
 
     def Run(self, args=None):
-        function_dict = {"LC": self.Lane_Change_Action,
-                         "LF": self.Lane_Follow_Action,
-                         "Cstop": self.Cstop_Action,
-                         "Estop": self.Estop_Action,
-                         }
-        function_dict[self.car_sm.state](args=args)
+        function_dict = {
+            "Lane_Change": self.Lane_Change_Action,
+            "Lane_Following": self.Lane_Follow_Action,
+            "Cstop": self.Cstop_Action,
+            "Estop": self.Estop_Action,
+        }
+        function_dict[self.car_sm.current_state.id](args=args)
+
 
 class State_Machine_Failure(Exception):
     pass
+
 
 class No_Lane_Change_Data(Exception):
     pass
