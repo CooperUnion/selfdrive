@@ -75,7 +75,7 @@ enum adc_channel_index {
 #define MIN_PRESSURE_READING 215
 
 static void	bbc_init(void);
-static void	bbc_1kHz(void);
+static void	bbc_100Hz(void);
 static void	adc_init(void);
 static bool	adc_callback(adc_continuous_handle_t handle,
 	    const adc_continuous_evt_data_t	    *cbs,
@@ -162,7 +162,7 @@ static void bbc_init(void)
 		&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 }
 
-static void bbc_1kHz(void)
+static void bbc_100Hz(void)
 {
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
 		&& CANRX_get_SUP_bbcAuthorized()
