@@ -3,7 +3,6 @@ from rclpy.node import Node
 
 from std_msgs.msg import Float32MultiArray, String
 from geometry_msgs.msg import PoseWithCovariance
-import time
 from state_machines import car_sm
 
 
