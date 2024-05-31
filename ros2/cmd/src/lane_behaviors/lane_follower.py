@@ -33,7 +33,8 @@ class LaneFollower(Node):
 
     # Matrix to warp the image for birdseye window
     UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
-
+    ##Kernel for blurring & removing "salt and pepper" noise
+    KERNEL = 11
     LANE_TOLERANCE = 10
 
     # This is the lane follower Cstop/Estop trigger from crosstrack:
@@ -157,6 +158,9 @@ class LaneFollower(Node):
         success_l, image_l = self.vidcap_left.read()
         success_r, image_r = self.vidcap_right.read()
 
+        #Left image is inverted
+        image_l = cv2.rotate(image_l, cv2.ROTATE_180)
+
         # success_r, image_r = self.vidcap_right.read()
         # image_l = cv2.flip(image_l, 0)
         # Removing right image for testing only left camera
@@ -185,11 +189,14 @@ class LaneFollower(Node):
             )
             # Object Detection
             # Image Thresholding
+
             hsv_transformed_frame = cv2.cvtColor(
                 transformed_frame, cv2.COLOR_BGR2HSV
             )
+
+            blurred = cv2.medianBlur(hsv_transformed_frame, self.KERNEL)
             mask = cv2.inRange(
-                hsv_transformed_frame, LaneFollower.LOWER, LaneFollower.UPPER
+                blurred, LaneFollower.LOWER, LaneFollower.UPPER
             )
             self.img_publish("mask_" + image[1], mask)
 
