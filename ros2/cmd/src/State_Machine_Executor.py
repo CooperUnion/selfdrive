@@ -1,7 +1,7 @@
 import rclpy
 from threading import Thread
 
-from state_machines.function_tests import function_test_v4 as FunctionTest
+from ros2.cmd.src.state_machines.function_tests import testq3_lanekeeping as FunctionTest
 # This is one of two lines that needs to be changed every time
 from State_Machine_Interface import Interface as SM_Interface
 from lane_behaviors.odom_sub import OdomSubscriber

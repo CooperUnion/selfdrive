@@ -34,7 +34,7 @@ class Interface(Node):
         # Here we want the object's location realtive to the origin (starting point)
         self.object_location_subscription = self.create_subscription(
             PoseWithCovariance, '/obj_location', self.object_location_callback, 10)
-
+        
     def object_name_callback(self, msg):
         self.object_name = msg.data
 
@@ -45,7 +45,7 @@ class Interface(Node):
     def object_distance_callback(self, msg):
         self.object_distance = msg.data[2]
 
-    def Lane_Follow_Action(self):
+    def Lane_Follow_Action(self, args=None):
         cmd = Float32MultiArray()
 
         if self.lane_follow.empty_error == True:
@@ -61,7 +61,7 @@ class Interface(Node):
         ]
         # self.cmd_publisher.publish(cmd)
 
-    def Lane_Change_Action(self):
+    def Lane_Change_Action(self,args=None):
         # TODO: add function to calculate relative position for path
         relative_x = 3  # replace this with subscriber data from obj detection
         relative_y = 0  # replace this with subscriber data from obj detection
@@ -72,7 +72,7 @@ class Interface(Node):
         # TODO: add error checking for lane change to estop transitions
         self.lane_change.follow_path()
 
-    def Cstop_Action(self):
+    def Cstop_Action(self, args=None):
         cmd = Float32MultiArray()
         cmd.data = [
             0,
@@ -80,7 +80,7 @@ class Interface(Node):
         ]
         self.cmd_publisher.publish(cmd)
 
-    def Estop_Action(self, error="Entered Error State"):
+    def Estop_Action(self, error="Entered Error State", args=None):
         self.Cstop_Action()
         # TODO: Send Estop Message to DBW
         raise State_Machine_Failure(error)
@@ -124,7 +124,7 @@ class Interface(Node):
                          "Cstop": self.Cstop_Action,
                          "Estop": self.Estop_Action,
                          }
-        function_dict[self.car_sm.state](args)
+        function_dict[self.car_sm.state](args=args)
 
 
 class State_Machine_Failure(Exception):
