@@ -1,5 +1,17 @@
 #include <selfdrive/pid.h>
 
+float selfdrive_pid_deadband_compensation(selfdrive_pid_t *pid, float u)
+{
+	if (!u) return u;
+
+	return (u > 0.0) ? pid->deadband.upper
+			+ ((u / pid->limit.upper)
+				* (pid->limit.upper - pid->deadband.upper))
+			 : pid->deadband.lower
+			+ ((u / pid->limit.lower)
+				* (pid->limit.lower - pid->deadband.lower));
+}
+
 void selfdrive_pid_init(selfdrive_pid_t *pid,
 	float				 kp,
 	float				 ki,
@@ -35,6 +47,13 @@ float selfdrive_pid_saturate(selfdrive_pid_t *pid, float u)
 	float min = (pid->limit.upper < u) ? pid->limit.upper : u;
 
 	return (min >= pid->limit.lower) ? min : pid->limit.lower;
+}
+
+void selfdrive_pid_set_deadbands(
+	selfdrive_pid_t *pid, float upper, float lower)
+{
+	pid->deadband.upper = upper;
+	pid->deadband.lower = lower;
 }
 
 void selfdrive_pid_set_sigma(selfdrive_pid_t *pid, float value)
@@ -89,5 +108,6 @@ float selfdrive_pid_step(selfdrive_pid_t *pid, float desired, float current)
 	pid->private.error.position = error;
 	pid->private.y0		    = current;
 
-	return selfdrive_pid_saturate(pid, u_unsat);
+	return selfdrive_pid_deadband_compensation(
+		pid, selfdrive_pid_saturate(pid, u_unsat));
 }

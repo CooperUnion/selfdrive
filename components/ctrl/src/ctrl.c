@@ -11,20 +11,22 @@
 #include <opencan_tx.h>
 #include <selfdrive/pid.h>
 
-#define ENCODER0_CHAN_A 4
-#define ENCODER0_CHAN_B 3
+#define ENCODER0_CHAN_A 3
+#define ENCODER0_CHAN_B 4
 #define ENCODER1_CHAN_A 36
 #define ENCODER1_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS	   600	// slightly over 5MPH
-#define ENCODER_TICKS_PER_ROTATION 4000
+#define ENCODER_MAX_TICKS	   400	// slightly over 5mph
+#define ENCODER_TICKS_PER_ROTATION 30536
 
-#define WHEEL_CIRCUMFERENCE_M 1.899156
+#define WHEEL_CIRCUMFERENCE_M 1.7954
 
-#define METERS_PER_TICK (WHEEL_CIRCUMFERENCE_M / ENCODER_TICKS_PER_ROTATION)
+#define METERS_PER_TICK \
+	((float) WHEEL_CIRCUMFERENCE_M / (float) ENCODER_TICKS_PER_ROTATION)
 
+// XXX: TODO ~ REPLACE WITH 2024 MAPPINGS
 #define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING	    15.40
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING	    -58.03
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET -11.33
@@ -38,6 +40,7 @@
 
 #define AVERAGE_TICKS_SAMPLES 4
 
+// XXX: TODO ~ TUNE GAINS FOR NEW MAPPINGS
 #define KP    3.00
 #define KI    0.30
 #define KD    1.35
@@ -191,10 +194,11 @@ static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
 
 	index = (index + 1) % AVERAGE_TICKS_SAMPLES;
 
-	int16_t ticks = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
+	int16_t ticks_10ms = average_ticks_sum / AVERAGE_TICKS_SAMPLES;
 
-	// magic scaling factor of 10 here, no idea why
-	average_velocity = ticks * METERS_PER_TICK / 0.1;
+
+	// * 100 is to go from 10ms to 1s
+	average_velocity = ticks_10ms * METERS_PER_TICK * 100;
 }
 
 static void IRAM_ATTR encoder0_chan_a(void *arg)
@@ -290,6 +294,7 @@ static void velocity_control(
 {
 	// we'd like to stop, or so i hope
 	if (!desired_velocity) {
+		// XXX: TODO, DETURMINE IF SHOULD INCREASE PERCENTAGE OR NOT
 		brake_percent	 = 50;
 		throttle_percent = 0;
 
@@ -307,7 +312,7 @@ static void velocity_control(
 	}
 }
 
-void CANRX_onRxCallback_DBW_SetVelocityGains(
+void CANRX_onRxCallback_DBW_SetCTRLVelocityGains(
 	const struct CAN_TMessageRaw_PIDGains * const raw,
 	const struct CAN_TMessage_PIDGains * const    dec)
 {

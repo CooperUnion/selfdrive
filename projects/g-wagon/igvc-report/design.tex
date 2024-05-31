@@ -2,6 +2,307 @@
 
 \subsection{Mechanical}
 
+Our mechanical design work revolved around retrofitting our vehicle so
+that it's possible for it to drive itself. We added a gas-spring
+emergency brake, a brake-by-cable system, spring-loaded rear encoders,
+and a water-proof trunk to protect our power distribution system. In
+addition to this, we designed various mounts for sensors,
+microcontrollers, and our car computer. We lean towards aluminum and
+steel for rigidity and machinability when designing mechanical
+components to add to the car. We use 3D-printed components made from
+PETG filament for anything not load-bearing, and when possible, we
+drill mounting holes into our car's frame to mount components.
+
+\subsubsection{Emergency Brake (Parking Brake)}
+
+We mounted a gas spring rated for 20 lbs of force to our vehicle's
+parking brake and we hold it in the armed position during operation
+using an electromagnet. On each end of the spring, we bolted aluminum
+extrusions between 3D-printed spaces that are free to rotate. We
+machined brackets from 1/4" aluminum sheet metal to attach the spring
+to the aluminum extrusions and hold any 3D-printed pieces to the car.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{ebrake-iso.pdf}
+  \caption{CAD drawing of the parking brake assembly in the open position.}
+\end{figure}
+
+\subsubsection{Brake-by-Cable (BBC)}
+
+We designed the Brake-By-Cable (BBC) system for fine control over
+pressure in the master brake cylinder to better replicate a human
+driver's control over the brake pedal. We designed the system based on
+the constraint that it had to apply 100 lbs of force to displace the
+brake pedal by two inches in less than a second. We designed the entire
+assembly to fit in the small region between the master cylinder,
+differential, and steering arms.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{bbc-iso.pdf}
+  \caption{CAD drawing of the BBC.}
+\end{figure}
+
+We chose a cable rated for 150 lbs to add a factor of safety. To reduce
+our motor's torque requirements, we designed a 3:1 lever and machined
+it from 1/4" steel. We connect the shorter side of the lever to the
+brake pedal and the longer side to the DC motor. We machined a
+three-inch steel pulley to be within the diameter recommended by the
+manufacturer of our cable. We also machined an aluminum shaft coupler
+to connect the top cable to our DC motor. For the DC motor, we chose it
+such that the operating point of the system would be well below 20\% of
+the motor's stall torque. Additionally, we added an extension spring to
+the bottom of the lever to ensure that the cable stays in tension when
+the motor releases the brake pedal.
+
+We machined smaller pulleys from aluminum and used copper sleeves for
+the cable terminations on the lever and brake pedal. Each termination
+freely rotates using bronze bushing and shoulder bolts fastened to the
+steel components. The large backplate covering the entire range of
+motion of the lever is to ensure there are no pinch points in the
+system. Each side of the lever also has an M6 shoulder bolt and a limit
+switch so that our firmware can detect the end of the range of motion.
+
+\subsubsection{Rear Encoder Mounts}
+
+Critical for calculating odometry and velocity for the vehicle, this
+year, we designed the rear encoders to have more precision and less
+slip than the previous design. We designed and 3D printed a small wheel
+(1.6 inches diameter) that directly attaches to the encoder shaft. This
+wheel touches the inside of the car’s wheel so that we can measure the
+tire's rotation. This geometry allows us to have over 30,000 counts per
+tire rotation. To ensure that the encoder wheel does not slip and
+maintains contact with the tire at all times, we designed a
+spring-loaded bracket that connects with the previous encoder mount’s
+bracket. The rotation point is an M8 shoulder bolt with thrust bearings
+on each side of the 1/8th-inch aluminum bracket to ensure low-friction
+rotation.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{encoders-iso.pdf}
+  \caption{CAD drawing of the rear encoders.}
+\end{figure}
+
+\subsubsection{Weather Proofing}
+
+To protect the power distribution system from weather, we designed and
+built a trunk that mounts to the back of the vehicle above the car
+battery pack. We made the trunk's frame from 20mm aluminum extrusion,
+held together with brackets made from a laser-cut 1/4" aluminum sheet.
+We laser cut the trunk walls from 1/8" cast acrylic and fastened to the
+aluminum extrusions. For ease of access, we mounted the circuit
+breakers and under-voltage protection boards to the acrylic on top of
+the trunk. We bolted the extrusion pieces to the chassis to ensure a
+secure mount and used silicone caulk on the inside edges to ensure the
+enclosure is weatherproof.
+
+\newpage
+
 \subsection{Electrical}
 
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=\textwidth]{electric-system.png}
+  \caption{Electric system diagram.}
+\end{figure}
+
+We distribute power from the 48V DC pack through circuit breakers,
+fuses, under-voltage protection, and DC-to-DC converters to various
+sensors, CCMNs, and our car computer. We daisy-chain all CCMNs with
+Cat6A cables that supply 12V DC power and our car's CAN Bus. The boards
+have voltage regulators, buck converters, and e-fuses for safe
+operation and reverse polarity protection.
+
+\subsubsection{Power Distribution System}
+
+Four 12V DC, 120Ah AGM batteries connected in series power the car and
+the electronic stack above. This setup yields us 5.8kWh, which lets the
+car run for approximately six hours without needing to charge.
+
+The DC motor controller (a Pololu G2 High-Power Motor Controller) draws
+a lot of in-rush current when activated to drive the DC motor. To
+prevent our DC motor controller from drawing too much current from the
+DC-to-DC converters (causing their overcurrent protection to trip),
+we've connected them to a battery charger, which charges a 12V battery
+connected to our DC motor controller. We've also added a fast-burn 7A
+fuse to the system to prevent damage if the motor stalls for an
+extended period of time.
+
+\subsubsection{Electronics Suite}
+
+We connect a CCMN to an actuator, defining its node identity by its
+expansion hat (if present). Each node interfaces with its actuator,
+listening to control inputs over CAN and broadcasting senor values of
+CAN. Webcams and our ZED2i are connected directly to our car computer.
+
+\begin{itemize}
+  \item \textbf{Accelerator:} sends two voltage signals directly to the throttle through relays to allow manual overrides.
+  \item \textbf{BBC:} interfaces with a DC motor via a motor controller to perform pressure control and filters the pressure sensor before feeding it to the built-in ADC of the ESP32S3.
+  \item \textbf{Encoders:} gets encoder ticks through level shifters.
+  \item \textbf{Protoboard:} a generic expansion board for prototyping new expansion boards.
+\end{itemize}
+
+\subsubsection{Safety Devices}
+
+Safety devices fall into two categories: mechanical/electrical devices
+and software.
+
+We use mechanical switches for e-stop buttons around the car to cut
+power to our low-voltage system, effectively disabling all autonomous
+aspects of our vehicle. Additionally, we've installed circuit breakers
+around the car so that all systems have to be explicitly enabled by a
+user, with the plus of adding over-current protection.
+
+On the electrical side, we have ATC fuses in line with each device.
+We've also added under-voltage protection to our 48V battery pack to
+ensure its voltage does not fall below 40V and cause permanent damage.
+Finally, each CCMN has a Schottky diode e-fuse on its input to allow
+boards to survive accidental reverse input.
+
+On the software side, we have a supervisor CCMN that ensures we never
+latch in our vehicle's autonomous mode. This node inspects CAN messages
+and, if all checks pass, can authorize other nodes on the CAN network
+for autonomous control. This authorization has a TTL on the scale of
+tens of milliseconds, meaning if any check fails, unauthorized
+components of the system will exit autonomous control.
+
 \subsection{Software}
+
+Our software falls into two categories: Firmware and Algorithms.
+Firmware creates the software interface between the hardware of the
+car, while Algorithms generates inputs that we feed into our
+Drive-By-Wire stack.
+
+As an example, let's follow how a path generated by our Stanley
+controller interacts with the car. We publish this path as a ROS topic
+to another ROS node that interfaces with our CAN Bus. We then translate
+this CAN message on our velocity controller CCMN using a PID controller
+to a brake and throttle percentage. The throttle and BBC nodes then act
+on these inputs only if authorized by our supervisor.
+
+\subsubsection{Extracting Items from the Current Scene}
+
+We handle object detection through a combination of a real-time
+deep-learning model and an optical character recognition engine. We
+chose Tesseract's OCR engine for reading road signs and only run it on
+signs detected by our instance of the YOLOv8 model. We also use
+point-cloud data from our ZED2i camera to compute the distance to
+detected objects. Once an obstacle is detected, its location relative
+to the vehicle gets published as a ROS topic.
+
+We use two web cameras mounted on the A-pillars of our car for lane
+detection. We use OpenCV to remove lens distortions and calculate a
+linear mapping between pixels and physical distances. From here, we
+threshold the image to detect white pixels and apply sliding windows to
+find lane-line positions.
+
+To detect which lane the car sits in, we compare the number of windows
+with less than a determined number of white pixels from our sliding
+windows. By nature, dashed lines have more empty windows, meaning we
+can determine legal road maneuvers without a need for additional
+localization.
+
+We achieve \enquote{sensor fusion} using the
+\texttt{ekf\_localization\_node} from the \texttt{robot\_localization}
+ROS package. This node utilizes an extended Kalman filter to merge IMU
+and encoder data for better estimates of our car's position.
+
+\subsubsection{World Frame Representation}
+
+We use odometry data from the \texttt{ekf\_localization\_node} to
+obtain the position and orientation information of the vehicle in the
+world frame. The ZED2i's point cloud data measures the vertical and
+horizontal displacement of objects relative to the vehicle's location.
+We then add the object's displacement relative to the vehicle's
+location from its starting point to determine the object's location in
+the world frame. We then feed this information into a state machine for
+decision-making.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=\textwidth]{rviz-path.png}
+  \caption{
+    We use Rviz2 to model vehicle dynamics at the control level: here,
+    we demonstrate a generated path and the car position calculated
+    using odometry from our rear encoders.
+  }
+\end{figure}
+
+\subsubsection{Vehicle Operating Modes}
+
+In self-driving mode, the vehicle operates in one of two states: lane
+keeping or land changing. A land change generates paths to avoid road
+obstructions by creating a clothoid path. We generate clothoid paths
+based on the car's current position, orientation, endpoint, and final
+orientation. Our vehicle switches operating modes based on the
+conditions present.
+
+\subsubsection{Trajectory Generation}
+
+In lane-change mode, we operate purely on generated clothoid paths. A
+lane change gets triggered by a detected object. Once detected, the
+clothoid path gets generated and followed to avoid a collision.
+Additionally, we generate trajectories to merge into different lanes or
+to cross intersections.
+
+\subsubsection{Trajectory Following Controls}
+
+After researching trajectory-based controllers, and testing with
+smaller steering robots, we determined that using a simplified bicycle
+model and the Stanley geometric controller would suit our vehicle’s
+needs for path following. The controller calculates a steering angle
+based on two errors: the heading error, the yaw compared to the desired
+heading of the path, and the cross-track error, the perpendicular
+distance from the center of an axle to the path). We calculate the
+steering angle using Equation \ref{eq:stanley}. Where \(\theta_e\) is
+the heading error, \(t_e\) is the cross-track error, \(v\) is the
+velocity, and \(k\) is the Stanley gain.
+
+\begin{equation}
+  \label{eq:stanley}
+  \delta = \theta_e + \tan^{-1}\left(\frac{k t_e}{v}\right)
+\end{equation}
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{stanely-vectors.pdf}
+  \caption{
+    Kinematic bicycle model of a steering vehicle and the Stanley
+    controller variables.
+  }
+\end{figure}
+
+We have two methods of calculating the cross-track and heading errors
+for the Stanley controller. For following generated paths, such as a
+lane change, we use the encoders mounted to the rear tires to track the
+vehicle’s current position and orientation. We calculate the Stanley
+errors based on the car’s location and the nearest point of the path.
+
+When following lane lines, when we have lines on both sides of the
+vehicle, we use the web cameras mounted to the top of the vehicle to
+detect the distance and angle of the lane lines relative to the car.
+
+\subsubsection{Velocity Control}
+
+On the Firmware side, once we receive a velocity command, the control
+node determines if the car needs to accelerate or decelerate based on
+the car’s current velocity. We feed the error between the desired and
+actual velocities into a PID controller (the outer loop). If the car
+needs to accelerate, we use a mapping between the desired acceleration
+and throttle percentage and send the appropriate command to the
+throttle node. If the car needs to decelerate, we use another mapping
+between deceleration and brake pressure percentage and send that
+command to the brake node.
+
+On the BBC node, we implemented another PID loop (the inner loop),
+which takes the error between the actual brake percentage (read by the
+pressure transducer) and the desired brake percentage to calculate the
+speed and direction of the BBC motor.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{velocity-controller.png}
+  \caption{Block diagram of our velocity controller.}
+\end{figure}

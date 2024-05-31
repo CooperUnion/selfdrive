@@ -1,1 +1,102 @@
 \section{System Analysis}
+
+While testing things individually, it's easy to keep track of changes,
+but once integrated into our system, it's easy to lose track of changes
+and decisions. One example of this was during the development of the
+BBC PCB. We broke the board into four main blocks: motor controller
+logic, parking brake logic, pressure sensor data, and limit switches
+for the lever's range of motion. However, when testing the entire
+board, we found we would flip the polarity of certain pins, such as the
+input to the motor, or flip which connectors went to the minimum limit
+switch and the maximum limit switch.
+
+The best way to prevent such mistakes is to create a more robust,
+generalized system rather than case-by-case. For example, we can ensure
+every wire has a proper visible label rather than memorizing its
+location. Additionally, we can write out a simple checklist of what to
+check before testing something. By creating a more robust system, it is
+easy to prevent many of the smaller, simpler mistakes.
+
+\subsection{Critical Hardware Failure}
+
+One hardware failure that would prevent competition success is if an
+ESP32S3 were to fail. The ESP32S3, a low-power microcontroller, limits
+the amount of current it can supply. We maintain an external 12V
+battery pack on the car because even though a CCMN can supply 12V, it's
+limited to tens of milliamps. We handle this by using isolated circuits
+to turn on/off the circuit i.e. using NMOS or PMOS transistors due to
+their high input resistance as a switch or using a relay to keep the
+two systems completely isolated.
+
+\subsection{Software Development}
+
+We store all code in a publically hosted monorepo on GitHub. We use Git
+as it allows us to effectively work in parallel, while the monorepo
+makes integration between various components straightforward. We
+utilize GitHub features such as issues and pull requests to keep track
+of problems with our code and encourage code review.
+
+\subsection{Testing}
+
+Before we test a particular algorithm or state machine on the car, and
+because our team is limited in physical space to which we can test the
+car, we test our ideas on smaller platforms, some of which we developed
+within Autonomy Lab. Carrie is our designed in-house mini-car robot
+platform for testing trajectory-following controllers. We tested and
+tuned the Stanley geometric controller for following clothoid paths,
+such as a complex path generated for parallel parking. We found the
+Stanley controller to be an effective method of calculating a steering
+angle for following a path. For testing with simplified dynamics, we
+used a differential-drive TurtleBot platform. To initially test and
+tune the OpenCV parameters for lane detection, we placed cameras on the
+Turtlebot and added a simple controller to follow the lane lines.
+
+\subsection{Physical Testing to Date}
+
+We tested the BBC system by cycling the motor between the two limit
+switches. The initial DC motor did not have enough torque and would
+stall before reaching the maximum displacement of the brake pedal. We
+sourced a more powerful DC motor with a higher stall torque, but this
+larger motor can pull up to 25 Amps. To ensure the motor does not pull
+too much current we installed a 7A fast-blow fuse on the battery
+supplying power to the motor.
+
+When measuring the pressure sensor output from the car, the original
+data for the pressure sensor was from 0.7V to 2.0V. While this range of
+values is valid for the ADC readings to the ESP32S3 (within 0.15V to
+2.45V), there wouldn’t be enough precision to accurately calculate the
+pressure percentage. By using a circuit that combines a non-inverting
+OpAmp and a subtractor op amp, we simulated a circuit that linearly
+remaps the pressure sensor range from 0.7V to 2.0V into 0.236V to
+2.302V. In real-life however, we saw that the actual voltage range was
+0.153V to 2.102V. This clearly demonstrates an example of when an ideal
+simulation is different from a real-world implementation. The reason
+for this difference comes from non-ideal components, device variations,
+and parasitic capacitance and inductance throughout our circuit in the
+op amps and resistors.
+
+We tuned the inner PID loop for BBC using a pressure transducer and
+recording the system's response time. We found that a high proportional
+and small integral gain provided a fast response time with no
+overshoot. When releasing the brake pedal before installing the spring,
+the top cable would become loose and often fall off the pulley, causing
+the cable to become plastically deformed. After installing the spring
+to keep the lever and top cable in tension with the motor and pulley,
+we found a great improvement in the response time and reliability of
+the system.
+
+For braking, once the inner loop's response was well tuned and we could
+set and hold a desired braking percentage within 1 second, we
+characterized the relationship between brake percent and deceleration.
+First, we throttled the car to 10 mph, then set small increments of the
+desired brake percent to measure deceleration using the encoders.
+
+We ran tests using small increments in throttle percent to characterize
+the acceleration-to-throttle percent relationship. We measured the
+car's acceleration using the encoders mounted on the rear wheels.
+
+To test the odometry for tracking position, we used Rviz2 to keep track
+of the car's orientation and position relative to where it started in
+the world frame. Since we could not test the throttle indoors, we
+pushed the car while in neutral with the maximum steering angle to
+travel in a circle to ensure the odometry returned to where we started.

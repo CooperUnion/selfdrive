@@ -138,6 +138,7 @@ nodes:
       rx:
         - CTRL_VelocityCommand
         - DBW_ESTOP
+        - DBW_SetBBCGains
         - DBW_VelocityCommand
         - SUP_Authorization
         - UPD_UpdateControl_BBC  # bootloader
@@ -152,20 +153,38 @@ nodes:
 
         - BrakeData:
             id: 0x11
-            cycletime: 100
+            cycletime: 10
 
             signals:
-              - dutyCycle:
-                  description: Brake duty cycle.
-                  width: 10
-
-              - percent:
-                  description: Percentage commanded.
+              - motorPercent:
+                  description: Percentage PWM to motor, controller output.
                   # minimum: 0.0
                   # maximum: 100.0
                   width: 10
                   unit: percent
                   scale: 0.1
+
+              - pressurePercent:
+                  description: Percentage from adc reading.
+                  # minimum: 0.0
+                  # maximum: 100.0
+                  width: 10
+                  unit: percent
+                  scale: 0.1
+
+              - limitSwitchMax:
+                  description: status of forwards switch
+                  width: 1
+
+              - limitSwitchMin:
+                  description: status of backwards switch
+                  width: 1
+
+        - BrakeGains:
+            from_template: PIDGains
+            id: 0x253
+            cycletime: 10
+
   - BBCBL:
       rx:
         - UPD_IsoTpTx_BBC
@@ -181,7 +200,7 @@ nodes:
       rx:
         - DBW_ESTOP
         - DBW_RawVelocityCommand
-        - DBW_SetVelocityGains
+        - DBW_SetCTRLVelocityGains
         - DBW_VelocityCommand
         - UPD_UpdateControl_CTRL  # bootloader
       messages:
@@ -271,9 +290,13 @@ nodes:
             from_template: DBWVelocityCommand
             id: 0x667
 
-        - SetVelocityGains:
+        - SetCTRLVelocityGains:
             from_template: PIDGains
             id: 0x777
+
+        - SetBBCGains:
+            from_template: PIDGains
+            id: 0x778
 
         - SteeringCommand:
             id: 0x21

@@ -6,7 +6,6 @@ import time
 import cand
 
 
-
 DESIRED_VELOCITY_MPS = 4
 
 
@@ -14,14 +13,31 @@ class Test:
     def __init__(self, *, bus: cand.client.Bus):
         self._bus = bus
 
+    def _desired_velocity_check(self):
+        _, data = self._bus.get('CTRL_ControllerData')
+
+        return data['CTRL_averageVelocity'] < DESIRED_VELOCITY_MPS
+
     def run(self, percent, duration):
-        print('starting throttle')
+        print('starting test')
+
+        while self._desired_velocity_check():
+            self._bus.send(
+                'DBW_RawVelocityCommand',
+                {
+                    'DBW_throttlePercent': 50,
+                    'DBW_brakePercent': 0,
+                },
+            )
+            time.sleep(0.005)
+
+        print('starting brake')
         while duration > 0:
             self._bus.send(
                 'DBW_RawVelocityCommand',
                 {
-                    'DBW_throttlePercent': min(max(0, percent), 100),
-                    'DBW_brakePercent': 0,
+                    'DBW_throttlePercent': 0,
+                    'DBW_brakePercent': min(max(0, percent), 100),
                 },
             )
 
@@ -29,7 +45,19 @@ class Test:
             duration -= 0.005
 
     def end(self):
-        pass
+        print('end')
+        duration = 2
+        while duration > 0:
+            self._bus.send(
+                'DBW_RawVelocityCommand',
+                {
+                    'DBW_throttlePercent': 0,
+                    'DBW_brakePercent': 0,
+                },
+            )
+
+            time.sleep(0.005)
+            duration -= 0.005
 
 
 def main():
