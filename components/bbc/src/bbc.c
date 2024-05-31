@@ -57,7 +57,6 @@ enum adc_channel_index {
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
-
 // TODO: TUNE INNER LOOP
 #define KP    5.00
 #define KI    0.05
@@ -72,8 +71,8 @@ enum adc_channel_index {
 #define PID_DEADBAND_UPPER -0.05
 
 // TODO: CHECK THESE VALUES AGAIN
-#define MAX_PRESSURE_READING 2600
-#define MIN_PRESSURE_READING 155
+#define MAX_PRESSURE_READING 2230
+#define MIN_PRESSURE_READING 215
 
 static void	bbc_init(void);
 static void	bbc_1kHz(void);
@@ -253,13 +252,14 @@ static void adc_init(void)
 	    adc_continuous_new_handle(&handle_config, &adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
-		[PS_ADC_CHANNEL_INDEX] = {
-			.atten     = ADC_ATTEN_DB_12,
-			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-			.channel   = PS_ADC_CHANNEL,
-			.unit      = PS_ADC_UNIT,
-		},
-	};
+      [PS_ADC_CHANNEL_INDEX] =
+          {
+              .atten = ADC_ATTEN_DB_12,
+              .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
+              .channel = PS_ADC_CHANNEL,
+              .unit = PS_ADC_UNIT,
+          },
+  };
 	adc_continuous_config_t config = {
 	    .sample_freq_hz = SAMPLING_RATE_HZ,
 	    .conv_mode	    = ADC_CONV_SINGLE_UNIT_1,
