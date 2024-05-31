@@ -1,9 +1,14 @@
 import rclpy
 from rclpy.node import Node
 
-from controller.stanley import StanleyController, coterminal_angle
-from controller.clothoid_path_planner import generate_clothoid_path
-from odom_sub import OdomSubscriber
+from lane_behaviors.controller.stanley import (
+    StanleyController,
+    coterminal_angle,
+)
+from lane_behaviors.controller.clothoid_path_planner import (
+    generate_clothoid_path,
+)
+from lane_behaviors.odom_sub import OdomSubscriber
 
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
@@ -31,7 +36,9 @@ def calculate_yaw(pathx, pathy, start_yaw):
 
 
 class LaneChange(Node):
-    def __init__(self, odom_sub):
+    def __init__(
+        self, odom_sub, max_dist_to_goal=0.5, max_dist_to_path=1.5
+    ):  # Tune magic numbers
         super().__init__('lane_change_node')
 
         self.path_publisher = self.create_publisher(
@@ -46,10 +53,9 @@ class LaneChange(Node):
 
         # Path Info
         self.n_points = 99  # Arbitrary number of waypoints
-        self.max_dist_to_goal = 0.5  # Tune magic number
-        self.max_dist_to_path = (
-            1.5  # FIX max distance from goal point set in meters
-        )
+        self.max_dist_to_goal = max_dist_to_goal
+        self.max_dist_to_path = max_dist_to_path
+
         self.pathx = np.zeros(self.n_points)
         self.pathy = np.zeros(self.n_points)
         self.pathyaw = np.zeros(self.n_points)
@@ -129,13 +135,14 @@ class LaneChange(Node):
             )
             cmd.data = [
                 steer_cmd,
-                self.odom_sub.vel,
+                # self.odom_sub.vel,
+                2.235,  # Unsure if the velocity command should always be the target
             ]
 
-            # Uncomment when yiou actually want to drivbe
-            # self.cmd_publisher.publish(cmd)
+            # Uncomment when you actually want to drive
+            self.cmd_publisher.publish(cmd)
 
-            time.sleep(0.05)
+            time.sleep(0.05)  # Generate command at 20Hz
 
         print("End of path reached")
 

@@ -12,11 +12,11 @@ class ObjGlobalLocation(Node):
         # Might need to apply on offset because the object location is given wrt the zed's left camera 
 
         # in this contect we only care about the vehicle's x and y pos
-        self.vehicle_x = None
-        self.vehicle_y = None
+        self.vehicle_x = 0.0
+        self.vehicle_y = 0.0
 
-        self.obj_x = None
-        self.obj_y = None
+        self.obj_x = 0.0
+        self.obj_y = 0.0
 
         # Subscribe to get information on the vehicle and object positions
         self.obj_information_subscription = self.create_subscription(

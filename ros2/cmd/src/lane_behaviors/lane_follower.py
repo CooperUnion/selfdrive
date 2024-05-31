@@ -1,14 +1,19 @@
-from sensor_msgs.msg import Image
 import rclpy
 from rclpy.node import Node
+
+# from lane_behaviors.odom_sub import OdomSubscriber
+from lane_behaviors.individual_follower import Individual_Follower
+from lane_behaviors.controller.stanley import StanleyController
+
+from sensor_msgs.msg import Image
+
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
-from igvc_msgs.msg import StanleyInput
-from Individual_Follower import Individual_Follower
+import time
 
 
-class Lane_Follower(Node):
+class LaneFollower(Node):
     GUI = True
     # These are upper HSV & lower HSV bounds, respectively
     (l_h, l_s, l_v) = (0, 0, 180)
@@ -28,7 +33,8 @@ class Lane_Follower(Node):
 
     # Matrix to warp the image for birdseye window
     UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
-
+    ##Kernel for blurring & removing "salt and pepper" noise
+    KERNEL = 11
     LANE_TOLERANCE = 10
 
     # This is the lane follower Cstop/Estop trigger from crosstrack:
@@ -40,17 +46,17 @@ class Lane_Follower(Node):
 
     PIXELS_TO_METERS = 260.8269125
 
-    def __init__(self):
+    def __init__(self, odom_sub):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_left = cv2.VideoCapture("/dev/video4")
+        self.vidcap_left = cv2.VideoCapture("/dev/video0")
         self.vidcap_right = cv2.VideoCapture("/dev/video2")
         # Setting the format for the images: we use 640 x 480
-        self.vidcap_left.set(3, Lane_Follower.FORMAT[0])
-        self.vidcap_left.set(4, Lane_Follower.FORMAT[1])
-        self.vidcap_right.set(3, Lane_Follower.FORMAT[0])
-        self.vidcap_right.set(4, Lane_Follower.FORMAT[1])
+        self.vidcap_left.set(3, LaneFollower.FORMAT[0])
+        self.vidcap_left.set(4, LaneFollower.FORMAT[1])
+        self.vidcap_right.set(3, LaneFollower.FORMAT[0])
+        self.vidcap_right.set(4, LaneFollower.FORMAT[1])
 
         self._Left_Lane = True
         self._tolerance = 0
@@ -61,17 +67,19 @@ class Lane_Follower(Node):
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-        # Publisher for error from the lane lines relative to the camera FOV
-        # # 10 refers to the number of published references: standard value
-        # self.crosstrack_pub = self.create_publisher(Float64, 'cross_track', 10)
-        # self.lane_pub = self.create_publisher(String, "lane_state", 10)
-        # self.heading_pub = self.create_publisher(Float64, "heading", 10)
+        # Parameters for Stanley Controller
+        self.heading_error = 0.0
+        self.cross_track_error = 0.0
+        self.empty_error = False  # Flag used to signal invalid cross track error to transititon to ESTOP
 
-        self.lane_error_pub = self.create_publisher(
-            StanleyInput, "stanley_data", 10
-        )
+        # Parameters for determining if object lies in lane or not.
+        self.left_slope = 0.0
+        self.right_slope = 0.0
 
-        if Lane_Follower.GUI:
+        self.odom_sub = odom_sub
+        self.stanley = StanleyController()
+
+        if LaneFollower.GUI:
             self._bridge = CvBridge()
             image_labels = (
                 "raw_left",
@@ -123,44 +131,72 @@ class Lane_Follower(Node):
         veh_pos = (
             (self._left_follower._binary_warped.shape[1] // 2)
             - center_lanes_x_pos
-        ) / Lane_Follower.PIXELS_TO_METERS
+        ) / LaneFollower.PIXELS_TO_METERS
 
         return veh_pos
+
+    # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
+    def follow_lane(self, period=0.05):
+
+        steer_cmd = self.stanley.get_steering_cmd(
+            self.heading_error,
+            self.cross_track_error,
+            # self.odom_sub.vel,
+            2.235,  # comment this out when you want to use the actual velocity
+        )
+
+        # vel_cmd = self.odom_sub.vel
+        vel_cmd = (
+            2.235  # Unsure if the velocity command should always be the target
+        )
+
+        time.sleep(period)
+
+        return steer_cmd, vel_cmd
 
     def timer_callback(self):
         success_l, image_l = self.vidcap_left.read()
         success_r, image_r = self.vidcap_right.read()
-        image_r = cv2.flip(image_r, 0)
+
+        #Left image is inverted
+        image_l = cv2.rotate(image_l, cv2.ROTATE_180)
+
+        # success_r, image_r = self.vidcap_right.read()
+        # image_l = cv2.flip(image_l, 0)
+        # Removing right image for testing only left camera
         images = [(image_l, "left"), (image_r, "right")]
         left_heading = -1
         right_heading = -1
-        main_msg = StanleyInput()
+
         if not (success_l and success_r):
             return
 
         for image in images:
             frame = image[0]
             for point in (
-                Lane_Follower.bl,
-                Lane_Follower.tl,
-                Lane_Follower.br,
-                Lane_Follower.tr,
+                LaneFollower.bl,
+                LaneFollower.tl,
+                LaneFollower.br,
+                LaneFollower.tr,
             ):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
             transformed_frame = cv2.rotate(
                 cv2.warpPerspective(
-                    frame, Lane_Follower.UNWARP, Lane_Follower.FORMAT
+                    frame, LaneFollower.UNWARP, LaneFollower.FORMAT
                 ),
                 cv2.ROTATE_90_CLOCKWISE,
             )
             # Object Detection
             # Image Thresholding
+
             hsv_transformed_frame = cv2.cvtColor(
                 transformed_frame, cv2.COLOR_BGR2HSV
             )
+
+            blurred = cv2.medianBlur(hsv_transformed_frame, self.KERNEL)
             mask = cv2.inRange(
-                hsv_transformed_frame, Lane_Follower.LOWER, Lane_Follower.UPPER
+                blurred, LaneFollower.LOWER, LaneFollower.UPPER
             )
             self.img_publish("mask_" + image[1], mask)
 
@@ -172,18 +208,24 @@ class Lane_Follower(Node):
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
-        result_left, empty_left, left_heading, left_slope = (
-            self._left_follower.Plot_Line()
-        )
-        result_right, empty_right, right_heading, right_slope = (
-            self._right_follower.Plot_Line()
-        )
+        (
+            result_left,
+            empty_left,
+            left_heading,
+            self.left_slope,
+        ) = self._left_follower.Plot_Line()
+        (
+            result_right,
+            empty_right,
+            right_heading,
+            self.right_slope,
+        ) = self._right_follower.Plot_Line()
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
-            crosstrack = self.measure_position_meters(
+            cross_track = self.measure_position_meters(
                 result_left, result_right
             )
-            main_msg.cte = crosstrack
+            self.cross_track_error = cross_track
 
             self._Left_Lane = (
                 True if empty_left < empty_right else self._Left_Lane
@@ -192,27 +234,26 @@ class Lane_Follower(Node):
                 False if empty_left > empty_right else self._Left_Lane
             )
             # The slope calculations are returned in meters, must be adjusted.
-            main_msg.leftslope = left_slope / Lane_Follower.PIXELS_TO_METERS
-            main_msg.rightslope = right_slope / Lane_Follower.PIXELS_TO_METERS
-
+            # main_msg.leftslope = left_slope / LaneFollower.PIXELS_TO_METERS
+            # main_msg.rightslope = right_slope / LaneFollower.PIXELS_TO_METERS
             if self._Left_Lane:
-                main_msg.leftlane = True
-                main_msg.he = left_heading
+                self.heading_error = left_heading
+                # main_msg.leftlane = True
+                # main_msg.he = left_heading
             else:
-                main_msg.leftlane = False
-                main_msg.he = right_heading
+                self.heading_error = right_heading
+                # main_msg.leftlane = False
+                # main_msg.he = right_heading
 
         else:
             self._tolerance += 1
-            if self._tolerance > Lane_Follower.TOLERANCE:
-                main_msg.error = True
-
-        self.lane_error_pub.publish(main_msg)
+            if self._tolerance > LaneFollower.TOLERANCE:
+                self.empty_error = True
 
 
 def main(args=None):
     rclpy.init(args=args)  # Initialize ROS2 program
-    node = Lane_Follower()  # Instantiate Node
+    node = LaneFollower()  # Instantiate Node
     rclpy.spin(node)  # Puts the node in an infinite loop
     # Clean shutdown should be at the end of every node
     node.destroy_node()
