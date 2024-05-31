@@ -31,6 +31,7 @@ source = [
 source += opencan
 source += env['LIBRARIES']['ember']
 source += env['LIBRARIES']['node-entry']
+source += env['LIBRARIES']['selfdrive']
 
 bbc = env.StaticLibrary(node.lower(), source)[0]
 firmware, flash = env.EspIdf(bbc, 'esp32s3')
