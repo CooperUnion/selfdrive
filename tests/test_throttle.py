@@ -6,7 +6,6 @@ import time
 import cand
 
 
-
 DESIRED_VELOCITY_MPS = 4
 
 
