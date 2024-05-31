@@ -78,14 +78,14 @@ static void	bbc_init(void);
 static void	bbc_1kHz(void);
 static void	adc_init(void);
 static bool	adc_callback(adc_continuous_handle_t handle,
-	const adc_continuous_evt_data_t		    *cbs,
-	void					    *user_data);
+	    const adc_continuous_evt_data_t	    *cbs,
+	    void				    *user_data);
 static uint16_t adc_reading(enum adc_channel_index channel);
 static void	adc_task(void *arg);
 static void	dump_samples(void);
 static bool	overflow_callback(adc_continuous_handle_t handle,
-	const adc_continuous_evt_data_t			 *cbs,
-	void						 *user_data);
+	    const adc_continuous_evt_data_t		 *cbs,
+	    void					 *user_data);
 
 struct dump {
 	uint16_t buf[SAMPLING_BUF_FRAMES];
@@ -94,12 +94,12 @@ struct dump {
 };
 
 static ledc_channel_config_t pwm_channel = {
-    .gpio_num	= PWM_PIN,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .channel	= LEDC_CHANNEL_0,
-    .intr_type	= LEDC_INTR_DISABLE,
-    .timer_sel	= LEDC_TIMER_0,
-    .duty	= PWM_INIT_DUTY_CYCLE,
+	.gpio_num   = PWM_PIN,
+	.speed_mode = LEDC_LOW_SPEED_MODE,
+	.channel    = LEDC_CHANNEL_0,
+	.intr_type  = LEDC_INTR_DISABLE,
+	.timer_sel  = LEDC_TIMER_0,
+	.duty	    = PWM_INIT_DUTY_CYCLE,
 };
 
 static struct {
@@ -122,8 +122,8 @@ static bool min_limit_switch_status;
 static selfdrive_pid_t pid;
 
 ember_rate_funcs_S module_rf = {
-    .call_init = bbc_init,
-    .call_1kHz = bbc_1kHz,
+	.call_init  = bbc_init,
+	.call_100Hz = bbc_100Hz,
 };
 
 static void bbc_init(void)
@@ -145,10 +145,10 @@ static void bbc_init(void)
 	gpio_pullup_en(FLT_PIN);
 
 	static ledc_timer_config_t pwm_timer = {
-	    .speed_mode	     = LEDC_LOW_SPEED_MODE,
-	    .duty_resolution = PWM_RESOLUTION,
-	    .timer_num	     = LEDC_TIMER_0,
-	    .freq_hz	     = PWM_FREQUENCY,
+		.speed_mode	 = LEDC_LOW_SPEED_MODE,
+		.duty_resolution = PWM_RESOLUTION,
+		.timer_num	 = LEDC_TIMER_0,
+		.freq_hz	 = PWM_FREQUENCY,
 	};
 
 	ledc_timer_config(&pwm_timer);
@@ -157,16 +157,16 @@ static void bbc_init(void)
 	adc_init();
 
 	selfdrive_pid_init(
-	    &pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
+		&pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, SIGMA);
 	selfdrive_pid_set_deadbands(
-	    &pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
+		&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 }
 
 static void bbc_1kHz(void)
 {
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
-	    && CANRX_get_SUP_bbcAuthorized()
-	    && CANRX_is_message_CTRL_VelocityCommand_ok();
+		&& CANRX_get_SUP_bbcAuthorized()
+		&& CANRX_is_message_CTRL_VelocityCommand_ok();
 
 	bool motor_fault = !gpio_get_level(FLT_PIN);
 
@@ -174,8 +174,8 @@ static void bbc_1kHz(void)
 
 	if (base_get_state() != SYS_STATE_DBW_ACTIVE) {
 		selfdrive_pid_setpoint_reset(&pid,
-		    (((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
-		    actual_brake);
+			(((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
+			actual_brake);
 	}
 
 	if (motor_fault) {
@@ -193,13 +193,13 @@ static void bbc_1kHz(void)
 
 	desired_brake = cmd;
 	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX))
-			    - MIN_PRESSURE_READING)
-	    / ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
+				- MIN_PRESSURE_READING)
+		/ ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
 	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
 
 	controller_output
-	    = selfdrive_pid_step(&pid, desired_brake, actual_brake);
+		= selfdrive_pid_step(&pid, desired_brake, actual_brake);
 
 	motor_direction = (controller_output < 0) ? 0 : 1;
 
@@ -234,8 +234,13 @@ static void adc_init(void)
 	overflow = false;
 	adc.sem	 = xSemaphoreCreateCounting(ADC_CHANNELS, 0);
 
-	xTaskCreatePinnedToCore(
-	    adc_task, "adc_task", TASK_STACK_SIZE, 0, 1, &adc.task_handle, 1);
+	xTaskCreatePinnedToCore(adc_task,
+		"adc_task",
+		TASK_STACK_SIZE,
+		0,
+		1,
+		&adc.task_handle,
+		1);
 
 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
 		struct dump * const dump = adc.dump + i;
@@ -245,11 +250,11 @@ static void adc_init(void)
 	}
 
 	adc_continuous_handle_cfg_t handle_config = {
-	    .max_store_buf_size = POOL_SIZE,
-	    .conv_frame_size	= FRAME_SIZE,
+		.max_store_buf_size = POOL_SIZE,
+		.conv_frame_size    = FRAME_SIZE,
 	};
 	ESP_ERROR_CHECK(
-	    adc_continuous_new_handle(&handle_config, &adc.handle));
+		adc_continuous_new_handle(&handle_config, &adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
       [PS_ADC_CHANNEL_INDEX] =
@@ -261,27 +266,27 @@ static void adc_init(void)
           },
   };
 	adc_continuous_config_t config = {
-	    .sample_freq_hz = SAMPLING_RATE_HZ,
-	    .conv_mode	    = ADC_CONV_SINGLE_UNIT_1,
-	    .format	    = ADC_DIGI_OUTPUT_FORMAT_TYPE2,
-	    .pattern_num    = ADC_CHANNELS,
-	    .adc_pattern    = adc_pattern,
+		.sample_freq_hz = SAMPLING_RATE_HZ,
+		.conv_mode	= ADC_CONV_SINGLE_UNIT_1,
+		.format		= ADC_DIGI_OUTPUT_FORMAT_TYPE2,
+		.pattern_num	= ADC_CHANNELS,
+		.adc_pattern	= adc_pattern,
 	};
 	ESP_ERROR_CHECK(adc_continuous_config(adc.handle, &config));
 
 	adc_continuous_evt_cbs_t evt_cbs = {
-	    .on_conv_done = adc_callback,
-	    .on_pool_ovf  = overflow_callback,
+		.on_conv_done = adc_callback,
+		.on_pool_ovf  = overflow_callback,
 	};
 	ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(
-	    adc.handle, &evt_cbs, NULL));
+		adc.handle, &evt_cbs, NULL));
 
 	ESP_ERROR_CHECK(adc_continuous_start(adc.handle));
 }
 
 static bool IRAM_ATTR adc_callback(adc_continuous_handle_t handle,
-    const adc_continuous_evt_data_t			  *cbs,
-    void						  *user_data)
+	const adc_continuous_evt_data_t			  *cbs,
+	void						  *user_data)
 {
 	(void) handle;
 	(void) cbs;
@@ -297,7 +302,7 @@ static uint16_t adc_reading(enum adc_channel_index channel)
 	const struct dump * const dump = adc.dump + channel;
 
 	return dump->buf[(dump->write - 1 + SAMPLING_BUF_FRAMES)
-	    % SAMPLING_BUF_FRAMES];
+		% SAMPLING_BUF_FRAMES];
 }
 
 static void adc_task(void *arg)
@@ -393,8 +398,8 @@ static void dump_samples()
 }
 
 static bool IRAM_ATTR overflow_callback(adc_continuous_handle_t handle,
-    const adc_continuous_evt_data_t			       *cbs,
-    void						       *user_data)
+	const adc_continuous_evt_data_t			       *cbs,
+	void						       *user_data)
 {
 	(void) handle;
 	(void) cbs;
@@ -406,8 +411,8 @@ static bool IRAM_ATTR overflow_callback(adc_continuous_handle_t handle,
 }
 
 void CANRX_onRxCallback_DBW_SetBBCGains(
-    const struct CAN_TMessageRaw_PIDGains * const raw,
-    const struct CAN_TMessage_PIDGains * const	  dec)
+	const struct CAN_TMessageRaw_PIDGains * const raw,
+	const struct CAN_TMessage_PIDGains * const    dec)
 {
 	(void) raw;
 

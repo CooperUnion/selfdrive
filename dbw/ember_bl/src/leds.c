@@ -19,15 +19,15 @@ static void leds_10Hz(void);
 // ######    RATE FUNCTIONS     ###### //
 
 ember_rate_funcs_S leds_rf = {
-    .call_init = leds_init,
-    .call_10Hz = leds_10Hz,
+	.call_init = leds_init,
+	.call_10Hz = leds_10Hz,
 };
 
 static void leds_init(void)
 {
 	gpio_config(&(gpio_config_t){
-	    .pin_bit_mask = BIT64(LED1_PIN) | BIT64(LED2_PIN),
-	    .mode	  = GPIO_MODE_OUTPUT,
+		.pin_bit_mask = BIT64(LED1_PIN) | BIT64(LED2_PIN),
+		.mode	      = GPIO_MODE_OUTPUT,
 	});
 
 	gpio_set_level(LED1_PIN, 0);

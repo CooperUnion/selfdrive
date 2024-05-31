@@ -39,7 +39,7 @@ def ComponentSubtarget(env, component, subtarget, target):
 
 
 def generate(env):
-    if env.Detect('Component') and env.Detect('CompentSubtarget'):
+    if env.Detect('Component') and env.Detect('ComponentSubtarget'):
         return
 
     env.AddMethod(Component, 'Component')

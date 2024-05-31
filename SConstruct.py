@@ -4,7 +4,7 @@ import os
 
 import env as uenv
 
-EnsureSConsVersion(4, 6, 0)
+EnsureSConsVersion(4, 7, 0)
 EnsurePythonVersion(3, 12)
 
 
@@ -48,6 +48,7 @@ env = Environment(
         'EspIdf',
         'OpenCan',
         'Phony',
+        'Project',
     ],
 )
 env.AppendUnique(
@@ -59,6 +60,13 @@ env.AppendUnique(
         '-std=gnu17',
     ]
 )
+env.AppendUnique(
+    PDFLATEXFLAGS=[
+        '--halt-on-error',
+        '--shell-escape',
+    ]
+)
+env.Replace(PDFLATEX='lualatex')
 
 if not env['VERBOSE']:
     commands = [
@@ -96,4 +104,8 @@ ember_bl = env.SConscript(
     'dbw/ember_bl/SConscript.py',
     variant_dir=f'{build}/dbw/ember_bl',
     duplicate=False,
+)
+projects = env.SConscript(
+    'projects/SConscript.py',
+    variant_dir=f'{build}/projects',
 )

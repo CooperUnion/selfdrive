@@ -49,14 +49,14 @@ enum {
 float velocity;
 
 ember_rate_funcs_S module_rf = {
-    .call_init	= steer_init,
-    .call_100Hz = steer_100Hz,
+	.call_init  = steer_init,
+	.call_100Hz = steer_100Hz,
 };
 
 static void steer_init()
 {
 	selfdrive_pid_init(
-	    &pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
+		&pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
 }
 
 static void steer_100Hz()
@@ -66,9 +66,10 @@ static void steer_100Hz()
 	alarm.odrive_calibration = calibration_needed;
 
 	bool steer_authorized = CANRX_is_message_DBW_SteeringCommand_ok()
-	    && CANRX_is_message_SUP_Authorization_ok()
-	    && CANRX_is_message_WHL_AbsoluteEncoder_ok()
-	    && CANRX_is_node_ODRIVE_ok() && CANRX_get_SUP_steerAuthorized();
+		&& CANRX_is_message_SUP_Authorization_ok()
+		&& CANRX_is_message_WHL_AbsoluteEncoder_ok()
+		&& CANRX_is_node_ODRIVE_ok()
+		&& CANRX_get_SUP_steerAuthorized();
 
 	if (!steer_authorized) {
 		base_request_state(SYS_STATE_IDLE);
@@ -118,11 +119,11 @@ static void steer_100Hz()
 		CANTX_doTx_STEER_ODriveRequestState();
 
 		selfdrive_pid_setpoint_reset(
-		    &pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
+			&pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
 	}
 
 	velocity = selfdrive_pid_step(
-	    &pid, RAD2DEG(CANRX_get_DBW_steeringAngle()), encoder_deg);
+		&pid, RAD2DEG(CANRX_get_DBW_steeringAngle()), encoder_deg);
 }
 
 static float encoder2deg(void)
@@ -132,11 +133,11 @@ static float encoder2deg(void)
 	// unfortunately, OpenCAN doesn't support
 	// big-endian messages at the moment...
 	int16_t ticks
-	    = ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
+		= ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
 
 	// left angles are positive
 	float deg
-	    = -1 * (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
+		= -1 * (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
 	return deg;
 }
@@ -146,7 +147,7 @@ static bool odrive_calibration_needed(void)
 	bool calibration_needed = false;
 
 	calibration_needed
-	    |= CANRX_get_ODRIVE_axisError() != CAN_ODRIVE_AXISERROR_NONE;
+		|= CANRX_get_ODRIVE_axisError() != CAN_ODRIVE_AXISERROR_NONE;
 	calibration_needed |= CANRX_get_ODRIVE_motorErrorAlarm();
 	calibration_needed |= CANRX_get_ODRIVE_encoderErrorAlarm();
 	calibration_needed |= CANRX_get_ODRIVE_controllerErrorAlarm();
@@ -161,40 +162,40 @@ void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 }
 
 void CANTX_populate_STEER_ODriveClearErrors(
-    uint8_t * const data, uint8_t * const len)
+	uint8_t * const data, uint8_t * const len)
 {
 	(void) data;
 	(void) len;
 }
 
 void CANTX_populate_STEER_ODriveRequestState(
-    struct CAN_Message_STEER_ODriveRequestState * const m)
+	struct CAN_Message_STEER_ODriveRequestState * const m)
 {
 	switch (odrive_state) {
 		case IDLE:
 			m->STEER_odriveRequestState
-			    = CAN_STEER_ODRIVEREQUESTSTATE_IDLE;
+				= CAN_STEER_ODRIVEREQUESTSTATE_IDLE;
 			break;
 
 		case FULL_CALIBRATION_SEQUENCE:
 			m->STEER_odriveRequestState
-			    = CAN_STEER_ODRIVEREQUESTSTATE_FULL_CALIBRATION_SEQUENCE;
+				= CAN_STEER_ODRIVEREQUESTSTATE_FULL_CALIBRATION_SEQUENCE;
 			break;
 
 		case CLOSED_LOOP_CONTROL:
 			m->STEER_odriveRequestState
-			    = CAN_STEER_ODRIVEREQUESTSTATE_CLOSED_LOOP_CONTROL;
+				= CAN_STEER_ODRIVEREQUESTSTATE_CLOSED_LOOP_CONTROL;
 			break;
 
 		default:
 			m->STEER_odriveRequestState
-			    = CAN_STEER_ODRIVEREQUESTSTATE_UNDEFINED;
+				= CAN_STEER_ODRIVEREQUESTSTATE_UNDEFINED;
 			break;
 	}
 }
 
 void CANTX_populate_STEER_ODriveVelocity(
-    struct CAN_Message_STEER_ODriveVelocity * const m)
+	struct CAN_Message_STEER_ODriveVelocity * const m)
 {
 	// unfortunately, OpenCAN doesn't support
 	// IEEE754 signals at the moment...
@@ -204,7 +205,7 @@ void CANTX_populate_STEER_ODriveVelocity(
 }
 
 void CANTX_populate_STEER_SteeringData(
-    struct CAN_Message_STEER_SteeringData * const m)
+	struct CAN_Message_STEER_SteeringData * const m)
 {
 	switch (steer_state) {
 		case READY:

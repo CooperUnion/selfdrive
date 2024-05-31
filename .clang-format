@@ -61,6 +61,7 @@ BreakBeforeInlineASMColon: Always
 BreakBeforeTernaryOperators: true
 BreakStringLiterals: false
 ColumnLimit: 79
+ContinuationIndentWidth: 8
 IncludeBlocks: Regroup
 
 IncludeCategories:
