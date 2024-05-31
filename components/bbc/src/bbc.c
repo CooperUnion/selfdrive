@@ -381,7 +381,8 @@ loop:
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
 
 
-	float *curr_buf = adc.buffers[adc.buffer_index];
+	float	       *curr_buf = adc.buffers[adc.buffer_index];
+	static uint16_t tempbuf[FRAME_SAMPLES];
 
 	bool	     start_dump = true;
 	struct dump *dump	= NULL;
@@ -406,16 +407,18 @@ loop:
 
 		start_dump = false;
 
-		uint16_t raw_sample	   = sample->type2.data;
-		float	 normalized_sample = ((float) raw_sample) / resolution;
+		uint16_t raw_sample = sample->type2.data;
+		tempbuf[i]	    = raw_sample;
 
-		curr_buf[i] = normalized_sample;
+		float normalized_sample = ((float) raw_sample) / resolution;
+		curr_buf[i]		= normalized_sample;
 	}
 
 	iir_filter(curr_buf);
 
 	if (dump) {
 		for (size_t i = 0; i < sample_count; i++) {
+			dump->buf[dump->write]	    = tempbuf[i];
 			dump->filtered[dump->write] = curr_buf[i];
 			dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
 		}
