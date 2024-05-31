@@ -257,13 +257,13 @@ static void adc_init(void)
 		adc_continuous_new_handle(&handle_config, &adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
-      [PS_ADC_CHANNEL_INDEX] =
-          {
-              .atten = ADC_ATTEN_DB_12,
-              .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-              .channel = PS_ADC_CHANNEL,
-              .unit = PS_ADC_UNIT,
-          },
+		[PS_ADC_CHANNEL_INDEX] =
+		{
+		.atten = ADC_ATTEN_DB_12,
+		.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
+		.channel = PS_ADC_CHANNEL,
+		.unit = PS_ADC_UNIT,
+		},
   };
 	adc_continuous_config_t config = {
 		.sample_freq_hz = SAMPLING_RATE_HZ,
