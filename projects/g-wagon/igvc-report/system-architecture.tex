@@ -1,1 +1,50 @@
 \section{System Architecture}
+
+We like to think of our system as an hourglass. We aim to separate our
+hardware components as much as possible from the algorithms we write,
+where our car's firmware is the narrow bridge between these two worlds.
+
+\vspace{1em}
+
+Major hardware components include:
+\begin{itemize}
+  \item Our new Brake-By-Cable system
+  \item Water-proof trunk for power distribution systems
+  \item DC-DC converters
+  \item Cooper Common Microcontroller Nodes
+  \item A CAN Bus for node communication
+  \item CCMN hats for our brakes, throttle, and encoders
+  \item An ODrive for controlling our EPAS
+\end{itemize}
+
+Safety devices include:
+\begin{itemize}
+  \item Hardware E-STOPs around the car and inside the cabin
+  \item ATC and glass tube fuses
+  \item Circuit breakers
+  \item Undervoltage protection
+\end{itemize}
+
+Major software modules include:
+\begin{itemize}
+  \item Shared firmware on all CCMNs
+  \item OpenCAN for serialization/deserialization of CAN messages at cyclic
+        rates
+  \item Velocity and pressure controllers
+  \item ROStouCAN for interfacing between nodes on our CAN Bus and our ROS
+        nodes
+  \item Lane detection algorithm
+  \item Stanley controller for trajectory following
+  \item A fine-tuned YOLO model for object detection
+  \item State machines for state and event transitions based on the output of
+        our object detection and lane detection
+\end{itemize}
+
+Even though we try to maintain our hourglass shape, it does not detract
+from the close collaboration between our subteams. For example, our
+Algorithms team needed more accurate braking on our vehicle this year,
+so they met with the hardware subteam to make this possible. It was
+then the responsibility of the hardware and firmware teams to work
+together to ensure our new brake system performed better without
+substantially changing how the system worked from the Algorithm
+perspective.
