@@ -18,7 +18,7 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define ENCODER_MAX_TICKS	   777	// slightly over 10MPH
+#define ENCODER_MAX_TICKS	   400	// slightly over 5mph
 #define ENCODER_TICKS_PER_ROTATION 30536
 
 #define WHEEL_CIRCUMFERENCE_M 1.7954
