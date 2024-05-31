@@ -172,6 +172,10 @@ nodes:
                   unit: percent
                   scale: 0.1
 
+              - rawBrakePressureReading:
+                  description: Read raw brake pressue
+                  width: 16
+
               - limitSwitchMax:
                   description: status of forwards switch
                   width: 1

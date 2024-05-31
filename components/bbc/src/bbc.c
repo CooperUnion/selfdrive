@@ -35,10 +35,16 @@
 #define PS_ADC_CHANNEL ADC_CHANNEL_7  // GPIO_8
 #define PS_ADC_UNIT    ADC_UNIT_1
 
+<<<<<<< Updated upstream
 #define LIM_SW_1 GPIO_NUM_37  // too far backward
 #define LIM_SW_2 GPIO_NUM_40  // too far forward
+    == == ==
+    =
+#define LIM_SW_1 GPIO_NUM_33  // too far backward
+#define LIM_SW_2 GPIO_NUM_34  // too far forward
+	>>>>>>> Stashed changes
 
-enum adc_channel_index {
+    enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
 };
@@ -57,11 +63,18 @@ enum adc_channel_index {
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
+<<<<<<< Updated upstream
 
 // TODO: TUNE INNER LOOP
-#define KP    5.00
-#define KI    0.05
-#define KD    0.00
+#define KP 5.00
+#define KI 0.05
+#define KD 0.00
+    == == ==
+    =
+#define KP 5.00
+#define KI 0.05
+#define KD 0.00
+	>>>>>>> Stashed changes
 #define SIGMA 1.00
 #define TS    0.01
 
@@ -75,7 +88,8 @@ enum adc_channel_index {
 #define MAX_PRESSURE_READING 2600
 #define MIN_PRESSURE_READING 155
 
-static void	bbc_init(void);
+    static void
+		bbc_init(void);
 static void	bbc_1kHz(void);
 static void	adc_init(void);
 static bool	adc_callback(adc_continuous_handle_t handle,
@@ -115,6 +129,7 @@ volatile bool overflow;
 
 static float desired_brake;
 static float actual_brake;
+static float raw_brake_reading;
 static float controller_output;
 
 static bool max_limit_switch_status;
@@ -127,11 +142,19 @@ ember_rate_funcs_S module_rf = {
     .call_1kHz = bbc_1kHz,
 };
 
+<<<<<<< Updated upstream
 static void bbc_init(void)
 {
 	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
 	motor_direction = 1;
 	gpio_set_level(DIR_PIN, !motor_direction);
+=======
+static void bbc_init(void)
+{
+	gpio_set_direction(DIR_PIN, GPIO_MODE_OUTPUT);
+	motor_direction = 1;
+	gpio_set_level(DIR_PIN, motor_direction);
+>>>>>>> Stashed changes
 
 	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
 	gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
@@ -173,6 +196,7 @@ static void bbc_1kHz(void)
 
 	float cmd;
 
+	// if not active setpoint reset
 	if (base_get_state() != SYS_STATE_DBW_ACTIVE) {
 		selfdrive_pid_setpoint_reset(&pid,
 		    (((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
@@ -192,9 +216,9 @@ static void bbc_1kHz(void)
 		base_request_state(SYS_STATE_IDLE);
 	}
 
-	desired_brake = cmd;
-	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX))
-			    - MIN_PRESSURE_READING)
+	desired_brake	  = cmd;
+	raw_brake_reading = (float32_t) adc_reading(PS_ADC_CHANNEL_INDEX);
+	actual_brake	  = (raw_brake_reading - MIN_PRESSURE_READING)
 	    / ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
 	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
@@ -219,7 +243,7 @@ static void bbc_1kHz(void)
 		}
 	}
 
-	gpio_set_level(DIR_PIN, !motor_direction);
+	gpio_set_level(DIR_PIN, motor_direction);
 
 	if (controller_output < 0) {
 		controller_output *= -1;
@@ -253,13 +277,14 @@ static void adc_init(void)
 	    adc_continuous_new_handle(&handle_config, &adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
-		[PS_ADC_CHANNEL_INDEX] = {
-			.atten     = ADC_ATTEN_DB_12,
-			.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-			.channel   = PS_ADC_CHANNEL,
-			.unit      = PS_ADC_UNIT,
-		},
-	};
+      [PS_ADC_CHANNEL_INDEX] =
+          {
+              .atten = ADC_ATTEN_DB_12,
+              .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
+              .channel = PS_ADC_CHANNEL,
+              .unit = PS_ADC_UNIT,
+          },
+  };
 	adc_continuous_config_t config = {
 	    .sample_freq_hz = SAMPLING_RATE_HZ,
 	    .conv_mode	    = ADC_CONV_SINGLE_UNIT_1,
@@ -428,6 +453,8 @@ void CANTX_populate_BBC_BrakeData(struct CAN_Message_BBC_BrakeData * const m)
 	m->BBC_motorPercent = controller_output * 100;
 
 	m->BBC_pressurePercent = actual_brake * 100;
+
+	m->BBC_rawBrakePressureReading = raw_brake_reading;
 
 	m->BBC_limitSwitchMax = max_limit_switch_status;
 
