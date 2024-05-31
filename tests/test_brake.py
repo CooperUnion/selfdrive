@@ -5,11 +5,6 @@ import time
 
 import cand
 
-# from ctypes import (
-#     c_int16,
-#     c_uint16,
-# )
-
 
 DESIRED_VELOCITY_MPS = 4
 
