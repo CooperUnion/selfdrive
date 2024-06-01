@@ -17,7 +17,7 @@ import time
 class LaneFollower(Node):
     GUI = True
     # These are upper HSV & lower HSV bounds, respectively
-    (l_h, l_s, l_v) = (0, 0, 180)
+    (l_h, l_s, l_v) = (120, 0, 240)
     (u_h, u_s, u_v) = (255, 255, 255)
 
     LOWER = np.array([l_h, l_s, l_v])
@@ -35,7 +35,7 @@ class LaneFollower(Node):
     # Matrix to warp the image for birdseye window
     UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
     # Kernel for blurring & removing "salt and pepper" noise
-    KERNEL = 11
+    KERNEL = 23
     LANE_TOLERANCE = 10
 
     # This is the lane follower Cstop/Estop trigger from crosstrack:
@@ -192,8 +192,10 @@ class LaneFollower(Node):
             # Object Detection
             # Image Thresholding
 
+            blurred_preHSV = cv2.medianBlur(transformed_frame, self.KERNEL)
+
             hsv_transformed_frame = cv2.cvtColor(
-                transformed_frame, cv2.COLOR_BGR2HSV
+                blurred_preHSV, cv2.COLOR_BGR2HSV
             )
 
             blurred = cv2.medianBlur(hsv_transformed_frame, self.KERNEL)
