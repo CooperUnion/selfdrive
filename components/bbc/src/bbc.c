@@ -71,26 +71,25 @@ enum adc_channel_index {
 #define PID_DEADBAND_LOWER 0.05
 #define PID_DEADBAND_UPPER -0.05
 
-// TODO: CHECK THESE VALUES AGAIN
-#define MAX_PRESSURE_READING 2230
-#define MIN_PRESSURE_READING 215
+#define MAX_PRESSURE_READING 0.60
+#define MIN_PRESSURE_READING 0.06
 
 #define FILTER_LENGTH  2
 #define FILTER_BUFFERS 2
 
-static void	bbc_init(void);
-static void	bbc_1kHz(void);
-static void	adc_init(void);
-static bool	adc_callback(adc_continuous_handle_t handle,
-	    const adc_continuous_evt_data_t	    *cbs,
-	    void				    *user_data);
-static uint16_t adc_reading(enum adc_channel_index channel);
-static void	adc_task(void *arg);
-static void	dump_samples(void);
-static void	iir_filter(float buf[]);
-static bool	overflow_callback(adc_continuous_handle_t handle,
-	    const adc_continuous_evt_data_t		 *cbs,
-	    void					 *user_data);
+static void  bbc_init(void);
+static void  bbc_1kHz(void);
+static void  adc_init(void);
+static bool  adc_callback(adc_continuous_handle_t handle,
+	 const adc_continuous_evt_data_t	 *cbs,
+	 void					 *user_data);
+static float adc_reading(enum adc_channel_index channel);
+static void  adc_task(void *arg);
+static void  dump_samples(void);
+static void  iir_filter(float buf[]);
+static bool  overflow_callback(adc_continuous_handle_t handle,
+	 const adc_continuous_evt_data_t	      *cbs,
+	 void					      *user_data);
 
 struct dump {
 	uint16_t buf[SAMPLING_BUF_FRAMES];
@@ -209,7 +208,7 @@ static void bbc_1kHz(void)
 
 	if (base_get_state() != SYS_STATE_DBW_ACTIVE) {
 		selfdrive_pid_setpoint_reset(&pid,
-			(((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
+			(((float) CANRX_get_CTRL_brakePercent()) / 100.0),
 			actual_brake);
 	}
 
@@ -218,7 +217,7 @@ static void bbc_1kHz(void)
 		cmd = 0.0;
 	} else if (bbc_authorized) {
 		gpio_set_level(SLP_PIN, 1);
-		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
+		cmd = ((float) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
 		gpio_set_level(SLP_PIN, 0);
@@ -227,11 +226,14 @@ static void bbc_1kHz(void)
 	}
 
 	desired_brake = cmd;
-	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX))
-				- MIN_PRESSURE_READING)
-		/ ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
-	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
+	float brake_reading = adc_reading(PS_ADC_CHANNEL_INDEX);
+
+	brake_reading = MIN(brake_reading, MAX_PRESSURE_READING);
+	brake_reading = MAX(brake_reading, MIN_PRESSURE_READING);
+
+	actual_brake = (brake_reading - MIN_PRESSURE_READING)
+		/ (MAX_PRESSURE_READING - MIN_PRESSURE_READING);
 
 	controller_output
 		= selfdrive_pid_step(&pid, desired_brake, actual_brake);
@@ -330,13 +332,13 @@ static bool IRAM_ATTR adc_callback(adc_continuous_handle_t handle,
 	return xSemaphoreGiveFromISR(adc.sem, NULL) == pdTRUE;
 }
 
-static uint16_t adc_reading(enum adc_channel_index channel)
+static float adc_reading(enum adc_channel_index channel)
 {
-	if ((channel < 0) && (channel >= ADC_CHANNELS)) return UINT16_MAX;
+	if ((channel < 0) && (channel >= ADC_CHANNELS)) return 0.0;
 
 	const struct dump * const dump = adc.dump + channel;
 
-	return dump->buf[(dump->write - 1 + SAMPLING_BUF_FRAMES)
+	return dump->filtered[(dump->write - 1 + SAMPLING_BUF_FRAMES)
 		% SAMPLING_BUF_FRAMES];
 }
 
