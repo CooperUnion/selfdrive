@@ -18,8 +18,12 @@ class Interface(Node):
         self.lane_follow = lane_follow
         self.car_sm = car_sm.CarSM()
 
-        self.object_position_x = None
-        self.object_position_y = None
+        self.object_global_position_x = None
+        self.object_global_position_y = None
+
+        self.object_local_position_x = None
+        self.object_local_position_y = None
+
         self.object_distance = None
         self.object_name = None
         self.obj_list_index = 0
@@ -53,6 +57,8 @@ class Interface(Node):
         self.object_position_y = msg.pose.position.y
 
     def object_distance_callback(self, msg):
+        self.object_local_position_x = msg.data[0]
+        self.object_local_position_y = msg.data[1]
         self.object_distance = msg.data[2]
 
     def Lane_Follow_Action(self, args=None):
@@ -153,14 +159,16 @@ class Interface(Node):
         # is it close enough
         # is it a distinct object **
 
-        self.Unique_Object()
+        # self.Unique_Object()
+
+        
 
         if (
             (object_list[self.obj_list_index] == self.object_name)
             and (self.object_distance <= distance_threshold)
             and (len(self.object_history) > self.prev_object_history_length)
         ):
-            return True
+            return True ,self.object_local_position_x, self.object_global_position_y 
 
         else:
             return False
