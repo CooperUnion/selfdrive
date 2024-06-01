@@ -213,11 +213,15 @@ class LaneFollower(Node):
         (result_left,
          empty_left,
          left_heading,
-         self.left_slope) = self._left_follower.Plot_Line()
+         left_slope) = self._left_follower.Plot_Line()
         (result_right,
          empty_right,
          right_heading,
-         self.right_slope) = self._right_follower.Plot_Line()
+         right_slope) = self._right_follower.Plot_Line()
+        
+        #Setting the slopes if there is enough relevant data: If not, we discard and assume what we're seeing is noise
+        self.left_slope = left_slope * LaneFollower.PIXELS_TO_METERS if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD else self.left_slope
+        self.right_slope = right_slope * LaneFollower.PIXELS_TO_METERS if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD else self.right_slope
 
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
