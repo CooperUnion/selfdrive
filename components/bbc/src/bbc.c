@@ -88,7 +88,6 @@ static bool  adc_callback(adc_continuous_handle_t handle,
 	 void					 *user_data);
 static float adc_reading(enum adc_channel_index channel);
 static void  adc_task(void *arg);
-static void  dump_samples(void);
 static void  iir_filter(float buf[]);
 static bool  overflow_callback(adc_continuous_handle_t handle,
 	 const adc_continuous_evt_data_t	      *cbs,
@@ -362,30 +361,13 @@ loop:
 
 	if (err != ESP_OK) goto loop;
 
-	// static bool latch = false;
-
-	// if (!latch && (base_get_state() == SYS_STATE_DBW_ACTIVE))
-	// {
-	// 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-	// 		struct dump * const dump = adc.dump + i;
-
-	// 		dump->read
-	// 			= (dump->write - PREV_SAMPLE_SIZE)
-	// 			% SAMPLING_BUF_FRAMES;
-	// 	}
-
-	// 	latch = true;
-	// }
-
 	adc_digi_output_data_t *samples = (adc_digi_output_data_t *) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
-
 
 	float	       *filter_buffer = adc.buffers[adc.buffer_index];
 	static uint16_t raw_buffer[FRAME_SAMPLES];
 
-	bool	     start_dump = true;
-	struct dump *dump	= NULL;
+	struct dump *dump = NULL;
 
 	for (size_t i = 0; i < sample_count; i++) {
 		adc_digi_output_data_t * const sample = samples + i;
@@ -407,8 +389,6 @@ loop:
 
 		if (dump->read == dump->write) continue;
 
-		start_dump = false;
-
 		uint16_t raw_sample = sample->type2.data;
 		raw_buffer[i]	    = raw_sample;
 
@@ -428,30 +408,7 @@ loop:
 
 	adc.buffer_index = (adc.buffer_index + 1) % FILTER_BUFFERS;
 
-	if (start_dump) dump_samples();
-
 	goto loop;
-}
-
-static void dump_samples()
-{
-	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		printf("--- unfiltered %d ---\n", i);
-
-		struct dump * const dump = adc.dump + i;
-
-		size_t read = dump->read;
-
-		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
-			printf("%u,%d\n", j, dump->buf[read]);
-			read = (read + 1) % SAMPLING_BUF_FRAMES;
-
-			// prevent task_wdt trips
-			if (!(j % 10000)) vTaskDelay(2 / portTICK_PERIOD_MS);
-		}
-
-		dump->read = SIZE_MAX;
-	}
 }
 
 static void iir_filter(float buf[])
