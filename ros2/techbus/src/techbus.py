@@ -42,6 +42,10 @@ class ROStouCAN(Node):
         angle = 0
         steer_cmd = msg.data[0]
         vel_cmd = msg.data[1]
+        #bounding for safety reasons: 2.32 m/s is competition maximum
+        if vel_cmd > 2.32:
+            vel_cmd = 2.32
+
         if steer_cmd != 0 and vel_cmd != 0:
             angle = -atan2(steer_cmd * 1.8, vel_cmd)
         else:

@@ -1,1 +1,53 @@
 \section{Innovations}
+
+This year, we decided to redesign our braking system and move to a
+vision-based approach to path generation and object detection.
+
+Our previous braking system, based around a Hydrastar trailer brake
+system, was too powerful to allow consistent braking at low speeds. Our
+new braking system, dubbed Brake-By-Cable, is our solution to add fine
+control over the brakes. We installed a DC motor that rotates a pulley
+so that a cable pulls on the brake pedal. We utilize a pressure and
+current sensor as feedback for our control loop to allow for accurate
+pressure control as requested by our vehicle controller.
+
+To determine what lane our car is in and to calculate our heading and
+cross-track errors, we've decided to use two cameras placed on each A
+pillar of our vehicle. Since we can assume that our car operates on a
+flat plane, we measure points along lane lines to create a trapezoidal
+unwrap of each video feed, allowing us to use perspective transforms to
+make an image where distance is a linear function of pixels.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.75\textwidth]{fitted-lane-lines.png}
+  \caption{Fitted lane lines.}
+\end{figure}
+
+For our lane detection algorithm, we use a sliding window approach. We
+divide the video feed from the pillar cameras into N windows, where we
+threshold all white pixels within each window. We then use the
+thresholded video feed to generate a polynomial model of the lane line.
+This approach allows us to remove outliers and mitigate noise in our
+input signals. Using these two polynomials, we can extract the
+cross-track error (the distance from the center of the lane) by
+comparing the distance between points on the polynomial and the front
+axle. We can also extract the heading error (the angle relative to the
+lane lines) by using a linear approximation of our generated
+polynomials at the front axle and determining the deviation from the
+vertical axis of the video feed.
+
+\newpage
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.75\textwidth]{object-detection-demo.png}
+  \caption{Object detection demo.}
+\end{figure}
+
+We've also gone away with using a LIDAR sensor for object detection and
+instead decided to use a deep learning model with a stereovision
+camera. We're using Ultralytics's YOLOv8 model for its state-of-the-art
+performance in real-time applications. We fine-tuned the model by
+freezing the first ten layers and training on a small dataset of common
+road obstructions and traffic signs.

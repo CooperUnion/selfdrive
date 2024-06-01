@@ -140,7 +140,7 @@ class LaneChange(Node):
             ]
 
             # Uncomment when you actually want to drive
-            # self.cmd_publisher.publish(cmd)
+            self.cmd_publisher.publish(cmd)
 
             time.sleep(0.05)  # Generate command at 20Hz
 

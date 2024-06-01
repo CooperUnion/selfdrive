@@ -239,4 +239,5 @@ if __name__ == "__main__":
     if not render:
         input_handler(display_holder)
     else:
+        time.sleep(0.1)
         render_handler(display_holder)

@@ -18,7 +18,7 @@ class Individual_Follower:
         # Set the width of the windows +/- margin
         margin = 100
         # Set minimum number of pixels found to recenter window
-        minpix = 20
+        minpix = 40
 
         histogram = np.sum(
             self._binary_warped[self._binary_warped.shape[0] // 2 :, :], axis=0
