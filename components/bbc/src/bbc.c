@@ -79,7 +79,7 @@ enum adc_channel_index {
 #define FILTER_BUFFERS 2
 
 static void	bbc_init(void);
-static void	bbc_100Hz(void);
+static void	bbc_1kHz(void);
 static void	adc_init(void);
 static bool	adc_callback(adc_continuous_handle_t handle,
 	    const adc_continuous_evt_data_t	    *cbs,
@@ -157,8 +157,8 @@ static bool min_limit_switch_status;
 static selfdrive_pid_t pid;
 
 ember_rate_funcs_S module_rf = {
-	.call_init  = bbc_init,
-	.call_100Hz = bbc_100Hz,
+	.call_init = bbc_init,
+	.call_1kHz = bbc_1kHz,
 };
 
 static void bbc_init(void)
@@ -197,7 +197,7 @@ static void bbc_init(void)
 		&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 }
 
-static void bbc_100Hz(void)
+static void bbc_1kHz(void)
 {
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
 		&& CANRX_get_SUP_bbcAuthorized()
