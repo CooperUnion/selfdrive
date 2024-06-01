@@ -26,11 +26,10 @@
 #define METERS_PER_TICK \
 	((float) WHEEL_CIRCUMFERENCE_M / (float) ENCODER_TICKS_PER_ROTATION)
 
-// XXX: TODO ~ REPLACE WITH 2024 MAPPINGS
 #define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING	       40.97
-#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING_OFFSET 9.14
+#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING_OFFSET 0
 #define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING	       -36.60
-#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET    -25.10
+#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET    0
 
 #define ACCELERATION_TO_THROTTLE_PERCENT(x)                      \
 	(((x) * ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING) \
@@ -42,14 +41,15 @@
 
 #define AVERAGE_TICKS_SAMPLES 4
 
-// XXX: TODO ~ TUNE GAINS FOR NEW MAPPINGS
-#define KP    0.50
-#define KI    0.00
-#define KD    0.00
+#define KP    0.35
+#define KI    0.035
+#define KD    0.42
 #define SIGMA 1.00
 
-#define PID_LOWER_LIMIT -3.3
-#define PID_UPPER_LIMIT 1.0
+#define PID_LOWER_LIMIT	   -5
+#define PID_UPPER_LIMIT	   2
+#define PID_DEADBAND_LOWER 0
+#define PID_DEADBAND_UPPER 0
 
 static void ctrl_init();
 static void ctrl_100Hz();
@@ -105,6 +105,9 @@ static void ctrl_init()
 		PID_LOWER_LIMIT,
 		PID_UPPER_LIMIT,
 		SIGMA);
+
+	selfdrive_pid_set_deadbands(
+		&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 }
 
 static void ctrl_100Hz()
@@ -296,8 +299,7 @@ static void velocity_control(
 {
 	// we'd like to stop, or so i hope
 	if (!desired_velocity) {
-		// XXX: TODO, DETURMINE IF SHOULD INCREASE PERCENTAGE OR NOT
-		brake_percent	 = 50;
+		brake_percent	 = 100;
 		throttle_percent = 0;
 
 		return;
