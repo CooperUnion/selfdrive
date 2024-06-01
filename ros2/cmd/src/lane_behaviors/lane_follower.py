@@ -153,8 +153,7 @@ class LaneFollower(Node):
 
         # vel_cmd = self.odom_sub.vel
         vel_cmd = 2.235  # Unsure if the velocity command should always be the target
-
-        time.sleep(period)
+        # time.sleep(period)
 
         return steer_cmd, vel_cmd
 

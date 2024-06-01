@@ -102,9 +102,9 @@ class Interface(Node):
                 relative_y = args[
                     1
                 ]  # replace this with subscriber data from obj detection
-                end_yaw = (
-                    0  # We should never be sending an end yaw of more than zero
-                )
+                end_yaw = args[
+                    2  # We should never be sending an end yaw of more than zero
+                ]
                 self.lane_change.create_path(relative_x, relative_y, end_yaw)
                 # TODO: add error checking for lane change to estop transitions
                 self.lane_change.follow_path()
@@ -204,7 +204,7 @@ class Interface(Node):
             reference_y = self.object.local_position_y
 
             if not check_in_lane:
-                return True, self.object_local_position_x, self.object_global_position_y
+                return True, self.object_local_position_x, self.object_global_position_y, self.object_distance
             else:
                 crosstrack = self.lane_follow.cross_track_error
                 projected_left_line = self.lane_follow.left_slope * reference_x + crosstrack - (Interface.LANE_WIDTH/2)
@@ -214,8 +214,8 @@ class Interface(Node):
                 # Hence why I'm checking the crosstrack against 5 meters
                 # If the object sits in the lane, it's y value will be greater than projected left line and greater than projected_right_line
                 if (projected_left_line < reference_y and projected_right_line > reference_y):
-                    return True, self.object_local_position_x, self.object_global_position_y
-        return False, -1, -1
+                    return True, self.object_local_position_x, self.object_local_position_y, self.object_distance
+        return False, -1, -1, -1
 
     def Run(self, args=None):
         function_dict = {

@@ -18,7 +18,9 @@ class CarSM(StateMachine):
     Emergency_Trigger = (
         Lane_Following.to(Estop) | Lane_Change.to(Estop) | Cstop.to(Estop)
     )
+    Turn_Trigger = Cstop.to(Lane_Change)
     Return_To_Follow = Lane_Change.to(Lane_Following)
+
 
     # The Lane Follow State
     @Lane_Following.enter

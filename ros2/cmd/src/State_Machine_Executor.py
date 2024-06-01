@@ -1,7 +1,7 @@
 import rclpy
 from threading import Thread
 import traceback
-from state_machines.function_tests.testq3_lanekeeping import Function_Test_4
+from state_machines.function_tests.q3_lanekeeping import Function_Test_4
 
 # This is one of two lines that needs to be changed every time
 from State_Machine_Interface import Interface as SM_Interface
