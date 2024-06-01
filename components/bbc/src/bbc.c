@@ -101,7 +101,7 @@ struct dump {
 
 struct filter {
 	float sos[FILTER_LENGTH][5];
-	float w[2];
+	float w[FILTER_LENGTH][2];
 	float g;
 };
 
@@ -458,10 +458,10 @@ static void iir_filter(float buf[])
 {
 	float(*sos)[5] = adc.filter.sos;
 	const float g  = adc.filter.g;
-	float	   *w  = adc.filter.w;
+	float(*w)[2]   = adc.filter.w;
 
 	for (size_t i = 0; i < FILTER_LENGTH; i++) {
-		dsps_biquad_f32(buf, buf, FILTER_LENGTH, sos[i], w);
+		dsps_biquad_f32(buf, buf, FRAME_SAMPLES, sos[i], w[i]);
 	}
 
 	for (size_t i = 0; i < FRAME_SAMPLES; i++) {
