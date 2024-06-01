@@ -153,7 +153,7 @@ nodes:
 
         - BrakeData:
             id: 0x11
-            cycletime: 10
+            cycletime: 1
 
             signals:
               - motorPercent:
@@ -720,7 +720,7 @@ nodes:
 
         - AccelData:
             id: 0x10
-            cycletime: 100
+            cycletime: 1
 
             signals:
               - throttleADutyCycle:
