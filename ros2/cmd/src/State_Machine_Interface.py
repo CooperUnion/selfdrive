@@ -4,10 +4,14 @@ from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray, String
 from geometry_msgs.msg import PoseWithCovariance
 from state_machines import car_sm
+from lane_behaviors.lane_follower import LaneFollower
+from lane_behaviors.lane_change import LaneChange
 
 
 class Interface(Node):
-    def __init__(self, function_test_label, lane_change, lane_follow):
+    LANE_WIDTH = 3.048  # METERS
+
+    def __init__(self, function_test_label, lane_change: LaneChange, lane_follow: LaneFollower):
         super().__init__(function_test_label)
 
         self.cmd_publisher = self.create_publisher(
@@ -100,25 +104,25 @@ class Interface(Node):
             self.lane_change.follow_path()
 
     def Cstop_Action(self, args=None):
-        #We need to parametrize this, slope in m/s^2
+        # We need to parametrize this, slope in m/s^2
         slope = 5
         if args is not None:
-            #THIS SHOULD ONLY COME FROM CSTOP
+            # THIS SHOULD ONLY COME FROM CSTOP
             slope = args[0]
 
         current_speed = self.lane_follow.odom_sub.vel
         cmd = Float32MultiArray()
         initial = datetime.now()
-        #Catching any precision errors & I'm not entirely sure how odom velocity is calculated
-        #In other words, lazy programming. TODO: Determine appropriate bounds:)
+        # Catching any precision errors & I'm not entirely sure how odom velocity is calculated
+        # In other words, lazy programming. TODO: Determine appropriate bounds:)
         while current_speed > 0.05:
             current_speed = self.lane_follow.odom_sub.vel
             current_time = datetime.now()
             difference = (initial-current_time).total_seconds()
             cmd.data = [
-            0.0,
-            current_speed-(slope*difference),
-            ]   #Allows us to keep slope @ set time
+                0.0,
+                current_speed-(slope*difference),
+            ]  # Allows us to keep slope @ set time
             initial = current_time
             self.cmd_publisher.publish(cmd)
 
@@ -161,17 +165,25 @@ class Interface(Node):
 
         # self.Unique_Object()
 
-        
-
         if (
             (object_list[self.obj_list_index] == self.object_name)
             and (self.object_distance <= distance_threshold)
-            and (len(self.object_history) > self.prev_object_history_length)
-        ):
-            return True ,self.object_local_position_x, self.object_global_position_y 
-
-        else:
-            return False
+                and (len(self.object_history) > self.prev_object_history_length)):
+            reference_x = self.object.local_position_x
+            reference_y = self.object.local_position_y
+            if not check_in_lane:
+                return True, self.object_local_position_x, self.object_global_position_y
+            else:
+                crosstrack = self.lane_follow.cross_track_error
+                projected_left_line = self.lane_follow.left_slope * reference_x + crosstrack - (Interface.LANE_WIDTH/2)
+                projected_right_line = self.lane_follow.right_slope * reference_x + crosstrack + (Interface.LANE_WIDTH/2)
+                # Slope is up/down projections,
+                # If we sit in the middle, the crosstrack is zero. The lanes are approximately 10 meters wide
+                # Hence why I'm checking the crosstrack against 5 meters
+                # If the object sits in the lane, it's y value will be greater than projected left line and greater than projected_right_line
+                if (projected_left_line < reference_y and projected_right_line > reference_y):
+                    return True, self.object_local_position_x, self.object_global_position_y
+        return False, -1, -1
 
     def Run(self, args=None):
         function_dict = {
