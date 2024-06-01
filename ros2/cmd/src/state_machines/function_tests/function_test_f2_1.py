@@ -12,7 +12,7 @@ class Function_Test_4():
         object_counter = 0
         self.interface.car_SM.Resume()
         while object_counter < 2:            
-            if(self.interface.Object_Detection(threshold_distance, cared_objects=["Pothole"])):
+            if(self.interface.Object_Detection(threshold_distance, object_list=["Pothole"])):
                 self.interface.car_SM.Obj_Avoidance()
                 object_counter+=1
             if(self.interface.Object_Detection(cared_objects=["Barrel"],)):

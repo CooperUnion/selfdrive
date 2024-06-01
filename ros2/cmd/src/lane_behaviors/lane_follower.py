@@ -12,7 +12,7 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import time
-
+from odom_sub import Odometry
 
 class LaneFollower(Node):
     GUI = True
@@ -48,7 +48,7 @@ class LaneFollower(Node):
 
     PIXELS_TO_METERS = 260.8269125
 
-    def __init__(self, odom_sub):
+    def __init__(self, odom_sub: Odometry):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras

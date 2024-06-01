@@ -11,7 +11,7 @@ class Function_Test_FV2():
         self.interface.car_SM.Obj_Avoidance()
         self.interface.Run()
 
-        if(self.interface.Object_Detection(cared_objects=["Barrel"],)):
+        if(self.interface.Object_Detection(object_list=["Barrel"],)):
             self.interface.car_SM.Stop_Trigger()
             self.interface.Run()
 

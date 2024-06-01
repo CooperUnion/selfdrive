@@ -139,6 +139,7 @@ class LaneChange(Node):
                 2.235,  # Unsure if the velocity command should always be the target
             ]
 
+
             # Uncomment when you actually want to drive
             self.cmd_publisher.publish(cmd)
 
