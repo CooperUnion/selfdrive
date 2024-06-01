@@ -348,6 +348,8 @@ loop:
 	if (xSemaphoreTake(adc.sem, portMAX_DELAY) != pdTRUE) goto loop;
 
 	if (overflow) {
+		base_request_state(SYS_STATE_ESTOP);
+
 		while (1) {
 			vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
