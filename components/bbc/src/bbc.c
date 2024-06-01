@@ -265,7 +265,7 @@ static void bbc_1kHz(void)
 static void adc_init(void)
 {
 	overflow = false;
-	adc.sem	 = xSemaphoreCreateCounting(ADC_CHANNELS, 0);
+	adc.sem	 = xSemaphoreCreateBinary();
 
 	xTaskCreatePinnedToCore(adc_task,
 		"adc_task",
@@ -297,7 +297,7 @@ static void adc_init(void)
 		.channel = PS_ADC_CHANNEL,
 		.unit = PS_ADC_UNIT,
 		},
-  };
+	};
 	adc_continuous_config_t config = {
 		.sample_freq_hz = SAMPLING_RATE_HZ,
 		.conv_mode	= ADC_CONV_SINGLE_UNIT_1,
