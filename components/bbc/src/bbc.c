@@ -192,11 +192,14 @@ static void bbc_100Hz(void)
 	}
 
 	desired_brake = cmd;
-	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX))
-				- MIN_PRESSURE_READING)
-		/ ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
-	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
+	uint16_t brake_reading = adc_reading(PS_ADC_CHANNEL_INDEX);
+
+	brake_reading = MIN(brake_reading, MAX_PRESSURE_READING);
+	brake_reading = MAX(brake_reading, MIN_PRESSURE_READING);
+
+	actual_brake = (brake_reading - MIN_PRESSURE_READING)
+		/ ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
 	controller_output
 		= selfdrive_pid_step(&pid, desired_brake, actual_brake);
@@ -257,13 +260,13 @@ static void adc_init(void)
 		adc_continuous_new_handle(&handle_config, &adc.handle));
 
 	adc_digi_pattern_config_t adc_pattern[ADC_CHANNELS] = {
-		[PS_ADC_CHANNEL_INDEX] =
-		{
-		.atten = ADC_ATTEN_DB_12,
-		.bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
-		.channel = PS_ADC_CHANNEL,
-		.unit = PS_ADC_UNIT,
-		},
+      [PS_ADC_CHANNEL_INDEX] =
+          {
+              .atten = ADC_ATTEN_DB_12,
+              .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH,
+              .channel = PS_ADC_CHANNEL,
+              .unit = PS_ADC_UNIT,
+          },
   };
 	adc_continuous_config_t config = {
 		.sample_freq_hz = SAMPLING_RATE_HZ,
