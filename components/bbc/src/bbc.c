@@ -443,14 +443,25 @@ void CANTX_populateTemplate_BrakeGains(struct CAN_TMessage_PIDGains * const m)
 
 void CANTX_populate_BBC_BrakeData(struct CAN_Message_BBC_BrakeData * const m)
 {
+	struct samples * const samples = adc.samples + PS_ADC_CHANNEL_INDEX;
+
 	m->BBC_motorPercent = controller_output * 100;
 
 	m->BBC_pressurePercent = actual_brake * 100;
+
+	m->BBC_adcNormalizedRaw
+		= (samples->raw[(samples->index - 1 + SAMPLES) % SAMPLES]
+			  / (float) ((1 << PS_ADC_BITWIDTH) - 1))
+		* 100;
+
+	m->BBC_adcNormalizedFiltered
+		= samples->filtered[(samples->index - 1 + SAMPLES) % SAMPLES]
+		* 100;
 
 	m->BBC_limitSwitchMax = max_limit_switch_status;
 
 	m->BBC_limitSwitchMin = min_limit_switch_status;
 
-	m->BBC_motorPercent = (float32_t) pwm_channel.duty
-		/ (float32_t) (1 << PWM_RESOLUTION) * 100;
+	m->BBC_motorPercent = (float) pwm_channel.duty
+		/ (float) (1 << PWM_RESOLUTION) * 100;
 }
