@@ -101,13 +101,6 @@ struct filter {
 	float g;
 };
 
-static ledc_timer_config_t pwm_timer = {
-	.speed_mode	 = LEDC_LOW_SPEED_MODE,
-	.duty_resolution = PWM_RESOLUTION,
-	.timer_num	 = LEDC_TIMER_0,
-	.freq_hz	 = PWM_FREQUENCY,
-};
-
 static ledc_channel_config_t pwm_channel = {
 	.gpio_num   = PWM_PIN,
 	.speed_mode = LEDC_LOW_SPEED_MODE,
