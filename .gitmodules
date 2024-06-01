@@ -18,6 +18,11 @@
 	url = ../ember.git
 	ignore = dirty
 
+[submodule "lib/esp-dsp"]
+	path = lib/esp-dsp
+	url = ../../espressif/esp-dsp.git
+	ignore = dirty
+
 [submodule "lib/esp-idf"]
 	path = lib/esp-idf
 	url = ../../espressif/esp-idf.git

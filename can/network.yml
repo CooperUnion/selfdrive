@@ -165,7 +165,23 @@ nodes:
                   scale: 0.1
 
               - pressurePercent:
-                  description: Percentage from adc reading.
+                  description: Pressure percentage.
+                  # minimum: 0.0
+                  # maximum: 100.0
+                  width: 10
+                  unit: percent
+                  scale: 0.1
+
+              - adcNormalizedRaw:
+                  description: ADC reading (raw).
+                  # minimum: 0.0
+                  # maximum: 100.0
+                  width: 10
+                  unit: percent
+                  scale: 0.1
+
+              - adcNormalizedFiltered:
+                  description: ADC reading (filtered).
                   # minimum: 0.0
                   # maximum: 100.0
                   width: 10

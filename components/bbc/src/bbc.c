@@ -3,6 +3,7 @@
 #include "firmware-base/state-machine.h"
 #include <driver/gpio.h>
 #include <driver/ledc.h>
+#include <dsps_biquad.h>
 #include <ember_common.h>
 #include <ember_taskglue.h>
 #include <esp_adc/adc_cali.h>
@@ -16,8 +17,6 @@
 #include <opencan_tx.h>
 #include <selfdrive/pid.h>
 #include <sys/param.h>
-
-#define ESP_INTR_FLAG_DEFAULT 0
 
 #define DIR_PIN GPIO_NUM_5
 #define PWM_PIN GPIO_NUM_4
@@ -35,29 +34,27 @@
 #define PS_ADC_CHANNEL ADC_CHANNEL_7  // GPIO_8
 #define PS_ADC_UNIT    ADC_UNIT_1
 
-#define LIM_SW_1 GPIO_NUM_37  // too far backward
-#define LIM_SW_2 GPIO_NUM_40  // too far forward
+#define LIM_SW_MIN GPIO_NUM_37	// too far backward
+#define LIM_SW_MAX GPIO_NUM_40	// too far forward
 
 enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
 };
 
-#define SAMPLING_RATE_HZ      20000
-#define SAMPLING_TOTAL_FRAMES 120000
-#define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
+#define SAMPLING_RATE_HZ 20000
+#define SAMPLES		 20
 
 #define FRAME_SAMPLES 10
 #define FRAME_SIZE \
 	(sizeof(adc_digi_output_data_t) * FRAME_SAMPLES * ADC_CHANNELS)
 #define POOL_SIZE (FRAME_SIZE * 2)
 
-#define TASK_STACK_SIZE 2048
+#define ADC_TASK_STACK_SIZE 2048
 
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
-// TODO: TUNE INNER LOOP
 #define KP    5.00
 #define KI    0.05
 #define KD    0.00
@@ -70,27 +67,38 @@ enum adc_channel_index {
 #define PID_DEADBAND_LOWER 0.05
 #define PID_DEADBAND_UPPER -0.05
 
-// TODO: CHECK THESE VALUES AGAIN
-#define MAX_PRESSURE_READING 2230
-#define MIN_PRESSURE_READING 215
+#define MAX_PRESSURE_READING 0.60
+#define MIN_PRESSURE_READING 0.06
 
-static void	bbc_init(void);
-static void	bbc_100Hz(void);
-static void	adc_init(void);
-static bool	adc_callback(adc_continuous_handle_t handle,
-	    const adc_continuous_evt_data_t	    *cbs,
-	    void				    *user_data);
-static uint16_t adc_reading(enum adc_channel_index channel);
-static void	adc_task(void *arg);
-static void	dump_samples(void);
-static bool	overflow_callback(adc_continuous_handle_t handle,
-	    const adc_continuous_evt_data_t		 *cbs,
-	    void					 *user_data);
+#define FILTER_LENGTH  2
+#define FILTER_BUFFERS 2
 
-struct dump {
-	uint16_t buf[SAMPLING_BUF_FRAMES];
-	size_t	 read;
-	size_t	 write;
+// adjustment for SOS gain to match measured values
+#define FILTER_FUDGE_FACTOR 1.47
+
+static void  bbc_init(void);
+static void  bbc_1kHz(void);
+static void  adc_init(void);
+static bool  adc_callback(adc_continuous_handle_t handle,
+	 const adc_continuous_evt_data_t	 *cbs,
+	 void					 *user_data);
+static float adc_reading(enum adc_channel_index channel);
+static void  adc_task(void *arg);
+static void  iir_filter(float *buf);
+static bool  overflow_callback(adc_continuous_handle_t handle,
+	 const adc_continuous_evt_data_t	      *cbs,
+	 void					      *user_data);
+
+struct samples {
+	uint16_t raw[SAMPLES];
+	float	 filtered[SAMPLES];
+	size_t	 index;
+};
+
+struct filter {
+	float sos[FILTER_LENGTH][5];
+	float w[FILTER_LENGTH][2];
+	float g;
 };
 
 static ledc_channel_config_t pwm_channel = {
@@ -106,8 +114,17 @@ static struct {
 	adc_continuous_handle_t handle;
 	SemaphoreHandle_t	sem;
 	TaskHandle_t		task_handle;
-	struct dump		dump[ADC_CHANNELS];
-} adc;
+	struct samples		samples[ADC_CHANNELS];
+	struct filter		filter;
+	float			filter_buffers[FILTER_BUFFERS][FRAME_SAMPLES];
+	size_t			filter_buffer_index;
+} adc = {
+	.filter		     = {.sos = {{1.0000, 1.0000, 0, -0.9967, 0},
+					{1.0000, -1.9998, 1.0000, -1.9977, 0.9978}},
+				.w	     = {{0}},
+				.g	     = 5.5848e-04 * FILTER_FUDGE_FACTOR},
+	.filter_buffer_index = 0
+};
 
 static int    motor_direction;
 volatile bool overflow;
@@ -122,8 +139,8 @@ static bool min_limit_switch_status;
 static selfdrive_pid_t pid;
 
 ember_rate_funcs_S module_rf = {
-	.call_init  = bbc_init,
-	.call_100Hz = bbc_100Hz,
+	.call_init = bbc_init,
+	.call_1kHz = bbc_1kHz,
 };
 
 static void bbc_init(void)
@@ -132,11 +149,11 @@ static void bbc_init(void)
 	motor_direction = 1;
 	gpio_set_level(DIR_PIN, !motor_direction);
 
-	gpio_set_direction(LIM_SW_1, GPIO_MODE_INPUT);
-	gpio_set_direction(LIM_SW_2, GPIO_MODE_INPUT);
+	gpio_set_direction(LIM_SW_MIN, GPIO_MODE_INPUT);
+	gpio_set_direction(LIM_SW_MAX, GPIO_MODE_INPUT);
 
-	gpio_pullup_en(LIM_SW_1);
-	gpio_pullup_en(LIM_SW_2);
+	gpio_pullup_en(LIM_SW_MIN);
+	gpio_pullup_en(LIM_SW_MAX);
 
 	gpio_set_direction(SLP_PIN, GPIO_MODE_OUTPUT);
 	gpio_set_level(SLP_PIN, 1);
@@ -162,7 +179,7 @@ static void bbc_init(void)
 		&pid, PID_DEADBAND_LOWER, PID_DEADBAND_UPPER);
 }
 
-static void bbc_100Hz(void)
+static void bbc_1kHz(void)
 {
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
 		&& CANRX_get_SUP_bbcAuthorized()
@@ -174,7 +191,7 @@ static void bbc_100Hz(void)
 
 	if (base_get_state() != SYS_STATE_DBW_ACTIVE) {
 		selfdrive_pid_setpoint_reset(&pid,
-			(((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0),
+			(((float) CANRX_get_CTRL_brakePercent()) / 100.0),
 			actual_brake);
 	}
 
@@ -183,7 +200,7 @@ static void bbc_100Hz(void)
 		cmd = 0.0;
 	} else if (bbc_authorized) {
 		gpio_set_level(SLP_PIN, 1);
-		cmd = ((float32_t) CANRX_get_CTRL_brakePercent()) / 100.0;
+		cmd = ((float) CANRX_get_CTRL_brakePercent()) / 100.0;
 		base_request_state(SYS_STATE_DBW_ACTIVE);
 	} else {
 		gpio_set_level(SLP_PIN, 0);
@@ -192,27 +209,30 @@ static void bbc_100Hz(void)
 	}
 
 	desired_brake = cmd;
-	actual_brake  = (((float32_t) adc_reading(PS_ADC_CHANNEL_INDEX))
-				- MIN_PRESSURE_READING)
-		/ ((float32_t) (MAX_PRESSURE_READING - MIN_PRESSURE_READING));
 
-	actual_brake = (((actual_brake) >= (1.0)) ? (1.0) : (actual_brake));
+	float brake_reading = adc_reading(PS_ADC_CHANNEL_INDEX);
+
+	brake_reading = MIN(brake_reading, MAX_PRESSURE_READING);
+	brake_reading = MAX(brake_reading, MIN_PRESSURE_READING);
+
+	actual_brake = (brake_reading - MIN_PRESSURE_READING)
+		/ (MAX_PRESSURE_READING - MIN_PRESSURE_READING);
 
 	controller_output
 		= selfdrive_pid_step(&pid, desired_brake, actual_brake);
 
 	motor_direction = (controller_output < 0) ? 0 : 1;
 
-	max_limit_switch_status = gpio_get_level(LIM_SW_2);
-	min_limit_switch_status = gpio_get_level(LIM_SW_1);
+	min_limit_switch_status = gpio_get_level(LIM_SW_MIN);
+	max_limit_switch_status = gpio_get_level(LIM_SW_MAX);
 
 	if (motor_direction) {
-		if (gpio_get_level(LIM_SW_2)) {
+		if (gpio_get_level(LIM_SW_MAX)) {
 			gpio_set_level(SLP_PIN, 0);
 			controller_output = 0.0;
 		}
 	} else {
-		if (gpio_get_level(LIM_SW_1)) {
+		if (gpio_get_level(LIM_SW_MIN)) {
 			gpio_set_level(SLP_PIN, 0);
 			controller_output = 0.0;
 		}
@@ -232,22 +252,15 @@ static void bbc_100Hz(void)
 static void adc_init(void)
 {
 	overflow = false;
-	adc.sem	 = xSemaphoreCreateCounting(ADC_CHANNELS, 0);
+	adc.sem	 = xSemaphoreCreateBinary();
 
 	xTaskCreatePinnedToCore(adc_task,
 		"adc_task",
-		TASK_STACK_SIZE,
+		ADC_TASK_STACK_SIZE,
 		0,
 		1,
 		&adc.task_handle,
 		1);
-
-	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		struct dump * const dump = adc.dump + i;
-
-		dump->read  = SIZE_MAX;
-		dump->write = 0;
-	}
 
 	adc_continuous_handle_cfg_t handle_config = {
 		.max_store_buf_size = POOL_SIZE,
@@ -264,7 +277,7 @@ static void adc_init(void)
 		.channel = PS_ADC_CHANNEL,
 		.unit = PS_ADC_UNIT,
 		},
-  };
+	};
 	adc_continuous_config_t config = {
 		.sample_freq_hz = SAMPLING_RATE_HZ,
 		.conv_mode	= ADC_CONV_SINGLE_UNIT_1,
@@ -295,14 +308,13 @@ static bool IRAM_ATTR adc_callback(adc_continuous_handle_t handle,
 	return xSemaphoreGiveFromISR(adc.sem, NULL) == pdTRUE;
 }
 
-static uint16_t adc_reading(enum adc_channel_index channel)
+static float adc_reading(enum adc_channel_index channel)
 {
-	if ((channel < 0) && (channel >= ADC_CHANNELS)) return UINT16_MAX;
+	if ((channel < 0) && (channel >= ADC_CHANNELS)) return 0.0;
 
-	const struct dump * const dump = adc.dump + channel;
+	const struct samples * const samples = adc.samples + channel;
 
-	return dump->buf[(dump->write - 1 + SAMPLING_BUF_FRAMES)
-		% SAMPLING_BUF_FRAMES];
+	return samples->filtered[(samples->index - 1 + SAMPLES) % SAMPLES];
 }
 
 static void adc_task(void *arg)
@@ -313,6 +325,8 @@ loop:
 	if (xSemaphoreTake(adc.sem, portMAX_DELAY) != pdTRUE) goto loop;
 
 	if (overflow) {
+		base_request_state(SYS_STATE_ESTOP);
+
 		while (1) {
 			vTaskDelay(2 / portTICK_PERIOD_MS);
 		}
@@ -327,73 +341,65 @@ loop:
 
 	if (err != ESP_OK) goto loop;
 
-	// static bool latch = false;
-
-	// if (!latch && (base_get_state() == SYS_STATE_DBW_ACTIVE))
-	// {
-	// 	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-	// 		struct dump * const dump = adc.dump + i;
-
-	// 		dump->read
-	// 			= (dump->write - PREV_SAMPLE_SIZE)
-	// 			% SAMPLING_BUF_FRAMES;
-	// 	}
-
-	// 	latch = true;
-	// }
-
-	adc_digi_output_data_t *samples = (adc_digi_output_data_t *) buf;
+	adc_digi_output_data_t *adc_samples = (adc_digi_output_data_t *) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
 
-	bool start_dump = true;
+	float *filter_buffer = adc.filter_buffers[adc.filter_buffer_index];
+	static uint16_t raw_buffer[FRAME_SAMPLES];
+
+	struct samples *samples = NULL;
+
 	for (size_t i = 0; i < sample_count; i++) {
-		adc_digi_output_data_t * const sample = samples + i;
+		adc_digi_output_data_t * const adc_sample = adc_samples + i;
 
-		struct dump *dump;
+		float resolution;
 
-		switch (sample->type2.channel) {
+		switch (adc_sample->type2.channel) {
 			case PS_ADC_CHANNEL:
-				dump = adc.dump + PS_ADC_CHANNEL_INDEX;
+				samples = adc.samples + PS_ADC_CHANNEL_INDEX;
+				resolution = 1
+					/ ((float) ((1 << PS_ADC_BITWIDTH)
+						- 1));
 				break;
 
 			default:
-				dump = NULL;
+				samples = NULL;
 				break;
 		}
 
-		if (dump->read == dump->write) continue;
+		const uint16_t reading = adc_sample->type2.data;
+		raw_buffer[i]	       = reading;
 
-		start_dump = false;
-
-		uint16_t raw_sample = sample->type2.data;
-
-		dump->buf[dump->write] = raw_sample;
-		dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
+		const float normalized_sample = reading * resolution;
+		filter_buffer[i]	      = normalized_sample;
 	}
 
-	if (start_dump) dump_samples();
+	iir_filter(filter_buffer);
+
+	for (size_t i = 0; i < sample_count; i++) {
+		samples->raw[samples->index]	  = raw_buffer[i];
+		samples->filtered[samples->index] = filter_buffer[i];
+		samples->index = (samples->index + 1) % SAMPLES;
+	}
+
+	adc.filter_buffer_index
+		= (adc.filter_buffer_index + 1) % FILTER_BUFFERS;
 
 	goto loop;
 }
 
-static void dump_samples()
+static void iir_filter(float *buf)
 {
-	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		printf("--- unfiltered %d ---\n", i);
+	float(*sos)[5] = adc.filter.sos;
+	const float g  = adc.filter.g;
+	float(*w)[2]   = adc.filter.w;
 
-		struct dump * const dump = adc.dump + i;
+	for (size_t i = 0; i < FILTER_LENGTH; i++) {
+		dsps_biquad_f32(buf, buf, FRAME_SAMPLES, sos[i], w[i]);
+	}
 
-		size_t read = dump->read;
-
-		for (size_t j = 0; j < SAMPLING_BUF_FRAMES; j++) {
-			printf("%u,%d\n", j, dump->buf[read]);
-			read = (read + 1) % SAMPLING_BUF_FRAMES;
-
-			// prevent task_wdt trips
-			if (!(j % 10000)) vTaskDelay(2 / portTICK_PERIOD_MS);
-		}
-
-		dump->read = SIZE_MAX;
+	for (size_t i = 0; i < FRAME_SAMPLES; i++) {
+		buf[i] *= g;
 	}
 }
 
@@ -430,11 +436,25 @@ void CANTX_populateTemplate_BrakeGains(struct CAN_TMessage_PIDGains * const m)
 
 void CANTX_populate_BBC_BrakeData(struct CAN_Message_BBC_BrakeData * const m)
 {
+	struct samples * const samples = adc.samples + PS_ADC_CHANNEL_INDEX;
+
 	m->BBC_motorPercent = controller_output * 100;
 
 	m->BBC_pressurePercent = actual_brake * 100;
 
+	m->BBC_adcNormalizedRaw
+		= (samples->raw[(samples->index - 1 + SAMPLES) % SAMPLES]
+			  / (float) ((1 << PS_ADC_BITWIDTH) - 1))
+		* 100;
+
+	m->BBC_adcNormalizedFiltered
+		= samples->filtered[(samples->index - 1 + SAMPLES) % SAMPLES]
+		* 100;
+
 	m->BBC_limitSwitchMax = max_limit_switch_status;
 
 	m->BBC_limitSwitchMin = min_limit_switch_status;
+
+	m->BBC_motorPercent = (float) pwm_channel.duty
+		/ (float) (1 << PWM_RESOLUTION) * 100;
 }
