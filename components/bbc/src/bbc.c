@@ -77,6 +77,9 @@ enum adc_channel_index {
 #define FILTER_LENGTH  2
 #define FILTER_BUFFERS 2
 
+// adjustment for SOS gain to match measured values
+#define FILTER_FUDGE_FACTOR 1.47
+
 static void  bbc_init(void);
 static void  bbc_1kHz(void);
 static void  adc_init(void);
@@ -104,10 +107,6 @@ struct filter {
 	float g;
 };
 
-struct buffer {
-	float data[FRAME_SAMPLES];
-};
-
 static ledc_timer_config_t pwm_timer = {
 	.speed_mode	 = LEDC_LOW_SPEED_MODE,
 	.duty_resolution = PWM_RESOLUTION,
@@ -132,14 +131,11 @@ static struct {
 	struct filter		filter;
 	float			buffers[FILTER_BUFFERS][FRAME_SAMPLES];
 	size_t			buffer_index;
-	float		       *buffer;
-
-
 } adc = {
-	.filter	      = {.sos = {{1.0000, 1.0000, 0, -0.9959, 0},
-				 {1.0000, -1.9999, 1.0000, -1.9966, 0.9966}},
-			 .w      = {0, 0},
-			 .g      = 3.7640e-04},
+	.filter	      = {.sos = {{1.0000, 1.0000, 0, -0.9967, 0},
+				 {1.0000, -1.9998, 1.0000, -1.9977, 0.9978}},
+			 .w      = {{0}},
+			 .g      = 5.5848e-04 * FILTER_FUDGE_FACTOR},
 	.buffer_index = 0
 };
 
