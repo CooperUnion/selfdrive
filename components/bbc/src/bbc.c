@@ -18,8 +18,6 @@
 #include <selfdrive/pid.h>
 #include <sys/param.h>
 
-#define ESP_INTR_FLAG_DEFAULT 0
-
 #define DIR_PIN GPIO_NUM_5
 #define PWM_PIN GPIO_NUM_4
 #define SLP_PIN GPIO_NUM_3
@@ -44,9 +42,8 @@ enum adc_channel_index {
 	ADC_CHANNELS,
 };
 
-#define SAMPLING_RATE_HZ      20000
-#define SAMPLING_TOTAL_FRAMES 40000
-#define SAMPLING_BUF_FRAMES   (SAMPLING_TOTAL_FRAMES / ADC_CHANNELS)
+#define SAMPLING_RATE_HZ 20000
+#define SAMPLES		 20
 
 #define FRAME_SAMPLES 10
 #define FRAME_SIZE \
@@ -58,7 +55,6 @@ enum adc_channel_index {
 #define PREV_SAMPLE_DELAY_S 0.010
 #define PREV_SAMPLE_SIZE    ((size_t) (PREV_SAMPLE_DELAY_S * SAMPLING_RATE_HZ))
 
-// TODO: TUNE INNER LOOP
 #define KP    5.00
 #define KI    0.05
 #define KD    0.00
@@ -88,16 +84,15 @@ static bool  adc_callback(adc_continuous_handle_t handle,
 	 void					 *user_data);
 static float adc_reading(enum adc_channel_index channel);
 static void  adc_task(void *arg);
-static void  iir_filter(float buf[]);
+static void  iir_filter(float *buf);
 static bool  overflow_callback(adc_continuous_handle_t handle,
 	 const adc_continuous_evt_data_t	      *cbs,
 	 void					      *user_data);
 
-struct dump {
-	uint16_t buf[SAMPLING_BUF_FRAMES];
-	float	 filtered[SAMPLING_BUF_FRAMES];
-	size_t	 read;
-	size_t	 write;
+struct samples {
+	uint16_t raw[SAMPLES];
+	float	 filtered[SAMPLES];
+	size_t	 index;
 };
 
 struct filter {
@@ -126,16 +121,16 @@ static struct {
 	adc_continuous_handle_t handle;
 	SemaphoreHandle_t	sem;
 	TaskHandle_t		task_handle;
-	struct dump		dump[ADC_CHANNELS];
+	struct samples		samples[ADC_CHANNELS];
 	struct filter		filter;
-	float			buffers[FILTER_BUFFERS][FRAME_SAMPLES];
-	size_t			buffer_index;
+	float			filter_buffers[FILTER_BUFFERS][FRAME_SAMPLES];
+	size_t			filter_buffer_index;
 } adc = {
-	.filter	      = {.sos = {{1.0000, 1.0000, 0, -0.9967, 0},
-				 {1.0000, -1.9998, 1.0000, -1.9977, 0.9978}},
-			 .w      = {{0}},
-			 .g      = 5.5848e-04 * FILTER_FUDGE_FACTOR},
-	.buffer_index = 0
+	.filter		     = {.sos = {{1.0000, 1.0000, 0, -0.9967, 0},
+					{1.0000, -1.9998, 1.0000, -1.9977, 0.9978}},
+				.w	     = {{0}},
+				.g	     = 5.5848e-04 * FILTER_FUDGE_FACTOR},
+	.filter_buffer_index = 0
 };
 
 static int    motor_direction;
@@ -274,13 +269,6 @@ static void adc_init(void)
 		&adc.task_handle,
 		1);
 
-	for (size_t i = 0; i < ADC_CHANNELS; i++) {
-		struct dump * const dump = adc.dump + i;
-
-		dump->read  = SIZE_MAX;
-		dump->write = 0;
-	}
-
 	adc_continuous_handle_cfg_t handle_config = {
 		.max_store_buf_size = POOL_SIZE,
 		.conv_frame_size    = FRAME_SIZE,
@@ -331,10 +319,9 @@ static float adc_reading(enum adc_channel_index channel)
 {
 	if ((channel < 0) && (channel >= ADC_CHANNELS)) return 0.0;
 
-	const struct dump * const dump = adc.dump + channel;
+	const struct samples * const samples = adc.samples + channel;
 
-	return dump->filtered[(dump->write - 1 + SAMPLING_BUF_FRAMES)
-		% SAMPLING_BUF_FRAMES];
+	return samples->filtered[(samples->index - 1 + SAMPLES) % SAMPLES];
 }
 
 static void adc_task(void *arg)
@@ -361,57 +348,54 @@ loop:
 
 	if (err != ESP_OK) goto loop;
 
-	adc_digi_output_data_t *samples = (adc_digi_output_data_t *) buf;
+	adc_digi_output_data_t *adc_samples = (adc_digi_output_data_t *) buf;
 	const size_t sample_count = size / sizeof(adc_digi_output_data_t);
 
-	float	       *filter_buffer = adc.buffers[adc.buffer_index];
+	float *filter_buffer = adc.filter_buffers[adc.filter_buffer_index];
 	static uint16_t raw_buffer[FRAME_SAMPLES];
 
-	struct dump *dump = NULL;
+	struct samples *samples = NULL;
 
 	for (size_t i = 0; i < sample_count; i++) {
-		adc_digi_output_data_t * const sample = samples + i;
+		adc_digi_output_data_t * const adc_sample = adc_samples + i;
 
 		float resolution;
 
-		switch (sample->type2.channel) {
+		switch (adc_sample->type2.channel) {
 			case PS_ADC_CHANNEL:
-				dump	   = adc.dump + PS_ADC_CHANNEL_INDEX;
+				samples = adc.samples + PS_ADC_CHANNEL_INDEX;
 				resolution = 1
 					/ ((float) ((1 << PS_ADC_BITWIDTH)
 						- 1));
 				break;
 
 			default:
-				dump = NULL;
+				samples = NULL;
 				break;
 		}
 
-		if (dump->read == dump->write) continue;
+		const uint16_t reading = adc_sample->type2.data;
+		raw_buffer[i]	       = reading;
 
-		uint16_t raw_sample = sample->type2.data;
-		raw_buffer[i]	    = raw_sample;
-
-		float normalized_sample = raw_sample * resolution;
-		filter_buffer[i]	= normalized_sample;
+		const float normalized_sample = reading * resolution;
+		filter_buffer[i]	      = normalized_sample;
 	}
 
 	iir_filter(filter_buffer);
 
-	if (dump) {
-		for (size_t i = 0; i < sample_count; i++) {
-			dump->buf[dump->write]	    = raw_buffer[i];
-			dump->filtered[dump->write] = filter_buffer[i];
-			dump->write = (dump->write + 1) % SAMPLING_BUF_FRAMES;
-		}
+	for (size_t i = 0; i < sample_count; i++) {
+		samples->raw[samples->index]	  = raw_buffer[i];
+		samples->filtered[samples->index] = filter_buffer[i];
+		samples->index = (samples->index + 1) % SAMPLES;
 	}
 
-	adc.buffer_index = (adc.buffer_index + 1) % FILTER_BUFFERS;
+	adc.filter_buffer_index
+		= (adc.filter_buffer_index + 1) % FILTER_BUFFERS;
 
 	goto loop;
 }
 
-static void iir_filter(float buf[])
+static void iir_filter(float *buf)
 {
 	float(*sos)[5] = adc.filter.sos;
 	const float g  = adc.filter.g;
