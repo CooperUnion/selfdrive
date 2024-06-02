@@ -162,6 +162,25 @@ static bool odrive_calibration_needed(void)
 	return calibration_needed;
 }
 
+void CANRX_onRxCallback_DBW_SetSTEERGains(
+	const struct CAN_TMessageRaw_PIDGains * const raw,
+	const struct CAN_TMessage_PIDGains * const    dec)
+{
+	(void) raw;
+
+	pid.kp = dec->gainKp;
+	pid.ki = dec->gainKi;
+	pid.kd = dec->gainKd;
+}
+
+void CANTX_populateTemplate_SteeringGains(
+	struct CAN_TMessage_PIDGains * const m)
+{
+	m->gainKp = pid.kp;
+	m->gainKi = pid.ki;
+	m->gainKd = pid.kd;
+}
+
 void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
 {
 	m->STEER_alarmsRaised		= alarm.odrive_calibration;
