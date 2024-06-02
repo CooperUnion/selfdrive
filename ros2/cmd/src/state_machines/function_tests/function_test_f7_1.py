@@ -1,10 +1,13 @@
-#Test F7.1 Pothole Detection
-
+'''
+Test FVII.1 Pothole Detection
+1. Test Goal
+This test is intended to evaluate Ego vehicle’s ability to detect a pothole and safely change lane.
+'''
 
 from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
-class Function_Test_F3_1():
+class Function_Test_F7_1():
     def __init__(self, interface):
         self.interface = interface
 
@@ -40,6 +43,8 @@ class Function_Test_F3_1():
                 self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
                 barrel_detected = True
 
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F7_1)
 
 
 

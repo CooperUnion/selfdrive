@@ -50,4 +50,7 @@ class Function_Test_F5_2():
                 barrel_detected = True
                 self.interface.car_SM.Stop_Trigger()
             self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
+            
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F5_2)
 

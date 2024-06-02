@@ -1,8 +1,8 @@
 '''
-Test FIII.3. Intersection Testing. Left Turn
+Test FIII.3. Intersection Testing. Right Turn
 1. Test Goal
-This test is intended to evaluate if a vehicle is able to stop at the 'Stop' traffic sign, make a right turn
-across the traffic, merge into expected lane and drive within this lane until an obstacle is detected.
+This test is intended to evaluate if a vehicle is able to stop at the 'Stop' traffic sign, make a right turn,
+merge into the lane and drive within a lane until an obstacle is detected.
 '''
 
 from State_Machine_Executor import main
@@ -47,4 +47,7 @@ class Function_Test_F3_3():
                 barrel_detected = True
                 self.interface.car_SM.Stop_Trigger()
             self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
+
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F3_3)
 

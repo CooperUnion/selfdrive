@@ -1,12 +1,12 @@
 '''
 Test FIII.1. Lane Keeping
-
 1. Test Goal
 This test is intended to evaluate if the vehicle is able maneuver within lane boundaries, without wheels
 crossing the line or driving on the line. Additionally, this test evaluates if the vehicle stops at the “Stop”
 sign at the intersection, goes straight through intersection, and stops before an obstacle placed on the
 road.
 '''
+
 from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
@@ -48,5 +48,8 @@ class Function_Test_F3_1():
                 barrel_detected = True
                 self.interface.car_SM.Stop_Trigger()
             self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
+            
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F3_1)
 
 

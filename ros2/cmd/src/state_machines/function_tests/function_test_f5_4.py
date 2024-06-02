@@ -1,10 +1,14 @@
-#Test FV4. Obstacle detection. Lane Changing (goes straight, detects obstacle, and changes lanes)
-
+'''
+Test FV4. Obstacle detection. Lane Changing
+1. Test Goal
+This test evaluates Ego vehicle’s ability to safely change lane if a stationary object is present within a
+current lane.
+'''
 
 from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
-class Function_Test_F3_1():
+class Function_Test_F5_4():
     def __init__(self, interface):
         self.interface = interface
 
@@ -37,6 +41,8 @@ class Function_Test_F3_1():
             if(barrel_data[0]):
                 self.interface.car_SM.Stop_Trigger()
                 self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F5_4)
 
 
 
