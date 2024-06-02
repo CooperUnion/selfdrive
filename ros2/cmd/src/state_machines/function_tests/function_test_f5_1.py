@@ -1,11 +1,13 @@
-#Executor
+'''
+Test FV.1 Unobstructed STATIC pedestrian detection
+1. Test Goal
+This test evaluates ability of Ego vehicle to stop if a pedestrian is detected within boundaries of a current lane.
+'''
+
 from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
-
-# Test FV.1 (Go straight and stop five feet away from detected person)
-
-class Function_Test_FV_1:
+class Function_Test_F5_1:
     # Get data from 5 meters away
     threshold_distance = 5  # meters
 
@@ -29,6 +31,5 @@ class Function_Test_FV_1:
         self.interface.car_sm.Stop_Trigger()
         self.interface.Run(distance - 1.524)
 
-
 if __name__ == "__main__":
-    main("Function_Test_Q3",Function_Test_FV_1)
+    main("Function_Test_Q3",Function_Test_F5_1)

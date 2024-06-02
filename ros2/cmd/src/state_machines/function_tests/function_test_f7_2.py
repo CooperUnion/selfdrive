@@ -1,3 +1,8 @@
+'''
+1. Test Goal
+This test is intended to evaluate if a vehicle is able to perform a merge onto a representative highway.
+'''
+
 from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
@@ -36,6 +41,9 @@ class Function_Test_F7_2:
                 barrel_detected = True
                 self.interface.car_SM.Stop_Trigger()
             self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
+            
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_F7_2)
 
 
 
