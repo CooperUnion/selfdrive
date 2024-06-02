@@ -94,7 +94,7 @@ class Interface(Node):
             steer_cmd,
             vel_cmd,
         ]
-        # self.cmd_publisher.publish(cmd)
+        self.cmd_publisher.publish(cmd)
 
     # self.cmd_publisher.publish(cmd)
 
@@ -146,7 +146,7 @@ class Interface(Node):
                 max(current_speed - (slope * difference), 0),
             ]  # Allows us to keep slope @ set time
             initial = current_time
-            # self.cmd_publisher.publish(cmd)
+            self.cmd_publisher.publish(cmd)
 
     # Estop Action: When things break. args[0] is "soft estop", no args or args[0] false is a hard estop.
     # hard estop is HARD
@@ -170,7 +170,7 @@ class Interface(Node):
                 current_speed - (slope * difference),
             ]  # Allows us to keep slope @ set time
             initial = current_time
-            # self.cmd_publisher.publish(cmd)
+            self.cmd_publisher.publish(cmd)
         print(error)
         raise State_Machine_Failure(error)
 

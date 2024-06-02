@@ -10,7 +10,7 @@ from State_Machine_Interface import Interface
 import math 
 
 class Function_Test_F3_2():
-    def __init__(self, interface):
+    def __init__(self, interface: Interface):
         self.interface = interface
 
 

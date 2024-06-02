@@ -11,9 +11,8 @@ from State_Machine_Executor import main
 from State_Machine_Interface import Interface
 
 class Function_Test_F3_1():
-    def __init__(self, interface):
+    def __init__(self, interface: Interface):
         self.interface = interface
-
 
     # State transistion logic
     def function_test(self):

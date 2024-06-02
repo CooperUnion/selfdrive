@@ -17,7 +17,7 @@ class Function_Test_Q5:
         white_line_data = []
         barrel_data = []
 
-        self.interface.car_SM.Resume()
+        self.interface.car_sm.Resume()
         while not white_line_detected:
             white_line_data = self.interface.Object_Detection(
                 distance_threshold, object_list=["White Line"]
@@ -26,13 +26,13 @@ class Function_Test_Q5:
 
             if white_line_data[0]:
                 white_line_detected = True
-                self.interface.car_SM.Stop_Trigger()
+                self.interface.car_sm.Stop_Trigger()
                 self.interface.Run(white_line_data[1])
 
-        self.interface.car_SM.Turn_Trigger()
+        self.interface.car_sm.Turn_Trigger()
         # y might be negative or positive
         self.interface.Run([4.5, 7.6, math.pi / 2])
-        self.interface.car_SM.Return_To_Follow()
+        self.interface.car_sm.Return_To_Follow()
         # Turn
         # x: 4,5 m
         # y: 7.6 m
@@ -46,10 +46,10 @@ class Function_Test_Q5:
 
             if barrel_data[0]:
                 barrel_detected = True
-                self.interface.car_SM.Stop_Trigger()
+                self.interface.car_sm.Stop_Trigger()
             self.interface.Run((barrel_data[1] + 0.4) - 1.524)
 
-        # self.interface.car_SM.Stop_Trigger()
+        # self.interface.car_sm.Stop_Trigger()
         # self.interface.Run()
 
 

@@ -10,7 +10,7 @@ from State_Machine_Interface import Interface
 import math 
 
 class Function_Test_F3_3():
-    def __init__(self, interface):
+    def __init__(self, interface: Interface):
         self.interface = interface
 
 
@@ -31,7 +31,7 @@ class Function_Test_F3_3():
 
             if(white_line_data[0]):
                 white_line_detected = True 
-                self.interface.car_SM.Stop_Trigger()
+                self.interface.car_sm.Stop_Trigger()
                 self.interface.Run(white_line_data[1])
         
         self.interface.car_SM.Turn_Trigger()
