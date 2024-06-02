@@ -264,7 +264,8 @@ class LaneFollower(Node):
                 False if empty_left - 2 > empty_right else self._Left_Lane
             )
             
-            self.heading_error = left_heading if self._Left_Lane else right_heading
+            # self.heading_error = left_heading if self._Left_Lane else right_heading
+            self.heading_error = 0
 
         else:
             self._tolerance += 1
