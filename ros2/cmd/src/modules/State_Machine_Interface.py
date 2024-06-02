@@ -200,13 +200,16 @@ class Interface(Node):
 
     # This returns true - position_x - position_y - distance if an object in the object list is detected.
     # If check_in_lane is called, the experimental lane checker is run.
-    def Object_Detection(self, distance_threshold, object_list=[], check_in_lane=False):
 
+    #wrapper to tell you what lane we are currently in.
+    def current_lane(self):        
+        return self.lane_follow._Left_Lane
+
+    def Object_Detection(self, distance_threshold, object_list=[], check_in_lane=False):
         # if the name is what we expected
         # is it in our lane (add after)
         # is it close enough
         # is it a distinct object **
-
         # self.Unique_Object()
 
         if (
