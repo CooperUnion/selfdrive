@@ -151,7 +151,7 @@ class LaneFollower(Node):
     def follow_lane(self, period=0.005):
 
         steer_cmd = self.stanley.get_steering_cmd(
-            self.heading_error,
+            0,
             self.cross_track_error,
             # self.odom_sub.vel,
             2.235,
