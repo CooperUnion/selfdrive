@@ -11,6 +11,9 @@ from lane_behaviors.lane_change import LaneChange
 
 class Interface(Node):
     LANE_WIDTH = 3.048  # METERS
+    MIN_SAFE_BRAKING_DIST = 2.2 
+    # Given that we are moving at 5 mph (2.35 m/s)
+    # We should start braking at least x meters before our end goal, given the safe braking decel Jeanette has specified.
 
     def __init__(
         self,
