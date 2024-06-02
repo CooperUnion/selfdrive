@@ -1,3 +1,4 @@
+import argparse
 import rclpy
 from threading import Thread
 
@@ -6,18 +7,46 @@ from lane_behaviors.lane_change import LaneChange
 
 
 def main(args=None):
-    try:
-        rclpy.init(args=args)
+    parser = argparse.ArgumentParser(description='test throttle')
 
+    parser.add_argument(
+        '-x',
+        '--relx',
+        help='Relative X Distance',
+        metavar='n.n',
+        type=float,
+        required=True,
+    )
+    parser.add_argument(
+        '-y',
+        '--rely',
+        help='Relative y Distance',
+        metavar='n.n',
+        type=float,
+        required=True,
+    )
+
+    parser.add_argument(
+        '--yaw',
+        help='end yaw Position',
+        default="0",
+        metavar='n.n',
+        type=float,
+        required=False,
+    )
+    try:
+        rclpy.init(args=None)
+
+        args = parser.parse_args()
         max_dist_to_goal = 0.5
         max_dist_to_path = 1.5
 
         odom_sub = OdomSubscriber()
         lane_change = LaneChange(odom_sub, max_dist_to_goal, max_dist_to_path)
 
-        relative_x = 10
-        relative_y = 10
-        end_yaw = 0
+        relative_x = args.relx
+        relative_y = args.rely
+        end_yaw = args.yaw
 
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(lane_change)
