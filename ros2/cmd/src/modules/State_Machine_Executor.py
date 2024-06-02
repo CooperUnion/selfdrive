@@ -7,6 +7,8 @@ from lane_behaviors.odom_sub import OdomSubscriber
 from lane_behaviors.lane_change import LaneChange
 from lane_behaviors.lane_follower import LaneFollower
 
+#Takes in a string and function test object, args are simply for rclpy.init()
+# We import this, pipe in the function test itself, and execute.
 
 def main(node_label:string, Function_Test:object,args=None):
 
@@ -29,7 +31,7 @@ def main(node_label:string, Function_Test:object,args=None):
         executor.add_node(lane_follow)
         executor.add_node(odom_sub)
 
-        # xxx: TODO: Need to add proper initialization sequence, for now spinning the executor to make sure transform topics are all proper before
+        # TODO: Need to add proper initialization sequence, for now spinning the executor to make sure transform topics are all proper before
         # calling create_path function
         for i in range(
             100
