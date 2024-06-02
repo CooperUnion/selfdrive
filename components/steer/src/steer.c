@@ -12,11 +12,15 @@
 #include <math.h>
 #include <string.h>
 
-#define KP 1.750
+#define KP 2.5
+#define KI 0.3
+#define KD 0.0
 #define TS 0.001
 
-#define PID_UPPER_LIMIT 10
-#define PID_LOWER_LIMIT -10
+#define PID_UPPER_LIMIT 30
+#define PID_LOWER_LIMIT -30
+
+#define PID_ABS_VELOCITY_ENABLE 0.2
 
 #define ENCODER2DEG_SLOPE	 0.0029
 #define ENCODER2DEG_SLOPE_OFFSET 0.0446
@@ -56,7 +60,7 @@ ember_rate_funcs_S module_rf = {
 static void steer_init()
 {
 	selfdrive_pid_init(
-		&pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
+		&pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
 }
 
 static void steer_100Hz()
@@ -114,16 +118,20 @@ static void steer_100Hz()
 
 	float encoder_deg = encoder2deg();
 
+	float desired_deg = RAD2DEG(CANRX_get_DBW_steeringAngle());
+
 	if (odrive_state != CLOSED_LOOP_CONTROL) {
 		odrive_state = CLOSED_LOOP_CONTROL;
 		CANTX_doTx_STEER_ODriveRequestState();
 
-		selfdrive_pid_setpoint_reset(
-			&pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
+		selfdrive_pid_setpoint_reset(&pid, desired_deg, encoder_deg);
 	}
 
-	velocity = selfdrive_pid_step(
-		&pid, RAD2DEG(CANRX_get_DBW_steeringAngle()), encoder_deg);
+	float pid_velocity
+		= selfdrive_pid_step(&pid, desired_deg, encoder_deg);
+
+	velocity = (ABS(pid_velocity) > PID_ABS_VELOCITY_ENABLE) ? pid_velocity
+								 : 0.0;
 }
 
 static float encoder2deg(void)
@@ -136,8 +144,7 @@ static float encoder2deg(void)
 		= ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
 
 	// left angles are positive
-	float deg
-		= -1 * (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
+	float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
 	return deg;
 }
@@ -153,6 +160,25 @@ static bool odrive_calibration_needed(void)
 	calibration_needed |= CANRX_get_ODRIVE_controllerErrorAlarm();
 
 	return calibration_needed;
+}
+
+void CANRX_onRxCallback_DBW_SetSTEERGains(
+	const struct CAN_TMessageRaw_PIDGains * const raw,
+	const struct CAN_TMessage_PIDGains * const    dec)
+{
+	(void) raw;
+
+	pid.kp = dec->gainKp;
+	pid.ki = dec->gainKi;
+	pid.kd = dec->gainKd;
+}
+
+void CANTX_populateTemplate_SteeringGains(
+	struct CAN_TMessage_PIDGains * const m)
+{
+	m->gainKp = pid.kp;
+	m->gainKi = pid.ki;
+	m->gainKd = pid.kd;
 }
 
 void CANTX_populate_STEER_Alarms(struct CAN_Message_STEER_Alarms * const m)
