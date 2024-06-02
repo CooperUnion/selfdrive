@@ -1,4 +1,7 @@
 #Test Q.5 Left Turn
+from State_Machine_Executor import main
+from State_Machine_Interface import Interface
+
 import math 
 distance_threshold = 1.524
 class Function_Test_Q5():
@@ -10,6 +13,7 @@ class Function_Test_Q5():
         white_line_detected = False
         barrel_detected = False 
         white_line_data = []
+        barrel_data = []
         
         self.interface.car_SM.Resume() 
         while not white_line_detected: 
@@ -35,11 +39,14 @@ class Function_Test_Q5():
             barrel_data = self.interface.Object_Detection(distance_threshold, object_lists=["Barrel"])
             self.interface.Run()  
 
-            if(white_line_data[0]):
+            if(barrel_data[0]):
                 barrel_detected = True
                 self.interface.car_SM.Stop_Trigger()
             self.interface.Run((barrel_data[1]+0.4) - 1.524)
 
         # self.interface.car_SM.Stop_Trigger()
         # self.interface.Run()
+
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_Q5)
 
