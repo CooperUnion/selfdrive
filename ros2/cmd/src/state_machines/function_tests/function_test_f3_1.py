@@ -1,30 +1,52 @@
-#Test FIII.1. Lane Keeping (vehicle stops next to stop sign makes left turn then continues and stops at barrel)
+'''
+Test FIII.1. Lane Keeping
 
-import time
-
-t = 5
+1. Test Goal
+This test is intended to evaluate if the vehicle is able maneuver within lane boundaries, without wheels
+crossing the line or driving on the line. Additionally, this test evaluates if the vehicle stops at the “Stop”
+sign at the intersection, goes straight through intersection, and stops before an obstacle placed on the
+road.
+'''
+from State_Machine_Executor import main
+from State_Machine_Interface import Interface
 
 class Function_Test_F3_1():
     def __init__(self, interface):
         self.interface = interface
 
+
     # State transistion logic
     def function_test(self):
-        object_counter = 0
+        white_line_detected = False
+        barrel_detected = False 
+        white_line_data = []
+        barrel_data = []
         self.interface.car_SM.Resume()
-        while object_counter < 1:            
-            if(self.interface.Object_Detection(cared_objects=["Stop Sign"],)): #obj Could be white line or stop sign 
-                #make a left turn
-                time.sleep(5)
-                self.interface.car_SM.Obj_Avoidance()
-                object_counter += 1
-            self.interface.Run()
-        
-        self.interface.car_SM.Return_To_Follow()
-        self.interface.Run()
+        distance_threshold = 5
+        ZED_TO_BUMPER = 0.4
+        stop_dist = 1.524
 
-        if(self.interface.Object_Detection(cared_objects=["Barrel"],)):
-            self.interface.car_SM.Stop_Trigger()
+        while white_line_detected:   
+            white_line_data = self.interface.Object_Detection(self.distance_threshold, object_lists=["White Line"]) 
             self.interface.Run()
+
+            if(white_line_data[0]):
+                white_line_detected = True 
+                self.interface.car_SM.Stop_Trigger()
+                self.interface.Run(white_line_data[1])
+        
+        self.interface.car_SM.Turn_Trigger()
+        self.interface.Run([4.5,0,0])
+
+        distance_threshold = 5
+        while not barrel_detected:
+            
+            barrel_data = self.interface.Object_Detection(distance_threshold, object_lists=["Barrel"])
+            self.interface.Run()  
+
+            if(barrel_data[0]):
+                barrel_detected = True
+                self.interface.car_SM.Stop_Trigger()
+            self.interface.Run((barrel_data[1]+ZED_TO_BUMPER) - stop_dist)
 
 
