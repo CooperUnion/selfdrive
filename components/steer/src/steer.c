@@ -12,7 +12,9 @@
 #include <math.h>
 #include <string.h>
 
-#define KP 1.750
+#define KP 2.5
+#define KI 0.3
+#define KD 0.0
 #define TS 0.001
 
 #define PID_UPPER_LIMIT 10
@@ -56,7 +58,7 @@ ember_rate_funcs_S module_rf = {
 static void steer_init()
 {
 	selfdrive_pid_init(
-		&pid, KP, 0, 0, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
+		&pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
 }
 
 static void steer_100Hz()
