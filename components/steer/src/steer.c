@@ -116,16 +116,16 @@ static void steer_100Hz()
 
 	float encoder_deg = encoder2deg();
 
+	float desired_deg = RAD2DEG(CANRX_get_DBW_steeringAngle());
+
 	if (odrive_state != CLOSED_LOOP_CONTROL) {
 		odrive_state = CLOSED_LOOP_CONTROL;
 		CANTX_doTx_STEER_ODriveRequestState();
 
-		selfdrive_pid_setpoint_reset(
-			&pid, CANRX_get_DBW_steeringAngle(), encoder_deg);
+		selfdrive_pid_setpoint_reset(&pid, desired_deg, encoder_deg);
 	}
 
-	velocity = selfdrive_pid_step(
-		&pid, RAD2DEG(CANRX_get_DBW_steeringAngle()), encoder_deg);
+	velocity = selfdrive_pid_step(&pid, desired_deg, encoder_deg);
 }
 
 static float encoder2deg(void)
@@ -138,8 +138,7 @@ static float encoder2deg(void)
 		= ((raw_ticks & 0xff00) >> 8) | ((raw_ticks & 0xff) << 8);
 
 	// left angles are positive
-	float deg
-		= -1 * (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
+	float deg = (ENCODER2DEG_SLOPE * ticks) + ENCODER2DEG_SLOPE_OFFSET;
 
 	return deg;
 }
