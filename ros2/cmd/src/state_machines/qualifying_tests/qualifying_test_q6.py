@@ -1,4 +1,8 @@
 # Test Q.6 Right Turn
+
+from State_Machine_Executor import main
+from State_Machine_Interface import Interface
+
 import math
 
 distance_threshold = 5
@@ -45,3 +49,5 @@ class Function_Test_Q6:
         # self.interface.Run()
 
         # 1.542 5ft
+if __name__ == "__main__":
+    main("Function_Test_Q3",Function_Test_Q6)

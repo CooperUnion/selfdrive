@@ -68,7 +68,7 @@ class LaneFollower(Node):
         self._right_follower = Individual_Follower()
         # Determine which lane we're in: Left lane means the right image is dashed
 
-        timer_period = 0.01  # seconds
+        timer_period = 0.016  # seconds, 30hz for updating cameras
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Parameters for Stanley Controller
@@ -148,7 +148,7 @@ class LaneFollower(Node):
         return veh_pos
 
     # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
-    def follow_lane(self, period=0.05):
+    def follow_lane(self, period=0.005):
 
         steer_cmd = self.stanley.get_steering_cmd(
             self.heading_error,
@@ -161,8 +161,7 @@ class LaneFollower(Node):
         vel_cmd = (
             2.235  # Unsure if the velocity command should always be the target
         )
-        # time.sleep(period)
-
+        time.sleep(period)
         return steer_cmd, vel_cmd
 
     def timer_callback(self):
@@ -230,12 +229,12 @@ class LaneFollower(Node):
 
         # Setting the slopes if there is enough relevant data: If not, we discard and assume what we're seeing is noise
         self.left_slope = (
-            left_slope * LaneFollower.PIXELS_TO_METERS
+            left_slope / LaneFollower.PIXELS_TO_METERS
             if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD
             else self.left_slope
         )
         self.right_slope = (
-            right_slope * LaneFollower.PIXELS_TO_METERS
+            right_slope / LaneFollower.PIXELS_TO_METERS
             if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD
             else self.right_slope
         )
@@ -264,17 +263,8 @@ class LaneFollower(Node):
             self._Left_Lane = (
                 False if empty_left - 2 > empty_right else self._Left_Lane
             )
-            # The slope calculations are returned in meters, must be adjusted.
-            # main_msg.leftslope = left_slope / LaneFollower.PIXELS_TO_METERS
-            # main_msg.rightslope = right_slope / LaneFollower.PIXELS_TO_METERS
-            if self._Left_Lane:
-                self.heading_error = left_heading
-                # main_msg.leftlane = True
-                # main_msg.he = left_heading
-            else:
-                self.heading_error = right_heading
-                # main_msg.leftlane = False
-                # main_msg.he = right_heading
+            
+            self.heading_error = left_heading if self._Left_Lane else right_heading
 
         else:
             self._tolerance += 1
