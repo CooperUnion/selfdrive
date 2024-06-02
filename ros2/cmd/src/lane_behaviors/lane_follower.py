@@ -12,7 +12,9 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import time
-from odom_sub import Odometry
+
+# from odom_sub import Odometry
+
 
 class LaneFollower(Node):
     GUI = True
@@ -48,7 +50,7 @@ class LaneFollower(Node):
 
     PIXELS_TO_METERS = 260.8269125
 
-    def __init__(self, odom_sub: Odometry):
+    def __init__(self, odom_sub):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
@@ -106,7 +108,9 @@ class LaneFollower(Node):
                 self._bridge.cv2_to_imgmsg(img_raw, encoding="passthrough")
             )
 
-    def measure_position_meters(self, left, right, ignore_left=False, ignore_right=False):
+    def measure_position_meters(
+        self, left, right, ignore_left=False, ignore_right=False
+    ):
 
         left_x_pos = 0
         right_x_pos = 0
@@ -129,16 +133,17 @@ class LaneFollower(Node):
 
         if ignore_left:
             # 5 Feet = 1.52 Meters
-            return 1.52 - right_x_pos*(LaneFollower.PIXELS_TO_METERS)
+            return 1.52 - right_x_pos * (LaneFollower.PIXELS_TO_METERS)
         if ignore_right:
-            return 1.52 - left_x_pos*(LaneFollower.PIXELS_TO_METERS)
+            return 1.52 - left_x_pos * (LaneFollower.PIXELS_TO_METERS)
 
         center_lanes_x_pos = (left_x_pos + right_x_pos) // 2
         # Calculate the deviation between the center of the lane and the center of the picture
         # The car is assumed to be placed in the center of the picture
         # If the deviation is negative, the car is on the left hand side of the center of the lane
-        veh_pos = ((width // 2) - center_lanes_x_pos) / \
-            LaneFollower.PIXELS_TO_METERS
+        veh_pos = (
+            (width // 2) - center_lanes_x_pos
+        ) / LaneFollower.PIXELS_TO_METERS
 
         return veh_pos
 
@@ -149,10 +154,13 @@ class LaneFollower(Node):
             self.heading_error,
             self.cross_track_error,
             # self.odom_sub.vel,
-            2.235)  # comment this out when you want to use the actual velocity
+            2.235,
+        )  # comment this out when you want to use the actual velocity
 
         # vel_cmd = self.odom_sub.vel
-        vel_cmd = 2.235  # Unsure if the velocity command should always be the target
+        vel_cmd = (
+            2.235  # Unsure if the velocity command should always be the target
+        )
         # time.sleep(period)
 
         return steer_cmd, vel_cmd
@@ -178,16 +186,20 @@ class LaneFollower(Node):
 
         for image in images:
             frame = image[0]
-            for point in (LaneFollower.bl,
-                          LaneFollower.tl,
-                          LaneFollower.br,
-                          LaneFollower.tr):
+            for point in (
+                LaneFollower.bl,
+                LaneFollower.tl,
+                LaneFollower.br,
+                LaneFollower.tr,
+            ):
                 frame = cv2.circle(frame, point, 5, (0, 0, 255), -1)
 
             transformed_frame = cv2.rotate(
                 cv2.warpPerspective(
-                    frame, LaneFollower.UNWARP, LaneFollower.FORMAT),
-                cv2.ROTATE_90_CLOCKWISE)
+                    frame, LaneFollower.UNWARP, LaneFollower.FORMAT
+                ),
+                cv2.ROTATE_90_CLOCKWISE,
+            )
             # Object Detection
             # Image Thresholding
 
@@ -198,9 +210,7 @@ class LaneFollower(Node):
             )
 
             blurred = cv2.medianBlur(hsv_transformed_frame, self.KERNEL)
-            mask = cv2.inRange(
-                blurred, LaneFollower.LOWER, LaneFollower.UPPER
-            )
+            mask = cv2.inRange(blurred, LaneFollower.LOWER, LaneFollower.UPPER)
             self.img_publish("mask_" + image[1], mask)
 
             if image[1] == "left":
@@ -211,32 +221,49 @@ class LaneFollower(Node):
             self.img_publish("raw_" + image[1], frame)
             self.img_publish("tf_" + image[1], transformed_frame)
 
-        (result_left,
-         empty_left,
-         left_heading,
-         left_slope) = self._left_follower.Plot_Line()
-        (result_right,
-         empty_right,
-         right_heading,
-         right_slope) = self._right_follower.Plot_Line()
-        
-        #Setting the slopes if there is enough relevant data: If not, we discard and assume what we're seeing is noise
-        self.left_slope = left_slope * LaneFollower.PIXELS_TO_METERS if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD else self.left_slope
-        self.right_slope = right_slope * LaneFollower.PIXELS_TO_METERS if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD else self.right_slope
+        (result_left, empty_left, left_heading, left_slope) = (
+            self._left_follower.Plot_Line()
+        )
+        (result_right, empty_right, right_heading, right_slope) = (
+            self._right_follower.Plot_Line()
+        )
+
+        # Setting the slopes if there is enough relevant data: If not, we discard and assume what we're seeing is noise
+        self.left_slope = (
+            left_slope * LaneFollower.PIXELS_TO_METERS
+            if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD
+            else self.left_slope
+        )
+        self.right_slope = (
+            right_slope * LaneFollower.PIXELS_TO_METERS
+            if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD
+            else self.right_slope
+        )
 
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
-            ignore_left = True if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD else False
-            ignore_right = True if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD else False
+            ignore_left = (
+                True
+                if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD
+                else False
+            )
+            ignore_right = (
+                True
+                if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD
+                else False
+            )
 
             cross_track = self.measure_position_meters(
-                result_left, result_right, ignore_left, ignore_right)
+                result_left, result_right, ignore_left, ignore_right
+            )
 
             self.cross_track_error = cross_track
-            self._Left_Lane = (True if empty_left <
-                               empty_right - 2 else self._Left_Lane)
-            self._Left_Lane = (False if empty_left - 2 >
-                               empty_right else self._Left_Lane)
+            self._Left_Lane = (
+                True if empty_left < empty_right - 2 else self._Left_Lane
+            )
+            self._Left_Lane = (
+                False if empty_left - 2 > empty_right else self._Left_Lane
+            )
             # The slope calculations are returned in meters, must be adjusted.
             # main_msg.leftslope = left_slope / LaneFollower.PIXELS_TO_METERS
             # main_msg.rightslope = right_slope / LaneFollower.PIXELS_TO_METERS

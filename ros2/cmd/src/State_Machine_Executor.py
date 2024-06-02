@@ -1,7 +1,9 @@
 import rclpy
 from threading import Thread
 import traceback
-from state_machines.function_tests.q3_lanekeeping import Function_Test_4
+from state_machines.qualificaton_test.qualifying_test_q5 import (
+    Function_Test_Q5 as Function_Test,
+)
 
 # This is one of two lines that needs to be changed every time
 from State_Machine_Interface import Interface as SM_Interface
@@ -24,7 +26,7 @@ def main(args=None):
 
         # Change this to specify which function test to run
         Interface = SM_Interface("Quali_Test_Q4", lane_change, lane_follow)
-        function_test = Function_Test_4(Interface)
+        function_test = Function_Test(Interface)
 
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(Interface)

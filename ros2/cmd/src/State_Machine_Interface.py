@@ -12,7 +12,12 @@ from lane_behaviors.lane_change import LaneChange
 class Interface(Node):
     LANE_WIDTH = 3.048  # METERS
 
-    def __init__(self, function_test_label, lane_change: LaneChange, lane_follow: LaneFollower):
+    def __init__(
+        self,
+        function_test_label,
+        lane_change: LaneChange,
+        lane_follow: LaneFollower,
+    ):
         super().__init__(function_test_label)
 
         self.cmd_publisher = self.create_publisher(
@@ -60,15 +65,17 @@ class Interface(Node):
     def object_location_callback(self, msg):
         self.object_position_x = msg.pose.position.x
         self.object_position_y = msg.pose.position.y
-        #If we're within 1 meter, we should probably freak out
+        # If we're within 1 meter, we should probably freak out
 
     def object_distance_callback(self, msg):
         self.object_local_position_x = msg.data[0]
         self.object_local_position_y = msg.data[1]
         self.object_distance = msg.data[2]
-        if self.object_local_position_x < 1 and math.abs(self.object_local_position_y) < 1:
-                self.Estop_Action(error="Too Close for Comfort With an Obstacle")
-
+        if (
+            self.object_local_position_x < 1
+            and math.abs(self.object_local_position_y) < 1
+        ):
+            self.Estop_Action(error="Too Close for Comfort With an Obstacle")
 
     def Lane_Follow_Action(self, args=None):
         try:
@@ -78,7 +85,7 @@ class Interface(Node):
                 self.car_sm.Emergency_Trigger()
                 self.Run()  # ESTOP if we lose the lane lines in our vision
             # Each command takes 0.05s so this will take 30 seconds
-            [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1/20)
+            [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 20)
 
             # Publish Lane Following command
             cmd.data = [
@@ -92,7 +99,7 @@ class Interface(Node):
 
     def Lane_Change_Action(self, args=None):
         if args == None:
-            self.Estop_Action(error="No Lane Data Provided",args=[True])
+            self.Estop_Action(error="No Lane Data Provided", args=[True])
         else:
             try:
                 # TODO: add function to calculate relative position for path
@@ -106,24 +113,22 @@ class Interface(Node):
                     2  # We should never be sending an end yaw of more than zero
                 ]
                 self.lane_change.create_path(relative_x, relative_y, end_yaw)
-                # TODO: add error checking for lane change to estop transitions
-                self.lane_change.follow_path()
+            #                self.lane_change.follow_path()
             except:
-                self.Estop_Action(error="Lane Change Failed",args=[True])
-            
+                self.Estop_Action(error="Lane Change Failed", args=[True])
 
     def Cstop_Action(self, args=None):
         # We need to parametrize this, slope in m/s^2
         slope = 1.32
         # d = (vf^2-vi^2)/2a
-        #(vf is zero)
+        # (vf is zero)
         # vi^2 / d = 2a
-        current_speed = self.lane_follow.odom_sub.vel        
+        current_speed = self.lane_follow.odom_sub.vel
         if args is not None:
             dist = args[0]
-            attempted_slope = (current_speed**2)/ (2*dist)
-            #Guaranteed that slope is not greater than 1.32
-            slope = min(attempted_slope,slope)
+            attempted_slope = (current_speed**2) / (2 * dist)
+            # Guaranteed that slope is not greater than 1.32
+            slope = min(attempted_slope, slope)
 
         cmd = Float32MultiArray()
         initial = datetime.now()
@@ -132,10 +137,10 @@ class Interface(Node):
         while current_speed > 0.05:
             current_speed = self.lane_follow.odom_sub.vel
             current_time = datetime.now()
-            difference = (initial-current_time).total_seconds()
+            difference = (initial - current_time).total_seconds()
             cmd.data = [
                 0.0,
-                current_speed-(slope*difference),
+                current_speed - (slope * difference),
             ]  # Allows us to keep slope @ set time
             initial = current_time
             self.cmd_publisher.publish(cmd)
@@ -143,9 +148,9 @@ class Interface(Node):
     def Estop_Action(self, error="Entered Error State", args=None):
         print("ESTOP REACHED")
         slope = 2.0
-        if(args is not None and args[0]):
+        if args is not None and args[0]:
             slope = 1.32
-        current_speed = self.lane_follow.odom_sub.vel        
+        current_speed = self.lane_follow.odom_sub.vel
         cmd = Float32MultiArray()
         initial = datetime.now()
         # Catching any precision errors & I'm not entirely sure how odom velocity is calculated
@@ -153,10 +158,10 @@ class Interface(Node):
         while current_speed > 0.05:
             current_speed = self.lane_follow.odom_sub.vel
             current_time = datetime.now()
-            difference = (initial-current_time).total_seconds()
+            difference = (initial - current_time).total_seconds()
             cmd.data = [
                 0.0,
-                current_speed-(slope*difference),
+                current_speed - (slope * difference),
             ]  # Allows us to keep slope @ set time
             initial = current_time
             self.cmd_publisher.publish(cmd)
@@ -199,22 +204,44 @@ class Interface(Node):
         if (
             (object_list[self.obj_list_index] == self.object_name)
             and (self.object_distance <= distance_threshold)
-                and (len(self.object_history) > self.prev_object_history_length)):
+            and (len(self.object_history) > self.prev_object_history_length)
+        ):
             reference_x = self.object.local_position_x
             reference_y = self.object.local_position_y
 
             if not check_in_lane:
-                return True, self.object_local_position_x, self.object_global_position_y, self.object_distance
+                return (
+                    True,
+                    self.object_local_position_x,
+                    self.object_global_position_y,
+                    self.object_distance,
+                )
             else:
                 crosstrack = self.lane_follow.cross_track_error
-                projected_left_line = self.lane_follow.left_slope * reference_x + crosstrack - (Interface.LANE_WIDTH/2)
-                projected_right_line = self.lane_follow.right_slope * reference_x + crosstrack + (Interface.LANE_WIDTH/2)
+                projected_left_line = (
+                    self.lane_follow.left_slope * reference_x
+                    + crosstrack
+                    - (Interface.LANE_WIDTH / 2)
+                )
+                projected_right_line = (
+                    self.lane_follow.right_slope * reference_x
+                    + crosstrack
+                    + (Interface.LANE_WIDTH / 2)
+                )
                 # Slope is up/down projections,
                 # If we sit in the middle, the crosstrack is zero. The lanes are approximately 10 meters wide
                 # Hence why I'm checking the crosstrack against 5 meters
                 # If the object sits in the lane, it's y value will be greater than projected left line and greater than projected_right_line
-                if (projected_left_line < reference_y and projected_right_line > reference_y):
-                    return True, self.object_local_position_x, self.object_local_position_y, self.object_distance
+                if (
+                    projected_left_line < reference_y
+                    and projected_right_line > reference_y
+                ):
+                    return (
+                        True,
+                        self.object_local_position_x,
+                        self.object_local_position_y,
+                        self.object_distance,
+                    )
         return False, -1, -1, -1
 
     def Run(self, args=None):
