@@ -89,7 +89,7 @@ class Individual_Follower:
         if x_pos.any() and y_pos.any():
             self._fit = np.polyfit(y_pos, x_pos, 2)
         else:
-            return None, empty_windows, 0
+            return None, empty_windows, 0, 0
 
         ploty = np.linspace(
             0, self._binary_warped.shape[0] - 1, self._binary_warped.shape[0]

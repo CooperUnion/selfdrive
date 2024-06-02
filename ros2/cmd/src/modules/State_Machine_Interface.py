@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import math
 from rclpy.node import Node
 
@@ -11,6 +11,9 @@ from lane_behaviors.lane_change import LaneChange
 
 class Interface(Node):
     LANE_WIDTH = 3.048  # METERS
+    MIN_SAFE_BRAKING_DIST = 2.2 
+    # Given that we are moving at 5 mph (2.35 m/s)
+    # We should start braking at least x meters before our end goal, given the safe braking decel Jeanette has specified.
 
     def __init__(
         self,
@@ -77,11 +80,12 @@ class Interface(Node):
         ):
             self.Estop_Action(error="Too Close for Comfort With an Obstacle")
 
+   # Lane Following Action: takes no arguments: We follow the lanes, and if an empty_error is thrown, we panic!
     def Lane_Follow_Action(self, args=None):
         try:
             cmd = Float32MultiArray()
 
-            if self.lane_follow.empty_error == True:
+            if self.lane_follow.empty_error:
                 self.car_sm.Emergency_Trigger()
                 self.Run()  # ESTOP if we lose the lane lines in our vision
             # Each command takes 0.05s so this will take 30 seconds
@@ -97,10 +101,10 @@ class Interface(Node):
             self.Estop_Action()
         # self.cmd_publisher.publish(cmd)
 
+    # Lane Change Action: args[0] is our relative x coordinate, and args[1] is the relative y coordinate. args[2] is the end yaw.
+    # (yaw relative to current heading)
     def Lane_Change_Action(self, args=None):
         if args == None:
-            self.Estop_Action(error="No Lane Data Provided", args=[True])
-        else:
             try:
                 # TODO: add function to calculate relative position for path
                 relative_x = args[
@@ -115,8 +119,10 @@ class Interface(Node):
                 self.lane_change.create_path(relative_x, relative_y, end_yaw)
             #                self.lane_change.follow_path()
             except:
-                self.Estop_Action(error="Lane Change Failed", args=[True])
+                self.Estop_Action(error="No Lane Data Provided", args=[True])
 
+    # Cstop Action: When args[0], we are computing slope based on distance: we don't exceed 1.32 in this action
+    # Those calculations should be done before_hand, in the state machines.
     def Cstop_Action(self, args=None):
         # We need to parametrize this, slope in m/s^2
         slope = 1.32
@@ -140,11 +146,13 @@ class Interface(Node):
             difference = (initial - current_time).total_seconds()
             cmd.data = [
                 0.0,
-                current_speed - (slope * difference),
+                max(current_speed - (slope * difference),0),
             ]  # Allows us to keep slope @ set time
             initial = current_time
             self.cmd_publisher.publish(cmd)
 
+    # Estop Action: When things break. args[0] is "soft estop", no args or args[0] false is a hard estop.
+    # hard estop is HARD
     def Estop_Action(self, error="Entered Error State", args=None):
         print("ESTOP REACHED")
         slope = 2.0
@@ -190,15 +198,18 @@ class Interface(Node):
             )
             self.object_history.append(object_destription)
 
-    def Object_Detection(
-        self, distance_threshold, object_list=[], check_in_lane=False
-    ):
+    # This returns true - position_x - position_y - distance if an object in the object list is detected.
+    # If check_in_lane is called, the experimental lane checker is run.
 
+    #wrapper to tell you what lane we are currently in.
+    def current_lane(self):        
+        return self.lane_follow._Left_Lane
+
+    def Object_Detection(self, distance_threshold, object_list=[], check_in_lane=False):
         # if the name is what we expected
         # is it in our lane (add after)
         # is it close enough
         # is it a distinct object **
-
         # self.Unique_Object()
 
         if (
@@ -208,7 +219,7 @@ class Interface(Node):
         ):
             reference_x = self.object.local_position_x
             reference_y = self.object.local_position_y
-
+            # TODO: Test the lane checker.
             if not check_in_lane:
                 return (
                     True,
@@ -244,6 +255,11 @@ class Interface(Node):
                     )
         return False, -1, -1, -1
 
+    #Executes the current state
+    # This might seem arbitrary, but the idea is that the state machine is what's handling things: We can prevent illegal states
+    # and other failures by using this model.
+    # Eventually, we should pipe this interface directly into the state machine, and have the function tests loop over the state:
+    # This would theoretically give us more modularity 
     def Run(self, args=None):
         function_dict = {
             "Lane_Change": self.Lane_Change_Action,
