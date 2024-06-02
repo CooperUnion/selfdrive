@@ -1,22 +1,17 @@
+import string
 import rclpy
 from threading import Thread
 import traceback
-from state_machines.qualificaton_test.qualifying_test_q5 import (
-    Function_Test_Q5 as Function_Test,
-)
-
-# This is one of two lines that needs to be changed every time
 from State_Machine_Interface import Interface as SM_Interface
 from lane_behaviors.odom_sub import OdomSubscriber
 from lane_behaviors.lane_change import LaneChange
 from lane_behaviors.lane_follower import LaneFollower
 
 
-def main(args=None):
+def main(node_label:string, Function_Test:object,args=None):
 
     try:
-        rclpy.init(args=args)
-
+        rclpy.init(args=args) 
         max_dist_to_goal = 0.5
         max_dist_to_path = 1.5
 
@@ -25,7 +20,7 @@ def main(args=None):
         lane_follow = LaneFollower(odom_sub)
 
         # Change this to specify which function test to run
-        Interface = SM_Interface("Quali_Test_Q4", lane_change, lane_follow)
+        Interface = SM_Interface(node_label, lane_change, lane_follow)
         function_test = Function_Test(Interface)
 
         executor = rclpy.executors.MultiThreadedExecutor()
@@ -47,7 +42,7 @@ def main(args=None):
 
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
         print("Exception Thrown, Handling Gracefully")
-        function_test.interface.Estop_Action()
+        Interface.Estop_Action()
     except Exception as e:
         traceback.print_exception()
 

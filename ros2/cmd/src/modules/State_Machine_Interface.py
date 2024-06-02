@@ -4,7 +4,7 @@ from rclpy.node import Node
 
 from std_msgs.msg import Float32MultiArray, String
 from geometry_msgs.msg import PoseWithCovariance
-from state_machines import car_sm
+from car_sm import CarSM
 from lane_behaviors.lane_follower import LaneFollower
 from lane_behaviors.lane_change import LaneChange
 
@@ -26,7 +26,7 @@ class Interface(Node):
 
         self.lane_change = lane_change
         self.lane_follow = lane_follow
-        self.car_sm = car_sm.CarSM()
+        self.car_sm = CarSM()
 
         self.object_global_position_x = None
         self.object_global_position_y = None
