@@ -20,7 +20,6 @@ import numpy as np
 from collections import namedtuple
 
 
-Point = namedtuple("Point", ["x", "y"])
 
 
 def calculate_yaw(pathx, pathy, start_yaw):
@@ -36,6 +35,8 @@ def calculate_yaw(pathx, pathy, start_yaw):
 
 
 class LaneChange(Node):
+    Point = namedtuple("Point", ["x", "y"])
+
     def __init__(
         self, odom_sub, max_dist_to_goal=0.5, max_dist_to_path=1.5
     ):  # Tune magic numbers
@@ -80,9 +81,9 @@ class LaneChange(Node):
             end_yaw = coterminal_angle(end_yaw + math.pi)
 
         self.pathx, self.pathy = generate_clothoid_path(
-            Point(start_x, start_y),
+            self.Point(start_x, start_y),
             start_yaw,
-            Point(end_x, end_y),
+            self.Point(end_x, end_y),
             end_yaw,
             self.n_points,
         )
@@ -138,12 +139,10 @@ class LaneChange(Node):
                 # self.odom_sub.vel,
                 2.235,  # Unsure if the velocity command should always be the target
             ]
-
-
             # Uncomment when you actually want to drive
             self.cmd_publisher.publish(cmd)
-
-            time.sleep(0.05)  # Generate command at 20Hz
+            time.sleep(0.003)
+            # time.sleep(0.005)  # Generate command at 200Hz
 
         print("End of path reached")
 

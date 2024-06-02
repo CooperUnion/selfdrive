@@ -68,7 +68,7 @@ class LaneFollower(Node):
         self._right_follower = Individual_Follower()
         # Determine which lane we're in: Left lane means the right image is dashed
 
-        timer_period = 0.01  # seconds
+        timer_period = 0.016  # seconds, 30hz for updating cameras
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Parameters for Stanley Controller
@@ -148,7 +148,7 @@ class LaneFollower(Node):
         return veh_pos
 
     # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
-    def follow_lane(self, period=0.05):
+    def follow_lane(self, period=0.005):
 
         steer_cmd = self.stanley.get_steering_cmd(
             self.heading_error,
@@ -161,8 +161,7 @@ class LaneFollower(Node):
         vel_cmd = (
             2.235  # Unsure if the velocity command should always be the target
         )
-        # time.sleep(period)
-
+        time.sleep(period)
         return steer_cmd, vel_cmd
 
     def timer_callback(self):

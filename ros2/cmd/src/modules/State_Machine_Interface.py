@@ -88,9 +88,8 @@ class Interface(Node):
             if self.lane_follow.empty_error:
                 self.car_sm.Emergency_Trigger()
                 self.Run()  # ESTOP if we lose the lane lines in our vision
-            # Each command takes 0.05s so this will take 30 seconds
-            [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 20)
 
+            [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 200)
             # Publish Lane Following command
             cmd.data = [
                 steer_cmd,

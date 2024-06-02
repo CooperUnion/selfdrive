@@ -71,8 +71,8 @@ class CANtouROS(Node):
             UInt16MultiArray, EncoderTicks, 10
         )
 
-        # 50Hz publish timer
-        timer_period = 0.02  # seconds
+        # 2 publish timer
+        timer_period = 0.005  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
