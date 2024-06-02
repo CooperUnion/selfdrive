@@ -314,6 +314,10 @@ nodes:
             from_template: PIDGains
             id: 0x778
 
+        - SetSTEERGains:
+            from_template: PIDGains
+            id: 0x779
+
         - SteeringCommand:
             id: 0x21
             cycletime: 10
@@ -490,6 +494,7 @@ nodes:
   - STEER:
       rx:
         - DBW_ESTOP
+        - DBW_SetSTEERGains
         - DBW_SteeringCommand
         - ODRIVE_Status
         - SUP_Authorization
@@ -608,6 +613,12 @@ nodes:
                     - READY
                     - CALIBRATING
                     - NEEDS_CALIBRATION
+
+        - SteeringGains:
+            from_template: PIDGains
+            id: 0x251
+            cycletime: 10
+
   - STEERBL:
       rx:
         - UPD_IsoTpTx_STEER
