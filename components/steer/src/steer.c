@@ -20,6 +20,8 @@
 #define PID_UPPER_LIMIT 30
 #define PID_LOWER_LIMIT -30
 
+#define PID_ABS_VELOCITY_ENABLE 0.2
+
 #define ENCODER2DEG_SLOPE	 0.0029
 #define ENCODER2DEG_SLOPE_OFFSET 0.0446
 
@@ -125,7 +127,11 @@ static void steer_100Hz()
 		selfdrive_pid_setpoint_reset(&pid, desired_deg, encoder_deg);
 	}
 
-	velocity = selfdrive_pid_step(&pid, desired_deg, encoder_deg);
+	float pid_velocity
+		= selfdrive_pid_step(&pid, desired_deg, encoder_deg);
+
+	velocity = (ABS(pid_velocity) > PID_ABS_VELOCITY_ENABLE) ? pid_velocity
+								 : 0.0;
 }
 
 static float encoder2deg(void)
