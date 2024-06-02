@@ -13,8 +13,8 @@ class StanleyController:
         self,
         max_dist_to_path=0.1,
         wheelbase=1.75,
-        k_stanley=0.5,
-        max_steer_angle=0.31,
+        k_stanley=0.8,
+        max_steer_angle=0.35,
         logger=None,
     ):
 
@@ -54,6 +54,8 @@ class StanleyController:
         halfwheelbase is distance from com to front axle
         k_stanley is gain
         '''
+        print(f'Stanley Inputs: \n {x, y, yaw, v }')
+
         if v < 0:  # moving backwards!
             yaw = coterminal_angle(yaw + math.pi)
 
@@ -65,7 +67,7 @@ class StanleyController:
         dx = cx[target_idx] - x
         dy = cy[target_idx] - y
         path_yaw = cyaw[target_idx]
-        cross_track_error = dx * np.sin(path_yaw) - dy * np.cos(path_yaw)
+        cross_track_error = -(dx * np.sin(path_yaw) - dy * np.cos(path_yaw))
 
         # May need to catch exceptions
         # see if we missed the end of the path?
@@ -103,10 +105,8 @@ class StanleyController:
         delta = np.clip(
             steer_angle, -self.max_steer_angle, self.max_steer_angle
         )
-        # curv = math.tan(delta)/self.wheelbase
 
         print(
-            f'heading_error={heading_error} cross_track_error={cross_track_error} delta={delta}'
+            f'heading_error={heading_error} cross_track_error={cross_track_error} delta={delta} v={v}'
         )
-
         return delta

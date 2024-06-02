@@ -5,8 +5,6 @@ from rclpy.node import Node
 
 from std_msgs.msg import UInt16MultiArray, Float32MultiArray
 
-from math import atan2
-
 ##### DEFINES ######
 
 # CAN Messages
@@ -37,24 +35,23 @@ class ROStouCAN(Node):
         self.encoder_ticks_subscription  # prevent unused variable warning
 
     # msg.data[0] is the steer_cmd in radians
-    #msg.data[1] is the vel_cmd in m/s
+    # msg.data[1] is the vel_cmd in m/s
     def cmd_callback(self, msg):
-        angle = 0
         steer_cmd = msg.data[0]
         vel_cmd = msg.data[1]
-        #bounding for safety reasons: 2.32 m/s is competition maximum
+        # bounding for safety reasons: 2.32 m/s is competition maximum
         if vel_cmd > 2.32:
             vel_cmd = 2.32
 
-        if steer_cmd != 0 and vel_cmd != 0:
-            angle = -atan2(steer_cmd * 1.8, vel_cmd)
-        else:
-            self.get_logger().info( 
-                f"Warning: invalid steering angle combo: steer_cmd:{steer_cmd}, vel_cmd:{vel_cmd}"
-            )
-            angle = 0
+        # if steer_cmd != 0 and vel_cmd != 0:
+        #     #angle = -atan2(steer_cmd * 1.8, vel_cmd)
+        # else:
+        #     self.get_logger().info(
+        #         f"Warning: invalid steering angle combo: steer_cmd:{steer_cmd}, vel_cmd:{vel_cmd}"
+        #     )
+        #     angle = 0
         self.bus.send(VelocityCAN, {'DBW_linearVelocity': vel_cmd})
-        self.bus.send(SteerCAN, {'DBW_steeringAngleCmd': angle})
+        self.bus.send(SteerCAN, {'DBW_steeringAngle': -steer_cmd})
 
 
 # Establishes publisher for the /encoder_ticks topic
@@ -72,7 +69,7 @@ class CANtouROS(Node):
         )
 
         # 2 publish timer
-        timer_period = 0.005  # seconds
+        timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
