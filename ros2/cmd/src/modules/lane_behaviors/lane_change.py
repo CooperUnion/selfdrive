@@ -20,8 +20,6 @@ import numpy as np
 from collections import namedtuple
 
 
-
-
 def calculate_yaw(pathx, pathy, start_yaw):
     yaw = [start_yaw]
     for i in range(1, len(pathx)):
@@ -128,8 +126,8 @@ class LaneChange(Node):
                 self.odom_sub.xpos,
                 self.odom_sub.ypos,
                 self.odom_sub.yaw,
-                # self.odom_sub.vel,
-                2.235,  # comment this out when you want to use the actual velocity
+                self.odom_sub.vel,
+                # 2.235,  # comment this out when you want to use the actual velocity
                 self.pathx,
                 self.pathy,
                 self.pathyaw,
@@ -137,12 +135,12 @@ class LaneChange(Node):
             cmd.data = [
                 steer_cmd,
                 # self.odom_sub.vel,
-                2.235,  # Unsure if the velocity command should always be the target
+                1.8,  # Unsure if the velocity command should always be the target
             ]
             # Uncomment when you actually want to drive
             self.cmd_publisher.publish(cmd)
-            time.sleep(0.003)
-            # time.sleep(0.005)  # Generate command at 200Hz
+            #            time.sleep(0.001)
+            time.sleep(0.05)  # Generate command at 20Hz
 
         print("End of path reached")
 
