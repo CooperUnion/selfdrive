@@ -50,6 +50,8 @@ class ObjectDetection:
             sl.MAT_TYPE.U8_C4,
         )
 
+        self.depth_image = sl.Mat()
+
         self.model = YOLO('best.pt')
         self.model.to('cpu')
 
@@ -147,6 +149,10 @@ class ObjectDetection:
             self.cam.retrieve_measure(self.point_cloud, sl.MEASURE.XYZRGBA)
             # cvImage = imageZed.get_data()
             self.cam.retrieve_image(self.image_left_tmp, sl.VIEW.LEFT)
+            #depth map
+            self.cam.retrieve_image(self.depth_image, sl.VIEW.DEPTH)
+            depthImage = self.depth_image.get_data()
+            self.slicing(depthImage)
             image_net = self.image_left_tmp.get_data()
             self.img = cv2.cvtColor(image_net, cv2.COLOR_RGBA2RGB)
             self.ocr(self.img)
@@ -161,3 +167,11 @@ class ObjectDetection:
             results = self.model.predict(self.img)
             self.detections = sv.Detections.from_ultralytics(results[0])
             self.object_bounding_box()
+
+    def slicing(self, depthImage):
+        depthImage_shape = depthImage.shape()
+        i = depthImage[depthImage_shape[0]/3:2*depthImage_shape[0]/3]
+        j = depthImage[:depthImage_shape[1]/2]
+        if self.point_cloud(i, j)[0] < 5:
+            self.obj_x = self.point_cloud(i, j)[0]
+        
