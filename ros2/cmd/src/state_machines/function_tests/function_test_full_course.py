@@ -18,20 +18,17 @@ class Function_Test_Q5:
         white_line_data = []
         barrel_data = []
 
-        self.interface.car_sm.Resume()
         while white_lines_count<1:
             white_line_data = self.interface.Object_Detection(
                 distance_threshold, object_list=["White Line"]
             )
-            self.interface.Run()
 
             if white_line_data[0]:
-                self.interface.car_sm.Stop_Trigger()
-                self.interface.Run(white_line_data[1])
                 white_lines_count+=1
+                self.interface.car_sm.Turn_Trigger()
+                self.interface.Run(white_line_data[1])
+                
 
-        self.interface.car_sm.Turn_Trigger()
-   
         self.interface.Run([4.5, 7.6, math.pi / 2])
         self.interface.car_sm.Return_To_Follow()
 
@@ -39,15 +36,17 @@ class Function_Test_Q5:
             barrel_data = self.interface.Object_Detection(distance_threshold, object_lists=["Barrel"],check_in_lane=True)
             self.interface.Run()
             if(barrel_data[0]):
+                barrel_detected += 1
                 self.interface.car_SM.Obj_Avoidance()
                 if(self.interface.current_lane):
                     self.interface.Run([0.254,-3.048,0])
                 else: 
                     self.interface.Run([0.254,3.048,0])
-                barrel_detected += 1
+                
 
-        self.interface.car_sm.Return_To_Follow()
-
+        self.interface.car_SM.Obj_Avoidance()
+        self.interface.Run([3,0,0]) # might need to change this rel x 
+        self.interface.Run([0.254,-3.048,0])
 
         while white_lines_count==1:
             white_line_data = self.interface.Object_Detection(
@@ -56,9 +55,9 @@ class Function_Test_Q5:
             self.interface.Run()
 
             if white_line_data[0]:
+                white_lines_count+=1
                 self.interface.car_sm.Stop_Trigger()
                 self.interface.Run(white_line_data[1])
-                white_lines_count+=1
 
         self.interface.car_sm.Turn_Trigger()
    
@@ -67,21 +66,6 @@ class Function_Test_Q5:
 
 
         while white_lines_count==2:
-            white_line_data = self.interface.Object_Detection(
-                distance_threshold, object_list=["White Line"]
-            )
-            self.interface.Run()
-
-            if white_line_data[0]:
-                self.interface.Run(white_line_data[1])
-                white_lines_count+=1
-
-   
-        self.interface.Run([4.5, 7.6, math.pi / 2])
-        self.interface.car_sm.Return_To_Follow()
-
-
-        while white_lines_count==3:
             self.interface.Run()
             person_data = self.interface.Object_Detection(3.5, cared_objects=["Person"], check_in_lane=True)
             if(person_data[0]):
@@ -118,7 +102,7 @@ class Function_Test_Q5:
 
         self.interface.car_sm.Return_To_Follow()
 
-        while white_lines_count==4:
+        while white_lines_count==3:
             white_line_data = self.interface.Object_Detection(
                 distance_threshold, object_list=["White Line"]
             )
