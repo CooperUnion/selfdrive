@@ -26,16 +26,19 @@ class ObjectDetection:
         )
         # For applications requiring long-range depth perception, they recommend setting depth_minimum_distance to 1m or more for improved performance.
         init_params.depth_minimum_distance = 1
-        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-        init_params.depth_stabilization = 30
+        init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
+        init_params.depth_stabilization = 500
         
 
-        init_params.depth_maximum_distance = 2000
+        init_params.depth_maximum_distance = 10
+
         status = self.cam.open(init_params)
         if status != sl.ERROR_CODE.SUCCESS:
             print("Camera Open : " + repr(status) + ". Exit program.")
             exit()
         self.runtime = sl.RuntimeParameters()
+
+        # \self.runtime.enable_fill_mode = False
         # self.runtime.enable_fill_mode
 
     def init_model(self):
@@ -54,7 +57,7 @@ class ObjectDetection:
             sl.MAT_TYPE.U8_C4,
         )
 
-        self.model = YOLO('best.pt')
+        self.model = YOLO('cooper.pt')
         self.model.to('cpu')
 
         self.ocr = OCR()
@@ -123,9 +126,9 @@ class ObjectDetection:
 #                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
                 # np.where(centers < 0, centers, np.inf).argmax()
 
-            x_p = np.nanmean(centers[:,0])
-            y_p = np.nanmean(centers[:,1])
-            z_p = np.nanmean(centers[:,2])
+            x_p = np.nanmean(centers[5,0])
+            y_p = np.nanmean(centers[5,1])
+            z_p = np.nanmean(centers[5,2])
 
             # x_p = np.nan_to_num(x_p,nan=-1,posinf=-1,neginf=-1)
             # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
