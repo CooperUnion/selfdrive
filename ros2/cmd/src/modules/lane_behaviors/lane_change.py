@@ -66,7 +66,7 @@ class LaneChange(Node):
     def create_path(self, relative_x, relative_y, end_yaw):
 
         start_x = self.odom_sub.xpos
-        start_y = self.odom_sub.ypos
+        start_y = self.odom_sub.ypos - 1.5
         print(f'start_x: {start_x}, start_y: {start_y}')
         # Unsure about lead_axle, this position is relative to encoders
         start_yaw = self.odom_sub.yaw

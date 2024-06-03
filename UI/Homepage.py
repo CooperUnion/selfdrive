@@ -14,8 +14,9 @@ class Image_Handler:
         self.thread: threading.Thread
 
     def __enter__(self):
-        """ Updates the image """
+        """Updates the image"""
         self.checkbox = st.checkbox("Render State Machine")
+
         @with_streamlit_context
         def update_image() -> None:
             """
@@ -23,7 +24,7 @@ class Image_Handler:
             """
             container = st.empty()
             while self.checkbox:
-                container.image("/home/eeadmin/selfdrive/live_SM.png")
+                container.image("/home/autonomylab/selfdrive/live_SM.png")
 
         self.thread = threading.Thread(target=update_image)
         self.thread.start()
@@ -47,27 +48,32 @@ class Image_Handler:
 def runner():
 
     st.header("Welcome to the IGVC Homepage!")
-    st.markdown('''
-             Please select an option on the sidebar to the right: This specifies which UI file you'd like to run   
+    st.markdown(
+        '''
+             Please select an option on the sidebar to the right: This specifies which UI file you'd like to run
 
 
              Streamlit supports fast reloads: Just refresh the python script to get going!
 
 
              Docs are here: https://docs.streamlit.io/library/api-reference
-             ''')
+             '''
+    )
     st.divider()
     with Image_Handler():
         pass
 
+
 if __name__ == "__main__":
     if runtime.exists():
-        st.set_page_config(
-            page_title="IGVC Homepage",
-            page_icon="🚗")
+        st.set_page_config(page_title="IGVC Homepage", page_icon="🚗")
         sidebar()
         runner()
     else:
-        sys.argv = ["streamlit", "run",
-                    "--client.showSidebarNavigation=False", sys.argv[0]]
+        sys.argv = [
+            "streamlit",
+            "run",
+            "--client.showSidebarNavigation=False",
+            sys.argv[0],
+        ]
         sys.exit(stcli.main())

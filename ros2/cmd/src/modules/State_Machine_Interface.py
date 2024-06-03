@@ -88,7 +88,7 @@ class Interface(Node):
             self.car_sm.Emergency_Trigger()
             self.Run()  # ESTOP if we lose the lane lines in our vision
 
-        [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 200)
+        [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 40)
         # Publish Lane Following command
         cmd.data = [
             steer_cmd,
@@ -152,7 +152,8 @@ class Interface(Node):
     # hard estop is HARD
     def Estop_Action(self, error="Entered Error State", args=None):
         print("ESTOP REACHED")
-        slope = 2.0
+        # slope = 2.0
+        slope = 1.32
         # Args[0] is a "soft" estop: We aren't in a physical emergency, but something has gone wrong.
         if args is not None and args[0]:
             slope = 1.32
@@ -267,7 +268,7 @@ class Interface(Node):
             "Cstop": self.Cstop_Action,
             "Estop": self.Estop_Action,
         }
-        function_dict[self.car_SM.current_state.id](args=args)
+        function_dict[self.car_sm.current_state.id](args=args)
 
 
 class State_Machine_Failure(Exception):

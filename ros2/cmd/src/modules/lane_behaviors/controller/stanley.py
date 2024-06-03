@@ -99,8 +99,11 @@ class StanleyController:
 
         vel_sign = math.copysign(1, v)
 
-        steer_angle = scale * heading_error * vel_sign + np.arctan(
-            self.k_stanley * cross_track_error / v
+        steer_angle = (
+            scale * heading_error * vel_sign
+            + np.arctan(self.k_stanley * cross_track_error / v)
+            if v != 0
+            else 0
         )
         delta = np.clip(
             steer_angle, -self.max_steer_angle, self.max_steer_angle

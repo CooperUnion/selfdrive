@@ -124,15 +124,15 @@ class Individual_Follower:
         # Evaluating heading error:
 
         # This is the first window coordinates
-        y1 = self._binary_warped.shape[0] - (nwindows) * window_height
+        y1 = 0
         # This is the second window coordinates
-        y2 = self._binary_warped.shape[0] - (nwindows + 1) * window_height
+        y2 = (nwindows + 1) * window_height
         # Returns polynomial values at a point
         x1 = np.polyval(self._fit, y1)
         x2 = np.polyval(self._fit, y2)
 
         slope = (x2 - x1) / (y2 - y1)
 
-        heading = math.atan((x2 - x1) / (y2 - y1))  # Radians
+        heading = math.atan(slope)  # Radians
         result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
         return result, empty_windows, heading, slope

@@ -39,7 +39,7 @@ def main(args=None):
 
         args = parser.parse_args()
         max_dist_to_goal = 0.5
-        max_dist_to_path = 1.5
+        max_dist_to_path = 15
 
         odom_sub = OdomSubscriber()
         lane_change = LaneChange(odom_sub, max_dist_to_goal, max_dist_to_path)
