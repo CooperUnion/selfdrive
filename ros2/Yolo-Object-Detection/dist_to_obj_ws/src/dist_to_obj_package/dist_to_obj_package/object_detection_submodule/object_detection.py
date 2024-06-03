@@ -92,16 +92,16 @@ class ObjectDetection:
                 combined_text = f"{distance_text}\n{confidence_text}"
 
                 # Add the combined text to the annotated frame
-                cv2.putText(
-                    self.annotated_frame,
-                    combined_text,
-                    (int(bbox[0]), int(bbox[1] - 10)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 255),
-                    1,
-                    cv2.LINE_AA,
-                )
+                # cv2.putText(
+                #     self.annotated_frame,
+                #     combined_text,
+                #     (int(bbox[0]), int(bbox[1] - 10)),
+                #     cv2.FONT_HERSHEY_SIMPLEX,
+                #     0.5,
+                #     (255, 255, 255),
+                #     1,
+                #     cv2.LINE_AA,
+                # )
         # this should be the default output when no detections occur
         else:
             self.distance = -1.0

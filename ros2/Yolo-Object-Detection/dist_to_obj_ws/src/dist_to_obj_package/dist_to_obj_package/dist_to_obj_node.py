@@ -19,7 +19,7 @@ class Dist_To_Object(Node):
     def __init__(self, model):
         super().__init__('dist_to_obj_node')
         self._bridge = CvBridge()
-        timer_period = 0.016  # seconds
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.img_publisher = self.create_publisher(
             Image, "/obj_detection_img", 10
