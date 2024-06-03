@@ -19,7 +19,7 @@ import time
 class LaneFollower(Node):
     GUI = True
     # These are upper HSV & lower HSV bounds, respectively
-    (l_h, l_s, l_v) = (120, 0, 240)
+    (l_h, l_s, l_v) = (100, 0, 220)
     (u_h, u_s, u_v) = (255, 255, 255)
 
     LOWER = np.array([l_h, l_s, l_v])
@@ -37,13 +37,13 @@ class LaneFollower(Node):
     # Matrix to warp the image for birdseye window
     UNWARP = cv2.getPerspectiveTransform(pts1, pts2)
     # Kernel for blurring & removing "salt and pepper" noise
-    KERNEL = 23
+    KERNEL = 31
     LANE_TOLERANCE = 10
 
     # This is the lane follower Cstop/Estop trigger from crosstrack:
     # Effectively, it's an error beyond what our system is capable of returning, and we should trigger an Estop in the state machine if this value is ever read.
     MISSING_IMAGE_TOLERANCE = 100
-    EMPTY_WINDOWS_THRESHOLD = 6
+    EMPTY_WINDOWS_THRESHOLD = 3
     OVERFLOW = 1000.0
     FORMAT = (640, 480)
     TOLERANCE = 100
@@ -54,8 +54,8 @@ class LaneFollower(Node):
         super().__init__('lane_detection_node')
 
         # Inputs from both cameras
-        self.vidcap_left = cv2.VideoCapture("/dev/video0")
-        self.vidcap_right = cv2.VideoCapture("/dev/video2")
+        self.vidcap_left = cv2.VideoCapture("/dev/video2")
+        self.vidcap_right = cv2.VideoCapture("/dev/video4")
         # Setting the format for the images: we use 640 x 480
         self.vidcap_left.set(3, LaneFollower.FORMAT[0])
         self.vidcap_left.set(4, LaneFollower.FORMAT[1])
@@ -132,10 +132,10 @@ class LaneFollower(Node):
         width = self._left_follower._binary_warped.shape[1]
 
         if ignore_left:
-            # 5 Feet = 1.52 Meters
-            return 1.52 - right_x_pos * (LaneFollower.PIXELS_TO_METERS)
+            # 3 Feet ~~ 1.52 Meters
+            return 1 - right_x_pos / (LaneFollower.PIXELS_TO_METERS)
         if ignore_right:
-            return 1.52 - left_x_pos * (LaneFollower.PIXELS_TO_METERS)
+            return 1 - left_x_pos / (LaneFollower.PIXELS_TO_METERS)
 
         center_lanes_x_pos = (left_x_pos + right_x_pos) // 2
         # Calculate the deviation between the center of the lane and the center of the picture
@@ -150,16 +150,16 @@ class LaneFollower(Node):
     # Used to calculate command from Stanley controller to stay in lane based on heading and cross track errors
     def follow_lane(self, period=0.005):
 
-        steer_cmd = self.stanley.get_steering_cmd(
+        steer_cmd = -self.stanley.get_steering_cmd(
             self.heading_error,
             self.cross_track_error,
-            # self.odom_sub.vel,
-            2.235,
-        )  # comment this out when you want to use the actual velocity
+            self.odom_sub.vel,
+        
+        )  # Steering should be negative
 
         # vel_cmd = self.odom_sub.vel
         vel_cmd = (
-            2.235  # Unsure if the velocity command should always be the target
+            1.8  # Unsure if the velocity command should always be the target
         )
         time.sleep(period)
         return steer_cmd, vel_cmd
@@ -238,13 +238,14 @@ class LaneFollower(Node):
             if empty_right > LaneFollower.EMPTY_WINDOWS_THRESHOLD
             else self.right_slope
         )
+#        print("Left Lane" if self._Left_Lane else "Right Lane")
 
         # TODO: Is this the behavior we want? Or do we need it to do something else if one of the lines is invalid?
         if result_left is not None or result_right is not None:
             ignore_left = (
                 True
-                if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD
-                else False
+                # if empty_left > LaneFollower.EMPTY_WINDOWS_THRESHOLD
+                # else False
             )
             ignore_right = (
                 True

@@ -11,7 +11,7 @@ def coterminal_angle(a):
 class StanleyController:
     def __init__(
         self,
-        max_dist_to_path=0.1,
+        max_dist_to_path=2,
         wheelbase=1.75,
         k_stanley=0.8,
         max_steer_angle=0.35,
@@ -100,13 +100,13 @@ class StanleyController:
         vel_sign = math.copysign(1, v)
 
         steer_angle = scale * heading_error * vel_sign + np.arctan(
-            self.k_stanley * cross_track_error / v
+            self.k_stanley * cross_track_error / v if v != 0 else 0
         )
         delta = np.clip(
             steer_angle, -self.max_steer_angle, self.max_steer_angle
         )
 
         print(
-            f'heading_error={heading_error} cross_track_error={cross_track_error} delta={delta} v={v}'
+            f'heading_error={heading_error} cross_track_error={cross_track_error} delta={delta} steer_sent={steer_angle}'
         )
         return delta

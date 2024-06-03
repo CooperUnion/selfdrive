@@ -84,9 +84,9 @@ class Interface(Node):
     def Lane_Follow_Action(self, args=None):
         cmd = Float32MultiArray()
 
-        if self.lane_follow.empty_error:
-            self.car_sm.Emergency_Trigger()
-            self.Run()  # ESTOP if we lose the lane lines in our vision
+        # if self.lane_follow.empty_error:
+        #     self.car_sm.Emergency_Trigger()
+        #     self.Run()  # ESTOP if we lose the lane lines in our vision
 
         [steer_cmd, vel_cmd] = self.lane_follow.follow_lane(1 / 200)
         # Publish Lane Following command
@@ -267,7 +267,7 @@ class Interface(Node):
             "Cstop": self.Cstop_Action,
             "Estop": self.Estop_Action,
         }
-        function_dict[self.car_SM.current_state.id](args=args)
+        function_dict[self.car_sm.current_state.id](args=args)
 
 
 class State_Machine_Failure(Exception):
