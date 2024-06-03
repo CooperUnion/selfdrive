@@ -31,7 +31,6 @@ class ObjectDetection:
         init_params.depth_minimum_distance = 1
         init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
         init_params.depth_stabilization = 30
-        
 
         init_params.depth_maximum_distance = 2000
         status = self.cam.open(init_params)
@@ -115,36 +114,37 @@ class ObjectDetection:
 
     def distance_to_objects(self, box):
         # try:
-            # box = self.detections.xyxy[0]
-            center_x = int(box[0] + box[2]) / 2
+        # box = self.detections.xyxy[0]
+        center_x = int(box[0] + box[2]) / 2
 
-            centers = np.empty((10,4), dtype=np.float64)
-            stepy = (box[3] - box[1]) / 10
-            for i in range(10):                
-                err, centers[i] = self.point_cloud.get_value(round(center_x), round(box[1] + i * stepy))
-#                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
-                # np.where(centers < 0, centers, np.inf).argmax()
+        centers = np.empty((10, 4), dtype=np.float64)
+        stepy = (box[3] - box[1]) / 10
+        for i in range(10):
+            err, centers[i] = self.point_cloud.get_value(
+                round(center_x), round(box[1] + i * stepy)
+            )
+        #                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
+        # np.where(centers < 0, centers, np.inf).argmax()
 
-            x_p = np.nanmean(centers[5,0])
-            y_p = np.nanmean(centers[5,1])
-            z_p = np.nanmean(centers[5,2])
+        x_p = np.nanmean(centers[5, 0])
+        y_p = np.nanmean(centers[5, 1])
+        z_p = np.nanmean(centers[5, 2])
 
-            # x_p = np.nan_to_num(x_p,nan=-1,posinf=-1,neginf=-1)
-            # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
-            # z_p = np.nan_to_num(z_p,nan=-1,posinf=-1,neginf=-1)
-            if( x_p != np.nan and y_p != np.nan and z_p != np.nan):
-                self.distance = math.sqrt(x_p**2 + y_p **2 + z_p**2)
-                self.obj_x = x_p
-                self.y_p = y_p
+        # x_p = np.nan_to_num(x_p,nan=-1,posinf=-1,neginf=-1)
+        # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
+        # z_p = np.nan_to_num(z_p,nan=-1,posinf=-1,neginf=-1)
+        if x_p != np.nan and y_p != np.nan and z_p != np.nan:
+            self.distance = math.sqrt(x_p**2 + y_p**2 + z_p**2)
+            self.obj_x = x_p
+            self.y_p = y_p
 
-
-            # # err, pointCloudVal = self.point_cloud.get_value(
-            # #     round(center_x), round(center_y)
-            # # )
-            # x_p, y_p, z_p = centers[0], 
-            # x_p = pointCloudVal[0]
-            # y_p = pointCloudVal[1]
-            # z_p = pointCloudVal[2]
+        # # err, pointCloudVal = self.point_cloud.get_value(
+        # #     round(center_x), round(center_y)
+        # # )
+        # x_p, y_p, z_p = centers[0],
+        # x_p = pointCloudVal[0]
+        # y_p = pointCloudVal[1]
+        # z_p = pointCloudVal[2]
 
         # except RuntimeWarning:
         #     print("Runtime Error Handled!")
@@ -152,14 +152,13 @@ class ObjectDetection:
         #     self.obj_x = -1.0
         #     self.obj_y = -1.0
 
-
         # except IndexError:
         #     self.distance = -1.0
         #     self.obj_name = "No Object"
         #     self.obj_x = -1.0
         #     self.obj_y = -1.0
 
-            return self.distance
+        return self.distance
 
     def close_cam(self):
         cv2.destroyAllWindows()
