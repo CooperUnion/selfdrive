@@ -15,6 +15,7 @@ class Function_Test_Q3:
 
     # State transistion logic
     def function_test(self):
+        OFFSET = 1.65 # Meter offset from barrel before we stop.
         barrel_counter = 0
         distance = 0
         self.interface.car_sm.Resume()
@@ -25,10 +26,12 @@ class Function_Test_Q3:
             if obj_data[0]:
                 distance = obj_data[1]
                 barrel_counter += 1
-            self.interface.Run()
+                self.interface.car_sm.Obj_Avoidance()
+                args = [distance-OFFSET,obj_data[2],0]
+                self.interface.run(args)
         # 0.9144 = 3 feet to meters
         self.interface.car_sm.Stop_Trigger()
-        self.interface.Run(distance - 0.9144)
+        self.interface.Run(distance - OFFSET)
 
 
 if __name__ == "__main__":

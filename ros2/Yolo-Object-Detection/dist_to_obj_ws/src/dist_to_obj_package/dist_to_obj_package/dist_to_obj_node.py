@@ -11,7 +11,7 @@ import sys
 from cv_bridge import CvBridge
 
 # from yolo_interfaces.msg import Yolo
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import String
 
 
@@ -25,7 +25,7 @@ class Dist_To_Object(Node):
             Image, "/obj_detection_img", 10
         )
         self.object_point_cloud_publisher = self.create_publisher(
-            Float32MultiArray, '/obj_pointcloud', 10
+            Float64MultiArray, '/obj_pointcloud', 10
         )
         self.object_name_publisher = self.create_publisher(
             String, '/obj_name', 10
@@ -35,7 +35,7 @@ class Dist_To_Object(Node):
         self.model.init_model()
 
     def timer_callback(self):
-        object_point_cloud_msg = Float32MultiArray()
+        object_point_cloud_msg = Float64MultiArray()
         object_name_msg = String()
 
         # # Get keyboard input
@@ -56,6 +56,11 @@ class Dist_To_Object(Node):
         self.img_publisher.publish(image)
 
         object_name_msg.data = self.model.obj_name
+
+        print(self.model.obj_x)
+        print(self.model.obj_y)
+        print(self.model.distance)
+
         object_point_cloud_msg.data = [
             self.model.obj_x,
             self.model.obj_y,

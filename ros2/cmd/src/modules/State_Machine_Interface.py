@@ -122,30 +122,24 @@ class Interface(Node):
     # Those calculations should be done before_hand, in the state machines.
     def Cstop_Action(self, args=None):
         # We need to parametrize this, slope in m/s^2
-        slope = 1.32
         # d = (vf^2-vi^2)/2a
         # (vf is zero)
         # vi^2 / d = 2a
+        # if args is not None:
+        #     dist = args[0]
+        #     attempted_slope = (current_speed**2) / (2 * dist)
+        #     # Guaranteed that slope is not greater than 1.32
+        #     slope = min(attempted_slope, slope)
         current_speed = self.lane_follow.odom_sub.vel
-        if args is not None:
-            dist = args[0]
-            attempted_slope = (current_speed**2) / (2 * dist)
-            # Guaranteed that slope is not greater than 1.32
-            slope = min(attempted_slope, slope)
-
         cmd = Float32MultiArray()
-        initial = datetime.now()
         # Catching any precision errors & I'm not entirely sure how odom velocity is calculated
         # In other words, lazy programming. TODO: Determine appropriate bounds:)
         while current_speed > 0.05:
             current_speed = self.lane_follow.odom_sub.vel
-            current_time = datetime.now()
-            difference = (initial - current_time).total_seconds()
             cmd.data = [
                 0.0,
-                max(current_speed - (slope * difference), 0),
+                0.0,
             ]  # Allows us to keep slope @ set time
-            initial = current_time
             self.cmd_publisher.publish(cmd)
 
     # Estop Action: When things break. args[0] is "soft estop", no args or args[0] false is a hard estop.
