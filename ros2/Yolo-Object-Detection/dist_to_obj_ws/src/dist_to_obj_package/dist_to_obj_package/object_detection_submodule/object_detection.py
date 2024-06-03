@@ -12,6 +12,9 @@ class ObjectDetection:
     def __init__(self, display=True):
         self.display = display
         init_params = sl.InitParameters()
+        init_params.camera_resolution = sl.RESOLUTION.HD720
+        init_params.camera_fps = 30
+
         self.cam = sl.Camera()
 
         self.distance = 0.0
@@ -26,7 +29,7 @@ class ObjectDetection:
         )
         # For applications requiring long-range depth perception, they recommend setting depth_minimum_distance to 1m or more for improved performance.
         init_params.depth_minimum_distance = 1
-        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+        init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
         init_params.depth_stabilization = 30
         
 
@@ -100,13 +103,12 @@ class ObjectDetection:
                     1,
                     cv2.LINE_AA,
                 )
-
         # this should be the default output when no detections occur
         else:
-            self.distance = math.nan
+            self.distance = -1.0
             self.obj_name = "No Object"
-            self.obj_x = -1.00
-            self.obj_y = -1.00
+            self.obj_x = 0.0
+            self.obj_y = 0.0
 
         cv2.imshow("Annotated Image", self.annotated_frame)
         cv2.waitKey(1)
@@ -123,9 +125,9 @@ class ObjectDetection:
 #                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
                 # np.where(centers < 0, centers, np.inf).argmax()
 
-            x_p = np.nanmean(centers[:,0])
-            y_p = np.nanmean(centers[:,1])
-            z_p = np.nanmean(centers[:,2])
+            x_p = np.nanmean(centers[5,0])
+            y_p = np.nanmean(centers[5,1])
+            z_p = np.nanmean(centers[5,2])
 
             # x_p = np.nan_to_num(x_p,nan=-1,posinf=-1,neginf=-1)
             # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
