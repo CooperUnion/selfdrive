@@ -31,9 +31,8 @@ class ObjectDetection:
         init_params.depth_minimum_distance = 1
         init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
         init_params.depth_stabilization = 500
-        
 
-        init_params.depth_maximum_distance = 10
+        init_params.depth_maximum_distance = 2000
 
         status = self.cam.open(init_params)
         if status != sl.ERROR_CODE.SUCCESS:
@@ -45,9 +44,6 @@ class ObjectDetection:
         # self.runtime.enable_fill_mode
 
     def init_model(self):
-        image_size = (
-            self.cam.get_camera_information().camera_configuration.resolution
-        )
 
         self.image_left_tmp = sl.Mat(
             self.cam.get_camera_information().camera_configuration.resolution.width,
@@ -127,12 +123,12 @@ class ObjectDetection:
             err, centers[i] = self.point_cloud.get_value(
                 round(center_x), round(box[1] + i * stepy)
             )
-        #                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
-        # np.where(centers < 0, centers, np.inf).argmax()
+            #                centers = np.nan_to_num(centers,nan=0,posinf=0,neginf=0)
+            # np.where(centers < 0, centers, np.inf).argmax()
 
-            x_p = np.nanmean(centers[5,0])
-            y_p = np.nanmean(centers[5,1])
-            z_p = np.nanmean(centers[5,2])
+            x_p = np.nanmean(centers[5, 0])
+            y_p = np.nanmean(centers[5, 1])
+            z_p = np.nanmean(centers[5, 2])
 
         # x_p = np.nan_to_num(x_p,nan=-1,posinf=-1,neginf=-1)
         # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
@@ -181,7 +177,6 @@ class ObjectDetection:
             image_net = self.image_left_tmp.get_data()
             self.img = cv2.cvtColor(image_net, cv2.COLOR_RGBA2RGB)
             self.ocr(self.img)
-            cvPoint = self.point_cloud.get_data()
 
             # # Crops the current image to view 1/3 of the frame
             # center = self.img.shape
