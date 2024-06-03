@@ -80,6 +80,7 @@ class ObjectDetection:
             for detection in self.detections:
                 bbox = detection[0]
                 dist = self.distance_to_objects(bbox)
+
                 self.obj_name = self.model.names[detection[3]]
 
                 if "sign" in self.ocr.output:
@@ -134,9 +135,16 @@ class ObjectDetection:
         # y_p = np.nan_to_num(y_p,nan=-1,posinf=-1,neginf=-1)
         # z_p = np.nan_to_num(z_p,nan=-1,posinf=-1,neginf=-1)
         if x_p != np.nan and y_p != np.nan and z_p != np.nan:
-            self.distance = math.sqrt(x_p**2 + y_p**2 + z_p**2)
-            self.obj_x = x_p
-            self.y_p = y_p
+                
+                if(self.obj_x == 0):
+                    self.obj_x = x_p
+                else:
+                    print("OBJ X",self.obj_x)
+                    print("X_P",x_p)
+                    self.obj_x = min(self.obj_x,x_p)
+                self.distance = math.sqrt(x_p**2 + y_p**2 + z_p**2)
+                self.y_p = y_p
+
 
         # # err, pointCloudVal = self.point_cloud.get_value(
         # #     round(center_x), round(center_y)
