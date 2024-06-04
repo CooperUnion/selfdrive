@@ -5,29 +5,29 @@ from State_Machine_Interface import Interface
 import math
 
 
-class Function_Test_Q5:
+class Function_Test_Full_Course_1():
     def __init__(self, interface: Interface):
         self.interface = interface
 
     # State transistion logic
     def function_test(self):
         distance_threshold = 5
-        white_lines_count = 0
+        stop_line_count = 0
         barrel_count = 0
         pothole_detected = False
-        white_line_data = []
+        stop_line_data = []
         barrel_data = []
         pothole_data = []
 
-        while white_lines_count<1:
-            white_line_data = self.interface.Object_Detection(
-                distance_threshold, object_list=["White Line"]
+        while stop_line_count<1:
+            stop_line_data = self.interface.Object_Detection(
+                distance_threshold, object_list=["Stop Line"]
             )
 
-            if white_line_data[0]:
-                white_lines_count+=1
+            if stop_line_data[0]:
+                stop_line_count+=1
                 self.interface.car_sm.Turn_Trigger()
-                self.interface.Run(white_line_data[1])
+                self.interface.Run(stop_line_data[1])
                 
 
         self.interface.Run([4.5, -7.6, math.pi / 2])
@@ -53,16 +53,16 @@ class Function_Test_Q5:
 
 
 
-        while white_lines_count==1:
-            white_line_data = self.interface.Object_Detection(
-                distance_threshold, object_list=["White Line"]
+        while stop_line_count==1:
+            stop_line_data = self.interface.Object_Detection(
+                distance_threshold, object_list=["Stop Line"]
             )
             self.interface.Run()
 
-            if white_line_data[0]:
-                white_lines_count+=1
+            if stop_line_data[0]:
+                stop_line_count+=1
                 self.interface.car_sm.Stop_Trigger()
-                self.interface.Run(white_line_data[1]) # input param needs to be changed
+                self.interface.Run(stop_line_data[1]) # input param needs to be changed
 
         self.interface.car_sm.Turn_Trigger()
    
@@ -70,14 +70,14 @@ class Function_Test_Q5:
         self.interface.car_sm.Return_To_Follow()
 
 
-        while white_lines_count==2:
+        while stop_line_count==2:
             self.interface.Run() # checking in lane might present an issue 
             person_data = self.interface.Object_Detection(3.5, cared_objects=["Stop Line"], check_in_lane=True)
             if(person_data[0]):
                 self.interface.carSM.Obj_Avoidance()
                 multiplier = 1 if self.interface.current_lane() else -1
                 self.interface.Run(person_data[1],person_data[2] + multiplier * 3 , 0.0)
-                white_lines_count+=1
+                stop_line_count+=1
 
         self.interface.car_SM.Return_To_Follow()
         self.interface.Run()
@@ -112,16 +112,16 @@ class Function_Test_Q5:
         self.interface.car_SM.Return_To_Follow()
         self.interface.Run()
 
-        while white_lines_count==3:
-            white_line_data = self.interface.Object_Detection(
-                distance_threshold, object_list=["White Line"]
+        while stop_line_count==3:
+            stop_line_data = self.interface.Object_Detection(
+                distance_threshold, object_list=["Stop Line"]
             )
             self.interface.Run()
 
-            if white_line_data[0]:
-                white_lines_count+=1
+            if stop_line_data[0]:
+                stop_line_count+=1
                 self.interface.car_sm.Stop_Trigger()
-                self.interface.Run(white_line_data[1])
+                self.interface.Run(stop_line_data[1])
 
 if __name__ == "__main__":
-    main("Function_Test_Q3", Function_Test_Q5)
+    main("Function_Test_Q3", Function_Test_Full_Course_1)

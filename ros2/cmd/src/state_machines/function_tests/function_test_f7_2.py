@@ -32,8 +32,6 @@ class Function_Test_F7_2:
 
         distance_threshold = 5
         while not barrel_detected:
-            
-            
             barrel_data = self.interface.Object_Detection(distance_threshold, object_lists=["Barrel"])
             self.interface.Run()  
 

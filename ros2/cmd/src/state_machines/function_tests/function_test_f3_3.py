@@ -16,23 +16,23 @@ class Function_Test_F3_3():
 
     # State transistion logic
     def function_test(self):
-        white_line_detected = False
+        stop_line_detected = False
         barrel_detected = False 
-        white_line_data = []
+        stop_line_data = []
         barrel_data = []
         self.interface.car_SM.Resume()
         distance_threshold = 5
         ZED_TO_BUMPER = 0.4
         stop_dist = 1.524
 
-        while white_line_detected:   
-            white_line_data = self.interface.Object_Detection(self.distance_threshold, object_lists=["White Line"]) 
+        while stop_line_detected:   
+            stop_line_data = self.interface.Object_Detection(self.distance_threshold, object_lists=["Stop Line"]) 
             self.interface.Run()
 
-            if(white_line_data[0]):
-                white_line_detected = True 
+            if(stop_line_data[0]):
+                stop_line_detected = True 
                 self.interface.car_sm.Stop_Trigger()
-                self.interface.Run(white_line_data[1])
+                self.interface.Run(stop_line_data[1])
         
         self.interface.car_SM.Turn_Trigger()
         self.interface.Run([1, 5, -1.5, math.pi / 2])
