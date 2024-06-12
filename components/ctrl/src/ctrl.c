@@ -26,19 +26,6 @@
 #define METERS_PER_TICK \
 	((float) WHEEL_CIRCUMFERENCE_M / (float) ENCODER_TICKS_PER_ROTATION)
 
-#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING	       40.97
-#define ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING_OFFSET 0
-#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING	       -36.60
-#define ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET    0
-
-#define ACCELERATION_TO_THROTTLE_PERCENT(x)                      \
-	(((x) * ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING) \
-		+ ACCELERATION_TO_THROTTLE_PERCENT_LINEAR_MAPPING_OFFSET)
-
-#define ACCELERATION_TO_BRAKE_PERCENT(x)                      \
-	(((x) * ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING) \
-		+ ACCELERATION_TO_BRAKE_PERCENT_LINEAR_MAPPING_OFFSET)
-
 #define AVERAGE_TICKS_SAMPLES 4
 
 #define KP    0.35
@@ -51,10 +38,11 @@
 #define PID_DEADBAND_LOWER 0
 #define PID_DEADBAND_UPPER 0
 
-static void ctrl_init();
-static void ctrl_100Hz();
-static void calculate_average_velocity(
-	int16_t left_delta, int16_t right_delta);
+static float acceleration_to_throttle_percent(float acceleration);
+static void  ctrl_init();
+static void  ctrl_100Hz();
+static void  calculate_average_velocity(
+	 int16_t left_delta, int16_t right_delta);
 static void encoder0_chan_a(void *arg);
 static void encoder0_chan_b(void *arg);
 static void encoder1_chan_a(void *arg);
@@ -185,6 +173,16 @@ static void ctrl_100Hz()
 	setpoint_reset	 = true;
 }
 
+static float acceleration_to_brake_percent(float acceleration)
+{
+	return -36.60 * acceleration;
+}
+
+static float acceleration_to_throttle_percent(float acceleration)
+{
+	return 40.97 * acceleration;
+}
+
 static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
 {
 	static size_t  index;
@@ -307,11 +305,11 @@ static void velocity_control(
 
 	if (desired_acceleration > 0) {
 		brake_percent	 = 0;
-		throttle_percent = ACCELERATION_TO_THROTTLE_PERCENT(
+		throttle_percent = acceleration_to_throttle_percent(
 			desired_acceleration);
 	} else {
 		brake_percent
-			= ACCELERATION_TO_BRAKE_PERCENT(desired_acceleration);
+			= acceleration_to_brake_percent(desired_acceleration);
 		throttle_percent = 0;
 	}
 }
