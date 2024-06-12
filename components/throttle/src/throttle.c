@@ -56,7 +56,7 @@ static void throttle_100Hz()
 		base_request_state(SYS_STATE_IDLE);
 	}
 
-	control_relay(throttle_authorized && cmd);
+	control_relay(throttle_authorized);
 	set_pedal_output(cmd);
 }
 
