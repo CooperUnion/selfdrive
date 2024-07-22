@@ -15,7 +15,7 @@ typedef struct {
 	uint8_t batteryPercent;
 } CAN_Message_BatteryStatus;
 
-static u_int8_t batterypercent;
+static uint8_t batterypercent;
 
 static void batt_1Hz();
 
@@ -33,6 +33,8 @@ static void batt_1Hz()
 	batteryPercent = 0;
 }
 
-
 void CANTX_populate_BATT_BatteryPercentData(
-	m->batteryPercent = batteryPercent;)
+	struct CAN_Message_BatteryStatus * const m)
+{
+	m->batteryPercent = batteryPercent;
+}
