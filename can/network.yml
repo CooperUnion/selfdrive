@@ -805,3 +805,12 @@ nodes:
               - bar:
                   description: Bar.
                   width: 40
+  - BATT:
+      messages:
+        - BatteryStatus:
+            id: 0x12C
+            cycletime: 10
+            signals:
+              - batteryPercent:
+                  description: Battery percentage.
+                  width: 10

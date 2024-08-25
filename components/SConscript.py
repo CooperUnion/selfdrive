@@ -13,6 +13,7 @@ components = env.SConscript(
             'steer',
             'sup',
             'throttle',
+            'batt',
         ]
     ]
 )
