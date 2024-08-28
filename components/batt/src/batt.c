@@ -19,7 +19,7 @@ static void batt_1Hz()
 	batteryPercent = 0;
 }
 
-void CANTX_populate_BatteryStatus(
+void CANTX_populate_BATT_BatteryStatus(
 	struct CAN_Message_BATT_BatteryStatus * const m)
 {
 	m->BATT_batteryPercent = batteryPercent;

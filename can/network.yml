@@ -703,6 +703,11 @@ nodes:
         - THROTTLE_NodeStatus
         - THROTTLEBL_IsoTpTx
         - THROTTLEBL_Status
+
+        - BATT_NodeStatus
+        - BATTBL_IsoTpTx
+        - BATTBL_Status
+
       messages:
         - IsoTpTx_BBC:
             id: 0x531
@@ -714,6 +719,8 @@ nodes:
             id: 0x534
         - IsoTpTx_THROTTLE:
             id: 0x535
+        - IsoTpTx_BATT:
+            id: 0x536
         - UpdateControl_BBC:
             from_template: UpdateControl
             id: 0x5A1
@@ -729,6 +736,9 @@ nodes:
         - UpdateControl_THROTTLE:
             from_template: UpdateControl
             id: 0x5A5
+        - UpdateControl_BATT:
+            from_template: UpdateControl
+            id: 0x5A6
 
   - THROTTLE:
       rx:
@@ -806,7 +816,16 @@ nodes:
                   description: Bar.
                   width: 40
   - BATT:
+      rx:
+        - DBW_ESTOP
+        - UPD_UpdateControl_BATT
       messages:
+        - NodeInfo:
+            from_template: DBWNodeInfo
+            id: 0x12A
+        - NodeStatus:
+            from_template: DBWNodeStatus
+            id: 0x12D
         - BatteryStatus:
             id: 0x12C
             cycletime: 10
@@ -814,3 +833,13 @@ nodes:
               - batteryPercent:
                   description: Battery percentage.
                   width: 10
+  - BATTBL:
+      rx:
+        - UPD_IsoTpTx_BATT
+        - UPD_UpdateControl_BATT
+      messages:
+        - IsoTpTx:
+            id: 0x12E
+        - Status:
+            from_template: BlStatus
+            id: 0x12F
