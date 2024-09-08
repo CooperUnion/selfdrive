@@ -2,8 +2,8 @@
   description = "Autonomy Lab's monorepo";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -11,12 +11,9 @@
   };
 
   outputs =
-    {
-      self,
-      flake-utils,
-      ...
-    }@inputs:
-    flake-utils.lib.eachDefaultSystem (
+    { ... }@inputs:
+
+    inputs.flake-utils.lib.eachDefaultSystem (
       system:
 
       let
@@ -34,13 +31,13 @@
 
       in
       {
-        formatter = pkgs.nixfmt-rfc-style;
-
         devShells.default = pkgs.mkShell {
           packages = import ./nix/packages { inherit pkgs; };
 
           LD_LIBRARY_PATH = "${ld-library-path}";
         };
+
+        formatter = pkgs.nixfmt-rfc-style;
       }
     );
 }
