@@ -18,23 +18,28 @@
     }@inputs:
     flake-utils.lib.eachDefaultSystem (
       system:
+
       let
         pkgs = import inputs.nixpkgs {
           inherit system;
           overlays = [ (import inputs.rust-overlay) ];
         };
 
+        ld-library-path = pkgs.lib.makeLibraryPath (
+          with pkgs;
+          [
+            zlib
+          ]
+        );
+
       in
       {
         formatter = pkgs.nixfmt-rfc-style;
 
         devShells.default = pkgs.mkShell {
-          packages = import ./nix/packages { inherit inputs pkgs; };
+          packages = import ./nix/packages { inherit pkgs; };
 
-          shellHook = ''
-            export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:-}"
-            export LD_LIBRARY_PATH="${pkgs.zlib}/lib:''$LD_LIBRARY_PATH"
-          '';
+          LD_LIBRARY_PATH = "${ld-library-path}";
         };
       }
     );

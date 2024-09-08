@@ -1,10 +1,11 @@
-{ pkgs, ... }:
+{ pkgs }:
 
 let
   python = pkgs.python312;
   pythonPackages = pkgs.python312Packages;
 
   rust = import ./rust.nix { inherit pkgs; };
+
 in
 [
   python
