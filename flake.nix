@@ -4,6 +4,10 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    pyproject-nix = {
+      url = "github:nix-community/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,19 +26,13 @@
           overlays = [ (import inputs.rust-overlay) ];
         };
 
-        ld-library-path = pkgs.lib.makeLibraryPath (
-          with pkgs;
-          [
-            zlib
-          ]
-        );
-
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = import ./nix/packages { inherit pkgs; };
-
-          LD_LIBRARY_PATH = "${ld-library-path}";
+          packages = import ./nix/packages {
+            inherit (inputs) pyproject-nix;
+            inherit pkgs;
+          };
         };
 
         formatter = pkgs.nixfmt-rfc-style;
