@@ -1,24 +1,34 @@
-{ pkgs }:
+{ pkgs, ... }@inputs:
 
 let
-  python = pkgs.python312;
-  pythonPackages = pkgs.python312Packages;
+  llvm = pkgs.llvmPackages_latest;
+
+  python = import ./python.nix {
+    inherit (inputs) pyproject-nix;
+    inherit pkgs;
+  };
 
   rust = import ./rust.nix { inherit pkgs; };
 
 in
 [
+  llvm.clang-unwrapped
   python
-  pythonPackages.invoke
   rust
 ]
 ++ (with pkgs; [
   act
+  black
   cmake
-  llvmPackages_latest.clang-unwrapped
   mdbook
   ninja
   nixfmt-rfc-style
+  pre-commit
+  ruff
+  scons
   texliveFull
+  toml-sort
+  yamlfix
+  yamllint
   zlib
 ])

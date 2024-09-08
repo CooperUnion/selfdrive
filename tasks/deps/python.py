@@ -14,7 +14,7 @@ def install_requirements(c):
 
 @task
 def pip_compile(c):
-    c.run('pip-compile --output-file requirements.txt')
+    c.run('pip-compile --extra=nix-unsupported --output-file requirements.txt')
 
 
 @task
