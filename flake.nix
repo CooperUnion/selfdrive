@@ -13,44 +13,23 @@
   outputs =
     {
       self,
-      nixpkgs,
       flake-utils,
-      rust-overlay,
-    }:
+      ...
+    }@inputs:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
           inherit system;
-          overlays = [ (import rust-overlay) ];
+          overlays = [ (import inputs.rust-overlay) ];
         };
-
-        llvm = pkgs.llvmPackages_17;
-
-        python = pkgs.python312;
-        pythonPackages = pkgs.python312Packages;
-
-        rust-version = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-        rust = rust-version.override { };
 
       in
       {
         formatter = pkgs.nixfmt-rfc-style;
 
         devShells.default = pkgs.mkShell {
-          packages = [
-            llvm.clang-unwrapped
-            pkgs.act
-            pkgs.cmake
-            pkgs.mdbook
-            pkgs.ninja
-            pkgs.nixfmt-rfc-style
-            pkgs.texliveFull
-            pkgs.zlib
-            python
-            pythonPackages.invoke
-            rust
-          ];
+          packages = import ./nix/packages { inherit inputs pkgs; };
 
           shellHook = ''
             export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:-}"
