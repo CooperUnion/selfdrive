@@ -10,8 +10,15 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -28,6 +35,8 @@
 
       in
       {
+        formatter = pkgs.nixfmt-rfc-style;
+
         devShells.default = pkgs.mkShell {
           packages = [
             llvm.clang-unwrapped
@@ -35,7 +44,7 @@
             pkgs.cmake
             pkgs.mdbook
             pkgs.ninja
-            pkgs.nixpkgs-fmt
+            pkgs.nixfmt-rfc-style
             pkgs.texliveFull
             pkgs.zlib
             python
