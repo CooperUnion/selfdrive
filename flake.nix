@@ -15,7 +15,7 @@
   };
 
   outputs =
-    { ... }@inputs:
+    inputs:
 
     inputs.flake-utils.lib.eachDefaultSystem (
       system:
