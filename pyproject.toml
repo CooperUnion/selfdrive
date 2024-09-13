@@ -12,7 +12,6 @@ authors = [
 license = {'text' = 'GPL-3.0-only'}
 requires-python = '>=3.12'
 dependencies = [
-  'cantools',
   'invoke',
   'matplotlib',
   'mdformat-gfm',
@@ -26,7 +25,6 @@ dependencies = [
 nix-unsupported = [
   'can-isotp',
   'opencan-cand',
-  'platformio',
 ]
 
 [project.urls]
