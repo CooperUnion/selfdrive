@@ -35,8 +35,8 @@ def scons_env_gen(c):
     idf_path = list(set(path.split(':')) ^ set(result.env['PATH'].split(':')))
 
     for target in os.environ['IDF_TARGETS'].split(','):
-        build = f'{os.environ["IDF_BUILD"]}/march/{target}'
-        src = f'lib/march/{target}'
+        build = f'{os.environ["IDF_BUILD"]}/mcu/{target}'
+        src = f'lib/mcu/{target}'
 
         # create our symlink placeholder to make cmake happy
         libprebuilt = f'{src}/main/libprebuilt.a'
@@ -75,7 +75,7 @@ def scons_env_gen(c):
 
         optimization = list(filter(startswith('-O'), flags))
         debug = list(filter(startswith('-g'), flags))
-        march = list(filter(startswith('-m'), flags))
+        mcu = list(filter(startswith('-m'), flags))
         std = list(filter(startswith('-std'), flags))
 
         env = {
@@ -86,7 +86,7 @@ def scons_env_gen(c):
             'options': options,
             'optimization': optimization,
             'debug': debug,
-            'march': march,
+            'mcu': mcu,
             'std': std,
         }
 

@@ -63,7 +63,7 @@ def idf(env, target: str):
         + idf['options']
         + idf['optimization']
         + idf['debug']
-        + idf['march']
+        + idf['mcu']
         + idf['std'],
     )
 
