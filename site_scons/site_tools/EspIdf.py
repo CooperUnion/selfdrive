@@ -30,11 +30,11 @@ OUTPUTS = [
 
 
 def EspIdf(env, library, target, *, outdir='esp-idf'):
-    build = f'{os.environ["IDF_BUILD"]}/march/{target}'
+    build = f'{os.environ["IDF_BUILD"]}/mcu/{target}'
     outdir = f'{os.path.dirname(library.abspath)}/{outdir}'
 
     libprebuilt = (
-        f'{os.environ["REPO_ROOT"]}/lib/march/{target}/main/libprebuilt.a'
+        f'{os.environ["REPO_ROOT"]}/lib/mcu/{target}/main/libprebuilt.a'
     )
 
     # since the esp-idf build is shared resource we need to
