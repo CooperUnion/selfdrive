@@ -24,6 +24,7 @@ in
   ninja
   nixfmt-rfc-style
   pre-commit
+  python3Packages.venvShellHook
   ruff
   scons
   texliveFull

@@ -33,6 +33,8 @@
             inherit (inputs) pyproject-nix;
             inherit pkgs;
           };
+
+	  venvDir = "./.venv";
         };
 
         formatter = pkgs.nixfmt-rfc-style;
