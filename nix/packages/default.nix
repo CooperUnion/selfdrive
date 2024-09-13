@@ -23,6 +23,7 @@ in
   mdbook
   ninja
   nixfmt-rfc-style
+  platformio
   pre-commit
   python3Packages.venvShellHook
   ruff
