@@ -25,6 +25,7 @@ dependencies = [
 nix-unsupported = [
   'can-isotp',
   'opencan-cand',
+  'scons',
 ]
 
 [project.urls]

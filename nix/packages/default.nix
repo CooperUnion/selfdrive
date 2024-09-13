@@ -28,7 +28,6 @@ in
   pre-commit
   python3Packages.venvShellHook
   ruff
-  scons
   texliveFull
   toml-sort
   yamlfix
