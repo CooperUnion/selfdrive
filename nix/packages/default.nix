@@ -19,6 +19,7 @@ in
 ++ (with pkgs; [
   act
   black
+  can-utils
   cmake
   mdbook
   ninja
