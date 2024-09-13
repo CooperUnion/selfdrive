@@ -34,7 +34,7 @@
             inherit pkgs;
           };
 
-	  venvDir = "./.venv";
+          venvDir = "./.venv";
         };
 
         formatter = pkgs.nixfmt-rfc-style;
