@@ -2,55 +2,42 @@
   description = "Autonomy Lab's monorepo";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    pyproject-nix = {
+      url = "github:nix-community/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    inputs:
+
+    inputs.flake-utils.lib.eachDefaultSystem (
+      system:
+
       let
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
           inherit system;
-          overlays = [ (import rust-overlay) ];
+          overlays = [ (import inputs.rust-overlay) ];
         };
-
-        llvm = pkgs.llvmPackages_17;
-
-        python = pkgs.python312;
-        pythonPackages = pkgs.python312Packages;
-
-        rust-version = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-        rust = rust-version.override { };
 
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = [
-            llvm.clang-unwrapped
-            pkgs.act
-            pkgs.cmake
-            pkgs.mdbook
-            pkgs.ninja
-            pkgs.nixpkgs-fmt
-            pkgs.texliveFull
-            pkgs.zlib
-            python
-            pythonPackages.invoke
-            rust
-          ];
+          packages = import ./nix/packages {
+            inherit (inputs) pyproject-nix;
+            inherit pkgs;
+          };
 
-          shellHook = ''
-            export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:-}"
-            export LD_LIBRARY_PATH="${pkgs.zlib}/lib:''$LD_LIBRARY_PATH"
-          '';
+          venvDir = "./.venv";
         };
+
+        formatter = pkgs.nixfmt-rfc-style;
       }
     );
 }

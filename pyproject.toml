@@ -12,24 +12,20 @@ authors = [
 license = {'text' = 'GPL-3.0-only'}
 requires-python = '>=3.12'
 dependencies = [
-  'black',
-  'can-isotp',
-  'cantools',
   'invoke',
   'matplotlib',
   'mdformat-gfm',
-  'opencan-cand',
   'pip-tools',
-  'platformio',
-  'pre-commit',
-  'ruff',
   'schema',
-  'scons',
   'strictyaml',
-  'toml-sort',
   'tqdm',
-  'yamlfix',
-  'yamllint',
+]
+
+[project.optional-dependencies]
+nix-unsupported = [
+  'can-isotp',
+  'opencan-cand',
+  'scons',
 ]
 
 [project.urls]

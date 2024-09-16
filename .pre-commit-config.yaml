@@ -3,7 +3,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-json
@@ -17,12 +17,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.3.0
+    rev: f7aa1f9a50202a2cd7cef269f8d83f5ac91b2915  # frozen: 24.8.0
     hooks:
       - id: black
 
   - repo: https://github.com/cmhughes/latexindent.pl.git
-    rev: V3.23.6
+    rev: 78d452f8fc359d828e2c8a4cac0d2c6fc92d2967  # frozen: V3.24.4
     hooks:
       - id: latexindent
         args:
@@ -32,41 +32,36 @@ repos:
           - --silent
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v18.1.1
+    rev: 7d85583be209cb547946c82fbe51f4bc5dd1d017  # frozen: v18.1.8
     hooks:
       - id: clang-format
         types_or:
           - c
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.17
+    rev: 08fba30538869a440b5059de90af03e3502e35fb  # frozen: 0.7.17
     hooks:
       - id: mdformat
         exclude: LICENSE\.md
         additional_dependencies:
           - mdformat-gfm
 
-  - repo: https://github.com/nix-community/nixpkgs-fmt
-    rev: v1.3.0
-    hooks:
-      - id: nixpkgs-fmt
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.5
+    rev: 03d82ba032f800c7cbbef301ec1e1e25c0ac91b0  # frozen: v0.6.4
     hooks:
       - id: ruff
 
   - repo: https://github.com/pappasam/toml-sort
-    rev: v0.23.1
+    rev: b9b6210da457c38122995e434b314f4c4a4a923e  # frozen: v0.23.1
     hooks:
       - id: toml-sort-fix
 
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: 1.16.0
+    rev: 8072181c0f2eab9f2dd8db2eb3b9556d7cd0bd74  # frozen: 1.17.0
     hooks:
       - id: yamlfix
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: 81e9f98ffd059efe8aa9c1b1a42e5cce61b640c6  # frozen: v1.35.1
     hooks:
       - id: yamllint
