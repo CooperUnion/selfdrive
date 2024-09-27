@@ -23,6 +23,8 @@
 #define SLP_PIN GPIO_NUM_3
 #define FLT_PIN GPIO_NUM_2
 
+#define LIMIT_SWITCH_DEBOUNCE 10
+
 #define PWM_FREQUENCY	    10000
 #define PWM_INIT_DUTY_CYCLE 0
 #define PWM_RESOLUTION	    10
@@ -40,6 +42,11 @@
 enum adc_channel_index {
 	PS_ADC_CHANNEL_INDEX,
 	ADC_CHANNELS,
+};
+
+enum limit_switch_state {
+	LIMIT_SWITCH_PRESSED,
+	LIMIT_SWITCH_RELEASED,
 };
 
 #define SAMPLING_RATE_HZ 20000
@@ -181,6 +188,11 @@ static void bbc_init(void)
 
 static void bbc_1kHz(void)
 {
+	static unsigned		       limit_switch_debounce;
+	static enum limit_switch_state limit_switch_state;
+
+	limit_switch_debounce = MIN(0, limit_switch_debounce - 1);
+
 	bool bbc_authorized = CANRX_is_message_SUP_Authorization_ok()
 		&& CANRX_get_SUP_bbcAuthorized()
 		&& CANRX_is_message_CTRL_VelocityCommand_ok();
@@ -226,18 +238,26 @@ static void bbc_1kHz(void)
 	min_limit_switch_status = gpio_get_level(LIM_SW_MIN);
 	max_limit_switch_status = gpio_get_level(LIM_SW_MAX);
 
-	if (motor_direction) {
-		if (gpio_get_level(LIM_SW_MAX)) {
-			gpio_set_level(SLP_PIN, 0);
-			controller_output = 0.0;
-		}
-	} else {
-		if (gpio_get_level(LIM_SW_MIN)) {
-			gpio_set_level(SLP_PIN, 0);
-			controller_output = 0.0;
-		}
+	if (!limit_switch_debounce) {
+		limit_switch_state
+			= (min_limit_switch_status || max_limit_switch_status)
+			? LIMIT_SWITCH_PRESSED
+			: LIMIT_SWITCH_RELEASED;
+
+		limit_switch_debounce = LIMIT_SWITCH_DEBOUNCE;
 	}
 
+	if (limit_switch_state == LIMIT_SWITCH_PRESSED) {
+		if (min_limit_switch_status && (controller_output >= 0.0))
+			goto skip_disable;
+
+		if (max_limit_switch_status && (controller_output <= 0.0))
+			goto skip_disable;
+
+		controller_output = 0.0;
+	}
+
+skip_disable:
 	gpio_set_level(DIR_PIN, !motor_direction);
 
 	if (controller_output < 0) {
