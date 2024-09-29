@@ -114,20 +114,12 @@ class IndividualFollower:
             lane_array = np.concatenate(lane_inds)
             lane_x_pos = nonzero_x[lane_array]
             lane_y_pos = nonzero_y[lane_array]
-
-            # I don't believe this if statement is necessary, need to test
+            # TODO: test if this statement is necessary
             if lane_x_pos.any() and lane_y_pos.any():
                 self._fit = np.polyfit(
                     lane_y_pos, lane_x_pos, IndividualFollower.LANE_POLY_SIZE
                 )
 
-            plotting_coordinates = np.linspace(
-                0,
-                self._binary_warped.shape[0] - 1,
-                self._binary_warped.shape[1],
-            )
-
-            polynomial = np.polyval(self._fit, plotting_coordinates)
             out_img[nonzero_y[lane_array], nonzero_x[lane_array]] = (
                 IndividualFollower.LANE_COLOR
             )
@@ -136,61 +128,16 @@ class IndividualFollower:
             window_img = np.zeros_like(out_img)
             ##These lines should be broken up accordingly: They render the search area
 
-            window_1 = np.vstack(
-                [
-                    polynomial - IndividualFollower.SEARCH_WIDTH,
-                    plotting_coordinates,
-                ]
-            ).T
+        # Create linearly spaced points at each height, evaluate polynomial, create coordinates
+        x_val = np.arange(0, window_height, step=5).T
+        y_val = np.polyval(self.fit, x_val)
+        coords = np.concatenate((x_val, y_val), axis=0)
 
-            window_2 = np.vstack(
-                [
-                    polynomial - IndividualFollower.SEARCH_WIDTH,
-                    plotting_coordinates,
-                ]
-            ).T
+        ##TODO: Test if this approach works
 
-            # These replacements also need to be tested
-
-            # line_window1 =
-            # np.array(
-            #     [
-            #         np.transpose(
-            #             np.vstack(
-            #                 [
-            #                     polynomial - IndividualFollower.SEARCH_WIDTH,
-            #                     plotting_coordinates,
-            #                 ]
-            #             )
-            #         )
-            #     ]
-            # )
-        # line_window2 = np.array(
-        #     [
-        #         np.transpose(
-        #             np.vstack(
-        #                 [
-        #                     polynomial + IndividualFollower.SEARCH_WIDTH,
-        #                     plotting_coordinates,
-        #                 ]
-        #             )
-        #         )
-        #     ]
-        # )
-
-        line_pts = np.hstack((window_1, window_2))
-        cv2.fillPoly(
-            window_img, np.int_([line_pts]), color=IndividualFollower.BOX_COLOR
-        )
-        # This seems to be a lot of numpy fluff that should be replaced with einops
-        # or removed altogether.
-        line_pts = np.array(
-            [np.transpose(np.vstack([polynomial, plotting_coordinates]))],
-            dtype=np.int32,
-        )
         cv2.polylines(
             out_img,
-            line_pts,
+            coords,
             isClosed=False,
             color=IndividualFollower.LANE_COLOR,
             thickness=IndividualFollower.DRAW_THICKNESS,
