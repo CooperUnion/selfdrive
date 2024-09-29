@@ -1,13 +1,17 @@
-# Lane Follower for a single camera
-# Applies a perspective transform to an image, and isolates lane lines
-import numpy as np
 import math
+
 import cv2
+import numpy as np
+
+from einops import rearrange
+
+
+class if_result:
+    pass
 
 
 class IndividualFollower:
-    # Constants for how we process images
-    # These should be parametrized and better defined at a later date: as part of testing
+    # Get these from .toml or on intiialization
     NWINDOWS = 9
     SEARCH_WIDTH = 100
     MINPIXELS = 40
@@ -23,25 +27,25 @@ class IndividualFollower:
         # self.fit is set in Plot_Line
         self.fit = None
         # These two are set below
-        self._binary_warped = None
-        self.histogram = None
+        self._binary_warped = None | np.ndarray
+        self._histogram = None | np.ndarray
 
     # Need to determine if these should remain properties
     # Or if they should be passed as arguments to Plot_Line
     @property
     def _binary_warped(self, value: np.ndarray):
         self._binary_warped = value
-        self.histogram = np.sum(
+        self._histogram = np.sum(
             self.binary_warped[self.binary_warped.shape[0] // 2 :, :], axis=0
         )
 
-    def plot_line(self):
-
-        if self.binary_warped is None:
+    def plot_line(self) -> if_result:
+        if not self._binary_warped:
             raise Exception("no binary warp specified")
 
         # Image to visualize output
-        out_img = (
+        out_img = rearrange()
+        (
             np.dstack(
                 (self._binary_warped, self._binary_warped, self._binary_warped)
             )
@@ -60,6 +64,7 @@ class IndividualFollower:
 
         empty_windows = 0
         lane_base = np.argmax(self.histogram[:])
+
         for window in range(IndividualFollower.NWINDOWS):
             window_dims = window * window_height
             win_y_upper = self._binary_warped.shape[0] - window_dims
