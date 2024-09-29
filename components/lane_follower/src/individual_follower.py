@@ -3,10 +3,16 @@ import math
 import cv2
 import numpy as np
 
-from einops import rearrange
+from einops import repeat
 
 
-class if_result:
+class ifResult:
+    def __init__(self):
+        self.result_img = None
+        self.empty_windows = 0
+        self.heading = 0
+        self.slope = 0
+
     pass
 
 
@@ -27,8 +33,8 @@ class IndividualFollower:
         # self.fit is set in Plot_Line
         self.fit = None
         # These two are set below
-        self._binary_warped = None | np.ndarray
-        self._histogram = None | np.ndarray
+        self._binary_warped = None
+        self._histogram = None
 
     # Need to determine if these should remain properties
     # Or if they should be passed as arguments to Plot_Line
@@ -39,22 +45,26 @@ class IndividualFollower:
             self.binary_warped[self.binary_warped.shape[0] // 2 :, :], axis=0
         )
 
-    def plot_line(self) -> if_result:
+    def plot_line(self) -> ifResult:
         if not self._binary_warped:
             raise Exception("no binary warp specified")
 
         # Image to visualize output
-        out_img = rearrange()
-        (
-            np.dstack(
-                (self._binary_warped, self._binary_warped, self._binary_warped)
-            )
-            * 255
-        )
+        out_img = repeat(self._binary_warped, 'h w -> h w c', repeat=3) * 255
+
+        ##These outputs need to be confirmed compatible
+        # out_img = (
+        #     np.dstack(
+        #         self._binary_warped, self._binary_warped, self._binary_warped
+        #     )
+        #     * 255
+        # )
 
         window_height = np.int32(
             self._binary_warped.shape[0] / IndividualFollower.NWINDOWS
         )
+        ##Create result class:
+        result = ifResult()
 
         lane_inds = []
 
@@ -99,7 +109,8 @@ class IndividualFollower:
                 empty_windows += 1
 
             if len(lane_inds) == 0:
-                return None, 0, 0, 0
+                return result
+
             lane_array = np.concatenate(lane_inds)
             lane_x_pos = nonzero_x[lane_array]
             lane_y_pos = nonzero_y[lane_array]
@@ -124,34 +135,55 @@ class IndividualFollower:
             ##Generates the search window area
             window_img = np.zeros_like(out_img)
             ##These lines should be broken up accordingly: They render the search area
-            line_window1 = np.array(
+
+            window_1 = np.vstack(
                 [
-                    np.transpose(
-                        np.vstack(
-                            [
-                                polynomial - IndividualFollower.SEARCH_WIDTH,
-                                plotting_coordinates,
-                            ]
-                        )
-                    )
+                    polynomial - IndividualFollower.SEARCH_WIDTH,
+                    plotting_coordinates,
                 ]
-            )
-        line_window2 = np.array(
-            [
-                np.transpose(
-                    np.vstack(
-                        [
-                            polynomial + IndividualFollower.SEARCH_WIDTH,
-                            plotting_coordinates,
-                        ]
-                    )
-                )
-            ]
-        )
-        line_pts = np.hstack((line_window1, line_window2))
+            ).T
+
+            window_2 = np.vstack(
+                [
+                    polynomial - IndividualFollower.SEARCH_WIDTH,
+                    plotting_coordinates,
+                ]
+            ).T
+
+            # These replacements also need to be tested
+
+            # line_window1 =
+            # np.array(
+            #     [
+            #         np.transpose(
+            #             np.vstack(
+            #                 [
+            #                     polynomial - IndividualFollower.SEARCH_WIDTH,
+            #                     plotting_coordinates,
+            #                 ]
+            #             )
+            #         )
+            #     ]
+            # )
+        # line_window2 = np.array(
+        #     [
+        #         np.transpose(
+        #             np.vstack(
+        #                 [
+        #                     polynomial + IndividualFollower.SEARCH_WIDTH,
+        #                     plotting_coordinates,
+        #                 ]
+        #             )
+        #         )
+        #     ]
+        # )
+
+        line_pts = np.hstack((window_1, window_2))
         cv2.fillPoly(
             window_img, np.int_([line_pts]), color=IndividualFollower.BOX_COLOR
         )
+        # This seems to be a lot of numpy fluff that should be replaced with einops
+        # or removed altogether.
         line_pts = np.array(
             [np.transpose(np.vstack([polynomial, plotting_coordinates]))],
             dtype=np.int32,
@@ -168,10 +200,11 @@ class IndividualFollower:
         ##TODO: Make this use the furthest found box. This way, we'll use the most accurate heading
         y_lower = 0
         y_upper = (IndividualFollower.NWINDOWS + 1) * window_height
-        slope = np.polyval(self.fit, y_lower) - np.polyval(
+
+        result.slope = np.polyval(self.fit, y_lower) - np.polyval(
             self.fit, y_upper
         ) / (y_upper - y_lower)
-        heading = math.atan(slope)
-        result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
-        # TODO: Determine what result really is, and annotate efficiently
-        return result, empty_windows, heading, slope
+        result.result_img = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
+        result.heading = math.atan(result.slope)
+
+        return result

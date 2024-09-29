@@ -1,10 +1,6 @@
 [project]
 version = '1.0'
 name = "individual-follower"
-dependencies = [
-  "cv2",
-  "numpy",
-]
 authors = [
   {name = "Vaibhav Hariani"},
   {name = "Isaiah Rivera"},
