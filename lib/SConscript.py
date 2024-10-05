@@ -28,6 +28,8 @@ esp32s3.AppendUnique(
         ]
     ],
 )
+
+
 ember = [
     esp32s3.File(f'ember/ember-{src}')
     for src in [
@@ -61,12 +63,19 @@ selfdrive = env.SConscript(
 )
 esp32s3['LIBRARIES']['selfdrive'] = selfdrive
 
+drivers = env.SConscript(
+    'drivers/SConscript.py',
+    exports={'env': esp32s3},
+)
+esp32s3['LIBRARIES']['drivers'] = drivers
+
 
 lib = [
     ember,
     firmware_base,
     node_entry,
     selfdrive,
+    drivers,
 ]
 
 Return('lib')
