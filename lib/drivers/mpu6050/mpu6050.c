@@ -1,1 +1,3 @@
-void mpu6050_init()
+void mpu6050_init(void)
+{
+}
