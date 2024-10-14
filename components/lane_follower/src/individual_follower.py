@@ -36,9 +36,12 @@ class IndividualFollower:
             self.binary_warped[self.binary_warped.shape[0] // 2 :, :], axis=0
         )
 
-    def get_white_pixels(self, window, window_height, out_img=None):
+    def get_white_pixels(self):
+        # Returns an output image
         NWINDOWS = self.consts["NWINDOWS"]
         SEARCH_WIDTH = self.consts['SEARCH_WIDTH']
+
+        window_height = np.int32(self._binary_warped.shape[0] / NWINDOWS)
         lane_inds = []
 
         nonzero_pixels = self._binary_warped.nonzero()
@@ -47,59 +50,6 @@ class IndividualFollower:
 
         empty_windows = 0
         lane_base = np.argmax(self.histogram[:])
-
-        for window in range(NWINDOWS):
-            window_dims = window * window_height
-            win_y_upper = self._binary_warped.shape[0] - window_dims
-            # One window height lower than win_y_higher
-            win_y_lower = win_y_upper - window_height
-            win_x_lower = lane_base - SEARCH_WIDTH
-            win_x_upper = lane_base + SEARCH_WIDTH
-
-            lower_coords = (win_x_lower, win_y_lower)
-            upper_coords = (win_x_upper, win_y_lower)
-            cv2.rectangle(
-                out_img,
-                lower_coords,
-                upper_coords,
-                self.consts["BOX_COLOR"],
-                self.consts["DRAW_THICKNESS"],
-            )
-
-            white_pix_inds = (
-                (nonzero_y >= win_y_lower)
-                & (nonzero_y < win_y_upper)
-                & (nonzero_x >= win_x_lower)
-                & (nonzero_x >= win_x_upper)
-            ).nonzero_pixels()[0]
-
-            # This should likely be moved into the if statement: leaving for now
-            lane_inds.append(white_pix_inds)
-            if len(white_pix_inds) > self.consts["MINPIXELS"]:
-                # np.mean will return a float: We need an exact value
-                lane_base = np.int32(np.mean(nonzero_x[white_pix_inds]))
-            else:
-                empty_windows += 1
-
-            # if len(lane_inds) == 0:
-            #     return result
-
-            lane_array = np.concatenate(lane_inds)
-            lane_x_pos = nonzero_x[lane_array]
-            lane_y_pos = nonzero_y[lane_array]
-            # TODO: test if this statement is necessary
-            if lane_x_pos.any() and lane_y_pos.any():
-                self._fit = np.polyfit(
-                    lane_y_pos, lane_x_pos, self.consts["LANE_POLY_SIZE"]
-                )
-
-            out_img[nonzero_y[lane_array], nonzero_x[lane_array]] = (
-                self.consts["LANE_COLOR"]
-            )
-
-    def plot_line(self) -> ifResult:
-        if not self._binary_warped:
-            raise Exception("no binary warp specified")
 
         # Image to visualize output
         out_img = repeat(self._binary_warped, 'h w -> h w c', repeat=3) * 255
@@ -111,22 +61,6 @@ class IndividualFollower:
         #     * 255
         # )
 
-        NWINDOWS = self.consts['NWINDOWS']
-
-        window_height = np.int32(self._binary_warped.shape[0] / NWINDOWS)
-        ##Create result class:
-        result = ifResult()
-
-        lane_inds = []
-
-        nonzero_pixels = self._binary_warped.nonzero()
-        nonzero_y = np.array(nonzero_pixels[0])
-        nonzero_x = np.array(nonzero_pixels[1])
-
-        empty_windows = 0
-        lane_base = np.argmax(self.histogram[:])
-
-        SEARCH_WIDTH = self.consts['SEARCH_WIDTH']
         for window in range(NWINDOWS):
             window_dims = window * window_height
             win_y_upper = self._binary_warped.shape[0] - window_dims
@@ -159,10 +93,8 @@ class IndividualFollower:
                 lane_base = np.int32(np.mean(nonzero_x[white_pix_inds]))
             else:
                 empty_windows += 1
-
             if len(lane_inds) == 0:
-                return result
-
+                return None
             lane_array = np.concatenate(lane_inds)
             lane_x_pos = nonzero_x[lane_array]
             lane_y_pos = nonzero_y[lane_array]
@@ -175,17 +107,27 @@ class IndividualFollower:
             out_img[nonzero_y[lane_array], nonzero_x[lane_array]] = (
                 self.consts["LANE_COLOR"]
             )
+        return out_img
+
+    def plot_line(self) -> ifResult:
+        if not self._binary_warped:
+            raise Exception("no binary warp specified")
+
+        result = ifResult()
+
+        NWINDOWS = self.consts["NWINDOWS"]
+        window_height = np.int32(self._binary_warped.shape[0] / NWINDOWS)
+        out_img = self.get_white_pixels()
+        if out_img is None:
+            return result
 
         ##Generates the search window area
         window_img = np.zeros_like(out_img)
-
         # Create linearly spaced points at each height, evaluate polynomial, create coordinates
         x_val = np.arange(0, window_height, step=5).T
         y_val = np.polyval(self.fit, x_val)
         coords = np.concatenate((x_val, y_val), axis=0)
-
         ##TODO: Test if this approach works
-
         cv2.polylines(
             out_img,
             coords,
