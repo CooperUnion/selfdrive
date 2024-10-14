@@ -1,0 +1,27 @@
+# Constants for the individual follower module
+
+[Individual_Follower]
+NWINDOWS = 9
+SEARCH_WIDTH = 100
+MINPIXELS = 40
+LANE_POLY_SIZE = 2
+BOX_COLOR = [0, 255, 0]
+LANE_COLOR = [255, 0, 0]
+DRAW_THICKNESS = 2
+
+[Lane_Follower]
+GUI = true
+# TODO: Move these into a conf
+KERNEL = 31
+LANE_TOLERANCE = 10
+MISSING_IMAGE_TOLERANCE = 100
+EMPTY_WINDOWS_THRESHOLD = 3
+OVERFLOW = 1000.0
+FORMAT = [640, 480]
+TOLERANCE = 100
+PIXELS_TO_METERS = 260.8269125
+lower_hsv = [100, 0, 220]
+upper_hsv = [255, 255, 255]
+# Alignment points
+bottom_coordinates = [[12, 472], [499, 475]]
+top_coordinates = [[90, 8], [435, 24]]
