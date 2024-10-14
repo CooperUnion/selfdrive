@@ -2,7 +2,7 @@ import math
 
 import cv2
 import numpy as np
-
+import toml
 from einops import repeat
 
 
@@ -17,19 +17,10 @@ class ifResult:
 
 
 class IndividualFollower:
-    # Get these from .toml or on intiialization
-    NWINDOWS = 9
-    SEARCH_WIDTH = 100
-    MINPIXELS = 40
-    LANE_POLY_SIZE = 2
 
-    # Rendering Parameters
-    BOX_COLOR = (0, 255, 0)
-    LANE_COLOR = (255, 0, 0)
+    def __init__(self, toml_path='Follower_Consts.toml'):
 
-    DRAW_THICKNESS = 2
-
-    def __init__(self):
+        self.consts = toml.load(toml_path)["Individual_Follower"]
         # self.fit is set in Plot_Line
         self.fit = None
         # These two are set below
@@ -51,7 +42,6 @@ class IndividualFollower:
 
         # Image to visualize output
         out_img = repeat(self._binary_warped, 'h w -> h w c', repeat=3) * 255
-
         ##These outputs need to be confirmed compatible
         # out_img = (
         #     np.dstack(
@@ -60,9 +50,9 @@ class IndividualFollower:
         #     * 255
         # )
 
-        window_height = np.int32(
-            self._binary_warped.shape[0] / IndividualFollower.NWINDOWS
-        )
+        NWINDOWS = self.consts['NWINDOWS']
+
+        window_height = np.int32(self._binary_warped.shape[0] / NWINDOWS)
         ##Create result class:
         result = ifResult()
 
@@ -75,13 +65,14 @@ class IndividualFollower:
         empty_windows = 0
         lane_base = np.argmax(self.histogram[:])
 
-        for window in range(IndividualFollower.NWINDOWS):
+        SEARCH_WIDTH = self.consts['SEARCH_WIDTH']
+        for window in range(NWINDOWS):
             window_dims = window * window_height
             win_y_upper = self._binary_warped.shape[0] - window_dims
             # One window height lower than win_y_higher
             win_y_lower = win_y_upper - window_height
-            win_x_lower = lane_base - IndividualFollower.SEARCH_WIDTH
-            win_x_upper = lane_base + IndividualFollower.SEARCH_WIDTH
+            win_x_lower = lane_base - SEARCH_WIDTH
+            win_x_upper = lane_base + SEARCH_WIDTH
 
             lower_coords = (win_x_lower, win_y_lower)
             upper_coords = (win_x_upper, win_y_lower)
@@ -89,8 +80,8 @@ class IndividualFollower:
                 out_img,
                 lower_coords,
                 upper_coords,
-                IndividualFollower.BOX_COLOR,
-                IndividualFollower.DRAW_THICKNESS,
+                self.consts["BOX_COLOR"],
+                self.consts["DRAW_THICKNESS"],
             )
 
             white_pix_inds = (
@@ -102,7 +93,7 @@ class IndividualFollower:
 
             # This should likely be moved into the if statement: leaving for now
             lane_inds.append(white_pix_inds)
-            if len(white_pix_inds) > IndividualFollower.MINPIXELS:
+            if len(white_pix_inds) > self.consts["MINPIXELS"]:
                 # np.mean will return a float: We need an exact value
                 lane_base = np.int32(np.mean(nonzero_x[white_pix_inds]))
             else:
@@ -117,11 +108,11 @@ class IndividualFollower:
             # TODO: test if this statement is necessary
             if lane_x_pos.any() and lane_y_pos.any():
                 self._fit = np.polyfit(
-                    lane_y_pos, lane_x_pos, IndividualFollower.LANE_POLY_SIZE
+                    lane_y_pos, lane_x_pos, self.consts["LANE_POLY_SIZE"]
                 )
 
             out_img[nonzero_y[lane_array], nonzero_x[lane_array]] = (
-                IndividualFollower.LANE_COLOR
+                self.consts["LANE_COLOR"]
             )
 
             ##Generates the search window area
@@ -139,14 +130,14 @@ class IndividualFollower:
             out_img,
             coords,
             isClosed=False,
-            color=IndividualFollower.LANE_COLOR,
-            thickness=IndividualFollower.DRAW_THICKNESS,
+            color=self.consts["LANE_COLOR"],
+            thickness=self.consts["DRAW_THICKNESS"],
         )
 
         # Calculating heading error by converting lane polynomial into line
         ##TODO: Make this use the furthest found box. This way, we'll use the most accurate heading
         y_lower = 0
-        y_upper = (IndividualFollower.NWINDOWS + 1) * window_height
+        y_upper = (NWINDOWS + 1) * window_height
 
         result.slope = np.polyval(self.fit, y_lower) - np.polyval(
             self.fit, y_upper

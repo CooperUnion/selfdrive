@@ -1,3 +1,5 @@
+# Constants for the individual follower module
+
 [Individual_Follower]
 NWINDOWS = 9
 SEARCH_WIDTH = 100
