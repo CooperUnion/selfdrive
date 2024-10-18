@@ -22,7 +22,7 @@
 
 #define SAMPLES_OUT_SIZE   1024	  // how to decide the size of the output
 #define PREV_SAMPLES_DELAY 0.010  // why is this the delay time
-#define PREV_SAMPLES_SIZE  (size_t)(PREV_SAMPLES_DELAY * SAMPLING_RATE_HZ)
+#define PREV_SAMPLES_SIZE  ((size_t) (PREV_SAMPLES_DELAY * SAMPLING_RATE_HZ))
 
 #define POOL_SIZE (FRAME_SIZE * 2)
 
