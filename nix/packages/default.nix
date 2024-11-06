@@ -18,6 +18,7 @@ in
   black
   can-utils
   cmake
+  flock
   mdbook
   ninja
   nixfmt-rfc-style
