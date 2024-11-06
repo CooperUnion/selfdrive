@@ -19,6 +19,9 @@
       let
         pkgs = import inputs.nixpkgs {
           inherit system;
+          config = {
+            allowUnsupportedSystem = true;
+          };
           overlays = [
             (import ./nix/overlays)
             (import inputs.rust-overlay)
