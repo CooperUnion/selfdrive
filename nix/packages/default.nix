@@ -29,5 +29,4 @@ in
   toml-sort
   yamlfix
   yamllint
-  zlib
 ])
