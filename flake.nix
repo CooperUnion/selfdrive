@@ -23,7 +23,10 @@
       let
         pkgs = import inputs.nixpkgs {
           inherit system;
-          overlays = [ (import inputs.rust-overlay) ];
+          overlays = [
+            (import ./nix/overlays)
+            (import inputs.rust-overlay)
+          ];
         };
 
       in
