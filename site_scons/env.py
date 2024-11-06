@@ -10,7 +10,6 @@ import typing
 _CARGO_HOME = '.cargo'
 _IDF_BUILD = '.esp-idf'
 _IDF_TOOLS_PATH = '.espressif'
-_VIRTUAL_ENV = '.venv'
 
 
 DIRENV_INSTALLED: typing.Final[dict[str, str]] = {
@@ -18,7 +17,6 @@ DIRENV_INSTALLED: typing.Final[dict[str, str]] = {
     for key, value in {
         'CRATES': _CARGO_HOME,
         'IDF_TOOLS': _IDF_TOOLS_PATH,
-        'PYTHON_REQUIREMENTS': _VIRTUAL_ENV,
         'SCONS_ESP_IDF_ENVIRONMENT': _IDF_BUILD,
     }.items()
 }
@@ -34,7 +32,6 @@ PATHS: typing.Final[dict[str, str]] = {
         'IDF_PATH': 'lib/esp-idf',
         'IDF_TOOLS_PATH': _IDF_TOOLS_PATH,
         'REPO_ROOT': '.',
-        'VIRTUAL_ENV': _VIRTUAL_ENV,
     }.items()
 }
 
@@ -44,7 +41,6 @@ ENV: typing.Final[dict[str, str]] = {
     'CMAKE_GENERATOR': 'Ninja',
     'IDF_PYTHON_CHECK_CONSTRAINTS': 'no',
     'IDF_TARGETS': 'esp32s3',
-    'VIRTUAL_ENV_DISABLE_PROMPT': 'true',
 }
 
 

@@ -1,12 +1,9 @@
-{ pkgs, ... }@inputs:
+{ pkgs }:
 
 let
   llvm = pkgs.llvmPackages_latest;
 
-  python = import ./python.nix {
-    inherit (inputs) pyproject-nix;
-    inherit pkgs;
-  };
+  python = import ./python.nix { inherit pkgs; };
 
   rust = import ./rust.nix { inherit pkgs; };
 
@@ -26,8 +23,8 @@ in
   nixfmt-rfc-style
   platformio
   pre-commit
-  python3Packages.venvShellHook
   ruff
+  scons
   texliveFull
   toml-sort
   yamlfix

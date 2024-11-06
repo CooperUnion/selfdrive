@@ -1,11 +1,20 @@
-{ pkgs, pyproject-nix, ... }:
+{ pkgs }:
 
 let
-  project = pyproject-nix.lib.project.loadPyproject {
-    projectRoot = ../..;
-  };
 
   python = pkgs.python3;
 
 in
-python.withPackages (project.renderers.withPackages { inherit python; })
+python.withPackages (
+  python-pkgs: with python-pkgs; [
+    can-isotp
+    cantools
+    invoke
+    matplotlib
+    mdformat-gfm
+    opencan-cand
+    schema
+    strictyaml
+    tqdm
+  ]
+)

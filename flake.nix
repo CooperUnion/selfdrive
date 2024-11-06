@@ -4,10 +4,6 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    pyproject-nix = {
-      url = "github:nix-community/pyproject.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -33,11 +29,8 @@
       {
         devShells.default = pkgs.mkShell {
           packages = import ./nix/packages {
-            inherit (inputs) pyproject-nix;
             inherit pkgs;
           };
-
-          venvDir = "./.venv";
         };
 
         formatter = pkgs.nixfmt-rfc-style;

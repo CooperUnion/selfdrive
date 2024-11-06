@@ -7,7 +7,6 @@
 .platformio
 .ruff_cache
 .sconsign.dblite
-.venv
 .vscode
 __pycache__
 build
