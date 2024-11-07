@@ -26,6 +26,12 @@ static void i2c_mpu6050_read(i2c_master_dev_handle_t i2c_dev,
 		i2c_dev, &addr, 1, data, num_bytes, I2C_TIMEOUT_MS);
 }
 
+static void i2c_mpu6050_write(
+	i2c_master_dev_handle_t i2c_dev, uint8_t *data, size_t num_bytes)
+{
+	i2c_master_transmit(i2c_dev, data, num_bytes, I2C_TIMEOUT_MS);
+}
+
 void mpu6050_init(void)
 {
 	i2c_master_bus_config_t i2c_master_conf = {
