@@ -65,7 +65,7 @@ static void steer_init()
 
 static void steer_100Hz()
 {
-	bool calibration_needed = odrive_calibration_needed();
+	bool calibration_needed = odrive_calibration_needed(); // check if calibration is needed, which is true if any of the error alarms are raised
 
 	alarm.odrive_calibration = calibration_needed;
 
@@ -75,20 +75,20 @@ static void steer_100Hz()
 		&& CANRX_is_node_ODRIVE_ok()
 		&& CANRX_get_SUP_steerAuthorized();
 
-	if (!steer_authorized) {
+	if (!steer_authorized) { // if steer is not authorized, set to idle
 		base_request_state(SYS_STATE_IDLE);
 
 		velocity = 0;
 
 		if (odrive_state != IDLE) {
 			odrive_state = IDLE;
-			CANTX_doTx_STEER_ODriveRequestState();
+			CANTX_doTx_STEER_ODriveRequestState(); // transmits IDLE state to ODrive
 		}
 
-		return;
+		return; // exit function
 	}
-
-	base_request_state(SYS_STATE_DBW_ACTIVE);
+	// if steer is authorized, set to active
+	base_request_state(SYS_STATE_DBW_ACTIVE); // request DBW active state, DBW is drive by wire so the throttle, brake, and steering are controlled by the computer
 
 	// clear errors before calibrating
 	if (calibration_needed) {
@@ -115,7 +115,7 @@ static void steer_100Hz()
 
 		steer_state = READY;
 	}
-
+	// calibrated
 	float encoder_deg = encoder2deg();
 
 	float desired_deg = RAD2DEG(CANRX_get_DBW_steeringAngle());
