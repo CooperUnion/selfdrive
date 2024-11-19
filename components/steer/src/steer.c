@@ -65,7 +65,11 @@ static void steer_init()
 
 static void steer_100Hz()
 {
-	bool calibration_needed = odrive_calibration_needed(); // check if calibration is needed, which is true if any of the error alarms are raised
+	bool calibration_needed
+		= odrive_calibration_needed();	// check if calibration is
+						// needed, which is true if any
+						// of the error alarms are
+						// raised
 
 	alarm.odrive_calibration = calibration_needed;
 
@@ -75,20 +79,26 @@ static void steer_100Hz()
 		&& CANRX_is_node_ODRIVE_ok()
 		&& CANRX_get_SUP_steerAuthorized();
 
-	if (!steer_authorized) { // if steer is not authorized, set to idle
+	if (!steer_authorized) {  // if steer is not authorized, set to idle
 		base_request_state(SYS_STATE_IDLE);
 
 		velocity = 0;
 
 		if (odrive_state != IDLE) {
 			odrive_state = IDLE;
-			CANTX_doTx_STEER_ODriveRequestState(); // transmits IDLE state to ODrive
+			CANTX_doTx_STEER_ODriveRequestState();	// transmits
+								// IDLE state
+								// to ODrive
 		}
 
-		return; // exit function
+		return;	 // exit function
 	}
 	// if steer is authorized, set to active
-	base_request_state(SYS_STATE_DBW_ACTIVE); // request DBW active state, DBW is drive by wire so the throttle, brake, and steering are controlled by the computer
+	base_request_state(
+		SYS_STATE_DBW_ACTIVE);	// request DBW active state, DBW is
+					// drive by wire so the throttle,
+					// brake, and steering are controlled
+					// by the computer
 
 	// clear errors before calibrating
 	if (calibration_needed) {
@@ -98,23 +108,32 @@ static void steer_100Hz()
 		return;
 	}
 
-	// we only want to calibrate when DBW is active
-	if (steer_state == NEEDS_CALIBRATION) {
-		odrive_state = FULL_CALIBRATION_SEQUENCE;
-		CANTX_doTx_STEER_ODriveRequestState();
+	// // we only want to calibrate when DBW is active
 
-		steer_state = CALIBRATING;
+	switch (steer_state) {
+		case NEEDS_CALIBRATION:
+			odrive_state = FULL_CALIBRATION_SEQUENCE;
+			CANTX_doTx_STEER_ODriveRequestState();
 
-		return;
-	}
+			steer_state = CALIBRATING;
 
-	if (steer_state == CALIBRATING) {
-		// TODO: ideally add a timeout to also reboot the ODrive
-		if (CANRX_get_ODRIVE_axisState() != CAN_ODRIVE_AXISSTATE_IDLE)
 			return;
 
-		steer_state = READY;
+		case CALIBRATING:
+			if (CANRX_get_ODRIVE_axisState()
+				!= CAN_ODRIVE_AXISSTATE_IDLE)
+				return;
+
+			steer_state = READY;
+
+			break;
+		case READY:
+			break;
+
+		default:
+			break;
 	}
+
 	// calibrated
 	float encoder_deg = encoder2deg();
 
