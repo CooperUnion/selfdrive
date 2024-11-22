@@ -57,10 +57,30 @@ ember_rate_funcs_S module_rf = {
 	.call_100Hz = steer_100Hz,
 };
 
+typedef struct {
+	enum steer_state state;
+	enum steer_state (*handler)(void);
+} steer_state_t;
+
+static steer_state_t steer_state_table[] = {
+	{	    READY,		ready_steer_state},
+	{NEEDS_CALIBRATION, need_calibrate_steer_state},
+	{	 CALIBRATING,    calibrating_steer_state},
+};
+
 static void steer_init()
 {
 	selfdrive_pid_init(
 		&pid, KP, KI, KD, TS, PID_LOWER_LIMIT, PID_UPPER_LIMIT, 0);
+}
+
+static bool steer_authorize()
+{
+	return CANRX_is_message_DBW_SteeringCommand_ok()
+		&& CANRX_is_message_SUP_Authorization_ok()
+		&& CANRX_is_message_WHL_AbsoluteEncoder_ok()
+		&& CANRX_is_node_ODRIVE_ok()
+		&& CANRX_get_SUP_steerAuthorized();
 }
 
 static void steer_100Hz()
@@ -73,11 +93,7 @@ static void steer_100Hz()
 
 	alarm.odrive_calibration = calibration_needed;
 
-	bool steer_authorized = CANRX_is_message_DBW_SteeringCommand_ok()
-		&& CANRX_is_message_SUP_Authorization_ok()
-		&& CANRX_is_message_WHL_AbsoluteEncoder_ok()
-		&& CANRX_is_node_ODRIVE_ok()
-		&& CANRX_get_SUP_steerAuthorized();
+	bool steer_authorized = steer_authorize();
 
 	if (!steer_authorized) {  // if steer is not authorized, set to idle
 		base_request_state(SYS_STATE_IDLE);
@@ -94,55 +110,49 @@ static void steer_100Hz()
 		return;	 // exit function
 	}
 	// if steer is authorized, set to active
-	base_request_state(
-		SYS_STATE_DBW_ACTIVE);	// request DBW active state, DBW is
-					// drive by wire so the throttle,
-					// brake, and steering are controlled
-					// by the computer
+	base_request_state(SYS_STATE_DBW_ACTIVE);
+
 
 	// clear errors before calibrating
 	if (calibration_needed) {
-		CANTX_doTx_STEER_ODriveClearErrors();
+		CANTX_doTx_STEER_ODriveClearErrors();  // errors cleared so
+						       // calibration_needed
+						       // will be false
 		steer_state = NEEDS_CALIBRATION;
 
 		return;
 	}
 
 	// // we only want to calibrate when DBW is active
+	steer_state_machine_run();
+}
 
-	switch (steer_state) {
-		case NEEDS_CALIBRATION:
-			odrive_state = FULL_CALIBRATION_SEQUENCE;
-			CANTX_doTx_STEER_ODriveRequestState();
+static enum steer_state need_calibrate_steer_state()
+{
+	odrive_state = FULL_CALIBRATION_SEQUENCE;  // calibrate ODrive
+	CANTX_doTx_STEER_ODriveRequestState();
+	return CALIBRATING;
+}
 
-			steer_state = CALIBRATING;
+static enum steer_state calibrating_steer_state()
+{
+	if (CANRX_get_ODRIVE_axisState()
+		!= CAN_ODRIVE_AXISSTATE_IDLE)  // if ODrive is not idle, return
+					       // to calibrating
+		return CALIBRATING;
+	return READY;  // ODrive is idle, calibration is complete
+}
 
-			return;
-
-		case CALIBRATING:
-			if (CANRX_get_ODRIVE_axisState()
-				!= CAN_ODRIVE_AXISSTATE_IDLE)
-				return;
-
-			steer_state = READY;
-
-			break;
-		case READY:
-			break;
-
-		default:
-			break;
-	}
-
-	// calibrated
+static void ready_steer_state()
+{  // ready to control
 	float encoder_deg = encoder2deg();
-
 	float desired_deg = RAD2DEG(CANRX_get_DBW_steeringAngle());
 
 	if (odrive_state != CLOSED_LOOP_CONTROL) {
-		odrive_state = CLOSED_LOOP_CONTROL;
+		odrive_state
+			= CLOSED_LOOP_CONTROL;	// ODrive is in closed loop
+						// control, ready to control
 		CANTX_doTx_STEER_ODriveRequestState();
-
 		selfdrive_pid_setpoint_reset(&pid, desired_deg, encoder_deg);
 	}
 
@@ -151,6 +161,16 @@ static void steer_100Hz()
 
 	velocity = (ABS(pid_velocity) > PID_ABS_VELOCITY_ENABLE) ? pid_velocity
 								 : 0.0;
+}
+
+void steer_state_machine_run(void)
+{
+	for (size_t i = 0; i < 3; ++i) {
+		if (steer_state_table[i].state == steer_state) {
+			steer_state = steer_state_table[i].handler();
+			break;
+		}
+	}
 }
 
 static float encoder2deg(void)
