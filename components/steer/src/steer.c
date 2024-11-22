@@ -71,7 +71,7 @@ static enum steer_state calibrating_steer_state(void);
 
 static steer_state_t steer_state_table[] = {
 	{	    READY,		ready_steer_state},
-	{NEEDS_CALIBRATION, need_calibrate_steer_state},
+	{	NEEDS_CALIBRATION, need_calibrate_steer_state},
 	{	 CALIBRATING,    calibrating_steer_state},
 };
 
