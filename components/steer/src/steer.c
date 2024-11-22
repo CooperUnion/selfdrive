@@ -44,11 +44,14 @@ enum {
 
 selfdrive_pid_t pid;
 
-enum {
+enum steer_state {
 	READY,
 	CALIBRATING,
 	NEEDS_CALIBRATION,
-} steer_state = READY;
+};
+
+static enum steer_state steer_state = READY;
+
 
 float velocity;
 
@@ -61,6 +64,10 @@ typedef struct {
 	enum steer_state state;
 	enum steer_state (*handler)(void);
 } steer_state_t;
+
+static enum steer_state ready_steer_state(void);
+static enum steer_state need_calibrate_steer_state(void);
+static enum steer_state calibrating_steer_state(void);
 
 static steer_state_t steer_state_table[] = {
 	{	    READY,		ready_steer_state},
@@ -127,14 +134,14 @@ static void steer_100Hz()
 	steer_state_machine_run();
 }
 
-static enum steer_state need_calibrate_steer_state()
+static enum steer_state need_calibrate_steer_state(void)
 {
 	odrive_state = FULL_CALIBRATION_SEQUENCE;  // calibrate ODrive
 	CANTX_doTx_STEER_ODriveRequestState();
 	return CALIBRATING;
 }
 
-static enum steer_state calibrating_steer_state()
+static enum steer_state calibrating_steer_state(void)
 {
 	if (CANRX_get_ODRIVE_axisState()
 		!= CAN_ODRIVE_AXISSTATE_IDLE)  // if ODrive is not idle, return
@@ -143,7 +150,7 @@ static enum steer_state calibrating_steer_state()
 	return READY;  // ODrive is idle, calibration is complete
 }
 
-static void ready_steer_state()
+static enum steer_state ready_steer_state(void)
 {  // ready to control
 	float encoder_deg = encoder2deg();
 	float desired_deg = RAD2DEG(CANRX_get_DBW_steeringAngle());
@@ -161,6 +168,7 @@ static void ready_steer_state()
 
 	velocity = (ABS(pid_velocity) > PID_ABS_VELOCITY_ENABLE) ? pid_velocity
 								 : 0.0;
+	return READY;
 }
 
 void steer_state_machine_run(void)
