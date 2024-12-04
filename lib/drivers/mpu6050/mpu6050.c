@@ -95,7 +95,7 @@ void mpu6050_get_raw_gyro(
 	gyro_raw_val->gyro_raw_zout = (int16_t) (data[4] << 8 | data[5]);
 }
 
-void mpu6050_init(void)
+void mpu6050_init(i2c_master_dev_handle_t dev_handle)
 {
 	i2c_master_bus_config_t i2c_master_conf = {
 		.clk_source	   = I2C_CLK_SRC_DEFAULT,
@@ -115,7 +115,6 @@ void mpu6050_init(void)
 		.scl_speed_hz	 = I2C_MPU6050_DEV_FREQ_HZ,
 	};
 
-	i2c_master_dev_handle_t dev_handle;
 
 	ESP_ERROR_CHECK(i2c_master_bus_add_device(
 		bus_handle, &i2c_dev_conf, &dev_handle));
