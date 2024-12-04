@@ -2,6 +2,8 @@
 
 #include <esp_log.h>
 
+#include <string.h>
+
 #define I2C_MASTER_PORT	  I2C_NUM_0
 #define I2C_MASTER_SCL_IO (gpio_num_t)(40)
 #define I2C_MASTER_SDA_IO (gpio_num_t)(37)
@@ -13,6 +15,8 @@
 #define I2C_MPU6050_WHO_AM_I	0x75
 #define I2C_MPU6050_GYRO_CONFIG 0x1B
 #define I2C_MPU6050_PWR_MGTM_1	0x6B
+#define I2C_MPU6050_ACCEL_XOUT	0x3B
+#define I2C_MPU6050_GYRO_XOUT	0x43
 
 #define I2C_MPU6050_DEV_ID 0x68
 
@@ -71,10 +75,24 @@ void mpu6050_power_up(i2c_master_dev_handle_t i2c_dev)
 	uint8_t data;
 	i2c_mpu6050_read(i2c_dev, I2C_MPU6050_PWR_MGTM_1, &data, 1);
 
-	// turn off sleep mode
+	// Turn off sleep mode
 	data &= (~0x40);
 
 	i2c_mpu6050_write(i2c_dev, I2C_MPU6050_PWR_MGTM_1, &data, 1);
+}
+
+void mpu6050_get_raw_gyro(
+	i2c_master_dev_handle_t i2c_dev, i2c_mpu6050_raw_gyro_t *gyro_raw_val)
+{
+	uint8_t data[6];
+	i2c_mpu6050_read(i2c_dev,
+		I2C_MPU6050_GYRO_XOUT,
+		(uint8_t *) &data,
+		sizeof(data));
+
+	gyro_raw_val->gyro_raw_xout = (int16_t) (data[0] << 8 | data[1]);
+	gyro_raw_val->gyro_raw_yout = (int16_t) (data[2] << 8 | data[3]);
+	gyro_raw_val->gyro_raw_zout = (int16_t) (data[4] << 8 | data[5]);
 }
 
 void mpu6050_init(void)
@@ -114,6 +132,8 @@ void mpu6050_init(void)
 
 	// Config GYRO & ACCEL
 	mpu6050_config(dev_handle, FS_SEL_500, AFS_SEL_4G);
+	uint8_t tmp[2];
+	i2c_mpu6050_read(dev_handle, I2C_MPU6050_GYRO_CONFIG, tmp, 2);
 
 	ESP_LOGI(TAG, "GRYO & ACCEL CONFIG FINISHED!");
 
