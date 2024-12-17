@@ -1,92 +1,69 @@
 #include "mpu6050.h"
 
+#include "i2c_hal_esp32.h"
 #include <esp_log.h>
 
-#include <string.h>
+#define MPU6050_DEV_ADDR    0x68  // AD0
+#define MPU6050_DEV_FREQ_HZ 400000
 
-#define I2C_MASTER_PORT	  I2C_NUM_0
-#define I2C_MASTER_SCL_IO (gpio_num_t)(40)
-#define I2C_MASTER_SDA_IO (gpio_num_t)(37)
+#define MPU6050_WHO_AM_I    0x75
+#define MPU6050_DEV_ID	    0x68
+#define MPU6050_GYRO_CONFIG 0x1B
+#define MPU6050_PWR_MGTM_1  0x6B
+#define MPU6050_ACCEL_XOUT  0x3B
+#define MPU6050_GYRO_XOUT   0x43
 
 
-#define I2C_MPU6050_DEV_ADDR	0x68  // AD0
-#define I2C_MPU6050_DEV_FREQ_HZ 400000
-
-#define I2C_MPU6050_WHO_AM_I	0x75
-#define I2C_MPU6050_GYRO_CONFIG 0x1B
-#define I2C_MPU6050_PWR_MGTM_1	0x6B
-#define I2C_MPU6050_ACCEL_XOUT	0x3B
-#define I2C_MPU6050_GYRO_XOUT	0x43
-
-#define I2C_MPU6050_DEV_ID 0x68
-
-#define I2C_TIMEOUT_MS 500
-
-typedef enum {
-	FS_SEL_250,
-	FS_SEL_500,
-	FS_SEL_1000,
-	FS_SEL_2000
-} i2c_mpu6050_fs_sel_t;
-
-typedef enum {
-	AFS_SEL_2G,
-	AFS_SEL_4G,
-	AFS_SEL_8G,
-	AFS_SEL_16G
-} i2c_mpu6050_afs_sel_t;
-
+/* Static Prototypes */
 static const char *TAG = "MPU6050.c";
 
-static void i2c_mpu6050_read(i2c_master_dev_handle_t i2c_dev,
-	uint8_t					     addr,
-	uint8_t					    *data,
-	size_t					     num_bytes)
+static void mpu6050_configure(
+	mpu6050_handle_t *mpu6050_handle, mpu6050_config_t *mpu6050_config);
+static void mpu6050_power_up(mpu6050_handle_t *mpu6050_handle);
+
+/*
+ * Performs startup initialization:
+ * Checks device id
+ * Configures sensitivity
+ * Powers up
+ */
+void mpu6050_init(
+	mpu6050_handle_t *mpu6050_handle, mpu6050_config_t *mpu6050_config)
 {
-	i2c_master_transmit_receive(
-		i2c_dev, &addr, 1, data, num_bytes, I2C_TIMEOUT_MS);
-}
+	mpu6050_config->i2c_hal_config.device_address = MPU6050_DEV_ADDR;
+	mpu6050_config->i2c_hal_config.scl_speed_hz   = MPU6050_DEV_FREQ_HZ;
+	mpu6050_config->i2c_hal_config.scl	      = mpu6050_config->scl;
+	mpu6050_config->i2c_hal_config.sda	      = mpu6050_config->sda;
 
-static void i2c_mpu6050_write(i2c_master_dev_handle_t i2c_dev,
-	uint8_t					      addr,
-	uint8_t					     *data,
-	size_t					      num_bytes)
-{
-	uint8_t tx[num_bytes + 1];
-	tx[0] = addr;
+	i2c_hal_init(&(mpu6050_handle->i2c_hal_handle),
+		&(mpu6050_config->i2c_hal_config));
 
-	memcpy(tx + 1, data, num_bytes);
+	uint8_t dev_id;
+	i2c_hal_read(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_WHO_AM_I,
+		&dev_id,
+		1);
 
-	i2c_master_transmit(i2c_dev, tx, sizeof(tx), I2C_TIMEOUT_MS);
-}
+	if (dev_id != (uint8_t) MPU6050_DEV_ID) {
+		ESP_LOGE(TAG, "Failure @ dev id: %x", dev_id);
+		return;
+	}
+	ESP_LOGI(TAG, "MPU6050 RECOGNIZED!");
 
-void mpu6050_config(i2c_master_dev_handle_t i2c_dev,
-	i2c_mpu6050_fs_sel_t		    fs_sel,
-	i2c_mpu6050_afs_sel_t		    afs_sel)
-{
-	uint8_t data[2] = {fs_sel << 3, afs_sel << 3};
+	// configure sensitivity
+	mpu6050_configure(mpu6050_handle, mpu6050_config);
+	ESP_LOGI(TAG, "GRYO & ACCEL CONFIG FINISHED!");
 
-	i2c_mpu6050_write(
-		i2c_dev, I2C_MPU6050_GYRO_CONFIG, data, sizeof(data));
-}
-
-void mpu6050_power_up(i2c_master_dev_handle_t i2c_dev)
-{
-	uint8_t data;
-	i2c_mpu6050_read(i2c_dev, I2C_MPU6050_PWR_MGTM_1, &data, 1);
-
-	// Turn off sleep mode
-	data &= (~0x40);
-
-	i2c_mpu6050_write(i2c_dev, I2C_MPU6050_PWR_MGTM_1, &data, 1);
+	mpu6050_power_up(mpu6050_handle);
+	ESP_LOGI(TAG, "AWAKE!");
 }
 
 void mpu6050_get_raw_gyro(
-	i2c_master_dev_handle_t i2c_dev, i2c_mpu6050_raw_gyro_t *gyro_raw_val)
+	mpu6050_handle_t *mpu6050_handle, mpu6050_raw_gyro_t *gyro_raw_val)
 {
 	uint8_t data[6];
-	i2c_mpu6050_read(i2c_dev,
-		I2C_MPU6050_GYRO_XOUT,
+	i2c_hal_read(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_GYRO_XOUT,
 		(uint8_t *) &data,
 		sizeof(data));
 
@@ -95,48 +72,44 @@ void mpu6050_get_raw_gyro(
 	gyro_raw_val->gyro_raw_zout = (int16_t) (data[4] << 8 | data[5]);
 }
 
-void mpu6050_init(i2c_master_dev_handle_t dev_handle)
+void mpu6050_get_raw_accel(
+	mpu6050_handle_t *mpu6050_handle, mpu6050_raw_accel_t *accel_raw_val)
 {
-	i2c_master_bus_config_t i2c_master_conf = {
-		.clk_source	   = I2C_CLK_SRC_DEFAULT,
-		.i2c_port	   = I2C_NUM_0,
-		.scl_io_num	   = I2C_MASTER_SCL_IO,
-		.sda_io_num	   = I2C_MASTER_SDA_IO,
-		.glitch_ignore_cnt = 7,
-	};
+	uint8_t data[6];
+	i2c_hal_read(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_ACCEL_XOUT,
+		(uint8_t *) &data,
+		sizeof(data));
 
-	i2c_master_bus_handle_t bus_handle;
+	accel_raw_val->accel_raw_xout = (int16_t) (data[0] << 8 | data[1]);
+	accel_raw_val->accel_raw_yout = (int16_t) (data[2] << 8 | data[3]);
+	accel_raw_val->accel_raw_zout = (int16_t) (data[4] << 8 | data[5]);
+}
 
-	ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_master_conf, &bus_handle));
+static void mpu6050_configure(
+	mpu6050_handle_t *mpu6050_handle, mpu6050_config_t *mpu6050_config)
+{
+	uint8_t data[2] = {mpu6050_config->fs << 3, mpu6050_config->afs << 3};
 
-	i2c_device_config_t i2c_dev_conf = {
-		.dev_addr_length = I2C_ADDR_BIT_LEN_7,
-		.device_address	 = I2C_MPU6050_DEV_ADDR,
-		.scl_speed_hz	 = I2C_MPU6050_DEV_FREQ_HZ,
-	};
+	i2c_hal_write(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_GYRO_CONFIG,
+		data,
+		sizeof(data));
+}
 
+static void mpu6050_power_up(mpu6050_handle_t *mpu6050_handle)
+{
+	uint8_t data;
+	i2c_hal_read(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_PWR_MGTM_1,
+		&data,
+		1);
 
-	ESP_ERROR_CHECK(i2c_master_bus_add_device(
-		bus_handle, &i2c_dev_conf, &dev_handle));
+	// Turn off sleep mode
+	data &= (~0x40);
 
-	// Check Dev ID
-	uint8_t dev_id;
-	i2c_mpu6050_read(dev_handle, I2C_MPU6050_WHO_AM_I, &dev_id, 1);
-
-	if (dev_id != (uint8_t) I2C_MPU6050_DEV_ID) {
-		ESP_LOGE(TAG, "Failure @ dev id: %x", dev_id);
-		return;
-	}
-	ESP_LOGI(TAG, "MPU6050 RECOGNIZED!");
-
-	// Config GYRO & ACCEL
-	mpu6050_config(dev_handle, FS_SEL_500, AFS_SEL_4G);
-	uint8_t tmp[2];
-	i2c_mpu6050_read(dev_handle, I2C_MPU6050_GYRO_CONFIG, tmp, 2);
-
-	ESP_LOGI(TAG, "GRYO & ACCEL CONFIG FINISHED!");
-
-	mpu6050_power_up(dev_handle);
-
-	ESP_LOGI(TAG, "AWAKE!");
+	i2c_hal_write(&(mpu6050_handle->i2c_hal_handle),
+		MPU6050_PWR_MGTM_1,
+		&data,
+		1);
 }
