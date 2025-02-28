@@ -1,5 +1,6 @@
 #include "sup.h"
 
+#include "driver/gpio.h"
 #include "firmware-base/state-machine.h"
 #include <ember_taskglue.h>
 #include <freertos/FreeRTOS.h>
@@ -8,15 +9,45 @@
 #include <opencan_templates.h>
 #include <opencan_tx.h>
 
+#define LED_PIN 2
+
+static void blink_led_10hz();
+static void init_led();
 static void sup_100Hz();
 
 static bool bbc_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
 
+typedef enum {
+	SEG_A  = 13,
+	SEG_B  = 4,
+	SEG_C  = 7,
+	SEG_D  = 8,
+	SEG_E  = 9,
+	SEG_F  = 12,
+	SEG_G  = 5,
+	SEG_DP = 11
+} SEVEN_SEG_PINS;
+
 ember_rate_funcs_S module_rf = {
+	.call_init  = init_led,
+	.call_10Hz  = blink_led_10hz,
 	.call_100Hz = sup_100Hz,
 };
+
+static void init_led()
+{
+	gpio_pad_select_gpio(LED_PIN);
+	gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
+}
+
+static void blink_led_10hz()
+{
+	static int signal;
+	signal = !signal;
+	gpio_set_level(LED_PIN, signal);  // Turn LED on
+}
 
 static void sup_100Hz()
 {
