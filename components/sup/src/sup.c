@@ -42,13 +42,6 @@ static void init_led()
 	gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
 }
 
-static void blink_led_10hz()
-{
-	static int signal;
-	// signal = !signal;
-	// gpio_set_level(LED_PIN, signal);  // Turn LED on
-}
-
 static void sup_100Hz()
 {
 	bool authorized;
