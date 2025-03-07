@@ -71,8 +71,24 @@ static void init_led()
 	}
 }
 
+static void set_one()
+{
+	for (int i = 0; i < 2; i++) {
+		gpio_set_level(one[i], 1);
+	}
+}
+
 static void bts_authorization()
 {
+	if (!bbc_authorized) {
+		set_one();
+	}
+	if (!throttle_authorized) {
+		set_one();
+	}
+	if (!steer_authorized) {
+		set_one();
+	}
 }
 
 ember_rate_funcs_S module_rf = {
