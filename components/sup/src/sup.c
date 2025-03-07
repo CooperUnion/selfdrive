@@ -9,7 +9,7 @@
 #include <opencan_templates.h>
 #include <opencan_tx.h>
 
-#define LED_PIN 2
+#define LED_PIN 6
 
 static void blink_led_10hz();
 static void init_led();
@@ -64,6 +64,10 @@ static void init_led()
 	gpio_set_direction(SEG_3, GPIO_MODE_OUTPUT);
 	gpio_pad_select_gpio(SEG_4);
 	gpio_set_direction(SEG_4, GPIO_MODE_OUTPUT);
+}
+
+static void bts_authorization()
+{
 }
 
 ember_rate_funcs_S module_rf = {
