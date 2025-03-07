@@ -38,6 +38,34 @@ static enum SEVEN_SEG_PINS zero[] = {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
 
 static enum SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
 
+static void init_led()
+{
+	gpio_pad_select_gpio(SEG_A);
+	gpio_set_direction(SEG_A, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_B);
+	gpio_set_direction(SEG_B, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_C);
+	gpio_set_direction(SEG_C, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_D);
+	gpio_set_direction(SEG_D, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_E);
+	gpio_set_direction(SEG_E, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_F);
+	gpio_set_direction(SEG_F, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_G);
+	gpio_set_direction(SEG_G, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_DP);
+	gpio_set_direction(SEG_DP, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_1);
+	gpio_set_direction(SEG_1, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_2);
+	gpio_set_direction(SEG_2, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_3);
+	gpio_set_direction(SEG_3, GPIO_MODE_OUTPUT);
+	gpio_pad_select_gpio(SEG_4);
+	gpio_set_direction(SEG_4, GPIO_MODE_OUTPUT);
+}
+
 ember_rate_funcs_S module_rf = {
 	.call_init  = init_led,
 	.call_10Hz  = blink_led_10hz,
