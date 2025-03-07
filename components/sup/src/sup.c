@@ -45,8 +45,8 @@ static void init_led()
 static void blink_led_10hz()
 {
 	static int signal;
-	signal = !signal;
-	gpio_set_level(LED_PIN, signal);  // Turn LED on
+	// signal = !signal;
+	// gpio_set_level(LED_PIN, signal);  // Turn LED on
 }
 
 static void sup_100Hz()
