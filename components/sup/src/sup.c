@@ -11,7 +11,7 @@
 
 #define LED_PIN 6
 
-static void blink_led_10hz();
+static void authorize_led();
 static void init_led();
 static void sup_100Hz();
 
@@ -64,6 +64,11 @@ static void init_led()
 	gpio_set_direction(SEG_3, GPIO_MODE_OUTPUT);
 	gpio_pad_select_gpio(SEG_4);
 	gpio_set_direction(SEG_4, GPIO_MODE_OUTPUT);
+
+
+	for (int i = 0; i < 6; i++) {
+		gpio_set_level(zero[i], 1);
+	}
 }
 
 static void bts_authorization()
@@ -71,16 +76,10 @@ static void bts_authorization()
 }
 
 ember_rate_funcs_S module_rf = {
-	.call_init  = init_led,
-	.call_10Hz  = blink_led_10hz,
+	.call_init = init_led,
+	//.call_10Hz  = blink_led_10hz,
 	.call_100Hz = sup_100Hz,
 };
-
-static void init_led()
-{
-	gpio_pad_select_gpio(LED_PIN);
-	gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-}
 
 static void sup_100Hz()
 {
