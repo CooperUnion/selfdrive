@@ -27,8 +27,16 @@ typedef enum {
 	SEG_E  = 9,
 	SEG_F  = 12,
 	SEG_G  = 5,
-	SEG_DP = 11
+	SEG_DP = 11,
+	SEG_1  = 1,
+	SEG_2  = 2,
+	SEG_3  = 3,
+	SEG_4  = 6,
 } SEVEN_SEG_PINS;
+
+static enum SEVEN_SEG_PINS zero[] = {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
+
+static enum SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = init_led,
