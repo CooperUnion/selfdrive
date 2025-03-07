@@ -69,6 +69,9 @@ static void init_led()
 	for (int i = 0; i < 6; i++) {
 		gpio_set_level(zero[i], 1);
 	}
+	gpio_set_level(SEG_1, 1);
+	gpio_set_level(SEG_2, 1);
+	gpio_set_level(SEG_3, 1);
 }
 
 static void set_one()
