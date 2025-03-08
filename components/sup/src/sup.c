@@ -9,11 +9,14 @@
 #include <opencan_templates.h>
 #include <opencan_tx.h>
 
-#define LED_PIN 6
 
-static void authorize_led();
+static void bts_authorization();
 static void init_led();
 static void sup_100Hz();
+static void init_pin(SEVEN_SEG_PINS pin);
+static void set_one();
+static void set_zero();
+
 
 static bool bbc_authorized;
 static bool throttle_authorized;
@@ -34,38 +37,33 @@ typedef enum {
 	SEG_4  = 6,
 } SEVEN_SEG_PINS;
 
-static enum SEVEN_SEG_PINS zero[] = {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
+static const SEVEN_SEG_PINS zero[]
+	= {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
 
-static enum SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
+static const SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
+
+static void init_pin(SEVEN_SEG_PINS pin)
+{
+	gpio_pad_select_gpio(pin);
+	gpio_set_direction(pin, GPIO_MODE_OUTPUT);
+}
 
 static void init_led()
 {
-	gpio_pad_select_gpio(SEG_A);
-	gpio_set_direction(SEG_A, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_B);
-	gpio_set_direction(SEG_B, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_C);
-	gpio_set_direction(SEG_C, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_D);
-	gpio_set_direction(SEG_D, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_E);
-	gpio_set_direction(SEG_E, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_F);
-	gpio_set_direction(SEG_F, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_G);
-	gpio_set_direction(SEG_G, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_DP);
-	gpio_set_direction(SEG_DP, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_1);
-	gpio_set_direction(SEG_1, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_2);
-	gpio_set_direction(SEG_2, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_3);
-	gpio_set_direction(SEG_3, GPIO_MODE_OUTPUT);
-	gpio_pad_select_gpio(SEG_4);
-	gpio_set_direction(SEG_4, GPIO_MODE_OUTPUT);
+	init_pin(SEG_A);
+	init_pin(SEG_B);
+	init_pin(SEG_C);
+	init_pin(SEG_D);
+	init_pin(SEG_E);
+	init_pin(SEG_F);
+	init_pin(SEG_G);
+	init_pin(SEG_DP);
+	init_pin(SEG_1);
+	init_pin(SEG_2);
+	init_pin(SEG_3);
+	init_pin(SEG_4);
 
-
+	// set default state to 0
 	for (int i = 0; i < 6; i++) {
 		gpio_set_level(zero[i], 1);
 	}
@@ -81,23 +79,43 @@ static void set_one()
 	}
 }
 
+static void set_zero()
+{
+	for (int i = 0; i < 6; i++) {
+		gpio_set_level(zero[i], 1);
+	}
+}
+
 static void bts_authorization()
 {
-	if (!bbc_authorized) {
-		set_one();
-	}
-	if (!throttle_authorized) {
-		set_one();
-	}
-	if (!steer_authorized) {
-		set_one();
+	for (int i = 0; i < 3; i++) {
+		if (i == 0) {
+			if (!bbc_authorized) {
+				set_one();
+			} else {
+				set_zero();
+			}
+		} else if (i == 1) {
+			if (!throttle_authorized) {
+				set_one();
+			} else {
+				set_zero();
+			}
+		} else {
+			if (!steer_authorized) {
+				set_one();
+			} else {
+				set_zero();
+			}
+		}
+		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
 
 ember_rate_funcs_S module_rf = {
-	.call_init = init_led,
-	//.call_10Hz  = blink_led_10hz,
-	.call_100Hz = sup_100Hz,
+	.call_init   = init_led,
+	.call_1000Hz = bts_authorization,
+	.call_100Hz  = sup_100Hz,
 };
 
 static void sup_100Hz()
