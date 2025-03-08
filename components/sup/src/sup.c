@@ -9,19 +9,6 @@
 #include <opencan_templates.h>
 #include <opencan_tx.h>
 
-
-static void bts_authorization();
-static void init_led();
-static void sup_100Hz();
-static void init_pin(SEVEN_SEG_PINS pin);
-static void set_one();
-static void set_zero();
-
-
-static bool bbc_authorized;
-static bool throttle_authorized;
-static bool steer_authorized;
-
 typedef enum {
 	SEG_A  = 13,
 	SEG_B  = 4,
@@ -36,6 +23,19 @@ typedef enum {
 	SEG_3  = 3,
 	SEG_4  = 6,
 } SEVEN_SEG_PINS;
+
+static void bts_authorization();
+static void init_led();
+static void sup_100Hz();
+static void init_pin(SEVEN_SEG_PINS pin);
+static void set_one();
+static void set_zero();
+
+
+static bool bbc_authorized;
+static bool throttle_authorized;
+static bool steer_authorized;
+
 
 static const SEVEN_SEG_PINS zero[]
 	= {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
@@ -113,9 +113,9 @@ static void bts_authorization()
 }
 
 ember_rate_funcs_S module_rf = {
-	.call_init   = init_led,
-	.call_1000Hz = bts_authorization,
-	.call_100Hz  = sup_100Hz,
+	.call_init  = init_led,
+	.call_100Hz = bts_authorization,
+	.call_100Hz = sup_100Hz,
 };
 
 static void sup_100Hz()
