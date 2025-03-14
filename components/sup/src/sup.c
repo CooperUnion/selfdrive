@@ -93,6 +93,9 @@ static void bts_authorization()
 {
 	for (int i = 0; i < 3; i++) {
 		if (i == 0) {
+			gpio_set_level(SEG_1, 1);
+			gpio_set_level(SEG_2, 0);
+			gpio_set_level(SEG_3, 0);
 			if (!bbc_authorized) {
 				set_one();
 
@@ -100,12 +103,18 @@ static void bts_authorization()
 				set_zero();
 			}
 		} else if (i == 1) {
+			gpio_set_level(SEG_1, 0);
+			gpio_set_level(SEG_2, 1);
+			gpio_set_level(SEG_3, 0);
 			if (!throttle_authorized) {
 				set_one();
 			} else {
 				set_zero();
 			}
 		} else {
+			gpio_set_level(SEG_1, 0);
+			gpio_set_level(SEG_2, 0);
+			gpio_set_level(SEG_3, 1);
 			if (!steer_authorized) {
 				set_one();
 			} else {
