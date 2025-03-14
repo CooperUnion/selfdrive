@@ -74,6 +74,9 @@ static void init_led()
 
 static void set_one()
 {
+	for (int i = 0; i < 6; i++) {
+		gpio_set_level(zero[i], 0);
+	}
 	for (int i = 0; i < 2; i++) {
 		gpio_set_level(one[i], 1);
 	}
@@ -92,6 +95,7 @@ static void bts_authorization()
 		if (i == 0) {
 			if (!bbc_authorized) {
 				set_one();
+
 			} else {
 				set_zero();
 			}
