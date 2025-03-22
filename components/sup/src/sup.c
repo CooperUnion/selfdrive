@@ -32,6 +32,9 @@ static void set_one();
 static void set_zero();
 
 
+static bool bbc	     = 0;
+static bool throttle = 0;
+static bool steer    = 0;
 static bool bbc_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
@@ -64,6 +67,7 @@ static void init_led()
 	init_pin(SEG_4);
 
 	// set default state to 0
+
 	set_zero();
 	gpio_set_level(SEG_1, 1);
 	gpio_set_level(SEG_2, 1);
@@ -96,38 +100,34 @@ static void bts_authorization()
 			gpio_set_level(SEG_1, 1);
 			gpio_set_level(SEG_2, 0);
 			gpio_set_level(SEG_3, 0);
-			if (!bbc_authorized) {
+			// set_one();
+			if (bbc == 0) {
 				set_one();
-
-			} else {
-				set_zero();
 			}
+			printf("bbb");
 		} else if (i == 1) {
 			gpio_set_level(SEG_1, 0);
 			gpio_set_level(SEG_2, 1);
 			gpio_set_level(SEG_3, 0);
-			if (!throttle_authorized) {
+			if (!throttle) {
 				set_one();
-			} else {
-				set_zero();
 			}
 		} else {
 			gpio_set_level(SEG_1, 0);
 			gpio_set_level(SEG_2, 0);
 			gpio_set_level(SEG_3, 1);
-			if (!steer_authorized) {
+			if (!steer) {
 				set_one();
-			} else {
-				set_zero();
 			}
 		}
-		vTaskDelay(100 / portTICK_PERIOD_MS);
+
+		for (int j = 0; j < 10000; j++) void;
 	}
 }
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = init_led,
-	.call_100Hz = bts_authorization,
+	.call_1Hz   = bts_authorization,
 	.call_100Hz = sup_100Hz,
 };
 
