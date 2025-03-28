@@ -45,6 +45,12 @@ static const SEVEN_SEG_PINS zero[]
 
 static const SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
 
+static enum {
+	bbc_state,
+	throttle_state,
+	steer_state
+} current_state = bbc_state;
+
 static void init_pin(SEVEN_SEG_PINS pin)
 {
 	gpio_pad_select_gpio(pin);
@@ -95,34 +101,37 @@ static void set_zero()
 
 static void bts_authorization()
 {
-	for (int i = 0; i < 3; i++) {
-		if (i == 0) {
-			gpio_set_level(SEG_1, 1);
-			gpio_set_level(SEG_2, 0);
-			gpio_set_level(SEG_3, 0);
-			// set_one();
-			if (bbc == 0) {
-				set_one();
-			}
-			printf("bbb");
-		} else if (i == 1) {
-			gpio_set_level(SEG_1, 0);
-			gpio_set_level(SEG_2, 1);
-			gpio_set_level(SEG_3, 0);
-			if (!throttle) {
-				set_one();
-			}
+	if (current_state == bbc_state) {
+		if (bbc_authorized) {
+			// if bbc is authorized, show 0
+			set_zero();
 		} else {
-			gpio_set_level(SEG_1, 0);
-			gpio_set_level(SEG_2, 0);
-			gpio_set_level(SEG_3, 1);
-			if (!steer) {
-				set_one();
-			}
+			// if not authorized, show 1
+			set_one();
 		}
-
-		for (int j = 0; j < 10000; j++) void;
+		gpio_set_level(SEG_1, 1);
+		gpio_set_level(SEG_2, 0);
+		gpio_set_level(SEG_3, 0);
+	} else if (current_state == throttle_state) {
+		if (throttle_authorized) {
+			set_zero();
+		} else {
+			set_one();
+		}
+		gpio_set_level(SEG_1, 0);
+		gpio_set_level(SEG_2, 1);
+		gpio_set_level(SEG_3, 0);
+	} else if (current_state == steer_state) {
+		if (steer_authorized) {
+			set_zero();
+		} else {
+			set_one();
+		}
+		gpio_set_level(SEG_1, 0);
+		gpio_set_level(SEG_2, 0);
+		gpio_set_level(SEG_3, 1);
 	}
+	current_state = (current_state + 1) % 3;
 }
 
 ember_rate_funcs_S module_rf = {
