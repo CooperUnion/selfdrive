@@ -136,7 +136,7 @@ static void bts_authorization()
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = init_led,
-	.call_1Hz   = bts_authorization,
+	.call_1kHz  = bts_authorization,
 	.call_100Hz = sup_100Hz,
 };
 
