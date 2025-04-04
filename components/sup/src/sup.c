@@ -32,9 +32,6 @@ static void set_one();
 static void set_zero();
 
 
-static bool bbc	     = 0;
-static bool throttle = 0;
-static bool steer    = 0;
 static bool bbc_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
