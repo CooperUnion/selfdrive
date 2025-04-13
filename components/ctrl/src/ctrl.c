@@ -11,10 +11,10 @@
 #include <opencan_tx.h>
 #include <selfdrive/pid.h>
 
-#define ENCODER0_CHAN_A 3
-#define ENCODER0_CHAN_B 4
-#define ENCODER1_CHAN_A 36
-#define ENCODER1_CHAN_B 35
+#define ENCODER_LEFT_CHAN_A  3
+#define ENCODER_LEFT_CHAN_B  4
+#define ENCODER_RIGHT_CHAN_A 36
+#define ENCODER_RIGHT_CHAN_B 35
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -51,18 +51,73 @@
 #define PID_DEADBAND_LOWER 0
 #define PID_DEADBAND_UPPER 0
 
+enum encoders {
+	ENCODER_LEFT,
+	ENCODER_RIGHT,
+	ENCODER_COUNT,
+};
+
+#define ENCODER_CHANNEL_A 0
+#define ENCODER_CHANNEL_B 1
+
+#define ENCODER_CHANNEL_ISR_SYMBOL_(                        \
+	ENCODER_N, ENCODER_CHAN_A, ENCODER_CHAN_B, CHANNEL) \
+	(ENCODER_N##_channel_##CHANNEL)
+#define ENCODER_CHANNEL_ISR_SYMBOL(                         \
+	ENCODER_N, ENCODER_CHAN_A, ENCODER_CHAN_B, CHANNEL) \
+	ENCODER_CHANNEL_ISR_SYMBOL_(                        \
+		ENCODER_N, ENCODER_CHAN_A, ENCODER_CHAN_B, CHANNEL)
+
+#define ENCODER_CHANNEL_ISR_DECLARATION(                               \
+	ENCODER_N, ENCODERN_CHAN_A, ENCODERN_CHAN_B, CHANNEL)          \
+	void ENCODER_CHANNEL_ISR_SYMBOL(                               \
+		ENCODER_N, ENCODERN_CHAN_A, ENCODERN_CHAN_B, CHANNEL)( \
+		void *arg)
+
+//clang-format off
+#define ENCODER_CHANNEL_ISR(                                             \
+	ENCODER_N, ENCODERN_CHAN_A, ENCODERN_CHAN_B, CHANNEL)            \
+	ENCODER_CHANNEL_ISR_DECLARATION(                                 \
+		ENCODER_N, ENCODERN_CHAN_A, ENCODERN_CHAN_B, CHANNEL)    \
+	{                                                                \
+		(void) arg;                                              \
+                                                                         \
+		const uint32_t chan_a = gpio_get_level(ENCODERN_CHAN_A); \
+		const uint32_t chan_b = gpio_get_level(ENCODERN_CHAN_B); \
+                                                                         \
+		pulse_cnt[ENCODER_N] += ((CHANNEL == ENCODER_CHANNEL_A)  \
+						^ (chan_a ^ chan_b))     \
+			? 1                                              \
+			: -1;                                            \
+	}
+
+
+static ENCODER_CHANNEL_ISR_DECLARATION(ENCODER_LEFT,
+	ENCODER_LEFT_CHAN_A,
+	ENCODER_LEFT_CHAN_B,
+	ENCODER_CHANNEL_A);
+static ENCODER_CHANNEL_ISR_DECLARATION(ENCODER_LEFT,
+	ENCODER_LEFT_CHAN_A,
+	ENCODER_LEFT_CHAN_B,
+	ENCODER_CHANNEL_B);
+static ENCODER_CHANNEL_ISR_DECLARATION(ENCODER_RIGHT,
+	ENCODER_LEFT_CHAN_A,
+	ENCODER_LEFT_CHAN_B,
+	ENCODER_CHANNEL_A);
+static ENCODER_CHANNEL_ISR_DECLARATION(ENCODER_RIGHT,
+	ENCODER_LEFT_CHAN_A,
+	ENCODER_LEFT_CHAN_B,
+	ENCODER_CHANNEL_B);
+// clang-format on
+
 static void ctrl_init();
 static void ctrl_100Hz();
 static void calculate_average_velocity(
 	int16_t left_delta, int16_t right_delta);
-static void encoder0_chan_a(void *arg);
-static void encoder0_chan_b(void *arg);
-static void encoder1_chan_a(void *arg);
-static void encoder1_chan_b(void *arg);
 static void velocity_control(
 	float desired_velocity, float desired_acceleration);
 
-static volatile uint16_t pulse_cnt[2];
+static volatile uint16_t pulse_cnt[ENCODER_COUNT];
 static bool		 speed_alarm;
 static uint8_t		 brake_percent;
 static uint8_t		 throttle_percent;
@@ -80,22 +135,42 @@ ember_rate_funcs_S module_rf = {
 
 static void ctrl_init()
 {
-	gpio_set_direction(ENCODER0_CHAN_A, GPIO_MODE_INPUT);
-	gpio_set_direction(ENCODER0_CHAN_B, GPIO_MODE_INPUT);
-	gpio_set_direction(ENCODER1_CHAN_A, GPIO_MODE_INPUT);
-	gpio_set_direction(ENCODER1_CHAN_B, GPIO_MODE_INPUT);
+	gpio_set_direction(ENCODER_LEFT_CHAN_A, GPIO_MODE_INPUT);
+	gpio_set_direction(ENCODER_LEFT_CHAN_B, GPIO_MODE_INPUT);
+	gpio_set_direction(ENCODER_RIGHT_CHAN_A, GPIO_MODE_INPUT);
+	gpio_set_direction(ENCODER_RIGHT_CHAN_B, GPIO_MODE_INPUT);
 
-	gpio_set_intr_type(ENCODER0_CHAN_A, GPIO_INTR_ANYEDGE);
-	gpio_set_intr_type(ENCODER0_CHAN_B, GPIO_INTR_ANYEDGE);
-	gpio_set_intr_type(ENCODER1_CHAN_A, GPIO_INTR_ANYEDGE);
-	gpio_set_intr_type(ENCODER1_CHAN_B, GPIO_INTR_ANYEDGE);
+	gpio_set_intr_type(ENCODER_LEFT_CHAN_A, GPIO_INTR_ANYEDGE);
+	gpio_set_intr_type(ENCODER_LEFT_CHAN_B, GPIO_INTR_ANYEDGE);
+	gpio_set_intr_type(ENCODER_RIGHT_CHAN_A, GPIO_INTR_ANYEDGE);
+	gpio_set_intr_type(ENCODER_RIGHT_CHAN_B, GPIO_INTR_ANYEDGE);
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-	gpio_isr_handler_add(ENCODER0_CHAN_A, encoder0_chan_a, NULL);
-	gpio_isr_handler_add(ENCODER0_CHAN_B, encoder0_chan_b, NULL);
-	gpio_isr_handler_add(ENCODER1_CHAN_A, encoder1_chan_a, NULL);
-	gpio_isr_handler_add(ENCODER1_CHAN_B, encoder1_chan_b, NULL);
+	gpio_isr_handler_add(ENCODER_LEFT_CHAN_A,
+		ENCODER_CHANNEL_ISR_SYMBOL(ENCODER_LEFT,
+			ENCODER_LEFT_CHAN_A,
+			ENCODER_LEFT_CHAN_B,
+			ENCODER_CHANNEL_A),
+		NULL);
+	gpio_isr_handler_add(ENCODER_LEFT_CHAN_B,
+		ENCODER_CHANNEL_ISR_SYMBOL(ENCODER_LEFT,
+			ENCODER_LEFT_CHAN_A,
+			ENCODER_LEFT_CHAN_B,
+			ENCODER_CHANNEL_B),
+		NULL);
+	gpio_isr_handler_add(ENCODER_RIGHT_CHAN_A,
+		ENCODER_CHANNEL_ISR_SYMBOL(ENCODER_RIGHT,
+			ENCODER_LEFT_CHAN_A,
+			ENCODER_LEFT_CHAN_B,
+			ENCODER_CHANNEL_A),
+		NULL);
+	gpio_isr_handler_add(ENCODER_RIGHT_CHAN_B,
+		ENCODER_CHANNEL_ISR_SYMBOL(ENCODER_RIGHT,
+			ENCODER_LEFT_CHAN_A,
+			ENCODER_LEFT_CHAN_B,
+			ENCODER_CHANNEL_B),
+		NULL);
 
 	selfdrive_pid_init(&pid,
 		KP,
@@ -112,15 +187,19 @@ static void ctrl_init()
 
 static void ctrl_100Hz()
 {
-	static uint16_t prv_pulse_cnt[2];
+	static uint16_t prv_pulse_cnt[ENCODER_COUNT];
 
-	const uint16_t cur_pulse_cnt[2] = {pulse_cnt[0], pulse_cnt[1]};
+	const uint16_t cur_pulse_cnt[ENCODER_COUNT]
+		= {[ENCODER_LEFT]	= pulse_cnt[ENCODER_LEFT],
+			[ENCODER_RIGHT] = pulse_cnt[ENCODER_RIGHT]};
 
-	const int16_t left_delta  = cur_pulse_cnt[0] - prv_pulse_cnt[0];
-	const int16_t right_delta = cur_pulse_cnt[1] - prv_pulse_cnt[1];
+	const int16_t left_delta
+		= cur_pulse_cnt[ENCODER_LEFT] - prv_pulse_cnt[ENCODER_RIGHT];
+	const int16_t right_delta
+		= cur_pulse_cnt[ENCODER_RIGHT] - prv_pulse_cnt[ENCODER_RIGHT];
 
-	prv_pulse_cnt[0] = cur_pulse_cnt[0];
-	prv_pulse_cnt[1] = cur_pulse_cnt[1];
+	prv_pulse_cnt[ENCODER_LEFT]  = cur_pulse_cnt[ENCODER_RIGHT];
+	prv_pulse_cnt[ENCODER_RIGHT] = cur_pulse_cnt[ENCODER_RIGHT];
 
 	calculate_average_velocity(left_delta, right_delta);
 
@@ -206,94 +285,6 @@ static void calculate_average_velocity(int16_t left_delta, int16_t right_delta)
 	average_velocity = ticks_10ms * METERS_PER_TICK * 100;
 }
 
-static void IRAM_ATTR encoder0_chan_a(void *arg)
-{
-	(void) arg;
-
-	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
-	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
-
-	if (chan_a) {
-		if (chan_b) {
-			--pulse_cnt[0];
-		} else {
-			++pulse_cnt[0];
-		}
-	} else {
-		if (chan_b) {
-			++pulse_cnt[0];
-		} else {
-			--pulse_cnt[0];
-		}
-	}
-}
-
-static void IRAM_ATTR encoder0_chan_b(void *arg)
-{
-	(void) arg;
-
-	const uint32_t chan_a = gpio_get_level(ENCODER0_CHAN_A);
-	const uint32_t chan_b = gpio_get_level(ENCODER0_CHAN_B);
-
-	if (chan_b) {
-		if (chan_a) {
-			++pulse_cnt[0];
-		} else {
-			--pulse_cnt[0];
-		}
-	} else {
-		if (chan_a) {
-			--pulse_cnt[0];
-		} else {
-			++pulse_cnt[0];
-		}
-	}
-}
-
-static void IRAM_ATTR encoder1_chan_a(void *arg)
-{
-	(void) arg;
-
-	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
-	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
-
-	if (chan_a) {
-		if (chan_b) {
-			--pulse_cnt[1];
-		} else {
-			++pulse_cnt[1];
-		}
-	} else {
-		if (chan_b) {
-			++pulse_cnt[1];
-		} else {
-			--pulse_cnt[1];
-		}
-	}
-}
-
-static void IRAM_ATTR encoder1_chan_b(void *arg)
-{
-	(void) arg;
-
-	const uint32_t chan_a = gpio_get_level(ENCODER1_CHAN_A);
-	const uint32_t chan_b = gpio_get_level(ENCODER1_CHAN_B);
-
-	if (chan_b) {
-		if (chan_a) {
-			++pulse_cnt[1];
-		} else {
-			--pulse_cnt[1];
-		}
-	} else {
-		if (chan_a) {
-			--pulse_cnt[1];
-		} else {
-			++pulse_cnt[1];
-		}
-	}
-}
-
 static void velocity_control(
 	float desired_velocity, float desired_acceleration)
 {
@@ -358,6 +349,12 @@ void CANTX_populateTemplate_VelocityCommand(
 void CANTX_populateTemplate_EncoderData(
 	struct CAN_TMessage_EncoderData * const m)
 {
-	m->encoderLeft	= pulse_cnt[0];
-	m->encoderRight = pulse_cnt[1];
+	m->encoderLeft	= pulse_cnt[ENCODER_LEFT];
+	m->encoderRight = pulse_cnt[ENCODER_RIGHT];
 }
+
+// clang-format off
+static IRAM_ATTR ENCODER_CHANNEL_ISR(ENCODER_LEFT, ENCODER_LEFT_CHAN_A, ENCODER_LEFT_CHAN_B, ENCODER_CHANNEL_A)
+static IRAM_ATTR ENCODER_CHANNEL_ISR(ENCODER_LEFT, ENCODER_LEFT_CHAN_A, ENCODER_LEFT_CHAN_B, ENCODER_CHANNEL_B)
+static IRAM_ATTR ENCODER_CHANNEL_ISR(ENCODER_RIGHT, ENCODER_LEFT_CHAN_A, ENCODER_LEFT_CHAN_B, ENCODER_CHANNEL_A)
+static IRAM_ATTR ENCODER_CHANNEL_ISR(ENCODER_RIGHT, ENCODER_LEFT_CHAN_A, ENCODER_LEFT_CHAN_B, ENCODER_CHANNEL_B)
