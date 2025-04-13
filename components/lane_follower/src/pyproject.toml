@@ -1,0 +1,8 @@
+[project]
+version = '1.0'
+name = "individual-follower"
+authors = [
+  {name = "Vaibhav Hariani"},
+  {name = "Isaiah Rivera"},
+]
+description = "IGVC lane follower module for a single camera"
