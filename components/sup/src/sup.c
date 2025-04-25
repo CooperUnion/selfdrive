@@ -2,6 +2,7 @@
 
 #include "driver/gpio.h"
 #include "firmware-base/state-machine.h"
+#include "soc/gpio_num.h"
 #include <ember_taskglue.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -10,130 +11,105 @@
 #include <opencan_tx.h>
 
 typedef enum {
-	SEG_A  = 13,
-	SEG_B  = 4,
-	SEG_C  = 7,
-	SEG_D  = 8,
-	SEG_E  = 9,
-	SEG_F  = 12,
-	SEG_G  = 5,
-	SEG_DP = 11,
-	SEG_1  = 1,
-	SEG_2  = 2,
-	SEG_3  = 3,
-	SEG_4  = 6,
-} SEVEN_SEG_PINS;
+	PIN_SEG_A = GPIO_NUM_13,
+	PIN_SEG_B = GPIO_NUM_4,
+	PIN_SEG_C = GPIO_NUM_7,
+	PIN_SEG_D = GPIO_NUM_8,
+	PIN_SEG_E = GPIO_NUM_9,
+	PIN_SEG_F = GPIO_NUM_12,
+	PIN_SEG_1 = GPIO_NUM_1,
+	PIN_SEG_2 = GPIO_NUM_2,
+	PIN_SEG_3 = GPIO_NUM_5,
+} seven_segment_pin_t;
 
-static void bts_authorization();
+static void display_authorization();
 static void init_led();
 static void sup_100Hz();
-static void init_pin(SEVEN_SEG_PINS pin);
-static void set_one();
-static void set_zero();
+static void init_pin(seven_segment_pin_t pin);
+static void set_pins(char bitfield);
 
 
 static bool bbc_authorized;
 static bool throttle_authorized;
 static bool steer_authorized;
 
-
-static const SEVEN_SEG_PINS zero[]
-	= {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F};
-
-static const SEVEN_SEG_PINS one[] = {SEG_B, SEG_C};
+static const char ZERO = 0x3F;
+static const char ONE  = 0x06;
 
 static enum {
-	bbc_state,
-	throttle_state,
-	steer_state
-} current_state = bbc_state;
+	BBC_STATE,
+	THROTTLE_STATE,
+	STEER_STATE,
+	STATES_TOTAL
+} CURRENT_STATE = BBC_STATE;
 
-static void init_pin(SEVEN_SEG_PINS pin)
-{
-	gpio_pad_select_gpio(pin);
-	gpio_set_direction(pin, GPIO_MODE_OUTPUT);
-}
+gpio_config_t pin_init = {.mode = GPIO_MODE_OUTPUT,
+	.pin_bit_mask		= (1ULL << PIN_SEG_A) | (1ULL << PIN_SEG_B)
+		| (1ULL << PIN_SEG_C) | (1ULL << PIN_SEG_D)
+		| (1ULL << PIN_SEG_E) | (1ULL << PIN_SEG_F)
+		| (1ULL << PIN_SEG_1) | (1ULL << PIN_SEG_2)
+		| (1ULL << PIN_SEG_3),
+	.pull_down_en = 0,
+	.pull_up_en   = 0,
+	.intr_type    = GPIO_INTR_DISABLE};
 
 static void init_led()
 {
-	init_pin(SEG_A);
-	init_pin(SEG_B);
-	init_pin(SEG_C);
-	init_pin(SEG_D);
-	init_pin(SEG_E);
-	init_pin(SEG_F);
-	init_pin(SEG_G);
-	init_pin(SEG_DP);
-	init_pin(SEG_1);
-	init_pin(SEG_2);
-	init_pin(SEG_3);
-	init_pin(SEG_4);
-
-	// set default state to 0
-
-	set_zero();
-	gpio_set_level(SEG_1, 1);
-	gpio_set_level(SEG_2, 1);
-	gpio_set_level(SEG_3, 1);
+	gpio_config(&pin_init);
+	set_pins(0x3F);
+	gpio_set_level(PIN_SEG_1, 1);
+	gpio_set_level(PIN_SEG_2, 1);
+	gpio_set_level(PIN_SEG_3, 1);
 }
 
-static void set_one()
+static void set_pins(char bitfield)
 {
-	for (int i = 0; i < 6; i++) {
-		gpio_set_level(zero[i], 1);
-	}
-	for (int i = 0; i < 2; i++) {
-		gpio_set_level(one[i], 0);
-	}
-	gpio_set_level(SEG_G, 1);
+	gpio_set_level(PIN_SEG_A, !((bitfield >> 0) & 1));
+	gpio_set_level(PIN_SEG_B, !((bitfield >> 1) & 1));
+	gpio_set_level(PIN_SEG_C, !((bitfield >> 2) & 1));
+	gpio_set_level(PIN_SEG_D, !((bitfield >> 3) & 1));
+	gpio_set_level(PIN_SEG_E, !((bitfield >> 4) & 1));
+	gpio_set_level(PIN_SEG_F, !((bitfield >> 5) & 1));
 }
 
-static void set_zero()
+static void display_authorization()
 {
-	for (int i = 0; i < 6; i++) {
-		gpio_set_level(zero[i], 0);  // active low
-	}
-	gpio_set_level(SEG_G, 1);
-}
-
-static void bts_authorization()
-{
-	if (current_state == bbc_state) {
+	if (CURRENT_STATE == BBC_STATE) {
 		if (bbc_authorized) {
 			// if bbc is authorized, show 0
-			set_zero();
+			set_pins(ZERO);
 		} else {
 			// if not authorized, show 1
-			set_one();
+			set_pins(ONE);
 		}
-		gpio_set_level(SEG_1, 1);
-		gpio_set_level(SEG_2, 0);
-		gpio_set_level(SEG_3, 0);
-	} else if (current_state == throttle_state) {
+		gpio_set_level(PIN_SEG_1, 1);
+		gpio_set_level(PIN_SEG_2, 0);
+		gpio_set_level(PIN_SEG_3, 0);
+	} else if (CURRENT_STATE == THROTTLE_STATE) {
 		if (throttle_authorized) {
-			set_zero();
+			set_pins(ZERO);
 		} else {
-			set_one();
+			set_pins(ONE);
 		}
-		gpio_set_level(SEG_1, 0);
-		gpio_set_level(SEG_2, 1);
-		gpio_set_level(SEG_3, 0);
-	} else if (current_state == steer_state) {
+		gpio_set_level(PIN_SEG_1, 0);
+		gpio_set_level(PIN_SEG_2, 1);
+		gpio_set_level(PIN_SEG_3, 0);
+	} else if (CURRENT_STATE == STEER_STATE) {
 		if (steer_authorized) {
-			set_zero();
+			set_pins(ZERO);
 		} else {
-			set_one();
+			set_pins(ONE);
 		}
-		gpio_set_level(SEG_1, 0);
-		gpio_set_level(SEG_2, 0);
-		gpio_set_level(SEG_3, 1);
+		gpio_set_level(PIN_SEG_1, 0);
+		gpio_set_level(PIN_SEG_2, 0);
+		gpio_set_level(PIN_SEG_3, 1);
 	}
-	current_state = (current_state + 1) % 3;
+	CURRENT_STATE = (CURRENT_STATE + 1) % STATES_TOTAL;
 }
 
 ember_rate_funcs_S module_rf = {
 	.call_init  = init_led,
-	.call_1kHz  = bts_authorization,
+	.call_1kHz  = display_authorization,
 	.call_100Hz = sup_100Hz,
 };
 
